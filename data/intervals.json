@@ -1,0 +1,35 @@
+[
+  {
+    "semitones": 0,
+    "name": "P1",
+    "verbal": "perfect unison",
+    "diatonic_class": "1",
+    "quality": "perfect",
+    "inversion": 0,
+    "cents": 0.0,
+    "ratio": "1:1",
+    "category": "consonant"
+  },
+  {
+    "semitones": 1,
+    "name": "m2",
+    "verbal": "minor second",
+    "diatonic_class": "2",
+    "quality": "minor",
+    "inversion": 11,
+    "cents": 100.0,
+    "ratio": null,
+    "category": "dissonant"
+  },
+  {
+    "semitones": 2,
+    "name": "M2",
+    "verbal": "major second",
+    "diatonic_class": "2",
+    "quality": "major",
+    "inversion": 10,
+    "cents": 200.0,
+    "ratio": null,
+    "category": "dissonant"
+  }
+]

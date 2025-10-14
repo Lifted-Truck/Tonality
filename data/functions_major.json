@@ -1,0 +1,20 @@
+[
+  {
+    "degree_pc": 0,
+    "chord_quality": "maj7",
+    "role": "tonic",
+    "modal_label": "I"
+  },
+  {
+    "degree_pc": 2,
+    "chord_quality": "min7",
+    "role": "subdominant",
+    "modal_label": "ii"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "7",
+    "role": "dominant",
+    "modal_label": "V"
+  }
+]

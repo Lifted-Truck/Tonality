@@ -1,0 +1,14 @@
+[
+  {
+    "degree_pc": 0,
+    "chord_quality": "min7",
+    "role": "tonic",
+    "modal_label": "i"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "7",
+    "role": "dominant",
+    "modal_label": "V"
+  }
+]

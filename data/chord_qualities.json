@@ -1,0 +1,17 @@
+[
+  {
+    "name": "maj7",
+    "intervals": [0, 4, 7, 11],
+    "tensions": [2, 9]
+  },
+  {
+    "name": "min7",
+    "intervals": [0, 3, 7, 10],
+    "tensions": [2, 5, 9]
+  },
+  {
+    "name": "7",
+    "intervals": [0, 4, 7, 10],
+    "tensions": [2, 6, 9]
+  }
+]
