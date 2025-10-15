@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Ionian",
+    "degrees": [0, 2, 4, 5, 7, 9, 11]
+  },
+  {
+    "name": "Dorian",
+    "degrees": [0, 2, 3, 5, 7, 9, 10]
+  },
+  {
+    "name": "Whole Tone",
+    "degrees": [0, 2, 4, 6, 8, 10]
+  }
+]
