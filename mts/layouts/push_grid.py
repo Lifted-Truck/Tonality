@@ -42,19 +42,17 @@ _ANSI = {
     "fg_bright_white": "\x1b[97m",
 }
 
-def _paint(s, *, fg=None, bold=False, dim=False):
-    ANSI = {
-        "reset": "\x1b[0m", "bold": "\x1b[1m", "dim": "\x1b[2m",
-        "fg_green": "\x1b[32m", "fg_yellow": "\x1b[33m",
-        "fg_cyan": "\x1b[36m", "fg_bright_cyan": "\x1b[96m",
-        "fg_bright_black": "\x1b[90m", "fg_red": "\x1b[31m",
-        "fg_bright_magenta": "\x1b[95m",
-    }
+def _paint(s: str, *, fg: str | None = None, bold: bool = False, dim: bool = False) -> str:
     parts = []
-    if bold: parts.append(ANSI["bold"])
-    if dim: parts.append(ANSI["dim"])
-    if fg: parts.append(ANSI[fg])
-    return ("".join(parts) + s + ANSI["reset"]) if parts else s
+    if bold:
+        parts.append(_ANSI["bold"])
+    if dim:
+        parts.append(_ANSI["dim"])
+    if fg:
+        parts.append(_ANSI[fg])
+    if not parts:
+        return s
+    return "".join(parts) + s + _ANSI["reset"]
 
 def _degree_for_pc(pc: int, tonic_pc: int) -> str:
     rel = (pc - (tonic_pc % 12)) % 12
@@ -219,28 +217,35 @@ class PushGrid:
                     continue
 
                 # Decide style by priority (highest → lowest):
-                # chord tonic > chord root > chord out-of-key > chord in-key > tonic-only > non-chord in-key > non-chord OOK
+                # tonic in chord > tonic (not in chord) > chord root (in key) > chord root (out of key)
+                # > chord tone (in/out) > in-key non-chord > out-of-key non-chord
                 is_chord = cell.in_chord
                 is_tonic = cell.is_tonic
                 is_in_key = cell.in_key
                 is_chord_root = (self.chord_root_pc is not None) and ((cell.pc % 12) == self.chord_root_pc)
 
-                if is_chord and is_tonic:
-                    colored = _paint(tok, fg="fg_bright_cyan", bold=True)          # tonic AND in chord (distinct from tonic-only)
-                elif is_chord and is_chord_root:
-                    colored = _paint(tok, fg="fg_bright_magenta", bold=True)        # chord root (non-tonic)
-                elif is_chord and not is_in_key:
-                    colored = _paint(tok, fg="fg_red", bold=True)                   # chord tone out of key
-                elif is_chord and is_in_key:
-                    colored = _paint(tok, fg="fg_yellow", bold=True)                # chord tone in key
+                if is_chord_root and is_tonic:
+                    colored = _paint(tok, fg="fg_bright_magenta", bold=True)
+                elif is_chord and is_tonic:
+                    colored = _paint(tok, fg="fg_bright_cyan", bold=True)                  # tonic also in chord
                 elif is_tonic:
-                    colored = _paint(tok, fg="fg_cyan", bold=True)                  # tonic-only (not in chord)
+                    colored = _paint(tok, fg="fg_cyan", bold=True)                         # tonic not in chord
+                elif is_chord_root and not is_in_key:
+                    colored = _paint(tok, fg="fg_bright_red", bold=True)                   # chord root out of key
+                elif is_chord_root:
+                    colored = _paint(tok, fg="fg_bright_yellow", bold=True)                # chord root in key
+                elif is_chord and not is_in_key:
+                    colored = _paint(tok, fg="fg_red", bold=True)                          # chord tone out of key
+                elif is_chord and is_in_key:
+                    colored = _paint(tok, fg="fg_yellow", bold=True)                       # chord tone in key
                 elif is_in_key:
-                    colored = _paint(tok, fg="fg_green")                            # in key (non-chord)
+                    colored = _paint(tok, fg="fg_white")                                   # in-key non-chord
                 else:
-                    colored = _paint(tok, fg="fg_bright_black", dim=True)           # out of key (non-chord)
+                    colored = _paint(tok, fg="fg_bright_black", dim=True)                  # out-of-key non-chord
 
-                tokens.append(colored)          
+                tokens.append(colored)
+
+          
             lines.append(" ".join(tokens))
         return lines
 

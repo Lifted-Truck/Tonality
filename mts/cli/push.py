@@ -173,16 +173,24 @@ def main(argv: Optional[list[str]] = None) -> None:
 
     # Print legend (colored if active)
     if use_color:
-        legend = "Legend: " \
-         + _paint("tonic in chord", fg="fg_bright_cyan", bold=True) + ", " \
-         + _paint("tonic only", fg="fg_cyan", bold=True) + ", " \
-         + _paint("chord root", fg="fg_bright_magenta", bold=True) + ", " \
-         + _paint("chord OOK", fg="fg_red", bold=True) + ", " \
-         + _paint("chord in-key", fg="fg_yellow", bold=True) + ", " \
-         + _paint("in-key", fg="fg_green") + ", " \
-         + _paint("out-of-key", fg="fg_bright_black", dim=True)
+        legend = (
+            "Legend: "
+            + _paint("tonic + chord root", fg="fg_bright_magenta", bold=True) + ", "
+            + _paint("tonic in chord", fg="fg_bright_cyan", bold=True) + ", "
+            + _paint("tonic", fg="fg_cyan", bold=True) + ", "
+            + _paint("chord root (in key)", fg="fg_bright_yellow", bold=True) + ", "
+            + _paint("chord root (out of key)", fg="fg_bright_red", bold=True) + ", "
+            + _paint("chord tone (in key)", fg="fg_yellow", bold=True) + ", "
+            + _paint("chord tone (out of key)", fg="fg_red", bold=True) + ", "
+            + _paint("in key", fg="fg_white") + ", "
+            + _paint("out of key", fg="fg_bright_black", dim=True)
+        )
     else:
-        legend = "Legend: chord tonic, chord root, chord OOK, chord in-key, in-key, out-of-key"
+        legend = (
+            "Legend: tonic + chord root, tonic in chord, tonic, "
+            "chord root (in key), chord root (out of key), "
+            "chord tone (in key), chord tone (out of key), in key, out of key"
+        )
     print(legend)
 
     # Render
