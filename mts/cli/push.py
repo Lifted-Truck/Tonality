@@ -33,7 +33,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--color", choices=["auto", "always", "never"], default="auto",
                    help="Enable ANSI colors: auto (default), always, or never.")
     p.add_argument("--tonic-mode", choices=["distinct", "blend"], default="distinct",
-               help="Color priority for tonic: 'distinct' keeps a unique tonic color; 'blend' lets in-scale color override tonic.")
+                   help="Color priority for tonic: 'distinct' keeps a unique tonic color; 'blend' lets in-scale color override tonic.")
+    p.add_argument("--blocks", action="store_true",
+                   help="After the text grid, print a compact color-block grid.")
+    p.add_argument("--block-char", default="■",
+                   help="Glyph for the block grid (e.g., ■ ● □ ▣). Default: ■")
+
     # Labels
     p.add_argument("--degrees", action="store_true", help="Use degree labels instead of note names.")
     p.add_argument("--spelling", choices=["auto", "sharps", "flats"], default="auto",
@@ -51,6 +56,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     # Utilities
     p.add_argument("--list-scales", action="store_true", help="List available scales then exit.")
     p.add_argument("--list-qualities", action="store_true", help="List available chord qualities then exit.")
+    p.add_argument("--strict-in-scale", dest="strict_in_scale", action="store_true", default=True,
+               help="(default: on) When mode=in_scale, abort if the chord contains out-of-key tones. Use --no-strict-in-scale to disable.")
+    p.add_argument("--no-strict-in-scale", dest="strict_in_scale", action="store_false",
+               help="Disable strict in-scale validation (allow chords with out-of-key tones).")
     return p
 
 def main(argv: Optional[list[str]] = None) -> None:
@@ -107,6 +116,46 @@ def main(argv: Optional[list[str]] = None) -> None:
     else:
         # No chord: leave empty; grid will show '-' markers
         pass
+
+    # --- In-scale sanity check: warn or error if chord contains out-of-key tones ---
+    if args.mode == "in_scale" and chord_pcs:
+        relset = set(scale_degrees)  # degrees relative to tonic (0..11)
+        # find out-of-key chord pcs relative to tonic
+        ook_abs = [pc for pc in chord_pcs if ((pc - tonic_pc) % 12) not in relset]
+
+        if ook_abs:
+            # pretty-print names with current spelling prefs
+            ook_names = [name_for_pc(pc, prefer=args.spelling, key_signature=args.key_sig) for pc in ook_abs]
+            root_is_ook = ('chord_root_pc' in locals()) and (((chord_root_pc - tonic_pc) % 12) not in relset)
+
+            # tiny ANSI helper (CLI-only)
+            def _warn_paint(text, *, fg=None, bold=False, dim=False):
+                ANSI = {
+                    "reset": "\x1b[0m", "bold": "\x1b[1m", "dim": "\x1b[2m",
+                    "fg_yellow": "\x1b[33m", "fg_red": "\x1b[31m",
+                    "fg_bright_red": "\x1b[91m", "fg_bright_black": "\x1b[90m",
+                }
+                parts = []
+                if bold: parts.append(ANSI["bold"])
+                if dim: parts.append(ANSI["dim"])
+                if fg: parts.append(ANSI[fg])
+                return ("".join(parts) + text + ANSI["reset"]) if parts else text
+
+            summary = ", ".join(ook_names)
+            extra = " " + _warn_paint("(root is out of key)", fg="fg_bright_red", bold=True) if root_is_ook else ""
+
+            if args.strict_in_scale:
+                print(_warn_paint("ERROR: ", fg="fg_bright_red", bold=True) +
+                      f"Chord contains out-of-key tones in in_scale mode: {summary}{extra}")
+                import sys as _sys
+                _sys.exit(2)
+            else:
+                print(_warn_paint("Warning: ", fg="fg_yellow", bold=True) +
+                      f"Chord contains out-of-key tones: {summary}{extra}")
+                if args.hide_ook:
+                    print(_warn_paint("Note: out-of-key pads will be elided in this view.",
+                                      fg="fg_bright_black", dim=True))
+
 
     # Build grid
     g = PushGrid(
@@ -193,10 +242,15 @@ def main(argv: Optional[list[str]] = None) -> None:
         )
     print(legend)
 
-    # Render
+    # Render text grid
     for line in g.render_lines():
         print(line)
 
+    # Optional compact color-block grid
+    if args.blocks:
+        print()  # spacer
+        for line in g.render_block_lines(char=args.block_char):
+            print(line)
 
 if __name__ == "__main__":
     main()

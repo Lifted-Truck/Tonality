@@ -248,6 +248,61 @@ class PushGrid:
           
             lines.append(" ".join(tokens))
         return lines
+    
+    def render_block_lines(self, char: str = "■") -> list[str]:
+        """
+        Return lines of colored blocks (e.g., '■') mirroring the text grid.
+        Uses the same color priority as render_lines(), but prints a single glyph per pad.
+        """
+        import sys
+        want_color = getattr(self, "color_mode", "auto")
+        if want_color == "never":
+            do_color = False
+        elif want_color == "always":
+            do_color = True
+        else:
+            do_color = sys.stdout.isatty()
+
+        lines: list[str] = []
+        for row in self.cells:
+            tokens: list[str] = []
+            for cell in row:
+                glyph = char
+
+                if not do_color:
+                    tokens.append(glyph)
+                    continue
+
+                # EXACTLY the same priority you finalized for the text grid:
+                is_chord = cell.in_chord
+                is_tonic = cell.is_tonic
+                is_in_key = cell.in_key
+                is_chord_root = (self.chord_root_pc is not None) and ((cell.pc % 12) == self.chord_root_pc)
+
+                if is_tonic and is_chord_root:
+                    colored = _paint(glyph, fg="fg_bright_magenta", bold=True)  # tonic + chord root
+                elif is_chord and is_tonic:
+                    colored = _paint(glyph, fg="fg_bright_cyan", bold=True)     # tonic in chord (not root)
+                elif is_tonic:
+                    colored = _paint(glyph, fg="fg_cyan", bold=True)            # tonic only
+                elif is_chord_root and not is_in_key:
+                    colored = _paint(glyph, fg="fg_bright_red", bold=True)      # chord root OOK
+                elif is_chord_root:
+                    colored = _paint(glyph, fg="fg_bright_yellow", bold=True)   # chord root in key
+                elif is_chord and not is_in_key:
+                    colored = _paint(glyph, fg="fg_red", bold=True)             # chord tone OOK
+                elif is_chord and is_in_key:
+                    colored = _paint(glyph, fg="fg_yellow", bold=True)          # chord tone in key
+                elif is_in_key:
+                    colored = _paint(glyph, fg="fg_white")                      # in key (non-chord)
+                else:
+                    colored = _paint(glyph, fg="fg_bright_black", dim=True)     # out of key (non-chord)
+
+                tokens.append(colored)
+            # two spaces between blocks keeps it readable in most terminals
+            lines.append("  ".join(tokens))
+        return lines
+    
 
     # ---- internal helpers for row construction ----
 
