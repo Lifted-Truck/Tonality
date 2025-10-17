@@ -1,9 +1,5 @@
-from __future__ import annotations
-
 import sys
 from pathlib import Path
-
-# ensure parent directory (project root) is in path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from mts.io.loaders import load_scales, load_chord_qualities
@@ -19,34 +15,45 @@ def main() -> None:
     scales = load_scales()
     qualities = load_chord_qualities()
     ionian = scales["Ionian"]
-
-    # Context: key of C Ionian, chord Cmaj7
     chord = Chord.from_quality(0, qualities["maj7"])
     chord_pcs = list(chord.pcs)
 
-    # 1) Chromatic, fixed C, Fourths, names
-    g1 = PushGrid(preset="fourths", anchor="fixed_C",
-                  tonic_pc=0, scale_degrees_rel=list(ionian.degrees),
-                  chord_pcs_abs=chord_pcs,
-                  layout_mode="chromatic", hide_out_of_key=False,
-                  degree_style="names", spelling="auto")
-    show("Chromatic • Fixed C • Fourths • Names", g1)
+    # C Ionian, prefer flats for C? keep 'auto' but provide key_signature=0 (neutral)
+    # Try setting key_signature=-1 (F major family) to see flats preferred.
+    key_sig = 0  # change to -1 or +1 to see auto flats/sharps
 
-    # 2) In-scale, fixed_root, degrees (flats), hide OOK
-    g2 = PushGrid(preset="fourths", anchor="fixed_root", root_pc=0,
-                  tonic_pc=0, scale_degrees_rel=list(ionian.degrees),
-                  chord_pcs_abs=chord_pcs,
-                  layout_mode="in_scale", hide_out_of_key=True,
-                  degree_style="degrees", spelling="flats")
-    show("In-Scale • Fixed Root • Fourths • Degrees (flats) • Hidden OOK", g2)
+    # 1) Chromatic, fixed C, Fourths, names, origin=lower
+    g1 = PushGrid(
+        preset="fourths", anchor="fixed_C", origin="lower",
+        tonic_pc=0, scale_degrees_rel=list(ionian.degrees),
+        chord_pcs_abs=chord_pcs,
+        layout_mode="chromatic", hide_out_of_key=False,
+        degree_style="names", spelling="auto",
+        key_signature=key_sig,
+    )
+    show("Chromatic • Fixed C • Fourths • Names • Origin=lower", g1)
 
-    # 3) Try other presets
+    # 2) In-scale, fixed_root, degrees (flats), hide OOK, origin=lower
+    g2 = PushGrid(
+        preset="fourths", anchor="fixed_root", root_pc=0, origin="lower",
+        tonic_pc=0, scale_degrees_rel=list(ionian.degrees),
+        chord_pcs_abs=chord_pcs,
+        layout_mode="in_scale", hide_out_of_key=True,
+        degree_style="degrees", spelling="flats",
+        key_signature=-1,  # demonstrate flats bias
+    )
+    show("In-Scale • Fixed Root • Fourths • Degrees (flats) • Hidden OOK • Origin=lower", g2)
+
+    # 3) Thirds and Sequential previews with origin=lower
     for preset in ("thirds", "sequential"):
-        g3 = PushGrid(preset=preset, anchor="fixed_C",
-                      tonic_pc=0, scale_degrees_rel=list(ionian.degrees),
-                      chord_pcs_abs=chord_pcs,
-                      layout_mode="chromatic", degree_style="names")
-        show(f"Chromatic • Fixed C • {preset.title()} • Names", g3)
+        g3 = PushGrid(
+            preset=preset, anchor="fixed_C", origin="lower",
+            tonic_pc=0, scale_degrees_rel=list(ionian.degrees),
+            chord_pcs_abs=chord_pcs,
+            layout_mode="chromatic", degree_style="names",
+            key_signature=key_sig,
+        )
+        show(f"Chromatic • Fixed C • {preset.title()} • Names • Origin=lower", g3)
 
 if __name__ == "__main__":
     main()
