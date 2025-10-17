@@ -1,14 +1,387 @@
 [
   {
     "degree_pc": 0,
-    "chord_quality": "min7",
+    "chord_quality": "min",
+    "intervals": [0, 3, 7],
     "role": "tonic",
     "modal_label": "i"
   },
   {
+    "degree_pc": 0,
+    "chord_quality": "minadd9",
+    "intervals": [0, 2, 3, 7],
+    "role": "tonic",
+    "modal_label": "iadd9"
+  },
+  {
+    "degree_pc": 0,
+    "chord_quality": "min6",
+    "intervals": [0, 3, 7, 9],
+    "role": "tonic",
+    "modal_label": "i6"
+  },
+  {
+    "degree_pc": 0,
+    "chord_quality": "min6add9",
+    "intervals": [0, 2, 3, 7, 9],
+    "role": "tonic",
+    "modal_label": "i6add9"
+  },
+  {
+    "degree_pc": 0,
+    "chord_quality": "min7",
+    "intervals": [0, 3, 7, 10],
+    "role": "tonic",
+    "modal_label": "i7"
+  },
+  {
+    "degree_pc": 0,
+    "chord_quality": "min9",
+    "intervals": [0, 2, 3, 7, 10],
+    "role": "tonic",
+    "modal_label": "i9"
+  },
+  {
+    "degree_pc": 0,
+    "chord_quality": "min11",
+    "intervals": [0, 2, 3, 5, 7, 10],
+    "role": "tonic",
+    "modal_label": "i11"
+  },
+  {
+    "degree_pc": 0,
+    "chord_quality": "min13",
+    "intervals": [0, 2, 3, 7, 9, 10],
+    "role": "tonic",
+    "modal_label": "i13"
+  },
+  {
+    "degree_pc": 0,
+    "chord_quality": "minmaj7",
+    "intervals": [0, 3, 7, 11],
+    "role": "tonic",
+    "modal_label": "imaj7"
+  },
+  {
+    "degree_pc": 2,
+    "chord_quality": "dim",
+    "intervals": [0, 3, 6],
+    "role": "subdominant",
+    "modal_label": "iidim"
+  },
+  {
+    "degree_pc": 2,
+    "chord_quality": "min7b5",
+    "intervals": [0, 3, 6, 10],
+    "role": "subdominant",
+    "modal_label": "ii_half_dim7"
+  },
+  {
+    "degree_pc": 2,
+    "chord_quality": "dim7",
+    "intervals": [0, 3, 6, 9],
+    "role": "subdominant",
+    "modal_label": "iidim7"
+  },
+  {
+    "degree_pc": 3,
+    "chord_quality": "maj",
+    "intervals": [0, 4, 7],
+    "role": "tonic",
+    "modal_label": "bIII"
+  },
+  {
+    "degree_pc": 3,
+    "chord_quality": "majadd9",
+    "intervals": [0, 2, 4, 7],
+    "role": "tonic",
+    "modal_label": "bIIIadd9"
+  },
+  {
+    "degree_pc": 3,
+    "chord_quality": "maj6",
+    "intervals": [0, 4, 7, 9],
+    "role": "tonic",
+    "modal_label": "bIII6"
+  },
+  {
+    "degree_pc": 3,
+    "chord_quality": "maj7",
+    "intervals": [0, 4, 7, 11],
+    "role": "tonic",
+    "modal_label": "bIIImaj7"
+  },
+  {
+    "degree_pc": 3,
+    "chord_quality": "maj9",
+    "intervals": [0, 2, 4, 7, 11],
+    "role": "tonic",
+    "modal_label": "bIIImaj9"
+  },
+  {
+    "degree_pc": 3,
+    "chord_quality": "maj13",
+    "intervals": [0, 2, 4, 7, 9, 11],
+    "role": "tonic",
+    "modal_label": "bIIImaj13"
+  },
+  {
+    "degree_pc": 5,
+    "chord_quality": "min",
+    "intervals": [0, 3, 7],
+    "role": "subdominant",
+    "modal_label": "iv"
+  },
+  {
+    "degree_pc": 5,
+    "chord_quality": "minadd9",
+    "intervals": [0, 2, 3, 7],
+    "role": "subdominant",
+    "modal_label": "ivadd9"
+  },
+  {
+    "degree_pc": 5,
+    "chord_quality": "min6",
+    "intervals": [0, 3, 7, 9],
+    "role": "subdominant",
+    "modal_label": "iv6"
+  },
+  {
+    "degree_pc": 5,
+    "chord_quality": "min7",
+    "intervals": [0, 3, 7, 10],
+    "role": "subdominant",
+    "modal_label": "iv7"
+  },
+  {
+    "degree_pc": 5,
+    "chord_quality": "min9",
+    "intervals": [0, 2, 3, 7, 10],
+    "role": "subdominant",
+    "modal_label": "iv9"
+  },
+  {
+    "degree_pc": 5,
+    "chord_quality": "min11",
+    "intervals": [0, 2, 3, 5, 7, 10],
+    "role": "subdominant",
+    "modal_label": "iv11"
+  },
+  {
+    "degree_pc": 5,
+    "chord_quality": "min13",
+    "intervals": [0, 2, 3, 7, 9, 10],
+    "role": "subdominant",
+    "modal_label": "iv13"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "min",
+    "intervals": [0, 3, 7],
+    "role": "dominant",
+    "modal_label": "v"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "min7",
+    "intervals": [0, 3, 7, 10],
+    "role": "dominant",
+    "modal_label": "v7"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "7sus4",
+    "intervals": [0, 5, 7, 10],
+    "role": "dominant",
+    "modal_label": "Vsus4"
+  },
+  {
     "degree_pc": 7,
     "chord_quality": "7",
+    "intervals": [0, 4, 7, 10],
     "role": "dominant",
-    "modal_label": "V"
+    "modal_label": "V7"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "9",
+    "intervals": [0, 2, 4, 7, 10],
+    "role": "dominant",
+    "modal_label": "V9"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "9b5",
+    "intervals": [0, 2, 4, 6, 10],
+    "role": "dominant",
+    "modal_label": "V9b5"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "9#5",
+    "intervals": [0, 2, 4, 8, 10],
+    "role": "dominant",
+    "modal_label": "V9#5"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "11",
+    "intervals": [0, 2, 4, 5, 7, 10],
+    "role": "dominant",
+    "modal_label": "V11"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "13",
+    "intervals": [0, 2, 4, 7, 9, 10],
+    "role": "dominant",
+    "modal_label": "V13"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "7b5",
+    "intervals": [0, 4, 6, 10],
+    "role": "dominant",
+    "modal_label": "V7b5"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "7#5",
+    "intervals": [0, 4, 8, 10],
+    "role": "dominant",
+    "modal_label": "V7#5"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "7b9",
+    "intervals": [0, 4, 7, 10],
+    "role": "dominant",
+    "modal_label": "V7b9"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "7#9",
+    "intervals": [0, 4, 7, 10],
+    "role": "dominant",
+    "modal_label": "V7#9"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "7#11",
+    "intervals": [0, 4, 6, 7, 10],
+    "role": "dominant",
+    "modal_label": "V7#11"
+  },
+  {
+    "degree_pc": 7,
+    "chord_quality": "7alt",
+    "intervals": [0, 4, 10],
+    "role": "dominant",
+    "modal_label": "Valt"
+  },
+  {
+    "degree_pc": 8,
+    "chord_quality": "maj",
+    "intervals": [0, 4, 7],
+    "role": "subdominant",
+    "modal_label": "bVI"
+  },
+  {
+    "degree_pc": 8,
+    "chord_quality": "majadd9",
+    "intervals": [0, 2, 4, 7],
+    "role": "subdominant",
+    "modal_label": "bVIadd9"
+  },
+  {
+    "degree_pc": 8,
+    "chord_quality": "maj6",
+    "intervals": [0, 4, 7, 9],
+    "role": "subdominant",
+    "modal_label": "bVI6"
+  },
+  {
+    "degree_pc": 8,
+    "chord_quality": "maj7",
+    "intervals": [0, 4, 7, 11],
+    "role": "subdominant",
+    "modal_label": "bVImaj7"
+  },
+  {
+    "degree_pc": 8,
+    "chord_quality": "maj9",
+    "intervals": [0, 2, 4, 7, 11],
+    "role": "subdominant",
+    "modal_label": "bVImaj9"
+  },
+  {
+    "degree_pc": 8,
+    "chord_quality": "maj13",
+    "intervals": [0, 2, 4, 7, 9, 11],
+    "role": "subdominant",
+    "modal_label": "bVImaj13"
+  },
+  {
+    "degree_pc": 10,
+    "chord_quality": "maj",
+    "intervals": [0, 4, 7],
+    "role": "dominant",
+    "modal_label": "bVII"
+  },
+  {
+    "degree_pc": 10,
+    "chord_quality": "majadd9",
+    "intervals": [0, 2, 4, 7],
+    "role": "dominant",
+    "modal_label": "bVIIadd9"
+  },
+  {
+    "degree_pc": 10,
+    "chord_quality": "7sus4",
+    "intervals": [0, 5, 7, 10],
+    "role": "dominant",
+    "modal_label": "bVIIsus4"
+  },
+  {
+    "degree_pc": 10,
+    "chord_quality": "7",
+    "intervals": [0, 4, 7, 10],
+    "role": "dominant",
+    "modal_label": "bVII7"
+  },
+  {
+    "degree_pc": 10,
+    "chord_quality": "9",
+    "intervals": [0, 2, 4, 7, 10],
+    "role": "dominant",
+    "modal_label": "bVII9"
+  },
+  {
+    "degree_pc": 10,
+    "chord_quality": "13",
+    "intervals": [0, 2, 4, 7, 9, 10],
+    "role": "dominant",
+    "modal_label": "bVII13"
+  },
+  {
+    "degree_pc": 11,
+    "chord_quality": "dim",
+    "intervals": [0, 3, 6],
+    "role": "dominant",
+    "modal_label": "viidim"
+  },
+  {
+    "degree_pc": 11,
+    "chord_quality": "min7b5",
+    "intervals": [0, 3, 6, 10],
+    "role": "dominant",
+    "modal_label": "vii_half_dim7"
+  },
+  {
+    "degree_pc": 11,
+    "chord_quality": "dim7",
+    "intervals": [0, 3, 6, 9],
+    "role": "dominant",
+    "modal_label": "viidim7"
   }
 ]
