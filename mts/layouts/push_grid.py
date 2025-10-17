@@ -20,6 +20,42 @@ _BASE_DEGREE = {
     10: "b7", 11: "7",
 }
 
+_ANSI = {
+    "reset": "\x1b[0m",
+    "bold": "\x1b[1m",
+    "dim": "\x1b[2m",
+    "fg_black": "\x1b[30m",
+    "fg_red": "\x1b[31m",
+    "fg_green": "\x1b[32m",
+    "fg_yellow": "\x1b[33m",
+    "fg_blue": "\x1b[34m",
+    "fg_magenta": "\x1b[35m",
+    "fg_cyan": "\x1b[36m",
+    "fg_white": "\x1b[37m",
+    "fg_bright_black": "\x1b[90m",
+    "fg_bright_red": "\x1b[91m",
+    "fg_bright_green": "\x1b[92m",
+    "fg_bright_yellow": "\x1b[93m",
+    "fg_bright_blue": "\x1b[94m",
+    "fg_bright_magenta": "\x1b[95m",
+    "fg_bright_cyan": "\x1b[96m",
+    "fg_bright_white": "\x1b[97m",
+}
+
+def _paint(s, *, fg=None, bold=False, dim=False):
+    ANSI = {
+        "reset": "\x1b[0m", "bold": "\x1b[1m", "dim": "\x1b[2m",
+        "fg_green": "\x1b[32m", "fg_yellow": "\x1b[33m",
+        "fg_cyan": "\x1b[36m", "fg_bright_cyan": "\x1b[96m",
+        "fg_bright_black": "\x1b[90m", "fg_red": "\x1b[31m",
+        "fg_bright_magenta": "\x1b[95m",
+    }
+    parts = []
+    if bold: parts.append(ANSI["bold"])
+    if dim: parts.append(ANSI["dim"])
+    if fg: parts.append(ANSI[fg])
+    return ("".join(parts) + s + ANSI["reset"]) if parts else s
+
 def _degree_for_pc(pc: int, tonic_pc: int) -> str:
     rel = (pc - (tonic_pc % 12)) % 12
     return _BASE_DEGREE[rel]
@@ -85,6 +121,7 @@ class PushGrid:
     preset: LayoutPreset = "fourths"
     anchor: AnchorMode = "fixed_C"
     root_pc: int = 0
+    chord_root_pc: Optional[int] = None
     origin: Origin = "lower"                # NEW default
 
     # musical context
@@ -97,7 +134,14 @@ class PushGrid:
     hide_out_of_key: bool = False
     degree_style: DegreeStyle = "names"
     spelling: SpellingPref = "auto"
-    key_signature: Optional[int] = None     # NEW
+    key_signature: Optional[int] = None
+
+    # NEW: colorization control is delegated by the CLI via a property
+    # We won't persist it as a dataclass field to avoid changing ctor signatures;
+    # the CLI will set this attribute on the instance after construction.
+    # Fallback default if not set by caller:
+    color_mode: str = "auto"   # "auto" | "always" | "never"
+    tonic_mode: str = "distinct"  # "distinct" | "blend"
 
     # internal
     cells: List[List[PushCell]] = field(init=False)
@@ -111,8 +155,9 @@ class PushGrid:
         self.scale_degrees_rel = None if scale_degrees_rel is None else [d % 12 for d in scale_degrees_rel]
         self.rebuild()
 
-    def set_chord(self, chord_pcs_abs: Optional[List[int]]) -> None:
+    def set_chord(self, chord_pcs_abs: Optional[List[int]], chord_root_pc: Optional[int] = None) -> None:
         self.chord_pcs_abs = None if chord_pcs_abs is None else [p % 12 for p in chord_pcs_abs]
+        self.chord_root_pc = None if chord_root_pc is None else (chord_root_pc % 12)
         self.rebuild()
 
     def set_preset(self, preset: LayoutPreset) -> None:
@@ -143,6 +188,61 @@ class PushGrid:
         if degree_style: self.degree_style = degree_style
         if spelling: self.spelling = spelling
         self.rebuild()
+
+    def render_lines(self) -> List[str]:
+        """
+        Return list of rendered lines, with optional ANSI colors:
+          tonic -> bold cyan
+          in-chord -> bold yellow
+          in-scale -> green
+          out-of-scale -> bright black (dim)
+        Priority: tonic > in-chord > in-scale > out-of-scale.
+        Color activation is controlled by self.color_mode: auto/always/never.
+        """
+        import sys
+        want_color = getattr(self, "color_mode", "auto")
+        if want_color == "never":
+            do_color = False
+        elif want_color == "always":
+            do_color = True
+        else:  # auto
+            do_color = sys.stdout.isatty()
+
+        lines: List[str] = []
+        for row in self.cells:
+            tokens: List[str] = []
+            for cell in row:
+                tok = cell.render()  # raw token with brackets/mark
+
+                if not do_color:
+                    tokens.append(tok)
+                    continue
+
+                # Decide style by priority (highest → lowest):
+                # chord tonic > chord root > chord out-of-key > chord in-key > tonic-only > non-chord in-key > non-chord OOK
+                is_chord = cell.in_chord
+                is_tonic = cell.is_tonic
+                is_in_key = cell.in_key
+                is_chord_root = (self.chord_root_pc is not None) and ((cell.pc % 12) == self.chord_root_pc)
+
+                if is_chord and is_tonic:
+                    colored = _paint(tok, fg="fg_bright_cyan", bold=True)          # tonic AND in chord (distinct from tonic-only)
+                elif is_chord and is_chord_root:
+                    colored = _paint(tok, fg="fg_bright_magenta", bold=True)        # chord root (non-tonic)
+                elif is_chord and not is_in_key:
+                    colored = _paint(tok, fg="fg_red", bold=True)                   # chord tone out of key
+                elif is_chord and is_in_key:
+                    colored = _paint(tok, fg="fg_yellow", bold=True)                # chord tone in key
+                elif is_tonic:
+                    colored = _paint(tok, fg="fg_cyan", bold=True)                  # tonic-only (not in chord)
+                elif is_in_key:
+                    colored = _paint(tok, fg="fg_green")                            # in key (non-chord)
+                else:
+                    colored = _paint(tok, fg="fg_bright_black", dim=True)           # out of key (non-chord)
+
+                tokens.append(colored)          
+            lines.append(" ".join(tokens))
+        return lines
 
     # ---- internal helpers for row construction ----
 
@@ -204,8 +304,6 @@ class PushGrid:
                 ))
             self.cells.append(line)
 
-    def render_lines(self) -> List[str]:
-        return [" ".join(cell.render() for cell in row) for row in self.cells]
 
     # convenience: compute chord/scale masks if needed elsewhere
     @staticmethod
