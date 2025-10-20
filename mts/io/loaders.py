@@ -5,12 +5,20 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Tuple, Optional, Sequence, Set
 
 from ..core.bitmask import validate_pc
 from ..core.interval import Interval
 from ..core.quality import ChordQuality
 from ..core.scale import Scale
+from ..theory.functions import (
+    DEFAULT_FEATURES_MAJOR,
+    DEFAULT_FEATURES_MINOR,
+    TEMPLATES_MAJOR,
+    TEMPLATES_MINOR,
+    FunctionTemplate,
+    generate_functions_for_scale,
+)
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
@@ -22,6 +30,7 @@ class FunctionMapping:
     intervals: Tuple[int, ...]
     role: str
     modal_label: str
+    tags: Tuple[str, ...] = ()
 
 
 def _read_json(name: str) -> Iterable[dict]:
@@ -88,33 +97,108 @@ def load_chord_qualities() -> Dict[str, ChordQuality]:
     return qualities
 
 
-def load_function_mappings(mode: str) -> List[FunctionMapping]:
-    filename = {
-        "major": "functions_major.json",
-        "minor": "functions_minor.json",
-    }.get(mode.lower())
-    if not filename:
+def load_function_mappings(
+    mode: str,
+    *,
+    strategy: str = "dynamic",
+    features: Optional[Iterable[str]] = None,
+    include_borrowed: Optional[bool] = None,
+    templates: Optional[Sequence[FunctionTemplate]] = None,
+) -> List[FunctionMapping]:
+    """
+    Load or synthesize functional mappings.
+
+    strategy="dynamic" builds mappings from templates and scale data.
+    strategy="static" reads the legacy JSON files in data/.
+    """
+
+    mode_key = mode.lower()
+    if strategy not in {"dynamic", "static"}:
+        raise ValueError(f"Unsupported strategy: {strategy}")
+
+    if strategy == "static":
+        filename = {
+            "major": "functions_major.json",
+            "minor": "functions_minor.json",
+        }.get(mode_key)
+        if not filename:
+            raise ValueError(f"Unsupported mode: {mode}")
+
+        mappings: List[FunctionMapping] = []
+        for payload in _read_json(filename):
+            degree_pc = int(payload["degree_pc"])
+            validate_pc(degree_pc)
+            intervals_field = payload.get("intervals")
+            if not isinstance(intervals_field, list) or not intervals_field:
+                raise ValueError(f"Function mapping {mode} degree {degree_pc} must define intervals")
+            intervals: List[int] = []
+            for interval in intervals_field:
+                value = int(interval)
+                validate_pc(value)
+                intervals.append(value)
+
+            tags_field = payload.get("tags", [])
+            if tags_field is None:
+                tags_field = []
+            if not isinstance(tags_field, list):
+                raise ValueError(f"Function mapping {mode} degree {degree_pc} tags must be a list if provided")
+            tag_values = tuple(sorted({str(tag) for tag in tags_field}))
+
+            mappings.append(
+                FunctionMapping(
+                    degree_pc=degree_pc,
+                    chord_quality=str(payload["chord_quality"]),
+                    intervals=tuple(intervals),
+                    role=str(payload["role"]),
+                    modal_label=str(payload["modal_label"]),
+                    tags=tag_values,
+                )
+            )
+        return mappings
+
+    # Dynamic strategy
+    scales = load_scales()
+    chord_qualities = load_chord_qualities()
+
+    if mode_key == "major":
+        scale_name = "Ionian"
+        template_collection = TEMPLATES_MAJOR if templates is None else templates
+        default_features: Set[str] = set(DEFAULT_FEATURES_MAJOR)
+        default_include_borrowed = False
+    elif mode_key == "minor":
+        scale_name = "Natural Minor"
+        template_collection = TEMPLATES_MINOR if templates is None else templates
+        default_features = set(DEFAULT_FEATURES_MINOR)
+        default_include_borrowed = True
+    else:
         raise ValueError(f"Unsupported mode: {mode}")
 
-    mappings: List[FunctionMapping] = []
-    for payload in _read_json(filename):
-        degree_pc = int(payload["degree_pc"])
-        validate_pc(degree_pc)
-        intervals_field = payload.get("intervals")
-        if not isinstance(intervals_field, list) or not intervals_field:
-            raise ValueError(f"Function mapping {mode} degree {degree_pc} must define intervals")
-        intervals: List[int] = []
-        for interval in intervals_field:
-            value = int(interval)
-            validate_pc(value)
-            intervals.append(value)
-        mappings.append(
-            FunctionMapping(
-                degree_pc=degree_pc,
-                chord_quality=str(payload["chord_quality"]),
-                intervals=tuple(intervals),
-                role=str(payload["role"]),
-                modal_label=str(payload["modal_label"]),
-            )
+    if scale_name not in scales:
+        raise ValueError(f"Scale {scale_name!r} required for mode {mode} was not loaded")
+    scale = scales[scale_name]
+
+    feature_set: Set[str] = set(default_features)
+    if features:
+        feature_set.update(features)
+
+    include_flag = default_include_borrowed if include_borrowed is None else include_borrowed
+
+    generated = generate_functions_for_scale(
+        scale,
+        chord_qualities,
+        templates=template_collection,
+        enabled_features=feature_set,
+        include_nondiatic=include_flag,
+    )
+
+    return [
+        FunctionMapping(
+            degree_pc=item.degree_pc,
+            chord_quality=item.chord_quality,
+            intervals=item.intervals,
+            role=item.role,
+            modal_label=item.modal_label,
+            tags=item.tags,
         )
-    return mappings
+        for item in generated
+    ]

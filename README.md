@@ -57,6 +57,7 @@ All reference material lives under `data/`:
 - `scales.json` – the full Push 3 roster plus modal/ethnic sets, now with alias support (e.g., “Aeolian” and “Natural Minor” map to the same entry).
 - `chord_qualities.json` – triads, sevenths, extensions, altered dominants, sus voicings, and more.
 - `functions_major.json` / `functions_minor.json` – expanded functional harmony tables capturing multiple chord options per degree with interval stacks.
+- `mts/theory/functions.py` – a procedural generator that derives functional mappings from template rules and scale definitions; experiment via `scripts/demo_function_generation.py`.
 
 Adjust the JSON, reload via `mts.io.loaders`, and the CLI/Push grid pick up changes instantly.
 
