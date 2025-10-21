@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import argparse
 import sys
-from typing import Optional
+from collections.abc import Iterable
 
-from ..io.loaders import load_scales, load_chord_qualities, load_function_mappings
+from ..io.loaders import load_scales, load_chord_qualities, load_function_mappings, FunctionMapping
 from ..core.chord import Chord
 from ..core.enharmonics import pc_from_name, name_for_pc
 from ..layouts.push_grid import PushGrid
@@ -27,7 +27,7 @@ _FUNCTION_FEATURE_CHOICES = sorted(
 )
 
 
-def _infer_function_mode(scale_name: str) -> Optional[str]:
+def _infer_function_mode(scale_name: str) -> str | None:
     normalized = scale_name.lower()
     if normalized in {"ionian", "major"}:
         return "major"
@@ -36,7 +36,7 @@ def _infer_function_mode(scale_name: str) -> Optional[str]:
     return None
 
 
-def _print_function_catalog(mode: str, mappings) -> None:
+def _print_function_catalog(mode: str, mappings: Iterable[FunctionMapping]) -> None:
     print(f"\nFunctional catalog for mode '{mode}':")
     for item in mappings:
         tags = f" [{', '.join(item.tags)}]" if item.tags else ""
@@ -50,7 +50,7 @@ def _print_function_catalog(mode: str, mappings) -> None:
             f"{tags}"
         )
 
-def _positive_int_or_none(v: Optional[str]) -> Optional[int]:
+def _positive_int_or_none(v: str | None) -> int | None:
     if v is None:
         return None
     return int(v)
@@ -118,7 +118,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
                    help="Force borrowed chords to be excluded when listing functional mappings.")
     return p
 
-def main(argv: Optional[list[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     args = build_arg_parser().parse_args(argv)
 
     # Load data

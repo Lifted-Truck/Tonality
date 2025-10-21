@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Sequence
+from collections.abc import Iterable, Sequence
 
 
 def validate_pc(pc: int) -> int:
@@ -19,7 +19,7 @@ def mask_from_pcs(pcs: Iterable[int]) -> int:
     return mask
 
 
-def pcs_from_mask(mask: int) -> List[int]:
+def pcs_from_mask(mask: int) -> list[int]:
     return [pc for pc in range(12) if mask & (1 << pc)]
 
 
@@ -36,5 +36,5 @@ def rotate_mask(mask: int, semitones: int) -> int:
     return rotated
 
 
-def transpose_pcs(pcs: Sequence[int], semitones: int) -> List[int]:
+def transpose_pcs(pcs: Sequence[int], semitones: int) -> list[int]:
     return [validate_pc((pc + semitones) % 12) for pc in pcs]

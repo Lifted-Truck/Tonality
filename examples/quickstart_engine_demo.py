@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import List
 
-# Ensure package import when running from source checkout
+# TODO: remove when package is installed in editable mode.
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from mts.core.chord import Chord, chord_degree_labels, chord_in_scale
@@ -19,7 +18,7 @@ def print_scale_info(scale: Scale) -> None:
     print(f"Scale: {scale.name} degrees={list(scale.degrees)} symmetry_order={scale.symmetry_order}")
 
 
-def print_chord_info(label: str, chord: Chord, ionian_mask: int, ionian_degrees: List[int]) -> None:
+def print_chord_info(label: str, chord: Chord, ionian_mask: int, ionian_degrees: list[int]) -> None:
     spelled = chord.spelled()
     in_scale = chord_in_scale(chord, ionian_mask)
     degrees = chord_degree_labels(chord, scale_root_pc=0, scale_degrees=ionian_degrees)

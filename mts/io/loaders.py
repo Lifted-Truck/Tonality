@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple, Optional, Sequence, Set
 
 from ..core.bitmask import validate_pc
 from ..core.interval import Interval
@@ -27,13 +27,13 @@ DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 class FunctionMapping:
     degree_pc: int
     chord_quality: str
-    intervals: Tuple[int, ...]
+    intervals: tuple[int, ...]
     role: str
     modal_label: str
-    tags: Tuple[str, ...] = ()
+    tags: tuple[str, ...] = ()
 
 
-def _read_json(name: str) -> Iterable[dict]:
+def _read_json(name: str) -> list[dict]:
     path = DATA_DIR / name
     with path.open("r", encoding="utf-8") as handle:
         data = json.load(handle)
@@ -42,8 +42,8 @@ def _read_json(name: str) -> Iterable[dict]:
     return data
 
 
-def load_intervals() -> List[Interval]:
-    entries: List[Interval] = []
+def load_intervals() -> list[Interval]:
+    entries: list[Interval] = []
     for payload in _read_json("intervals.json"):
         semitones = int(payload["semitones"])
         validate_pc(semitones)
@@ -51,8 +51,8 @@ def load_intervals() -> List[Interval]:
     return entries
 
 
-def load_scales() -> Dict[str, Scale]:
-    scales: Dict[str, Scale] = {}
+def load_scales() -> dict[str, Scale]:
+    scales: dict[str, Scale] = {}
     for payload in _read_json("scales.json"):
         name = str(payload["name"])
         degrees = payload["degrees"]
@@ -65,7 +65,7 @@ def load_scales() -> Dict[str, Scale]:
             aliases_field = []
         if not isinstance(aliases_field, list):
             raise ValueError(f"Scale {name} aliases must be a list if provided")
-        aliases: List[str] = []
+        aliases: list[str] = []
         for alias in aliases_field:
             alias_str = str(alias).strip()
             if alias_str:
@@ -81,8 +81,8 @@ def load_scales() -> Dict[str, Scale]:
     return scales
 
 
-def load_chord_qualities() -> Dict[str, ChordQuality]:
-    qualities: Dict[str, ChordQuality] = {}
+def load_chord_qualities() -> dict[str, ChordQuality]:
+    qualities: dict[str, ChordQuality] = {}
     for payload in _read_json("chord_qualities.json"):
         name = str(payload["name"])
         intervals = payload["intervals"]
@@ -101,10 +101,10 @@ def load_function_mappings(
     mode: str,
     *,
     strategy: str = "dynamic",
-    features: Optional[Iterable[str]] = None,
-    include_borrowed: Optional[bool] = None,
-    templates: Optional[Sequence[FunctionTemplate]] = None,
-) -> List[FunctionMapping]:
+    features: Iterable[str] | None = None,
+    include_borrowed: bool | None = None,
+    templates: Sequence[FunctionTemplate] | None = None,
+) -> list[FunctionMapping]:
     """
     Synthesize functional mappings from scale data and templates.
 
@@ -129,7 +129,7 @@ def load_function_mappings(
     if mode_key == "major":
         scale_name = "Ionian"
         template_collection = TEMPLATES_MAJOR if templates is None else templates
-        default_features: Set[str] = set(DEFAULT_FEATURES_MAJOR)
+        default_features: set[str] = set(DEFAULT_FEATURES_MAJOR)
         default_include_borrowed = False
     elif mode_key == "minor":
         scale_name = "Natural Minor"
@@ -143,7 +143,7 @@ def load_function_mappings(
         raise ValueError(f"Scale {scale_name!r} required for mode {mode} was not loaded")
     scale = scales[scale_name]
 
-    feature_set: Set[str] = set(default_features)
+    feature_set: set[str] = set(default_features)
     if features:
         feature_set.update(features)
 

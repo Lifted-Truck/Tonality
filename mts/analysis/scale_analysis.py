@@ -10,7 +10,6 @@ TODO:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, List
 
 from ..core.scale import Scale
 
@@ -25,7 +24,7 @@ class ScaleAnalysisRequest:
     include_interval_report: bool = True
 
 
-def analyze_scale(request: ScaleAnalysisRequest) -> Dict[str, object]:
+def analyze_scale(request: ScaleAnalysisRequest) -> dict[str, object]:
     """Return a skeleton analysis dictionary for the given scale.
 
     Notes:
@@ -33,7 +32,7 @@ def analyze_scale(request: ScaleAnalysisRequest) -> Dict[str, object]:
         interfaces can integrate while the analytical routines are developed.
     """
 
-    report: Dict[str, object] = {
+    report: dict[str, object] = {
         "scale_name": request.scale.name,
         "degrees": list(request.scale.degrees),
         "todos": [

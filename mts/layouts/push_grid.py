@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional
+from typing import Literal
 
 from .push3 import Push3Layout
 from ..core.bitmask import validate_pc, mask_from_pcs
@@ -71,11 +71,11 @@ class PushCell:
     col: int
     pc: int                                 # absolute pc shown on this pad
     tonic_pc: int                           # context tonic for degrees/marking
-    scale_degrees_rel: Optional[set[int]]   # relative-to-tonic pcs in key
-    chord_pcs_abs: Optional[set[int]]       # absolute pcs in chord
+    scale_degrees_rel: set[int] | None   # relative-to-tonic pcs in key
+    chord_pcs_abs: set[int] | None       # absolute pcs in chord
     degree_style: DegreeStyle               # "names" | "degrees"
     spelling: SpellingPref                  # "auto" | "sharps" | "flats"
-    key_signature: Optional[int]            # NEW: pass into naming
+    key_signature: int | None               # NEW: pass into naming
     layout_mode: LayoutMode                 # "chromatic" | "in_scale"
     hide_out_of_key: bool = False
 
@@ -119,20 +119,20 @@ class PushGrid:
     preset: LayoutPreset = "fourths"
     anchor: AnchorMode = "fixed_C"
     root_pc: int = 0
-    chord_root_pc: Optional[int] = None
+    chord_root_pc: int | None = None
     origin: Origin = "lower"                # NEW default
 
     # musical context
     tonic_pc: int = 0
-    scale_degrees_rel: Optional[List[int]] = None
-    chord_pcs_abs: Optional[List[int]] = None
+    scale_degrees_rel: list[int] | None = None
+    chord_pcs_abs: list[int] | None = None
 
     # display policy
     layout_mode: LayoutMode = "chromatic"
     hide_out_of_key: bool = False
     degree_style: DegreeStyle = "names"
     spelling: SpellingPref = "auto"
-    key_signature: Optional[int] = None
+    key_signature: int | None = None
 
     # NEW: colorization control is delegated by the CLI via a property
     # We won't persist it as a dataclass field to avoid changing ctor signatures;
@@ -142,18 +142,18 @@ class PushGrid:
     tonic_mode: str = "distinct"  # "distinct" | "blend"
 
     # internal
-    cells: List[List[PushCell]] = field(init=False)
+    cells: list[list[PushCell]] = field(init=False)
 
     def __post_init__(self) -> None:
         self.rebuild()
 
     # Public toggles (unchanged signatures + a couple new)
-    def set_key(self, tonic_pc: int, scale_degrees_rel: Optional[List[int]]) -> None:
+    def set_key(self, tonic_pc: int, scale_degrees_rel: list[int] | None) -> None:
         self.tonic_pc = tonic_pc % 12
         self.scale_degrees_rel = None if scale_degrees_rel is None else [d % 12 for d in scale_degrees_rel]
         self.rebuild()
 
-    def set_chord(self, chord_pcs_abs: Optional[List[int]], chord_root_pc: Optional[int] = None) -> None:
+    def set_chord(self, chord_pcs_abs: list[int] | None, chord_root_pc: int | None = None) -> None:
         self.chord_pcs_abs = None if chord_pcs_abs is None else [p % 12 for p in chord_pcs_abs]
         self.chord_root_pc = None if chord_root_pc is None else (chord_root_pc % 12)
         self.rebuild()
@@ -162,7 +162,7 @@ class PushGrid:
         self.preset = preset
         self.rebuild()
 
-    def set_anchor(self, anchor: AnchorMode, root_pc: Optional[int] = None) -> None:
+    def set_anchor(self, anchor: AnchorMode, root_pc: int | None = None) -> None:
         self.anchor = anchor
         if root_pc is not None:
             self.root_pc = root_pc % 12
@@ -172,22 +172,24 @@ class PushGrid:
         self.origin = origin
         self.rebuild()
 
-    def set_key_signature(self, sig: Optional[int]) -> None:
+    def set_key_signature(self, sig: int | None) -> None:
         self.key_signature = sig
         self.rebuild()
 
-    def set_display(self,
-                    layout_mode: Optional[LayoutMode] = None,
-                    hide_out_of_key: Optional[bool] = None,
-                    degree_style: Optional[DegreeStyle] = None,
-                    spelling: Optional[SpellingPref] = None) -> None:
+    def set_display(
+        self,
+        layout_mode: LayoutMode | None = None,
+        hide_out_of_key: bool | None = None,
+        degree_style: DegreeStyle | None = None,
+        spelling: SpellingPref | None = None,
+    ) -> None:
         if layout_mode: self.layout_mode = layout_mode
         if hide_out_of_key is not None: self.hide_out_of_key = hide_out_of_key
         if degree_style: self.degree_style = degree_style
         if spelling: self.spelling = spelling
         self.rebuild()
 
-    def render_lines(self) -> List[str]:
+    def render_lines(self) -> list[str]:
         """
         Return list of rendered lines, with optional ANSI colors:
           tonic -> bold cyan
@@ -206,9 +208,9 @@ class PushGrid:
         else:  # auto
             do_color = sys.stdout.isatty()
 
-        lines: List[str] = []
+        lines: list[str] = []
         for row in self.cells:
-            tokens: List[str] = []
+            tokens: list[str] = []
             for cell in row:
                 tok = cell.render()  # raw token with brackets/mark
 
@@ -318,7 +320,7 @@ class PushGrid:
         # isomorphic rows: right = +1 semitone; up = +row_offset semitones
         return (anchor_pc + col + row * _row_offset_for(self.preset)) % 12
 
-    def _build_row_pcs(self, row: int, anchor_pc: int) -> List[int]:
+    def _build_row_pcs(self, row: int, anchor_pc: int) -> list[int]:
         """Return the 8 PCs for a row, honoring in-scale elision when requested."""
         # seed more than 8 so we can elide out-of-scale and still fill 8
         # 8 cols + up to 12 extras to find enough in-scale notes
@@ -349,7 +351,7 @@ class PushGrid:
         self.cells = []
         for ridx, r in enumerate(rows):
             pcs_row = self._build_row_pcs(r, anchor_pc)
-            line: List[PushCell] = []
+            line: list[PushCell] = []
             for c, pc in enumerate(pcs_row):
                 line.append(PushCell(
                     row=ridx, col=c, pc=pc,
@@ -367,6 +369,6 @@ class PushGrid:
 
     # convenience: compute chord/scale masks if needed elsewhere
     @staticmethod
-    def chord_mask_from(root_pc: int, intervals: List[int]) -> int:
+    def chord_mask_from(root_pc: int, intervals: list[int]) -> int:
         pcs = [((root_pc + i) % 12) for i in intervals]
         return mask_from_pcs(pcs)

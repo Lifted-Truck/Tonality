@@ -12,8 +12,7 @@ TODO:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Tuple
+from dataclasses import dataclass
 
 from ..core.scale import Scale
 from ..core.quality import ChordQuality
@@ -22,8 +21,8 @@ from ..core.quality import ChordQuality
 @dataclass
 class ManualScaleBuilder:
     name: str
-    degrees: List[int]
-    tags: Tuple[str, ...] = ()
+    degrees: list[int]
+    tags: tuple[str, ...] = ()
 
     def to_scale(self) -> Scale:
         # TODO: expose bitmask constructors for non-12TET systems.
@@ -33,16 +32,16 @@ class ManualScaleBuilder:
 @dataclass
 class ManualChordBuilder:
     name: str
-    intervals: List[int]
-    tensions: Tuple[int, ...] = ()
+    intervals: list[int]
+    tensions: tuple[int, ...] = ()
 
     def to_quality(self) -> ChordQuality:
         # TODO: support arbitrary tuning systems.
         return ChordQuality.from_intervals(self.name, self.intervals, self.tensions)
 
 
-SESSION_SCALES: Dict[str, Scale] = {}
-SESSION_CHORDS: Dict[str, ChordQuality] = {}
+SESSION_SCALES: dict[str, Scale] = {}
+SESSION_CHORDS: dict[str, ChordQuality] = {}
 
 
 def register_scale(builder: ManualScaleBuilder) -> Scale:
@@ -55,4 +54,3 @@ def register_chord(builder: ManualChordBuilder) -> ChordQuality:
     quality = builder.to_quality()
     SESSION_CHORDS[quality.name] = quality
     return quality
-

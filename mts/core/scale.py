@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, List, Sequence, Tuple
+from collections.abc import Iterable
 
 from .bitmask import mask_from_pcs, validate_pc
 from .symmetry import mask_symmetry_order
@@ -12,9 +12,9 @@ from .symmetry import mask_symmetry_order
 @dataclass(frozen=True)
 class Scale:
     name: str
-    degrees: Tuple[int, ...]
+    degrees: tuple[int, ...]
     mask: int
-    aliases: Tuple[str, ...] = ()
+    aliases: tuple[str, ...] = ()
 
     @classmethod
     def from_degrees(
@@ -37,10 +37,10 @@ class Scale:
     def symmetry_order(self) -> int:
         return mask_symmetry_order(self.mask)
 
-    def pcs(self) -> List[int]:
+    def pcs(self) -> list[int]:
         return list(self.degrees)
 
-    def complementary_pcs(self) -> List[int]:
+    def complementary_pcs(self) -> list[int]:
         return [pc for pc in range(12) if pc not in self.degrees]
 
     def __str__(self) -> str:

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
 
 from ..core.bitmask import validate_pc
 
@@ -16,8 +15,8 @@ class Push3Layout:
     def __post_init__(self) -> None:
         validate_pc(self.root_pc)
 
-    def grid(self) -> List[List[int]]:
-        rows: List[List[int]] = []
+    def grid(self) -> list[list[int]]:
+        rows: list[list[int]] = []
         for row in range(8):
             rows.append([((self.root_pc + column + row * self.row_offset) % 12) for column in range(8)])
         return rows

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Literal
+from typing import Literal
 
 
 SpellingPref = Literal["auto", "sharps", "flats"]
 
-PC_TO_NAMES: Dict[int, List[str]] = {
+PC_TO_NAMES: dict[int, list[str]] = {
     0: ["C", "B#", "Dbb"],
     1: ["C#", "Db"],
     2: ["D", "C##", "Ebb"],
@@ -22,7 +22,7 @@ PC_TO_NAMES: Dict[int, List[str]] = {
     11: ["B", "Cb", "A##"],
 }
 
-def _prefer_from_key_signature(sig: Optional[int], fallback: SpellingPref) -> SpellingPref:
+def _prefer_from_key_signature(sig: int | None, fallback: SpellingPref) -> SpellingPref:
     """
     Circle-of-fifths index to preference: -7..+7 (F=-1, Bb=-2, ..., G=+1, D=+2, ...).
     None -> fallback; +N -> sharps; -N -> flats; 0 -> fallback.
@@ -35,7 +35,7 @@ def _prefer_from_key_signature(sig: Optional[int], fallback: SpellingPref) -> Sp
         return "flats"
     return fallback
 
-def name_for_pc(pc: int, *, prefer: SpellingPref = "auto", key_signature: Optional[int] = None) -> str:
+def name_for_pc(pc: int, *, prefer: SpellingPref = "auto", key_signature: int | None = None) -> str:
     """
     Choose a practical display name for a pitch class.
     Rules:
@@ -113,7 +113,7 @@ def _normalize_note_str(s: str) -> str:
     return s.capitalize()  # c# -> C#
 
 # Build a reverse map from common spellings to pitch-class integers.
-_NAME_TO_PC: Dict[str, int] = {}
+_NAME_TO_PC: dict[str, int] = {}
 for pc, names in PC_TO_NAMES.items():
     for n in names:
         _NAME_TO_PC[n] = pc

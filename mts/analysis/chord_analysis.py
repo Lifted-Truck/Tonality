@@ -10,7 +10,6 @@ TODO:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional
 
 from ..core.chord import Chord
 from ..core.quality import ChordQuality
@@ -21,16 +20,16 @@ class ChordAnalysisRequest:
     """Container for chord analysis instructions."""
 
     chord: Chord
-    tonic_pc: Optional[int] = None
+    tonic_pc: int | None = None
     include_inversions: bool = True
     include_voicings: bool = True
     include_enharmonics: bool = True
 
 
-def analyze_chord(request: ChordAnalysisRequest) -> Dict[str, object]:
+def analyze_chord(request: ChordAnalysisRequest) -> dict[str, object]:
     """Return a skeleton analysis dictionary for the given chord."""
 
-    report: Dict[str, object] = {
+    report: dict[str, object] = {
         "root_pc": request.chord.root_pc,
         "quality": request.chord.quality.name,
         "pcs": list(request.chord.pcs),

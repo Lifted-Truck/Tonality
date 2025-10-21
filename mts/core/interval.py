@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -14,12 +15,12 @@ class Interval:
     diatonic_class: str
     quality: str
     inversion: int
-    cents: Optional[float]
-    ratio: Optional[str]
-    category: Optional[str]
+    cents: float | None
+    ratio: str | None
+    category: str | None
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Interval":
+    def from_dict(cls, data: Mapping[str, Any]) -> Interval:
         return cls(
             semitones=int(data["semitones"]),
             name=str(data["name"]),

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Sequence, Set, Tuple
 
 from ..core.bitmask import is_subset, mask_from_pcs
 from ..core.quality import ChordQuality
@@ -45,8 +45,8 @@ class FunctionVariant:
     quality: str
     modal_label: str
     role: str
-    tags: Tuple[str, ...] = ()
-    requires: Tuple[str, ...] = ()
+    tags: tuple[str, ...] = ()
+    requires: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -54,7 +54,7 @@ class FunctionTemplate:
     """Functional slot described relative to the tonic (degree in semitones)."""
 
     degree: int
-    variants: Tuple[FunctionVariant, ...]
+    variants: tuple[FunctionVariant, ...]
 
 
 @dataclass(frozen=True)
@@ -63,11 +63,11 @@ class GeneratedFunction:
 
     degree_pc: int
     chord_quality: str
-    intervals: Tuple[int, ...]
+    intervals: tuple[int, ...]
     role: str
     modal_label: str
     role_subtype: str | None = None
-    tags: Tuple[str, ...] = ()
+    tags: tuple[str, ...] = ()
 
 
 def _variant(
@@ -95,7 +95,7 @@ def _variant(
 
 # --- Template definitions --------------------------------------------------
 
-TEMPLATES_MAJOR: Tuple[FunctionTemplate, ...] = (
+TEMPLATES_MAJOR: tuple[FunctionTemplate, ...] = (
     FunctionTemplate(
         degree=0,
         variants=(
@@ -444,7 +444,7 @@ TEMPLATES_MAJOR: Tuple[FunctionTemplate, ...] = (
     ),
 )
 
-TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
+TEMPLATES_MINOR: tuple[FunctionTemplate, ...] = (
     FunctionTemplate(
         degree=0,
         variants=(
@@ -794,7 +794,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
     ),
 )
 
-DEFAULT_FEATURES_MAJOR: Set[str] = frozenset(
+DEFAULT_FEATURES_MAJOR: frozenset[str] = frozenset(
     {
         FEATURE_DIATONIC,
         FEATURE_SIXTH_CHORDS,
@@ -804,7 +804,7 @@ DEFAULT_FEATURES_MAJOR: Set[str] = frozenset(
     }
 )
 
-DEFAULT_FEATURES_MINOR: Set[str] = frozenset(
+DEFAULT_FEATURES_MINOR: frozenset[str] = frozenset(
     {
         FEATURE_DIATONIC,
         FEATURE_ADDED_TONES,
@@ -816,8 +816,8 @@ DEFAULT_FEATURES_MINOR: Set[str] = frozenset(
 )
 
 
-def _filter_variants(variants: Sequence[FunctionVariant], enabled_features: Set[str]) -> List[FunctionVariant]:
-    usable: List[FunctionVariant] = []
+def _filter_variants(variants: Sequence[FunctionVariant], enabled_features: set[str]) -> list[FunctionVariant]:
+    usable: list[FunctionVariant] = []
     for variant in variants:
         required = set(variant.requires)
         if required.issubset(enabled_features):
@@ -825,19 +825,19 @@ def _filter_variants(variants: Sequence[FunctionVariant], enabled_features: Set[
     return usable
 
 
-def _chord_pcs(degree_pc: int, intervals: Sequence[int]) -> Tuple[int, ...]:
+def _chord_pcs(degree_pc: int, intervals: Sequence[int]) -> tuple[int, ...]:
     pcs = { (degree_pc + iv) % 12 for iv in intervals }
     return tuple(sorted(pcs))
 
 
 def generate_functions_for_scale(
     scale: Scale,
-    chord_qualities: Dict[str, ChordQuality],
+    chord_qualities: Mapping[str, ChordQuality],
     *,
     templates: Sequence[FunctionTemplate],
     enabled_features: Iterable[str],
     include_nondiatic: bool = True,
-) -> List[GeneratedFunction]:
+) -> list[GeneratedFunction]:
     """
     Build functional mappings for a scale using the supplied template collection.
     """
@@ -845,7 +845,7 @@ def generate_functions_for_scale(
     feature_set.add(FEATURE_DIATONIC)
 
     scale_mask = mask_from_pcs(scale.degrees)
-    results: List[GeneratedFunction] = []
+    results: list[GeneratedFunction] = []
 
     for template in templates:
         for variant in _filter_variants(template.variants, feature_set):

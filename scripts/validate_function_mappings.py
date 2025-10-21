@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
-from typing import Iterable, List
-
+from collections.abc import Iterable
 from pathlib import Path
 
 # Ensure the repository root is on sys.path when running as a script.
@@ -24,12 +23,12 @@ class FunctionCheckResult:
     modal_label: str
     degree_pc: int
     chord_quality: str
-    chord_pcs: List[int]
-    missing_pcs: List[int]
+    chord_pcs: list[int]
+    missing_pcs: list[int]
     scale_name: str
 
 
-def chord_pcs_from_mapping(degree_pc: int, intervals: Iterable[int]) -> List[int]:
+def chord_pcs_from_mapping(degree_pc: int, intervals: Iterable[int]) -> list[int]:
     return [((degree_pc + interval) % 12) for interval in intervals]
 
 
@@ -41,8 +40,8 @@ def ensure_scale(scales: dict[str, Scale], name: str, fallback_degrees: Iterable
     return scale
 
 
-def evaluate_mode(mode: str, scale: Scale, scale_name: str) -> List[FunctionCheckResult]:
-    results: List[FunctionCheckResult] = []
+def evaluate_mode(mode: str, scale: Scale, scale_name: str) -> list[FunctionCheckResult]:
+    results: list[FunctionCheckResult] = []
     scale_mask = scale.mask
     for mapping in load_function_mappings(mode):
         chord_pcs = chord_pcs_from_mapping(mapping.degree_pc, mapping.intervals)

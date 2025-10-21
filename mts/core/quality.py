@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from typing import Iterable, List, Sequence, Tuple
 
 from .bitmask import mask_from_pcs, validate_pc
 
@@ -11,8 +11,8 @@ from .bitmask import mask_from_pcs, validate_pc
 @dataclass(frozen=True)
 class ChordQuality:
     name: str
-    intervals: Tuple[int, ...]
-    tensions: Tuple[int, ...]
+    intervals: tuple[int, ...]
+    tensions: tuple[int, ...]
     mask: int
 
     @classmethod
@@ -28,6 +28,6 @@ class ChordQuality:
         mask = mask_from_pcs(normalized_intervals)
         return cls(name=name, intervals=normalized_intervals, tensions=normalized_tensions, mask=mask)
 
-    def pcs_from_root(self, root_pc: int) -> List[int]:
+    def pcs_from_root(self, root_pc: int) -> list[int]:
         validate_pc(root_pc)
         return [((root_pc + iv) % 12) for iv in self.intervals]
