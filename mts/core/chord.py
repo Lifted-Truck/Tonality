@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .bitmask import mask_from_pcs, validate_pc, is_subset
-from .enharmonics import primary_name
+from .enharmonics import primary_name, name_for_pc, SpellingPref
 from .quality import ChordQuality
 
 
@@ -23,9 +23,8 @@ class Chord:
         mask = mask_from_pcs(pcs)
         return cls(root_pc=root_pc, quality=quality, pcs=pcs, mask=mask)
 
-    def spelled(self, prefer: str = "auto") -> list[str]:
-        # TODO: integrate advanced spelling logic based on key signature
-        return [primary_name(pc) for pc in self.pcs]
+    def spelled(self, prefer: SpellingPref = "auto", key_signature: int | None = None) -> list[str]:
+        return [name_for_pc(pc, prefer=prefer, key_signature=key_signature) for pc in self.pcs]
 
 
 def chord_in_scale(chord: Chord, scale_mask: int) -> bool:

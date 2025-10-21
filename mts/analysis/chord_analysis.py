@@ -13,6 +13,7 @@ from dataclasses import dataclass
 
 from ..core.chord import Chord
 from ..core.quality import ChordQuality
+from ..core.enharmonics import SpellingPref, name_for_pc
 
 
 @dataclass
@@ -24,6 +25,8 @@ class ChordAnalysisRequest:
     include_inversions: bool = True
     include_voicings: bool = True
     include_enharmonics: bool = True
+    spelling: SpellingPref = "auto"
+    key_signature: int | None = None
 
 
 def analyze_chord(request: ChordAnalysisRequest) -> dict[str, object]:
@@ -40,9 +43,17 @@ def analyze_chord(request: ChordAnalysisRequest) -> dict[str, object]:
             "Catalogue enharmonic spellings and transformations.",
         ],
     }
+    report["note_names"] = request.chord.spelled(prefer=request.spelling, key_signature=request.key_signature)
     if request.tonic_pc is not None:
         report["tonic_pc"] = request.tonic_pc
         report["tonic_relationship"] = "TODO: analyze tonic-chord relationships."
+        report["note_names_relative_to_tonic"] = [
+            {
+                "note": name_for_pc(pc, prefer=request.spelling, key_signature=request.key_signature),
+                "relative_pc": (pc - request.tonic_pc) % 12,
+            }
+            for pc in request.chord.pcs
+        ]
     if request.include_inversions:
         report["inversions"] = "TODO: derive inversion sets."
     if request.include_voicings:

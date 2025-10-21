@@ -22,6 +22,10 @@ def main() -> None:
     parser.add_argument("root", help="Chord root note (e.g., C, F#, Eb)")
     parser.add_argument("quality", help="Chord quality name from data/chord_qualities.json (e.g., maj7)")
     parser.add_argument("--tonic", dest="tonic", help="Optional tonic for context analysis")
+    parser.add_argument("--spelling", choices=["auto", "sharps", "flats"], default="auto",
+                        help="Enharmonic spelling preference for chord notes.")
+    parser.add_argument("--key-sig", type=int, default=None,
+                        help="Optional circle-of-fifths index (-7..+7) for spelling bias.")
     args = parser.parse_args()
 
     qualities = load_chord_qualities()
@@ -32,7 +36,12 @@ def main() -> None:
     chord = Chord.from_quality(root_pc, qualities[args.quality])
     tonic_pc = pc_from_name(args.tonic) if args.tonic else None
 
-    request = ChordAnalysisRequest(chord=chord, tonic_pc=tonic_pc)
+    request = ChordAnalysisRequest(
+        chord=chord,
+        tonic_pc=tonic_pc,
+        spelling=args.spelling,
+        key_signature=args.key_sig,
+    )
     report = analyze_chord(request)
     for key, value in report.items():
         print(f"{key}: {value}")

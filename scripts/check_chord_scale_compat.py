@@ -18,6 +18,7 @@ from mts.io.loaders import load_scales, load_chord_qualities
 from mts.core.bitmask import mask_from_pcs, is_subset
 from mts.core.quality import ChordQuality
 from mts.core.scale import Scale
+from mts.core.enharmonics import name_for_pc, pc_from_name, SpellingPref
 
 EXTENSIONS_ORDER: list[tuple[str, int]] = [
     ("power", 0),
@@ -95,7 +96,22 @@ def _sort_key(name: str, quality: ChordQuality) -> tuple[int, int, int, str]:
     return (priority, size, max_interval, name)
 
 
-def run_overview(scales: Mapping[str, Scale], qualities: Mapping[str, ChordQuality]) -> None:
+def _spell_chord(root_pc: int, quality: ChordQuality, prefer: SpellingPref, key_signature: int | None) -> list[str]:
+    return [
+        name_for_pc((root_pc + interval) % 12, prefer=prefer, key_signature=key_signature)
+        for interval in quality.intervals
+    ]
+
+
+def run_overview(
+    scales: Mapping[str, Scale],
+    qualities: Mapping[str, ChordQuality],
+    *,
+    tonic_pc: int,
+    spelling: SpellingPref,
+    key_signature: int | None,
+    include_note_names: bool,
+) -> None:
     for scale_name, scale in sorted(scales.items()):
         compatible: list[tuple[str, list[int], ChordQuality]] = []
         incompatible: list[str] = []
@@ -108,8 +124,17 @@ def run_overview(scales: Mapping[str, Scale], qualities: Mapping[str, ChordQuali
 
         print(f"\nScale: {describe_scale(scale)}")
         for name, roots, quality in sorted(compatible, key=lambda item: _sort_key(item[0], item[2])):
-            root_list = ", ".join(str(r) for r in roots)
-            print(f"  {name:<10} -> roots [{root_list}]")
+            if include_note_names:
+                rendered_roots = []
+                for root in roots:
+                    absolute_root = (tonic_pc + root) % 12
+                    root_name = name_for_pc(absolute_root, prefer=spelling, key_signature=key_signature)
+                    notes = _spell_chord(absolute_root, quality, spelling, key_signature)
+                    rendered_roots.append(f"{root} ({root_name}: {'-'.join(notes)})")
+                root_display = ", ".join(rendered_roots)
+            else:
+                root_display = ", ".join(str(r) for r in roots)
+            print(f"  {name:<10} -> roots [{root_display}]")
         print(f"  Non-diatonic ({len(incompatible)}): {', '.join(sorted(incompatible))}")
 
 
@@ -119,13 +144,26 @@ def run_specific(
     *,
     scale_name: str,
     chord_quality: str,
+    tonic_pc: int,
+    spelling: SpellingPref,
+    key_signature: int | None,
+    include_note_names: bool,
 ) -> None:
     scale = scales[scale_name]
     quality = qualities[chord_quality]
     roots = compatibility_positions(scale, quality)
     if roots:
-        root_list = ", ".join(str(r) for r in roots)
-        print(f"{chord_quality} fits in {scale.name} at roots: [{root_list}]")
+        if include_note_names:
+            rendered = []
+            for root in roots:
+                absolute_root = (tonic_pc + root) % 12
+                root_name = name_for_pc(absolute_root, prefer=spelling, key_signature=key_signature)
+                notes = _spell_chord(absolute_root, quality, spelling, key_signature)
+                rendered.append(f"{root} ({root_name}: {'-'.join(notes)})")
+            display = ", ".join(rendered)
+        else:
+            display = ", ".join(str(r) for r in roots)
+        print(f"{chord_quality} fits in {scale.name} at roots: [{display}]")
     else:
         print(f"{chord_quality} introduces out-of-scale tones in {scale.name} at every root.")
         print("TODO: Identify modal sources for non-diatonic placements.")
@@ -137,6 +175,13 @@ def main(argv: Iterable[str] | None = None) -> None:
     parser.add_argument("--chord-quality", help="Chord quality name to test (optional).")
     parser.add_argument("--list-scales", action="store_true", help="List available scales and exit.")
     parser.add_argument("--list-qualities", action="store_true", help="List chord qualities and exit.")
+    parser.add_argument("--tonic", help="Optional tonic note to spell results (defaults to C if omitted).")
+    parser.add_argument("--spelling", choices=["auto", "sharps", "flats"], default="auto",
+                        help="Enharmonic preference for rendered notes.")
+    parser.add_argument("--key-sig", type=int, default=None,
+                        help="Optional circle-of-fifths index (-7..+7) for spelling bias.")
+    parser.add_argument("--no-note-names", action="store_true",
+                        help="Suppress note-name rendering in outputs.")
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     scales = load_scales()
@@ -153,14 +198,33 @@ def main(argv: Iterable[str] | None = None) -> None:
             print(" -", name)
         return
 
+    tonic_pc = pc_from_name(args.tonic) if args.tonic else 0
+    include_note_names = not args.no_note_names
+
     if args.scale and args.chord_quality:
         if args.scale not in scales:
             parser.error(f"Unknown scale {args.scale!r}. Use --list-scales to inspect options.")
         if args.chord_quality not in qualities:
             parser.error(f"Unknown chord quality {args.chord_quality!r}. Use --list-qualities to inspect options.")
-        run_specific(scales, qualities, scale_name=args.scale, chord_quality=args.chord_quality)
+        run_specific(
+            scales,
+            qualities,
+            scale_name=args.scale,
+            chord_quality=args.chord_quality,
+            tonic_pc=tonic_pc,
+            spelling=args.spelling,
+            key_signature=args.key_sig,
+            include_note_names=include_note_names,
+        )
     else:
-        run_overview(scales, qualities)
+        run_overview(
+            scales,
+            qualities,
+            tonic_pc=tonic_pc,
+            spelling=args.spelling,
+            key_signature=args.key_sig,
+            include_note_names=include_note_names,
+        )
 
 
 if __name__ == "__main__":

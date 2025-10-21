@@ -55,6 +55,17 @@ def _positive_int_or_none(v: str | None) -> int | None:
         return None
     return int(v)
 
+ROMANS = ["I", "II", "III", "IV", "V", "VI", "VII"]
+
+
+def _relative_degree_label(relative_pc: int, scale_degrees: list[int]) -> str:
+    if relative_pc in scale_degrees:
+        idx = scale_degrees.index(relative_pc)
+        if 0 <= idx < len(ROMANS):
+            return ROMANS[idx]
+    return f"pc{relative_pc}"
+
+
 def build_arg_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="python -m mts.cli.push",
@@ -162,8 +173,10 @@ def main(argv: list[str] | None = None) -> None:
 
     # Resolve chord (root + quality)
     chord_label = "None"
-    chord_pcs = []
-    chord_spelling = []
+    chord_pcs: list[int] = []
+    chord_spelling: list[str] = []
+    chord = None
+    chord_quality = None
 
     if args.chord:
         # Parse "Root:Quality"
@@ -176,7 +189,8 @@ def main(argv: list[str] | None = None) -> None:
         chord = Chord.from_quality(chord_root_pc, qualities[qual_str.strip()])
         chord_label = f"{root_str.strip()}{qual_str.strip()}"
         chord_pcs = list(chord.pcs)
-        chord_spelling = chord.spelled()
+        chord_spelling = chord.spelled(prefer=args.spelling, key_signature=args.key_sig)
+        chord_quality = chord.quality
     elif args.chord_root and args.chord_quality:
         chord_root_pc = pc_from_name(args.chord_root)
         if args.chord_quality not in qualities:
@@ -184,7 +198,8 @@ def main(argv: list[str] | None = None) -> None:
         chord = Chord.from_quality(chord_root_pc, qualities[args.chord_quality])
         chord_label = f"{args.chord_root}{args.chord_quality}"
         chord_pcs = list(chord.pcs)
-        chord_spelling = chord.spelled()
+        chord_spelling = chord.spelled(prefer=args.spelling, key_signature=args.key_sig)
+        chord_quality = chord.quality
     else:
         # No chord: leave empty; grid will show '-' markers
         pass
@@ -208,25 +223,38 @@ def main(argv: list[str] | None = None) -> None:
                     "fg_bright_red": "\x1b[91m", "fg_bright_black": "\x1b[90m",
                 }
                 parts = []
-                if bold: parts.append(ANSI["bold"])
-                if dim: parts.append(ANSI["dim"])
-                if fg: parts.append(ANSI[fg])
+                if bold:
+                    parts.append(ANSI["bold"])
+                if dim:
+                    parts.append(ANSI["dim"])
+                if fg:
+                    parts.append(ANSI[fg])
                 return ("".join(parts) + text + ANSI["reset"]) if parts else text
 
             summary = ", ".join(ook_names)
             extra = " " + _warn_paint("(root is out of key)", fg="fg_bright_red", bold=True) if root_is_ook else ""
 
+            print(
+                _warn_paint("Warning: ", fg="fg_yellow", bold=True)
+                + f"Chord contains out-of-key tones: {summary}{extra}"
+            )
+            if args.hide_ook:
+                print(
+                    _warn_paint(
+                        "Note: out-of-key pads will be elided in this view.",
+                        fg="fg_bright_black",
+                        dim=True,
+                    )
+                )
+
             if args.strict_in_scale:
-                print(_warn_paint("ERROR: ", fg="fg_bright_red", bold=True) +
-                      f"Chord contains out-of-key tones in in_scale mode: {summary}{extra}")
+                print(
+                    _warn_paint("ERROR: ", fg="fg_bright_red", bold=True)
+                    + "Chord contains out-of-key tones in in_scale mode."
+                )
                 import sys as _sys
+
                 _sys.exit(2)
-            else:
-                print(_warn_paint("Warning: ", fg="fg_yellow", bold=True) +
-                      f"Chord contains out-of-key tones: {summary}{extra}")
-                if args.hide_ook:
-                    print(_warn_paint("Note: out-of-key pads will be elided in this view.",
-                                      fg="fg_bright_black", dim=True))
 
 
     # Build grid
@@ -248,7 +276,10 @@ def main(argv: list[str] | None = None) -> None:
     g.chord_root_pc = chord_root_pc if 'chord_root_pc' in locals() else None
 
     # Header
-    print(f"\nKey: {args.key}  Scale: {args.scale}  (degrees: {scale_degrees})")
+    if args.degrees:
+        print(f"\nScale: {args.scale} (interval mode)  (degrees: {scale_degrees})")
+    else:
+        print(f"\nKey: {args.key}  Scale: {args.scale}  (degrees: {scale_degrees})")
     print(f"Preset: {args.preset}  Mode: {args.mode}  Anchor: {args.anchor}  Origin: {args.origin}")
     print(f"Labels: {'degrees' if args.degrees else 'names'}  Spelling: {args.spelling}  KeySig: {args.key_sig}")
 
@@ -286,9 +317,16 @@ def main(argv: list[str] | None = None) -> None:
 
     use_color = (args.color == "always") or (args.color == "auto" and sys.stdout.isatty())
 
-    if chord_pcs:
-        nice_spelling = ", ".join(chord_spelling)
-        print(f"Chord: {chord_label}  ->  {nice_spelling}")
+    if chord and chord_quality:
+        intervals_str = ", ".join(str(iv) for iv in chord_quality.intervals)
+        if args.degrees and 'chord_root_pc' in locals():
+            relative_pc = (chord_root_pc - tonic_pc) % 12
+            degree_label = _relative_degree_label(relative_pc, scale_degrees)
+            chord_display = f"{chord_quality.name} at {degree_label}"
+        else:
+            chord_display = chord_label
+        note_str = ", ".join(chord_spelling)
+        print(f"Chord: {chord_display}  -> notes [{note_str}] intervals [{intervals_str}]")
     else:
         print("Chord: (none)")
 

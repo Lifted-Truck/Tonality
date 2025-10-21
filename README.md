@@ -75,10 +75,10 @@ It reports any pitch-class mismatches along with the scale context used for comp
 
 Several scaffolded tools are available for rapid experimentation:
 
-- `scripts/analyze_scale.py` – placeholder scale analytics (symmetry, interval vectors, modal rotations; TODOs documented in code).
-- `scripts/analyze_chord.py` – placeholder chord analytics (interval matrices, voicings, enharmonic views).
+- `scripts/analyze_scale.py` – placeholder scale analytics (symmetry, interval vectors, modal rotations; optionally spell concrete note names via `--tonic`).
+- `scripts/analyze_chord.py` – placeholder chord analytics (interval matrices, voicings, and concrete note spellings; optionally contextualized to a tonic).
 - `scripts/build_scale_or_chord.py` – manual entry of ad hoc scales/chords with session storage; ready to plug into future GUIs/APIs.
-- `scripts/check_chord_scale_compat.py` – expanded compatibility explorer showing roots where chords fit within scales (TODO: tag modal sources for non-diatonic placements).
+- `scripts/check_chord_scale_compat.py` – expanded compatibility explorer showing roots where chords fit within scales and, when given a tonic, their spelled note names (TODO: tag modal sources for non-diatonic placements).
 
 See `mts/analysis/` for the Python interfaces backing these commands. They intentionally surface TODO markers so the theoretical feature set can grow incrementally alongside the data catalog.
 
