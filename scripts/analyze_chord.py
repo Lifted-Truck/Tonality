@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from mts.io.loaders import load_chord_qualities
+from mts.io.loaders import load_chord_qualities, load_scales
 from mts.core.chord import Chord
 from mts.core.enharmonics import pc_from_name
 from mts.analysis import ChordAnalysisRequest, analyze_chord
@@ -175,8 +175,10 @@ def _print_report(report: dict[str, object]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze a chord using the analysis toolkit.")
-    parser.add_argument("root", help="Chord root note (e.g., C, F#, Eb)")
-    parser.add_argument("quality", help="Chord quality name from data/chord_qualities.json (e.g., maj7)")
+    parser.add_argument("root", nargs="?", help="Chord root note (e.g., C, F#, Eb)")
+    parser.add_argument("quality", nargs="?", help="Chord quality name from data/chord_qualities.json (e.g., maj7)")
+    parser.add_argument("--list-scales", action="store_true", help="List available scales and exit.")
+    parser.add_argument("--list-qualities", action="store_true", help="List available chord qualities and exit.")
     parser.add_argument("--tonic", dest="tonic", help="Optional tonic for context analysis")
     parser.add_argument("--spelling", choices=["auto", "sharps", "flats"], default="auto",
                         help="Enharmonic spelling preference for chord notes.")
@@ -195,8 +197,21 @@ def main() -> None:
     args = parser.parse_args()
 
     qualities = load_chord_qualities()
+    scales = load_scales()
+    if args.list_scales:
+        print("Available scales:")
+        for name in sorted(scales.keys()):
+            print(" -", name)
+        return
+    if args.list_qualities:
+        print("Available chord qualities:")
+        for name in sorted(qualities.keys()):
+            print(" -", name)
+        return
+    if args.root is None or args.quality is None:
+        parser.error("Root and quality are required unless using --list-scales/--list-qualities.")
     if args.quality not in qualities:
-        parser.error(f"Unknown quality {args.quality!r}")
+        parser.error(f"Unknown quality {args.quality!r}. Use --list-qualities to inspect options.")
 
     root_pc = pc_from_name(args.root)
     chord = Chord.from_quality(root_pc, qualities[args.quality])

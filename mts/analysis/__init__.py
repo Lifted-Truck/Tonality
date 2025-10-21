@@ -10,6 +10,12 @@ from __future__ import annotations
 
 from .scale_analysis import ScaleAnalysisRequest, analyze_scale
 from .chord_analysis import ChordAnalysisRequest, analyze_chord
+from .timeline import (
+    TimedEvent,
+    TimelineAnalysisRequest,
+    analyze_timeline,
+    generate_sequence,
+)
 from .builders import (
     ManualScaleBuilder,
     ManualChordBuilder,
@@ -20,10 +26,14 @@ from .builders import (
 __all__ = [
     "ScaleAnalysisRequest",
     "ChordAnalysisRequest",
+    "TimelineAnalysisRequest",
+    "TimedEvent",
     "ManualScaleBuilder",
     "ManualChordBuilder",
     "analyze_scale",
     "analyze_chord",
+    "analyze_timeline",
+    "generate_sequence",
     "register_scale",
     "register_chord",
 ]

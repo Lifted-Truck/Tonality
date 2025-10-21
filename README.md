@@ -81,6 +81,7 @@ The `scripts/` folder bundles several terminal tools that piggy‑back on the an
 python3 scripts/analyze_scale.py SCALE [options]
 ```
 
+- `--list-scales`, `--list-qualities` print the available data sets and exit; positional `SCALE` is optional when listing.
 - `--tonic NOTE` spell the scale from a specific tonic (e.g., `--tonic Eb`).
 - `--spelling auto|sharps|flats` bias enharmonic naming (defaults to `auto`).
 - `--key-sig N` force a circle-of-fifths bias (-7..+7) when rendering note names.
@@ -93,6 +94,7 @@ python3 scripts/analyze_scale.py SCALE [options]
 python3 scripts/analyze_chord.py ROOT QUALITY [options]
 ```
 
+- `--list-scales`, `--list-qualities` display catalog entries and exit; the root/quality arguments are optional when listing.
 - `--tonic NOTE` reports chord intervals relative to a tonal center.
 - `--spelling auto|sharps|flats` controls enharmonic preference for note names.
 - `--key-sig N` applies a circle-of-fifths bias when spelling notes (-7..+7).
@@ -121,10 +123,22 @@ python3 scripts/build_scale_or_chord.py scale NAME 0,2,3,6
 python3 scripts/build_scale_or_chord.py chord NAME 0,3,7
 ```
 
-- Subcommands: `scale` registers a manual scale (comma-separated pitch classes); `chord` registers a chord quality (comma-separated intervals).
+- Subcommands: `scale` registers a manual scale (comma-separated pitch classes or `--mask`); `chord` registers a chord quality (comma-separated intervals or `--mask`).
+- `--name` is optional; omit it to let the engine assign a placeholder for the session.
+- `--match-only` lets you probe the catalog and see existing matches without registering a new object.
 - Registered objects live in the in-memory session registries exposed by `mts.analysis`.
 
 See `mts/analysis/` for the Python interfaces behind these commands; the modules are designed so features can expand alongside the catalog data.
+
+## Temporal Roadmap (Work in Progress)
+
+The new `mts.analysis.timeline` module is a scaffold for future, time-aware theory work. Current TODOs:
+
+- TODO: ingest MIDI/MusicXML (or live MIDI) into `TimedEvent` objects that capture onset, duration, velocity, tempo, and meter.
+- TODO: reuse the scale/chord analyzers to compute sliding harmonic windows along a timeline.
+- TODO: profile rhythm (density, syncopation, accents) alongside harmonic tension metrics.
+- TODO: surface generative hooks that can propose new events based on harmonic and rhythmic context.
+- TODO: extend the CLI family with sequence-aware commands once the core timeline utilities solidify.
 
 ## Next Steps
 
