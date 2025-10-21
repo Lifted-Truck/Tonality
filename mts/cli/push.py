@@ -4,10 +4,51 @@ import argparse
 import sys
 from typing import Optional
 
-from ..io.loaders import load_scales, load_chord_qualities
+from ..io.loaders import load_scales, load_chord_qualities, load_function_mappings
 from ..core.chord import Chord
 from ..core.enharmonics import pc_from_name, name_for_pc
 from ..layouts.push_grid import PushGrid
+from ..theory import functions as fn_defs
+
+_FUNCTION_FEATURE_CHOICES = sorted(
+    {
+        fn_defs.FEATURE_ADDED_TONES,
+        fn_defs.FEATURE_ALTERED_DOMINANT,
+        fn_defs.FEATURE_EXTENDED,
+        fn_defs.FEATURE_LEADING_TONE,
+        fn_defs.FEATURE_LYDIAN_EXTENSIONS,
+        fn_defs.FEATURE_POWER_DYADS,
+        fn_defs.FEATURE_RAISED_SIXTH,
+        fn_defs.FEATURE_SIXTH_CHORDS,
+        fn_defs.FEATURE_SUSPENDED,
+        fn_defs.FEATURE_PARALLEL_MAJOR,
+        fn_defs.FEATURE_PARALLEL_MINOR,
+    }
+)
+
+
+def _infer_function_mode(scale_name: str) -> Optional[str]:
+    normalized = scale_name.lower()
+    if normalized in {"ionian", "major"}:
+        return "major"
+    if normalized in {"natural minor", "aeolian"}:
+        return "minor"
+    return None
+
+
+def _print_function_catalog(mode: str, mappings) -> None:
+    print(f"\nFunctional catalog for mode '{mode}':")
+    for item in mappings:
+        tags = f" [{', '.join(item.tags)}]" if item.tags else ""
+        intervals = ",".join(str(iv) for iv in item.intervals)
+        print(
+            f"  degree_pc={item.degree_pc:2d} "
+            f"label={item.modal_label:<10} "
+            f"quality={item.chord_quality:<10} "
+            f"role={item.role:<12} "
+            f"intervals=[{intervals}]"
+            f"{tags}"
+        )
 
 def _positive_int_or_none(v: Optional[str]) -> Optional[int]:
     if v is None:
@@ -56,10 +97,25 @@ def build_arg_parser() -> argparse.ArgumentParser:
     # Utilities
     p.add_argument("--list-scales", action="store_true", help="List available scales then exit.")
     p.add_argument("--list-qualities", action="store_true", help="List available chord qualities then exit.")
+    p.add_argument("--list-functions", action="store_true",
+                   help="List generated functional mappings for the selected mode then exit.")
     p.add_argument("--strict-in-scale", dest="strict_in_scale", action="store_true", default=True,
                help="(default: on) When mode=in_scale, abort if the chord contains out-of-key tones. Use --no-strict-in-scale to disable.")
     p.add_argument("--no-strict-in-scale", dest="strict_in_scale", action="store_false",
                help="Disable strict in-scale validation (allow chords with out-of-key tones).")
+    # Functional catalog controls
+    p.add_argument("--functions-mode", choices=["major", "minor", "both"], default=None,
+                   help="Template set to use when listing functional mappings. "
+                        "Defaults to both major and minor unless specified.")
+    p.add_argument("--functions-feature", action="append", default=[],
+                   choices=_FUNCTION_FEATURE_CHOICES,
+                   help="Enable additional functional features (repeatable).")
+    p.add_argument("--functions-include-borrowed", dest="functions_include_borrowed",
+                   action="store_true", default=None,
+                   help="Force borrowed chords to be included when listing functional mappings.")
+    p.add_argument("--functions-no-borrowed", dest="functions_include_borrowed",
+                   action="store_false",
+                   help="Force borrowed chords to be excluded when listing functional mappings.")
     return p
 
 def main(argv: Optional[list[str]] = None) -> None:
@@ -79,6 +135,22 @@ def main(argv: Optional[list[str]] = None) -> None:
         print("Available chord qualities:")
         for name in sorted(qualities.keys()):
             print(" -", name)
+        return
+    if args.list_functions:
+        if args.functions_mode:
+            mode_selection = ["major", "minor"] if args.functions_mode == "both" else [args.functions_mode]
+        else:
+            mode_selection = ["major", "minor"]
+
+        for idx, mode in enumerate(mode_selection):
+            if idx:
+                print()
+            mappings = load_function_mappings(
+                mode,
+                features=args.functions_feature,
+                include_borrowed=args.functions_include_borrowed,
+            )
+            _print_function_catalog(mode, mappings)
         return
 
     # Resolve tonic and scale

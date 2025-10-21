@@ -31,5 +31,104 @@
     "cents": 200.0,
     "ratio": null,
     "category": "dissonant"
+  },
+  {
+    "semitones": 3,
+    "name": "m3",
+    "verbal": "minor third",
+    "diatonic_class": "3",
+    "quality": "minor",
+    "inversion": 9,
+    "cents": 300.0,
+    "ratio": "6:5",
+    "category": "imperfect consonant"
+  },
+  {
+    "semitones": 4,
+    "name": "M3",
+    "verbal": "major third",
+    "diatonic_class": "3",
+    "quality": "major",
+    "inversion": 8,
+    "cents": 400.0,
+    "ratio": "5:4",
+    "category": "imperfect consonant"
+  },
+  {
+    "semitones": 5,
+    "name": "P4",
+    "verbal": "perfect fourth",
+    "diatonic_class": "4",
+    "quality": "perfect",
+    "inversion": 7,
+    "cents": 500.0,
+    "ratio": "4:3",
+    "category": "consonant"
+  },
+  {
+    "semitones": 6,
+    "name": "TT",
+    "verbal": "tritone (augmented fourth / diminished fifth)",
+    "diatonic_class": "4/5",
+    "quality": "tritone",
+    "inversion": 6,
+    "cents": 600.0,
+    "ratio": null,
+    "category": "dissonant"
+  },
+  {
+    "semitones": 7,
+    "name": "P5",
+    "verbal": "perfect fifth",
+    "diatonic_class": "5",
+    "quality": "perfect",
+    "inversion": 5,
+    "cents": 700.0,
+    "ratio": "3:2",
+    "category": "consonant"
+  },
+  {
+    "semitones": 8,
+    "name": "m6",
+    "verbal": "minor sixth",
+    "diatonic_class": "6",
+    "quality": "minor",
+    "inversion": 4,
+    "cents": 800.0,
+    "ratio": "8:5",
+    "category": "imperfect consonant"
+  },
+  {
+    "semitones": 9,
+    "name": "M6",
+    "verbal": "major sixth",
+    "diatonic_class": "6",
+    "quality": "major",
+    "inversion": 3,
+    "cents": 900.0,
+    "ratio": "5:3",
+    "category": "imperfect consonant"
+  },
+  {
+    "semitones": 10,
+    "name": "m7",
+    "verbal": "minor seventh",
+    "diatonic_class": "7",
+    "quality": "minor",
+    "inversion": 2,
+    "cents": 1000.0,
+    "ratio": "16:9",
+    "category": "dissonant"
+  },
+  {
+    "semitones": 11,
+    "name": "M7",
+    "verbal": "major seventh",
+    "diatonic_class": "7",
+    "quality": "major",
+    "inversion": 1,
+    "cents": 1100.0,
+    "ratio": "15:8",
+    "category": "dissonant"
   }
 ]

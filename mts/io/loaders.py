@@ -106,10 +106,11 @@ def load_function_mappings(
     templates: Optional[Sequence[FunctionTemplate]] = None,
 ) -> List[FunctionMapping]:
     """
-    Load or synthesize functional mappings.
+    Synthesize functional mappings from scale data and templates.
 
-    strategy="dynamic" builds mappings from templates and scale data.
-    strategy="static" reads the legacy JSON files in data/.
+    The default strategy ("dynamic") uses the theory generator introduced in
+    mts/theory/functions.py. Pass strategy="static" only if you need to load
+    the legacy JSON tables in data/functions_major.json or data/functions_minor.json.
     """
 
     mode_key = mode.lower()
@@ -117,46 +118,11 @@ def load_function_mappings(
         raise ValueError(f"Unsupported strategy: {strategy}")
 
     if strategy == "static":
-        filename = {
-            "major": "functions_major.json",
-            "minor": "functions_minor.json",
-        }.get(mode_key)
-        if not filename:
-            raise ValueError(f"Unsupported mode: {mode}")
+        raise ValueError(
+            "Static function tables are deprecated. "
+            "Use strategy='dynamic' with appropriate features/templates instead."
+        )
 
-        mappings: List[FunctionMapping] = []
-        for payload in _read_json(filename):
-            degree_pc = int(payload["degree_pc"])
-            validate_pc(degree_pc)
-            intervals_field = payload.get("intervals")
-            if not isinstance(intervals_field, list) or not intervals_field:
-                raise ValueError(f"Function mapping {mode} degree {degree_pc} must define intervals")
-            intervals: List[int] = []
-            for interval in intervals_field:
-                value = int(interval)
-                validate_pc(value)
-                intervals.append(value)
-
-            tags_field = payload.get("tags", [])
-            if tags_field is None:
-                tags_field = []
-            if not isinstance(tags_field, list):
-                raise ValueError(f"Function mapping {mode} degree {degree_pc} tags must be a list if provided")
-            tag_values = tuple(sorted({str(tag) for tag in tags_field}))
-
-            mappings.append(
-                FunctionMapping(
-                    degree_pc=degree_pc,
-                    chord_quality=str(payload["chord_quality"]),
-                    intervals=tuple(intervals),
-                    role=str(payload["role"]),
-                    modal_label=str(payload["modal_label"]),
-                    tags=tag_values,
-                )
-            )
-        return mappings
-
-    # Dynamic strategy
     scales = load_scales()
     chord_qualities = load_chord_qualities()
 

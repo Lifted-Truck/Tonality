@@ -40,7 +40,7 @@ Key features:
 - Toggle layouts (`--preset fourths|thirds|sequential`) and anchoring (`--anchor fixed_C|fixed_root`).
 - Choose chromatic vs. in-scale views, hide out-of-key pads, and bias enharmonics with `--key-sig`.
 - Overlay chords by quality name or root/quality pair; strict in-scale checks warn or exit when tones fall outside the active scale.
-- Discover available resources with `--list-scales` and `--list-qualities`.
+- Discover available resources with `--list-scales`, `--list-qualities`, and the dynamic function catalog via `--list-functions` (add `--functions-feature altered_dominant`, `--functions-include-borrowed`, etc. to explore richer harmonic vocabularies).
 
 Want a scripted tour? Run the sample:
 
@@ -57,7 +57,7 @@ All reference material lives under `data/`:
 - `scales.json` – the full Push 3 roster plus modal/ethnic sets, now with alias support (e.g., “Aeolian” and “Natural Minor” map to the same entry).
 - `chord_qualities.json` – triads, sevenths, extensions, altered dominants, sus voicings, and more.
 - `functions_major.json` / `functions_minor.json` – expanded functional harmony tables capturing multiple chord options per degree with interval stacks.
-- `mts/theory/functions.py` – a procedural generator that derives functional mappings from template rules and scale definitions; experiment via `scripts/demo_function_generation.py`.
+- `mts/theory/functions.py` – a procedural generator that derives functional mappings from template rules and scale definitions; experiment via `scripts/demo_function_generation.py` or the CLI’s `--list-functions` (which now prints both major and minor sets by default).
 
 Adjust the JSON, reload via `mts.io.loaders`, and the CLI/Push grid pick up changes instantly.
 

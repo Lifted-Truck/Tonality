@@ -27,6 +27,15 @@ FEATURE_PARALLEL_MINOR = "parallel_minor"
 
 TAG_BORROWABLE = "borrowable"
 TAG_BORROWED = "borrowed"
+TAG_MODAL_MIX = "modal_mix"
+TAG_HARMONIC_MINOR = "harmonic_minor"
+TAG_MELODIC_MINOR = "melodic_minor"
+TAG_SUBTONIC = "subtonic"
+TAG_OMIT_11 = "omit_11"
+TAG_AVOID_3_OR_11 = "avoid_3_or_11"
+TAG_TONIC_PROLONGATION = "tonic_prolongation"
+TAG_MODAL = "modal"
+TAG_SCALE_FORM_DEPENDENT = "scale_form_dependent"
 
 
 @dataclass(frozen=True)
@@ -57,6 +66,7 @@ class GeneratedFunction:
     intervals: Tuple[int, ...]
     role: str
     modal_label: str
+    role_subtype: str | None = None
     tags: Tuple[str, ...] = ()
 
 
@@ -184,12 +194,12 @@ TEMPLATES_MAJOR: Tuple[FunctionTemplate, ...] = (
     FunctionTemplate(
         degree=4,
         variants=(
-            _variant("min", "iii", "mediant", diatonic=True),
-            _variant("min7", "iii7", "mediant", diatonic=True),
+            _variant("min", "iii", TAG_TONIC_PROLONGATION, diatonic=True),
+            _variant("min7", "iii7", TAG_TONIC_PROLONGATION, diatonic=True),
             _variant(
                 "min9",
                 "iii9",
-                "mediant",
+                TAG_TONIC_PROLONGATION,
                 diatonic=False,
                 requires=(FEATURE_LYDIAN_EXTENSIONS,),
                 extra_tags=(FEATURE_LYDIAN_EXTENSIONS, FEATURE_EXTENDED),
@@ -230,7 +240,7 @@ TEMPLATES_MAJOR: Tuple[FunctionTemplate, ...] = (
                 "predominant",
                 diatonic=True,
                 requires=(FEATURE_SUSPENDED,),
-                extra_tags=(FEATURE_SUSPENDED,),
+                extra_tags=(FEATURE_SUSPENDED, TAG_MODAL_MIX),
             ),
             _variant(
                 "sus4",
@@ -279,7 +289,7 @@ TEMPLATES_MAJOR: Tuple[FunctionTemplate, ...] = (
             _variant("7", "V7", "dominant", diatonic=True),
             _variant(
                 "7sus4",
-                "Vsus4",
+                "V7sus4",
                 "dominant",
                 diatonic=True,
                 requires=(FEATURE_SUSPENDED,),
@@ -297,14 +307,14 @@ TEMPLATES_MAJOR: Tuple[FunctionTemplate, ...] = (
                 "V11",
                 "dominant",
                 diatonic=True,
-                extra_tags=(FEATURE_EXTENDED,),
+                extra_tags=(FEATURE_EXTENDED, TAG_AVOID_3_OR_11),
             ),
             _variant(
                 "13",
                 "V13",
                 "dominant",
                 diatonic=True,
-                extra_tags=(FEATURE_EXTENDED,),
+                extra_tags=(FEATURE_EXTENDED, TAG_OMIT_11),
             ),
             _variant(
                 "7b5",
@@ -453,7 +463,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "tonic",
                 diatonic=False,
                 requires=(FEATURE_RAISED_SIXTH,),
-                extra_tags=(FEATURE_SIXTH_CHORDS, FEATURE_RAISED_SIXTH),
+                extra_tags=(FEATURE_SIXTH_CHORDS, FEATURE_RAISED_SIXTH, TAG_MELODIC_MINOR),
             ),
             _variant(
                 "min6add9",
@@ -461,7 +471,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "tonic",
                 diatonic=False,
                 requires=(FEATURE_RAISED_SIXTH, FEATURE_ADDED_TONES),
-                extra_tags=(FEATURE_SIXTH_CHORDS, FEATURE_ADDED_TONES, FEATURE_RAISED_SIXTH),
+                extra_tags=(FEATURE_SIXTH_CHORDS, FEATURE_ADDED_TONES, FEATURE_RAISED_SIXTH, TAG_MELODIC_MINOR),
             ),
             _variant("min7", "i7", "tonic", diatonic=True),
             _variant(
@@ -469,14 +479,14 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "i9",
                 "tonic",
                 diatonic=True,
-                extra_tags=(FEATURE_EXTENDED,),
+                extra_tags=(FEATURE_EXTENDED, TAG_SCALE_FORM_DEPENDENT),
             ),
             _variant(
                 "min11",
                 "i11",
                 "tonic",
                 diatonic=True,
-                extra_tags=(FEATURE_EXTENDED,),
+                extra_tags=(FEATURE_EXTENDED, TAG_SCALE_FORM_DEPENDENT),
             ),
             _variant(
                 "min13",
@@ -484,7 +494,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "tonic",
                 diatonic=False,
                 requires=(FEATURE_RAISED_SIXTH,),
-                extra_tags=(FEATURE_RAISED_SIXTH, FEATURE_EXTENDED),
+                extra_tags=(FEATURE_RAISED_SIXTH, FEATURE_EXTENDED, TAG_MELODIC_MINOR),
             ),
             _variant(
                 "minmaj7",
@@ -492,7 +502,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "tonic",
                 diatonic=False,
                 requires=(FEATURE_LEADING_TONE,),
-                extra_tags=(FEATURE_LEADING_TONE,),
+                extra_tags=(FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
             ),
             _variant(
                 "power",
@@ -515,7 +525,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "predominant",
                 diatonic=False,
                 requires=(FEATURE_LEADING_TONE,),
-                extra_tags=(FEATURE_LEADING_TONE,),
+                extra_tags=(FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
             ),
         ),
     ),
@@ -535,25 +545,24 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "maj6",
                 "bIII6",
                 "tonic",
-                diatonic=False,
-                requires=(FEATURE_RAISED_SIXTH,),
-                extra_tags=(FEATURE_SIXTH_CHORDS, FEATURE_RAISED_SIXTH),
+                diatonic=True,
+                requires=(FEATURE_SIXTH_CHORDS,),
+                extra_tags=(FEATURE_SIXTH_CHORDS,),
             ),
             _variant(
                 "maj7",
                 "bIIImaj7",
                 "tonic",
-                diatonic=False,
-                requires=(FEATURE_LEADING_TONE,),
-                extra_tags=(FEATURE_LEADING_TONE, FEATURE_EXTENDED),
+                diatonic=True,
+                extra_tags=(FEATURE_EXTENDED,),
             ),
             _variant(
                 "maj9",
                 "bIIImaj9",
                 "tonic",
-                diatonic=False,
-                requires=(FEATURE_LEADING_TONE,),
-                extra_tags=(FEATURE_LEADING_TONE, FEATURE_EXTENDED),
+                diatonic=True,
+                requires=(FEATURE_ADDED_TONES,),
+                extra_tags=(FEATURE_EXTENDED, FEATURE_ADDED_TONES),
             ),
         ),
     ),
@@ -567,7 +576,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "predominant",
                 diatonic=True,
                 requires=(FEATURE_ADDED_TONES,),
-                extra_tags=(FEATURE_ADDED_TONES,),
+                extra_tags=(FEATURE_ADDED_TONES, TAG_MELODIC_MINOR),
             ),
             _variant(
                 "min6",
@@ -575,7 +584,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "predominant",
                 diatonic=True,
                 requires=(FEATURE_SIXTH_CHORDS,),
-                extra_tags=(FEATURE_SIXTH_CHORDS,),
+                extra_tags=(FEATURE_SIXTH_CHORDS, TAG_MODAL),
             ),
             _variant("min7", "iv7", "predominant", diatonic=True),
             _variant(
@@ -583,36 +592,36 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "iv9",
                 "predominant",
                 diatonic=True,
-                extra_tags=(FEATURE_EXTENDED,),
+                extra_tags=(FEATURE_EXTENDED, TAG_SCALE_FORM_DEPENDENT),
             ),
             _variant(
                 "min11",
                 "iv11",
                 "predominant",
                 diatonic=True,
-                extra_tags=(FEATURE_EXTENDED,),
+                extra_tags=(FEATURE_EXTENDED, TAG_SCALE_FORM_DEPENDENT),
             ),
             _variant(
                 "min13",
                 "iv13",
                 "predominant",
                 diatonic=True,
-                extra_tags=(FEATURE_EXTENDED,),
+                extra_tags=(FEATURE_EXTENDED, TAG_SCALE_FORM_DEPENDENT),
             ),
         ),
     ),
     FunctionTemplate(
         degree=7,
         variants=(
-            _variant("min", "v", "dominant", diatonic=True),
-            _variant("min7", "v7", "dominant", diatonic=True),
+            _variant("min", "v", "dominant", diatonic=True, extra_tags=(TAG_MODAL,)),
+            _variant("min7", "v7", "dominant", diatonic=True, extra_tags=(TAG_MODAL,)),
             _variant(
                 "7",
                 "V7",
                 "dominant",
                 diatonic=False,
                 requires=(FEATURE_LEADING_TONE,),
-                extra_tags=(FEATURE_LEADING_TONE,),
+                extra_tags=(FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
             ),
             _variant(
                 "9",
@@ -620,7 +629,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "dominant",
                 diatonic=False,
                 requires=(FEATURE_LEADING_TONE, FEATURE_RAISED_SIXTH),
-                extra_tags=(FEATURE_LEADING_TONE, FEATURE_RAISED_SIXTH, FEATURE_EXTENDED),
+                extra_tags=(FEATURE_LEADING_TONE, FEATURE_RAISED_SIXTH, FEATURE_EXTENDED, TAG_HARMONIC_MINOR, TAG_MELODIC_MINOR),
             ),
             _variant(
                 "11",
@@ -628,7 +637,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "dominant",
                 diatonic=False,
                 requires=(FEATURE_LEADING_TONE, FEATURE_RAISED_SIXTH),
-                extra_tags=(FEATURE_LEADING_TONE, FEATURE_RAISED_SIXTH, FEATURE_EXTENDED),
+                extra_tags=(FEATURE_LEADING_TONE, FEATURE_RAISED_SIXTH, FEATURE_EXTENDED, TAG_HARMONIC_MINOR, TAG_MELODIC_MINOR),
             ),
             _variant(
                 "13",
@@ -636,7 +645,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "dominant",
                 diatonic=False,
                 requires=(FEATURE_LEADING_TONE, FEATURE_RAISED_SIXTH),
-                extra_tags=(FEATURE_LEADING_TONE, FEATURE_RAISED_SIXTH, FEATURE_EXTENDED),
+                extra_tags=(FEATURE_LEADING_TONE, FEATURE_RAISED_SIXTH, FEATURE_EXTENDED, TAG_HARMONIC_MINOR, TAG_MELODIC_MINOR),
             ),
             _variant(
                 "7b9",
@@ -644,7 +653,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "dominant",
                 diatonic=False,
                 requires=(FEATURE_ALTERED_DOMINANT, FEATURE_LEADING_TONE),
-                extra_tags=(FEATURE_ALTERED_DOMINANT, FEATURE_LEADING_TONE),
+                extra_tags=(FEATURE_ALTERED_DOMINANT, FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
             ),
             _variant(
                 "7#9",
@@ -652,7 +661,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "dominant",
                 diatonic=False,
                 requires=(FEATURE_ALTERED_DOMINANT, FEATURE_LEADING_TONE),
-                extra_tags=(FEATURE_ALTERED_DOMINANT, FEATURE_LEADING_TONE),
+                extra_tags=(FEATURE_ALTERED_DOMINANT, FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
             ),
             _variant(
                 "7alt",
@@ -660,7 +669,7 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "dominant",
                 diatonic=False,
                 requires=(FEATURE_ALTERED_DOMINANT, FEATURE_LEADING_TONE),
-                extra_tags=(FEATURE_ALTERED_DOMINANT, FEATURE_LEADING_TONE),
+                extra_tags=(FEATURE_ALTERED_DOMINANT, FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
             ),
         ),
     ),
@@ -680,77 +689,106 @@ TEMPLATES_MINOR: Tuple[FunctionTemplate, ...] = (
                 "maj6",
                 "bVI6",
                 "predominant",
-                diatonic=False,
-                requires=(FEATURE_RAISED_SIXTH,),
-                extra_tags=(FEATURE_SIXTH_CHORDS, FEATURE_RAISED_SIXTH),
+                diatonic=True,
+                requires=(FEATURE_SIXTH_CHORDS,),
+                extra_tags=(FEATURE_SIXTH_CHORDS,),
             ),
             _variant(
                 "maj7",
                 "bVImaj7",
                 "predominant",
-                diatonic=False,
-                requires=(FEATURE_LEADING_TONE,),
-                extra_tags=(FEATURE_LEADING_TONE, FEATURE_EXTENDED),
+                diatonic=True,
+                extra_tags=(FEATURE_EXTENDED,),
             ),
             _variant(
                 "maj9",
                 "bVImaj9",
                 "predominant",
-                diatonic=False,
-                requires=(FEATURE_LEADING_TONE,),
-                extra_tags=(FEATURE_LEADING_TONE, FEATURE_EXTENDED),
+                diatonic=True,
+                requires=(FEATURE_ADDED_TONES,),
+                extra_tags=(FEATURE_EXTENDED, FEATURE_ADDED_TONES),
             ),
         ),
     ),
     FunctionTemplate(
         degree=10,
         variants=(
-            _variant("maj", "bVII", "dominant", diatonic=True),
+            _variant(
+                "maj",
+                "bVII",
+                "dominant",
+                diatonic=False,
+                requires=(FEATURE_PARALLEL_MAJOR,),
+                extra_tags=(FEATURE_PARALLEL_MAJOR, TAG_SUBTONIC),
+            ),
             _variant(
                 "majadd9",
                 "bVIIadd9",
                 "dominant",
-                diatonic=True,
+                diatonic=False,
                 requires=(FEATURE_ADDED_TONES,),
-                extra_tags=(FEATURE_ADDED_TONES,),
+                extra_tags=(FEATURE_ADDED_TONES, FEATURE_PARALLEL_MAJOR, TAG_SUBTONIC),
             ),
             _variant(
                 "7sus4",
-                "bVIIsus4",
+                "bVII7sus4",
                 "dominant",
-                diatonic=True,
+                diatonic=False,
                 requires=(FEATURE_SUSPENDED,),
-                extra_tags=(FEATURE_SUSPENDED,),
+                extra_tags=(FEATURE_SUSPENDED, FEATURE_PARALLEL_MAJOR, TAG_SUBTONIC),
             ),
-            _variant("7", "bVII7", "dominant", diatonic=True),
+            _variant(
+                "7",
+                "bVII7",
+                "dominant",
+                diatonic=False,
+                requires=(FEATURE_PARALLEL_MAJOR,),
+                extra_tags=(FEATURE_PARALLEL_MAJOR, TAG_SUBTONIC),
+            ),
             _variant(
                 "9",
                 "bVII9",
                 "dominant",
-                diatonic=True,
-                extra_tags=(FEATURE_EXTENDED,),
+                diatonic=False,
+                requires=(FEATURE_PARALLEL_MAJOR,),
+                extra_tags=(FEATURE_EXTENDED, FEATURE_PARALLEL_MAJOR, TAG_SUBTONIC),
             ),
             _variant(
                 "13",
                 "bVII13",
                 "dominant",
-                diatonic=True,
-                extra_tags=(FEATURE_EXTENDED,),
+                diatonic=False,
+                requires=(FEATURE_PARALLEL_MAJOR,),
+                extra_tags=(FEATURE_EXTENDED, FEATURE_PARALLEL_MAJOR, TAG_SUBTONIC),
             ),
         ),
     ),
     FunctionTemplate(
         degree=11,
         variants=(
-            _variant("dim", "viidim", "dominant", diatonic=True),
-            _variant("min7b5", "viiø7", "dominant", diatonic=True),
+            _variant(
+                "dim",
+                "viidim",
+                "dominant",
+                diatonic=False,
+                requires=(FEATURE_LEADING_TONE,),
+                extra_tags=(FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
+            ),
+            _variant(
+                "min7b5",
+                "viiø7",
+                "dominant",
+                diatonic=False,
+                requires=(FEATURE_LEADING_TONE,),
+                extra_tags=(FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
+            ),
             _variant(
                 "dim7",
                 "viidim7",
                 "dominant",
                 diatonic=False,
                 requires=(FEATURE_LEADING_TONE,),
-                extra_tags=(FEATURE_LEADING_TONE,),
+                extra_tags=(FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
             ),
         ),
     ),
@@ -773,6 +811,7 @@ DEFAULT_FEATURES_MINOR: Set[str] = frozenset(
         FEATURE_SUSPENDED,
         FEATURE_EXTENDED,
         FEATURE_LEADING_TONE,
+        FEATURE_PARALLEL_MAJOR,
     }
 )
 
@@ -823,14 +862,20 @@ def generate_functions_for_scale(
             if not diatonic:
                 tags.discard(FEATURE_DIATONIC)
                 tags.add(TAG_BORROWED)
+            if TAG_MODAL_MIX in tags:
+                tags.discard(FEATURE_DIATONIC)
+
+            role_subtype = variant.role if variant.role == TAG_TONIC_PROLONGATION else None
+            canonical_role = "tonic" if variant.role == TAG_TONIC_PROLONGATION else variant.role
 
             results.append(
                 GeneratedFunction(
                     degree_pc=template.degree % 12,
                     chord_quality=variant.quality,
                     intervals=quality.intervals,
-                    role=variant.role,
+                    role=canonical_role,
                     modal_label=variant.modal_label,
+                    role_subtype=role_subtype,
                     tags=tuple(sorted(tags)),
                 )
             )
