@@ -71,16 +71,60 @@ python3 scripts/validate_function_mappings.py
 
 It reports any pitch-class mismatches along with the scale context used for comparison.
 
-## Analysis Toolkit (in progress)
+## Analysis CLI Reference
 
-Several scaffolded tools are available for rapid experimentation:
+The `scripts/` folder bundles several terminal tools that piggy‑back on the analysis layer. Each command prints a short usage summary via `-h/--help`; the cheat‑sheet below lists the most important flags.
 
-- `scripts/analyze_scale.py` – placeholder scale analytics (symmetry, interval vectors, modal rotations; optionally spell concrete note names via `--tonic`).
-- `scripts/analyze_chord.py` – placeholder chord analytics (interval matrices, voicings, and concrete note spellings; optionally contextualized to a tonic).
-- `scripts/build_scale_or_chord.py` – manual entry of ad hoc scales/chords with session storage; ready to plug into future GUIs/APIs.
-- `scripts/check_chord_scale_compat.py` – expanded compatibility explorer showing roots where chords fit within scales and, when given a tonic, their spelled note names (TODO: tag modal sources for non-diatonic placements).
+### `scripts/analyze_scale.py`
 
-See `mts/analysis/` for the Python interfaces backing these commands. They intentionally surface TODO markers so the theoretical feature set can grow incrementally alongside the data catalog.
+```
+python3 scripts/analyze_scale.py SCALE [options]
+```
+
+- `--tonic NOTE` spell the scale from a specific tonic (e.g., `--tonic Eb`).
+- `--spelling auto|sharps|flats` bias enharmonic naming (defaults to `auto`).
+- `--key-sig N` force a circle-of-fifths bias (-7..+7) when rendering note names.
+- `--no-note-names` suppresses spelled degrees even when a tonic is supplied.
+- `--json` dumps the complete analysis payload as pretty-printed JSON.
+
+### `scripts/analyze_chord.py`
+
+```
+python3 scripts/analyze_chord.py ROOT QUALITY [options]
+```
+
+- `--tonic NOTE` reports chord intervals relative to a tonal center.
+- `--spelling auto|sharps|flats` controls enharmonic preference for note names.
+- `--key-sig N` applies a circle-of-fifths bias when spelling notes (-7..+7).
+- `--interval-labels numeric|classical` switches between raw integers and P/M/m labels.
+- `--no-inversions`, `--no-voicings`, `--no-enharmonics` skip heavy sections you do not need.
+- `--json` emits the full analysis dictionary for downstream tooling.
+
+### `scripts/check_chord_scale_compat.py`
+
+```
+python3 scripts/check_chord_scale_compat.py [options]
+```
+
+- `--scale NAME` limit the overview to a single scale (defaults to every scale).
+- `--chord-quality NAME` test a specific quality against the selected scale.
+- `--tonic NOTE`, `--spelling`, `--key-sig` provide the same enharmonic controls as the other CLIs.
+- `--note-names` adds spelled chord tones alongside numeric root positions.
+- `--label-style numeric|classical` toggles between raw semitone offsets and traditional interval names.
+- `--list-scales`, `--list-qualities` enumerate available data and exit.
+- When a chord is non-diatonic, the tool suggests modal-borrow sources and shows which pitch classes would be added or removed.
+
+### `scripts/build_scale_or_chord.py`
+
+```
+python3 scripts/build_scale_or_chord.py scale NAME 0,2,3,6
+python3 scripts/build_scale_or_chord.py chord NAME 0,3,7
+```
+
+- Subcommands: `scale` registers a manual scale (comma-separated pitch classes); `chord` registers a chord quality (comma-separated intervals).
+- Registered objects live in the in-memory session registries exposed by `mts.analysis`.
+
+See `mts/analysis/` for the Python interfaces behind these commands; the modules are designed so features can expand alongside the catalog data.
 
 ## Next Steps
 
