@@ -16,6 +16,8 @@ from .timeline import (
     analyze_timeline,
     generate_sequence,
 )
+from .summaries import ChordBrief, chord_brief
+from ..core.pitch import Pitch, parse_pitch_token, ParsedPitch
 from .builders import (
     ManualScaleBuilder,
     ManualChordBuilder,
@@ -28,12 +30,17 @@ __all__ = [
     "ChordAnalysisRequest",
     "TimelineAnalysisRequest",
     "TimedEvent",
+    "Pitch",
+    "ParsedPitch",
+    "ChordBrief",
     "ManualScaleBuilder",
     "ManualChordBuilder",
     "analyze_scale",
     "analyze_chord",
     "analyze_timeline",
     "generate_sequence",
+    "parse_pitch_token",
+    "chord_brief",
     "register_scale",
     "register_chord",
 ]

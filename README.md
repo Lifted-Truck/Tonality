@@ -115,7 +115,8 @@ python3 scripts/check_chord_scale_compat.py [options]
 - `--note-names` adds spelled chord tones alongside numeric root positions.
 - `--label-style numeric|classical` toggles between raw semitone offsets and traditional interval names.
 - `--list-scales`, `--list-qualities` enumerate available data and exit.
-- Session-defined chord qualities automatically print a quick inversion/voicing summary the first time they appear.
+- `--json` returns structured results for automation or GUI consumption.
+- Session-defined chord qualities automatically surface their interval fingerprint, a quick compatibility snapshot, and any detected functional roles the first time they appear.
 - When a chord is non-diatonic, the tool suggests modal-borrow sources and shows which pitch classes would be added or removed.
 
 ### `scripts/build_scale_or_chord.py`
@@ -128,7 +129,9 @@ python3 scripts/build_scale_or_chord.py chord NAME 0,3,7
 - Subcommands: `scale` registers a manual scale (comma-separated pitch classes or `--mask`); `chord` registers a chord quality (comma-separated intervals or `--mask`).
 - `--name` is optional; omit it to let the engine assign a placeholder for the session.
 - `--match-only` lets you probe the catalog and see existing matches without registering a new object.
-- Newly registered chords print a quick inversion/voicing summary so you can spot interesting structures immediately.
+- `--list-session` / `--clear-session` inspect or reset the in-memory registries (they persist to `~/.tonality_session.json` when writable).
+- `--summary brief|full|none` controls the post-registration chord summary. The brief report includes interval-class fingerprints, a ranked compatibility snapshot (top matches only), and detected functional roles.
+- Degree/interval inputs accept integers (`0-11`), note names (`C`, `F#`, `Bb`, etc.), or absolute pitches (`C3`, `Bb-1`, `60`).
 - Registered objects live in the in-memory session registries exposed by `mts.analysis`.
 
 See `mts/analysis/` for the Python interfaces behind these commands; the modules are designed so features can expand alongside the catalog data.

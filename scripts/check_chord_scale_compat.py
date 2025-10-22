@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from collections.abc import Iterable, Mapping
 from functools import lru_cache
 from pathlib import Path
@@ -18,9 +19,8 @@ from mts.io.loaders import load_scales, load_chord_qualities
 from mts.core.bitmask import mask_from_pcs, is_subset, pcs_from_mask
 from mts.core.quality import ChordQuality
 from mts.core.scale import Scale
-from mts.core.chord import Chord
 from mts.core.enharmonics import name_for_pc, pc_from_name, SpellingPref
-from mts.analysis import ChordAnalysisRequest, analyze_chord
+from mts.analysis import chord_brief
 from mts.analysis.builders import is_session_chord
 
 EXTENSIONS_ORDER: list[tuple[str, int]] = [
@@ -186,19 +186,13 @@ def _session_chord_summary(quality: ChordQuality) -> str:
     cached = _SESSION_CHORD_SUMMARIES.get(quality.name)
     if cached is not None:
         return cached
-    chord = Chord.from_quality(0, quality)
-    analysis = analyze_chord(
-        ChordAnalysisRequest(
-            chord=chord,
-            include_inversions=True,
-            include_voicings=True,
-            include_enharmonics=False,
-        )
-    )
-    voicings = list(analysis.get("voicings", {}).keys())
-    voicing_text = ", ".join(voicings) if voicings else "none"
-    inversion_count = len(analysis.get("inversions", []))
-    summary = f"{inversion_count} inversions; voicings -> {voicing_text}"
+    brief = chord_brief(quality)
+    parts: list[str] = [f"IC {brief.interval_fingerprint}"]
+    if brief.compatible_scales:
+        parts.append(f"Fits {brief.compatible_scales[0]}")
+    if brief.functional_roles:
+        parts.append(brief.functional_roles[0])
+    summary = "; ".join(parts)
     _SESSION_CHORD_SUMMARIES[quality.name] = summary
     return summary
 
@@ -263,34 +257,46 @@ def run_overview(
     key_signature: int | None,
     include_note_names: bool,
     label_style: str,
-) -> None:
-    session_announced: set[str] = set()
+) -> list[dict[str, object]]:
+    overview_data: list[dict[str, object]] = []
     for scale_name, scale in sorted(scales.items()):
-        compatible: list[tuple[str, list[int], ChordQuality]] = []
+        compatible_entries: list[dict[str, object]] = []
         incompatible: list[str] = []
         for quality_name, quality in qualities.items():
             roots = compatibility_positions(scale, quality)
             if roots:
-                compatible.append((quality_name, roots, quality))
+                summary = None
+                if is_session_chord(quality.name):
+                    summary = _session_chord_summary(quality)
+                root_display = _format_root_positions(
+                    roots,
+                    quality,
+                    tonic_pc=tonic_pc,
+                    spelling=spelling,
+                    key_signature=key_signature,
+                    include_note_names=include_note_names,
+                    label_style=label_style,
+                )
+                entry = {
+                    "quality": quality_name,
+                    "roots": roots,
+                    "display": root_display,
+                }
+                if summary:
+                    entry["session_summary"] = summary
+                compatible_entries.append(entry)
             else:
                 incompatible.append(quality_name)
 
-        print(f"\nScale: {describe_scale(scale)}")
-        for name, roots, quality in sorted(compatible, key=lambda item: _sort_key(item[0], item[2])):
-            if is_session_chord(quality.name) and quality.name not in session_announced:
-                print(f"  [Session chord] {quality.name}: {_session_chord_summary(quality)}")
-                session_announced.add(quality.name)
-            root_display = _format_root_positions(
-                roots,
-                quality,
-                tonic_pc=tonic_pc,
-                spelling=spelling,
-                key_signature=key_signature,
-                include_note_names=include_note_names,
-                label_style=label_style,
-            )
-            print(f"  {name:<10} -> roots [{root_display}]")
-        print(f"  Non-diatonic ({len(incompatible)}): {', '.join(sorted(incompatible))}")
+        overview_data.append(
+            {
+                "scale": scale_name,
+                "degrees": list(scale.degrees),
+                "compatible": sorted(compatible_entries, key=lambda item: _sort_key(item["quality"], qualities[item["quality"]])),
+                "non_diatonic": sorted(incompatible),
+            }
+        )
+    return overview_data
 
 
 def run_specific(
@@ -304,11 +310,17 @@ def run_specific(
     key_signature: int | None,
     include_note_names: bool,
     label_style: str,
-) -> None:
+) -> dict[str, object]:
     scale = scales[scale_name]
     quality = qualities[chord_quality]
+    result: dict[str, object] = {
+        "scale": scale.name,
+        "scale_degrees": list(scale.degrees),
+        "chord_quality": quality.name,
+        "chord_intervals": list(quality.intervals),
+    }
     if is_session_chord(quality.name):
-        print(f"[Session chord] {quality.name}: {_session_chord_summary(quality)}")
+        result["session_summary"] = _session_chord_summary(quality)
     roots = compatibility_positions(scale, quality)
     if roots:
         display = _format_root_positions(
@@ -320,44 +332,50 @@ def run_specific(
             include_note_names=include_note_names,
             label_style=label_style,
         )
-        print(f"{chord_quality} fits in {scale.name} at roots: [{display}]")
+        result.update({"compatible": True, "roots": roots, "display": display})
     else:
-        print(f"{chord_quality} introduces out-of-scale tones in {scale.name} at every root.")
+        result.update({"compatible": False, "roots": [], "display": None})
         suggestions = _modal_borrow_sources(scale, quality, scales)
-        if suggestions:
-            print("Possible modal sources:")
-            for entry in suggestions:
-                display = _format_root_positions(
-                    entry["roots"],
-                    quality,
-                    tonic_pc=tonic_pc,
-                    spelling=spelling,
-                    key_signature=key_signature,
-                    include_note_names=include_note_names,
-                    label_style=label_style,
-                )
-                added = _describe_pcs(
-                    entry["added"],
-                    tonic_pc=tonic_pc,
-                    spelling=spelling,
-                    key_signature=key_signature,
-                    include_note_names=include_note_names,
-                    label_style=label_style,
-                )
-                removed = _describe_pcs(
-                    entry["removed"],
-                    tonic_pc=tonic_pc,
-                    spelling=spelling,
-                    key_signature=key_signature,
-                    include_note_names=include_note_names,
-                    label_style=label_style,
-                )
-                print(
-                    f"  {entry['scale_name']:<20} roots [{display}] "
-                    f"(adds {added}; removes {removed})"
-                )
-        else:
-            print("No related modal sources found in the scale catalog.")
+        suggestion_data: list[dict[str, object]] = []
+        for entry in suggestions:
+            display = _format_root_positions(
+                entry["roots"],
+                quality,
+                tonic_pc=tonic_pc,
+                spelling=spelling,
+                key_signature=key_signature,
+                include_note_names=include_note_names,
+                label_style=label_style,
+            )
+            added = _describe_pcs(
+                entry["added"],
+                tonic_pc=tonic_pc,
+                spelling=spelling,
+                key_signature=key_signature,
+                include_note_names=include_note_names,
+                label_style=label_style,
+            )
+            removed = _describe_pcs(
+                entry["removed"],
+                tonic_pc=tonic_pc,
+                spelling=spelling,
+                key_signature=key_signature,
+                include_note_names=include_note_names,
+                label_style=label_style,
+            )
+            suggestion_data.append(
+                {
+                    "scale": entry["scale_name"],
+                    "roots": entry["roots"],
+                    "display": display,
+                    "added": entry["added"],
+                    "added_display": added,
+                    "removed": entry["removed"],
+                    "removed_display": removed,
+                }
+            )
+        result["suggestions"] = suggestion_data
+    return result
 
 
 def main(argv: Iterable[str] | None = None) -> None:
@@ -375,6 +393,8 @@ def main(argv: Iterable[str] | None = None) -> None:
                         help="Include note-name rendering alongside numeric positions.")
     parser.add_argument("--label-style", choices=["numeric", "classical"], default="numeric",
                         help="Format for root offsets and pitch-class listings (default: numeric).")
+    parser.add_argument("--json", action="store_true",
+                        help="Emit compatibility results as JSON (ignores other print formatting).")
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     scales = load_scales()
@@ -400,7 +420,7 @@ def main(argv: Iterable[str] | None = None) -> None:
             parser.error(f"Unknown scale {args.scale!r}. Use --list-scales to inspect options.")
         if args.chord_quality not in qualities:
             parser.error(f"Unknown chord quality {args.chord_quality!r}. Use --list-qualities to inspect options.")
-        run_specific(
+        result = run_specific(
             scales,
             qualities,
             scale_name=args.scale,
@@ -411,29 +431,63 @@ def main(argv: Iterable[str] | None = None) -> None:
             include_note_names=include_note_names,
             label_style=label_style,
         )
-    elif args.scale:
+        if args.json:
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return
+        summary = result.get("session_summary")
+        if summary:
+            print(f"[Session chord] {result['chord_quality']}: {summary}")
+        if result.get("compatible"):
+            print(
+                f"{result['chord_quality']} fits in {result['scale']} at roots: [{result['display']}]"
+            )
+        else:
+            print(
+                f"{result['chord_quality']} introduces out-of-scale tones in {result['scale']} at every root."
+            )
+            suggestions = result.get("suggestions", [])
+            if suggestions:
+                print("Possible modal sources:")
+                for suggestion in suggestions:
+                    print(
+                        f"  {suggestion['scale']:<20} roots [{suggestion['display']}] "
+                        f"(adds {suggestion['added_display']}; removes {suggestion['removed_display']})"
+                    )
+            else:
+                print("No related modal sources found in the scale catalog.")
+        return
+
+    if args.scale:
         if args.scale not in scales:
             parser.error(f"Unknown scale {args.scale!r}. Use --list-scales to inspect options.")
-        filtered = {args.scale: scales[args.scale]}
-        run_overview(
-            filtered,
-            qualities,
-            tonic_pc=tonic_pc,
-            spelling=args.spelling,
-            key_signature=args.key_sig,
-            include_note_names=include_note_names,
-            label_style=label_style,
-        )
+        selected_scales = {args.scale: scales[args.scale]}
     else:
-        run_overview(
-            scales,
-            qualities,
-            tonic_pc=tonic_pc,
-            spelling=args.spelling,
-            key_signature=args.key_sig,
-            include_note_names=include_note_names,
-            label_style=label_style,
-        )
+        selected_scales = scales
+
+    overview = run_overview(
+        selected_scales,
+        qualities,
+        tonic_pc=tonic_pc,
+        spelling=args.spelling,
+        key_signature=args.key_sig,
+        include_note_names=include_note_names,
+        label_style=label_style,
+    )
+    if args.json:
+        print(json.dumps(overview, indent=2, sort_keys=True))
+        return
+
+    seen_session: set[str] = set()
+    for entry in overview:
+        print(f"\nScale: {entry['scale']} ({','.join(str(pc) for pc in entry['degrees'])})")
+        for item in entry["compatible"]:
+            summary = item.get("session_summary")
+            if summary and item["quality"] not in seen_session:
+                print(f"  [Session chord] {item['quality']}: {summary}")
+                seen_session.add(item["quality"])
+            print(f"  {item['quality']:<10} -> roots [{item['display']}]")
+        non_diatonic = entry["non_diatonic"]
+        print(f"  Non-diatonic ({len(non_diatonic)}): {', '.join(non_diatonic)}")
 
 
 if __name__ == "__main__":

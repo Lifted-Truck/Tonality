@@ -30,6 +30,8 @@ from .analysis.builders import (
     match_chord,
     SESSION_SCALES,
     SESSION_CHORDS,
+    SESSION_SCALE_CONTEXT,
+    SESSION_CHORD_CONTEXT,
 )
 from .core.scale import Scale
 from .core.quality import ChordQuality
@@ -44,6 +46,9 @@ class Workspace:
     scale: Scale | None = None
     chord: Chord | None = None
     timeline_events: list[TimedEvent] = field(default_factory=list)
+    context_scope: str = "abstract"
+    context_tokens: tuple[str, ...] = field(default_factory=tuple)
+    context_absolute_midi: tuple[int, ...] = field(default_factory=tuple)
 
     def refresh_catalogs(self) -> tuple[Mapping[str, Scale], Mapping[str, ChordQuality]]:
         """Return the latest scale/chord catalogs (including session entries)."""
@@ -59,12 +64,14 @@ class Workspace:
         if name not in scales:
             raise ValueError(f"Unknown scale {name!r}.")
         self.scale = scales[name]
+        self._apply_context(SESSION_SCALE_CONTEXT.get(self.scale.name))
         return self.scale
 
     def register_scale(self, builder: ManualScaleBuilder) -> Scale:
         scales, _ = self.refresh_catalogs()
         result = register_scale(builder, catalog=scales)
         self.scale = result["scale"]
+        self._apply_context(result.get("context"))
         return self.scale
 
     def analyze_scale(self, **kwargs) -> dict[str, object]:
@@ -84,6 +91,7 @@ class Workspace:
         if quality_name not in chords:
             raise ValueError(f"Unknown chord quality {quality_name!r}.")
         self.chord = Chord.from_quality(root_pc, chords[quality_name])
+        self._apply_context(SESSION_CHORD_CONTEXT.get(self.chord.quality.name))
         return self.chord
 
     def register_chord(self, builder: ManualChordBuilder, *, root_pc: int = 0) -> Chord:
@@ -91,6 +99,7 @@ class Workspace:
         result = register_chord(builder, catalog=chords)
         quality = result["quality"]
         self.chord = Chord.from_quality(root_pc, quality)
+        self._apply_context(result.get("context"))
         return self.chord
 
     def analyze_chord(self, **kwargs) -> dict[str, object]:
@@ -120,6 +129,9 @@ class Workspace:
         self.scale = None
         self.chord = None
         self.timeline_events.clear()
+        self.context_scope = "abstract"
+        self.context_tokens = tuple()
+        self.context_absolute_midi = tuple()
 
     # --- Session metadata -----------------------------------------------
 
@@ -130,6 +142,17 @@ class Workspace:
     @staticmethod
     def session_chords() -> Mapping[str, ChordQuality]:
         return SESSION_CHORDS
+
+    def _apply_context(self, context: dict[str, object] | None) -> None:
+        if not context:
+            self.context_scope = "abstract"
+            self.context_tokens = tuple()
+            self.context_absolute_midi = tuple()
+            return
+        self.context_scope = context.get("scope", "abstract")
+        self.context_tokens = tuple(context.get("tokens", []))
+        absolute = tuple(int(v) for v in context.get("absolute_midi", []) or [])
+        self.context_absolute_midi = absolute
 
     # TODO: integrate persistence/export for session-defined objects.
     # TODO: surface change notifications for GUI/interactive layers.
