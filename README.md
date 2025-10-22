@@ -40,6 +40,7 @@ Key features:
 - Toggle layouts (`--preset fourths|thirds|sequential`) and anchoring (`--anchor fixed_C|fixed_root`).
 - Choose chromatic vs. in-scale views, hide out-of-key pads, and bias enharmonics with `--key-sig`.
 - Overlay chords by quality name or root/quality pair; strict in-scale checks warn or exit when tones fall outside the active scale.
+- Session-defined chord qualities announce a quick inversion/voicing summary as soon as they’re selected.
 - Discover available resources with `--list-scales`, `--list-qualities`, and the dynamic function catalog via `--list-functions` (add `--functions-feature altered_dominant`, `--functions-include-borrowed`, etc. to explore richer harmonic vocabularies).
 
 Want a scripted tour? Run the sample:
@@ -114,6 +115,7 @@ python3 scripts/check_chord_scale_compat.py [options]
 - `--note-names` adds spelled chord tones alongside numeric root positions.
 - `--label-style numeric|classical` toggles between raw semitone offsets and traditional interval names.
 - `--list-scales`, `--list-qualities` enumerate available data and exit.
+- Session-defined chord qualities automatically print a quick inversion/voicing summary the first time they appear.
 - When a chord is non-diatonic, the tool suggests modal-borrow sources and shows which pitch classes would be added or removed.
 
 ### `scripts/build_scale_or_chord.py`
@@ -126,6 +128,7 @@ python3 scripts/build_scale_or_chord.py chord NAME 0,3,7
 - Subcommands: `scale` registers a manual scale (comma-separated pitch classes or `--mask`); `chord` registers a chord quality (comma-separated intervals or `--mask`).
 - `--name` is optional; omit it to let the engine assign a placeholder for the session.
 - `--match-only` lets you probe the catalog and see existing matches without registering a new object.
+- Newly registered chords print a quick inversion/voicing summary so you can spot interesting structures immediately.
 - Registered objects live in the in-memory session registries exposed by `mts.analysis`.
 
 See `mts/analysis/` for the Python interfaces behind these commands; the modules are designed so features can expand alongside the catalog data.
@@ -139,6 +142,7 @@ The new `mts.analysis.timeline` module is a scaffold for future, time-aware theo
 - TODO: profile rhythm (density, syncopation, accents) alongside harmonic tension metrics.
 - TODO: surface generative hooks that can propose new events based on harmonic and rhythmic context.
 - TODO: extend the CLI family with sequence-aware commands once the core timeline utilities solidify.
+- TODO: flesh out the new `mts.workspace.Workspace` orchestration layer so CLI/GUI front-ends can share and persist context.
 
 ## Next Steps
 

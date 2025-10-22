@@ -18,7 +18,10 @@ from mts.io.loaders import load_scales, load_chord_qualities
 from mts.core.bitmask import mask_from_pcs, is_subset, pcs_from_mask
 from mts.core.quality import ChordQuality
 from mts.core.scale import Scale
+from mts.core.chord import Chord
 from mts.core.enharmonics import name_for_pc, pc_from_name, SpellingPref
+from mts.analysis import ChordAnalysisRequest, analyze_chord
+from mts.analysis.builders import is_session_chord
 
 EXTENSIONS_ORDER: list[tuple[str, int]] = [
     ("power", 0),
@@ -62,6 +65,8 @@ EXTENSIONS_ORDER: list[tuple[str, int]] = [
 ]
 
 EXTENSION_PRIORITY: dict[str, int] = {name: idx for idx, (name, _) in enumerate(EXTENSIONS_ORDER)}
+
+_SESSION_CHORD_SUMMARIES: dict[str, str] = {}
 
 
 @lru_cache(maxsize=None)
@@ -177,6 +182,27 @@ def _describe_pcs(
     return ", ".join(displays)
 
 
+def _session_chord_summary(quality: ChordQuality) -> str:
+    cached = _SESSION_CHORD_SUMMARIES.get(quality.name)
+    if cached is not None:
+        return cached
+    chord = Chord.from_quality(0, quality)
+    analysis = analyze_chord(
+        ChordAnalysisRequest(
+            chord=chord,
+            include_inversions=True,
+            include_voicings=True,
+            include_enharmonics=False,
+        )
+    )
+    voicings = list(analysis.get("voicings", {}).keys())
+    voicing_text = ", ".join(voicings) if voicings else "none"
+    inversion_count = len(analysis.get("inversions", []))
+    summary = f"{inversion_count} inversions; voicings -> {voicing_text}"
+    _SESSION_CHORD_SUMMARIES[quality.name] = summary
+    return summary
+
+
 def _modal_borrow_sources(
     base_scale: Scale,
     quality: ChordQuality,
@@ -238,6 +264,7 @@ def run_overview(
     include_note_names: bool,
     label_style: str,
 ) -> None:
+    session_announced: set[str] = set()
     for scale_name, scale in sorted(scales.items()):
         compatible: list[tuple[str, list[int], ChordQuality]] = []
         incompatible: list[str] = []
@@ -250,6 +277,9 @@ def run_overview(
 
         print(f"\nScale: {describe_scale(scale)}")
         for name, roots, quality in sorted(compatible, key=lambda item: _sort_key(item[0], item[2])):
+            if is_session_chord(quality.name) and quality.name not in session_announced:
+                print(f"  [Session chord] {quality.name}: {_session_chord_summary(quality)}")
+                session_announced.add(quality.name)
             root_display = _format_root_positions(
                 roots,
                 quality,
@@ -277,6 +307,8 @@ def run_specific(
 ) -> None:
     scale = scales[scale_name]
     quality = qualities[chord_quality]
+    if is_session_chord(quality.name):
+        print(f"[Session chord] {quality.name}: {_session_chord_summary(quality)}")
     roots = compatibility_positions(scale, quality)
     if roots:
         display = _format_root_positions(

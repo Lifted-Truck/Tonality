@@ -17,6 +17,8 @@ from mts.analysis import (
     ManualChordBuilder,
     register_scale,
     register_chord,
+    ChordAnalysisRequest,
+    analyze_chord,
 )
 from mts.analysis.builders import (
     degrees_from_mask,
@@ -24,6 +26,7 @@ from mts.analysis.builders import (
     match_scale,
     match_chord,
 )
+from mts.core.chord import Chord
 
 
 def parse_int_list(text: str | None) -> list[int]:
@@ -100,6 +103,18 @@ def chord_command(args: argparse.Namespace) -> None:
         print(f"Reusing catalog quality: {quality.name} -> {list(quality.intervals)}")
     else:
         print(f"Registered chord: {quality.name} -> {list(quality.intervals)}")
+        chord = Chord.from_quality(0, quality)
+        analysis = analyze_chord(
+            ChordAnalysisRequest(
+                chord=chord,
+                include_inversions=True,
+                include_voicings=True,
+                include_enharmonics=False,
+            )
+        )
+        voicing_labels = ", ".join(analysis.get("voicings", {}).keys()) or "none"
+        inversion_count = len(analysis.get("inversions", []))
+        print(f"  Analysis: {inversion_count} inversions, voicings -> {voicing_labels}")
 
 
 def main() -> None:

@@ -6,9 +6,12 @@ from collections.abc import Iterable
 
 from ..io.loaders import load_scales, load_chord_qualities, load_function_mappings, FunctionMapping
 from ..core.chord import Chord
+from ..core.quality import ChordQuality
 from ..core.enharmonics import pc_from_name, name_for_pc
 from ..layouts.push_grid import PushGrid
 from ..theory import functions as fn_defs
+from ..analysis import ChordAnalysisRequest, analyze_chord
+from ..analysis.builders import is_session_chord
 
 _FUNCTION_FEATURE_CHOICES = sorted(
     {
@@ -129,6 +132,22 @@ def build_arg_parser() -> argparse.ArgumentParser:
                    help="Force borrowed chords to be excluded when listing functional mappings.")
     return p
 
+
+def _session_chord_summary(quality: ChordQuality) -> str:
+    chord = Chord.from_quality(0, quality)
+    analysis = analyze_chord(
+        ChordAnalysisRequest(
+            chord=chord,
+            include_inversions=True,
+            include_voicings=True,
+            include_enharmonics=False,
+        )
+    )
+    voicing_labels = list(analysis.get("voicings", {}).keys())
+    voicing_text = ", ".join(voicing_labels) if voicing_labels else "none"
+    inversion_count = len(analysis.get("inversions", []))
+    return f"{inversion_count} inversions, voicings -> {voicing_text}"
+
 def main(argv: list[str] | None = None) -> None:
     args = build_arg_parser().parse_args(argv)
 
@@ -203,6 +222,10 @@ def main(argv: list[str] | None = None) -> None:
     else:
         # No chord: leave empty; grid will show '-' markers
         pass
+
+    if chord_quality and is_session_chord(chord_quality.name):
+        summary = _session_chord_summary(chord_quality)
+        print(f"[Session chord] {chord_quality.name}: {summary}")
 
     # --- In-scale sanity check: warn or error if chord contains out-of-key tones ---
     if args.mode == "in_scale" and chord_pcs:

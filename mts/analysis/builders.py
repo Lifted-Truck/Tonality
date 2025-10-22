@@ -148,3 +148,15 @@ def mask_from_text(text: str) -> int:
         stripped = stripped[2:]
     value = int(stripped, base)
     return value & ((1 << 12) - 1)
+
+
+def is_session_scale(name: str) -> bool:
+    """Return True if the scale name was registered in this session."""
+
+    return name in SESSION_SCALES
+
+
+def is_session_chord(name: str) -> bool:
+    """Return True if the chord name was registered in this session."""
+
+    return name in SESSION_CHORDS

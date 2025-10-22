@@ -11,6 +11,7 @@ from ..core.bitmask import validate_pc
 from ..core.interval import Interval
 from ..core.quality import ChordQuality
 from ..core.scale import Scale
+from ..analysis.builders import SESSION_SCALES, SESSION_CHORDS
 from ..theory.functions import (
     DEFAULT_FEATURES_MAJOR,
     DEFAULT_FEATURES_MINOR,
@@ -78,6 +79,10 @@ def load_scales() -> dict[str, Scale]:
             if alias in scales:
                 raise ValueError(f"Duplicate scale alias detected: {alias}")
             scales[alias] = scale
+    if SESSION_SCALES:
+        for manual in SESSION_SCALES.values():
+            if manual.name not in scales:
+                scales[manual.name] = manual
     return scales
 
 
@@ -94,6 +99,10 @@ def load_chord_qualities() -> dict[str, ChordQuality]:
         for tension in tensions:
             validate_pc(int(tension))
         qualities[name] = ChordQuality.from_intervals(name, intervals, tensions)
+    if SESSION_CHORDS:
+        for manual in SESSION_CHORDS.values():
+            if manual.name not in qualities:
+                qualities[manual.name] = manual
     return qualities
 
 
