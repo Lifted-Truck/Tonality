@@ -1,33 +1,4 @@
 {
-  "chords": [
-    {
-      "absolute_midi": [],
-      "context": "abstract",
-      "intervals": [
-        0,
-        1,
-        4
-      ],
-      "name": "sessionChord",
-      "tensions": [],
-      "tokens": [
-        "0",
-        "1",
-        "4"
-      ]
-    }
-  ],
-  "scales": [
-    {
-      "absolute_midi": [],
-      "context": "abstract",
-      "degrees": [
-        0,
-        4,
-        7
-      ],
-      "name": "NoteScale",
-      "tokens": []
-    }
-  ]
+  "chords": [],
+  "scales": []
 }

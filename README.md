@@ -130,6 +130,7 @@ python3 scripts/build_scale_or_chord.py chord NAME 0,3,7
 - `--name` is optional; omit it to let the engine assign a placeholder for the session.
 - `--match-only` lets you probe the catalog and see existing matches without registering a new object.
 - `--list-session` / `--clear-session` inspect or reset the in-memory registries (they persist to `~/.tonality_session.json` when writable).
+- `session --list/--clear` manages both scale and chord registries in one command.
 - `--summary brief|full|none` controls the post-registration chord summary. The brief report includes interval-class fingerprints, a ranked compatibility snapshot (top matches only), and detected functional roles.
 - Degree/interval inputs accept integers (`0-11`), note names (`C`, `F#`, `Bb`, etc.), or absolute pitches (`C3`, `Bb-1`, `60`).
 - Registered objects live in the in-memory session registries exposed by `mts.analysis`.

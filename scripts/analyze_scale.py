@@ -14,6 +14,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from mts.io.loaders import load_scales, load_chord_qualities
 from mts.analysis import ScaleAnalysisRequest, analyze_scale
+from mts.analysis.builders import SESSION_SCALE_CONTEXT
 from mts.core.enharmonics import pc_from_name
 
 
@@ -128,9 +129,19 @@ def main() -> None:
     if args.scale not in scales:
         parser.error(f"Unknown scale {args.scale!r}. Use --list-scales to inspect options.")
 
+    scale = scales[args.scale]
+    context = SESSION_SCALE_CONTEXT.get(scale.name)
+    if context:
+        scope = context.get("scope", "abstract").capitalize()
+        tokens = ", ".join(context.get("tokens", []))
+        line = f"Context: {scope}"
+        if tokens:
+            line += f" ({tokens})"
+        print(line)
+
     tonic_pc = pc_from_name(args.tonic) if args.tonic else None
     request = ScaleAnalysisRequest(
-        scale=scales[args.scale],
+        scale=scale,
         tonic_pc=tonic_pc,
         spelling=args.spelling,
         key_signature=args.key_sig,

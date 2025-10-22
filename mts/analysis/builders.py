@@ -150,12 +150,15 @@ def register_scale(
     if matches:
         scale = matches[0]
         SESSION_SCALES[scale.name] = scale
+        SESSION_SCALE_CONTEXT[scale.name] = context_payload
+        if persist:
+            save_session_catalog(session_path)
         return {"scale": scale, "match": matches, "context": context_payload}
 
     scale = builder.to_scale()
     if auto_placeholder and (scale.name in catalog or scale.name in SESSION_SCALES):
         placeholder = _placeholder_name("ManualScale", SESSION_SCALES, catalog.keys())
-        scale = Scale.from_degrees(placeholder, builder.degrees)
+        scale = Scale.from_degrees(placeholder, scale.degrees)
     SESSION_SCALES[scale.name] = scale
     SESSION_SCALE_CONTEXT[scale.name] = context_payload
     if persist:
@@ -177,12 +180,15 @@ def register_chord(
     if matches:
         quality = matches[0]
         SESSION_CHORDS[quality.name] = quality
+        SESSION_CHORD_CONTEXT[quality.name] = context_payload
+        if persist:
+            save_session_catalog(session_path)
         return {"quality": quality, "match": matches, "context": context_payload}
 
     quality = builder.to_quality()
     if auto_placeholder and (quality.name in catalog or quality.name in SESSION_CHORDS):
         placeholder = _placeholder_name("ManualChord", SESSION_CHORDS, catalog.keys())
-        quality = ChordQuality.from_intervals(placeholder, builder.intervals, builder.tensions)
+        quality = ChordQuality.from_intervals(placeholder, quality.intervals, quality.tensions)
     SESSION_CHORDS[quality.name] = quality
     SESSION_CHORD_CONTEXT[quality.name] = context_payload
     if persist:

@@ -11,7 +11,7 @@ from ..core.enharmonics import pc_from_name, name_for_pc
 from ..layouts.push_grid import PushGrid
 from ..theory import functions as fn_defs
 from ..analysis import ChordAnalysisRequest, analyze_chord
-from ..analysis.builders import is_session_chord
+from ..analysis.builders import is_session_chord, SESSION_CHORD_CONTEXT
 
 _FUNCTION_FEATURE_CHOICES = sorted(
     {
@@ -196,6 +196,7 @@ def main(argv: list[str] | None = None) -> None:
     chord_spelling: list[str] = []
     chord = None
     chord_quality = None
+    chord_context = None
 
     if args.chord:
         # Parse "Root:Quality"
@@ -210,6 +211,7 @@ def main(argv: list[str] | None = None) -> None:
         chord_pcs = list(chord.pcs)
         chord_spelling = chord.spelled(prefer=args.spelling, key_signature=args.key_sig)
         chord_quality = chord.quality
+        chord_context = SESSION_CHORD_CONTEXT.get(chord_quality.name)
     elif args.chord_root and args.chord_quality:
         chord_root_pc = pc_from_name(args.chord_root)
         if args.chord_quality not in qualities:
@@ -219,9 +221,18 @@ def main(argv: list[str] | None = None) -> None:
         chord_pcs = list(chord.pcs)
         chord_spelling = chord.spelled(prefer=args.spelling, key_signature=args.key_sig)
         chord_quality = chord.quality
+        chord_context = SESSION_CHORD_CONTEXT.get(chord_quality.name)
     else:
         # No chord: leave empty; grid will show '-' markers
         pass
+
+    if chord_context:
+        tokens = ", ".join(chord_context.get("tokens", []))
+        scope = chord_context.get("scope", "abstract").capitalize()
+        context_line = f"Context: {scope}"
+        if tokens:
+            context_line += f" ({tokens})"
+        print(context_line)
 
     if chord_quality and is_session_chord(chord_quality.name):
         summary = _session_chord_summary(chord_quality)

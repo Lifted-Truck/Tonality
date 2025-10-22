@@ -16,6 +16,7 @@ from mts.io.loaders import load_chord_qualities, load_scales
 from mts.core.chord import Chord
 from mts.core.enharmonics import pc_from_name
 from mts.analysis import ChordAnalysisRequest, analyze_chord
+from mts.analysis.builders import SESSION_CHORD_CONTEXT
 
 
 def _print_section(title: str) -> None:
@@ -215,7 +216,17 @@ def main() -> None:
 
     root_pc = pc_from_name(args.root)
     chord = Chord.from_quality(root_pc, qualities[args.quality])
+    chord_quality = chord.quality
     tonic_pc = pc_from_name(args.tonic) if args.tonic else None
+
+    context = SESSION_CHORD_CONTEXT.get(chord_quality.name)
+    if context:
+        scope = context.get("scope", "abstract").capitalize()
+        tokens = ", ".join(context.get("tokens", []))
+        line = f"Context: {scope}"
+        if tokens:
+            line += f" ({tokens})"
+        print(line)
 
     request = ChordAnalysisRequest(
         chord=chord,

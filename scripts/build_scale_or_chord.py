@@ -28,6 +28,8 @@ from mts.analysis.builders import (
     match_chord,
     SESSION_SCALES,
     SESSION_CHORDS,
+    SESSION_SCALE_CONTEXT,
+    SESSION_CHORD_CONTEXT,
     load_session_catalog,
     save_session_catalog,
 )
@@ -116,10 +118,15 @@ def scale_command(args: argparse.Namespace) -> None:
         else:
             print("Session-defined scales:")
             for name, scale in sorted(SESSION_SCALES.items()):
-                print(f" - {name}: {list(scale.degrees)}")
+                context = SESSION_SCALE_CONTEXT.get(name, {})
+                tokens = ", ".join(context.get("tokens", []))
+                scope = context.get("scope", "abstract")
+                suffix = f" ({scope}{f': {tokens}' if tokens else ''})"
+                print(f" - {name}: {list(scale.degrees)}{suffix}")
         return
     if args.clear_session:
         SESSION_SCALES.clear()
+        SESSION_SCALE_CONTEXT.clear()
         save_session_catalog()
         print("Cleared session-defined scales.")
         return
@@ -160,10 +167,15 @@ def chord_command(args: argparse.Namespace) -> None:
         else:
             print("Session-defined chord qualities:")
             for name, quality in sorted(SESSION_CHORDS.items()):
-                print(f" - {name}: {list(quality.intervals)}")
+                context = SESSION_CHORD_CONTEXT.get(name, {})
+                tokens = ", ".join(context.get("tokens", []))
+                scope = context.get("scope", "abstract")
+                suffix = f" ({scope}{f': {tokens}' if tokens else ''})"
+                print(f" - {name}: {list(quality.intervals)}{suffix}")
         return
     if getattr(args, "clear_session", False):
         SESSION_CHORDS.clear()
+        SESSION_CHORD_CONTEXT.clear()
         save_session_catalog()
         print("Cleared session-defined chord qualities.")
         return
@@ -198,6 +210,42 @@ def chord_command(args: argparse.Namespace) -> None:
             print(f"  {line}")
 
 
+def session_command(args: argparse.Namespace) -> None:
+    load_session_catalog()
+    if args.clear:
+        SESSION_SCALES.clear()
+        SESSION_CHORDS.clear()
+        SESSION_SCALE_CONTEXT.clear()
+        SESSION_CHORD_CONTEXT.clear()
+        save_session_catalog()
+        print("Cleared session-defined scales and chords.")
+        if not args.list:
+            return
+
+    if args.list or not args.clear:
+        if SESSION_SCALES:
+            print("Session-defined scales:")
+            for name, scale in sorted(SESSION_SCALES.items()):
+                context = SESSION_SCALE_CONTEXT.get(name, {})
+                tokens = ", ".join(context.get("tokens", []))
+                scope = context.get("scope", "abstract")
+                suffix = f" ({scope}{f': {tokens}' if tokens else ''})"
+                print(f" - {name}: {list(scale.degrees)}{suffix}")
+        else:
+            print("No session-defined scales.")
+
+        if SESSION_CHORDS:
+            print("\nSession-defined chord qualities:")
+            for name, quality in sorted(SESSION_CHORDS.items()):
+                context = SESSION_CHORD_CONTEXT.get(name, {})
+                tokens = ", ".join(context.get("tokens", []))
+                scope = context.get("scope", "abstract")
+                suffix = f" ({scope}{f': {tokens}' if tokens else ''})"
+                print(f" - {name}: {list(quality.intervals)}{suffix}")
+        else:
+            print("\nNo session-defined chord qualities.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Create ad hoc scales or chords for the current session.")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -226,6 +274,10 @@ def main() -> None:
     chord_parser.add_argument("--summary", choices=["brief", "full", "none"], default="brief",
                               help="Control the post-registration chord summary (default: brief).")
 
+    session_parser = subparsers.add_parser("session", help="Inspect or clear session-defined objects")
+    session_parser.add_argument("--list", action="store_true", help="List session-defined scales and chords.")
+    session_parser.add_argument("--clear", action="store_true", help="Clear session-defined scales and chords.")
+
     args = parser.parse_args()
 
     try:
@@ -233,6 +285,8 @@ def main() -> None:
             scale_command(args)
         elif args.command == "chord":
             chord_command(args)
+        elif args.command == "session":
+            session_command(args)
     except ValueError as exc:
         parser.error(str(exc))
 

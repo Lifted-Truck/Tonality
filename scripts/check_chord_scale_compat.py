@@ -21,7 +21,7 @@ from mts.core.quality import ChordQuality
 from mts.core.scale import Scale
 from mts.core.enharmonics import name_for_pc, pc_from_name, SpellingPref
 from mts.analysis import chord_brief
-from mts.analysis.builders import is_session_chord
+from mts.analysis.builders import is_session_chord, SESSION_CHORD_CONTEXT
 
 EXTENSIONS_ORDER: list[tuple[str, int]] = [
     ("power", 0),
@@ -188,6 +188,9 @@ def _session_chord_summary(quality: ChordQuality) -> str:
         return cached
     brief = chord_brief(quality)
     parts: list[str] = [f"IC {brief.interval_fingerprint}"]
+    context = SESSION_CHORD_CONTEXT.get(quality.name)
+    if context and context.get("tokens"):
+        parts.append(f"Tokens {', '.join(context['tokens'])}")
     if brief.compatible_scales:
         parts.append(f"Fits {brief.compatible_scales[0]}")
     if brief.functional_roles:
@@ -319,6 +322,9 @@ def run_specific(
         "chord_quality": quality.name,
         "chord_intervals": list(quality.intervals),
     }
+    context = SESSION_CHORD_CONTEXT.get(quality.name)
+    if context:
+        result["context"] = context
     if is_session_chord(quality.name):
         result["session_summary"] = _session_chord_summary(quality)
     roots = compatibility_positions(scale, quality)
