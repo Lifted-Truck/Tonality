@@ -1,4 +1,46 @@
 {
-  "chords": [],
-  "scales": []
+  "chords": [
+    {
+      "absolute_midi": [
+        48,
+        52,
+        55,
+        68
+      ],
+      "context": "absolute",
+      "intervals": [
+        0,
+        4,
+        7,
+        8
+      ],
+      "name": "absChord",
+      "tensions": [],
+      "tokens": [
+        "C3",
+        "E3",
+        "G3",
+        "G#4"
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "absolute_midi": [],
+      "context": "note",
+      "degrees": [
+        0,
+        4,
+        7,
+        8
+      ],
+      "name": "noteScale",
+      "tokens": [
+        "C",
+        "E",
+        "G",
+        "G#"
+      ]
+    }
+  ]
 }

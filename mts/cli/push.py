@@ -233,6 +233,7 @@ def main(argv: list[str] | None = None) -> None:
         if tokens:
             context_line += f" ({tokens})"
         print(context_line)
+        # TODO: When scope is absolute, feed exact voicing data into PushGrid for pad highlighting.
 
     if chord_quality and is_session_chord(chord_quality.name):
         summary = _session_chord_summary(chord_quality)

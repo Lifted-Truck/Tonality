@@ -92,6 +92,7 @@ def _print_report(report: dict[str, object]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze a scale using placeholder analytics.")
+    # TODO: Accept inline definitions like "[0,2,3]=MyScale" so analysis can create/named scales on the fly.
     parser.add_argument(
         "scale",
         nargs="?",

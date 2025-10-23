@@ -5,6 +5,7 @@ TODO:
     - Detect symmetry properties (e.g., rotational order, palindromic structure).
     - Classify chirality and imperfect tones.
     - Provide hooks for bracelet/Tonnetz style visualisations.
+    - Surface chord families that fit at each scale degree / interval.
 """
 
 from __future__ import annotations

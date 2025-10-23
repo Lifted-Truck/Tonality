@@ -176,6 +176,7 @@ def _print_report(report: dict[str, object]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze a chord using the analysis toolkit.")
+    # TODO: Support inline chord creation like "[0,4,7]=MyChord" or "C3[0,4,7]=MyVoicing" during analysis.
     parser.add_argument("root", nargs="?", help="Chord root note (e.g., C, F#, Eb)")
     parser.add_argument("quality", nargs="?", help="Chord quality name from data/chord_qualities.json (e.g., maj7)")
     parser.add_argument("--list-scales", action="store_true", help="List available scales and exit.")

@@ -64,6 +64,7 @@ SESSION_SCALES: dict[str, Scale] = {}
 SESSION_CHORDS: dict[str, ChordQuality] = {}
 SESSION_SCALE_CONTEXT: dict[str, dict[str, object]] = {}
 SESSION_CHORD_CONTEXT: dict[str, dict[str, object]] = {}
+# TODO: Introduce explicit chord type distinctions (abstract vs. note-named vs. absolute) instead of relying on string markers.
 
 DEFAULT_SESSION_PATH = Path(__file__).resolve().parents[2] / ".tonality_session.json"
 SESSION_FILE = Path(os.environ.get("TONALITY_SESSION_FILE", DEFAULT_SESSION_PATH))

@@ -73,6 +73,7 @@ class PushCell:
     tonic_pc: int                           # context tonic for degrees/marking
     scale_degrees_rel: set[int] | None   # relative-to-tonic pcs in key
     chord_pcs_abs: set[int] | None       # absolute pcs in chord
+    # TODO: Support absolute voicing highlighting by tracking full pitch (pc + octave) per pad.
     degree_style: DegreeStyle               # "names" | "degrees"
     spelling: SpellingPref                  # "auto" | "sharps" | "flats"
     key_signature: int | None               # NEW: pass into naming
@@ -360,7 +361,7 @@ class PushGrid:
                     chord_pcs_abs=chord_set,
                     degree_style=self.degree_style,
                     spelling=self.spelling,
-                    key_signature=self.key_signature,  # NEW
+                    key_signature=self.key_signature,
                     layout_mode=self.layout_mode,
                     hide_out_of_key=self.hide_out_of_key,
                 ))
