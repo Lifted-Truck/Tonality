@@ -18,13 +18,14 @@ from pathlib import Path
 import json
 import os
 import sys
-from typing import Iterable, Mapping, Sequence
+from typing import Iterable, Mapping, Sequence, cast
 
 from ..core.bitmask import mask_from_pcs, pcs_from_mask
 from ..core.enharmonics import pc_from_name
 from ..core.pitch import Pitch
 from ..core.scale import Scale
 from ..core.quality import ChordQuality
+from .specs import ChordSpec, ScopeLiteral
 
 
 @dataclass
@@ -59,11 +60,32 @@ class ManualChordBuilder:
         name = self.name or _placeholder_name("ManualChord", SESSION_CHORDS, ())
         return ChordQuality.from_intervals(name, normalized_intervals, normalized_tensions)
 
+    def to_spec(self) -> ChordSpec:
+        normalized_intervals = tuple(_normalize_intervals(self.intervals))
+        normalized_tensions = tuple(_normalize_degrees(self.tensions)) if self.tensions else ()
+        scope = cast(ScopeLiteral, (self.context or "abstract"))
+        absolute_filtered = tuple(p for p in self.absolute if p is not None)
+        if absolute_filtered:
+            base_midi = absolute_filtered[0].midi
+            voicing = tuple(p.midi - base_midi for p in absolute_filtered)
+        else:
+            voicing = normalized_intervals
+        return ChordSpec(
+            label=self.name,
+            scope=scope,
+            intervals=normalized_intervals,
+            tokens=tuple(self.tokens or ()),
+            absolute=absolute_filtered,
+            tensions=normalized_tensions,
+            voicing=voicing,
+        )
+
 
 SESSION_SCALES: dict[str, Scale] = {}
 SESSION_CHORDS: dict[str, ChordQuality] = {}
 SESSION_SCALE_CONTEXT: dict[str, dict[str, object]] = {}
 SESSION_CHORD_CONTEXT: dict[str, dict[str, object]] = {}
+SESSION_CHORD_SPECS: dict[str, ChordSpec] = {}
 # TODO: Introduce explicit chord type distinctions (abstract vs. note-named vs. absolute) instead of relying on string markers.
 
 DEFAULT_SESSION_PATH = Path(__file__).resolve().parents[2] / ".tonality_session.json"
@@ -177,14 +199,20 @@ def register_chord(
 ) -> dict[str, object]:
     catalog = catalog or {}
     context_payload = _builder_context_payload(builder)
+    base_spec = builder.to_spec()
     matches = match_chord(builder.intervals, catalog)
     if matches:
         quality = matches[0]
         SESSION_CHORDS[quality.name] = quality
         SESSION_CHORD_CONTEXT[quality.name] = context_payload
+        spec = base_spec.with_quality(
+            quality.name,
+            matches=[match.name for match in matches],
+        )
+        SESSION_CHORD_SPECS[quality.name] = spec
         if persist:
             save_session_catalog(session_path)
-        return {"quality": quality, "match": matches, "context": context_payload}
+        return {"quality": quality, "match": matches, "context": context_payload, "spec": spec}
 
     quality = builder.to_quality()
     if auto_placeholder and (quality.name in catalog or quality.name in SESSION_CHORDS):
@@ -192,9 +220,14 @@ def register_chord(
         quality = ChordQuality.from_intervals(placeholder, quality.intervals, quality.tensions)
     SESSION_CHORDS[quality.name] = quality
     SESSION_CHORD_CONTEXT[quality.name] = context_payload
+    spec = base_spec.with_quality(
+        quality.name,
+        matches=[match.name for match in matches],
+    )
+    SESSION_CHORD_SPECS[quality.name] = spec
     if persist:
         save_session_catalog(session_path)
-    return {"quality": quality, "match": [], "context": context_payload}
+    return {"quality": quality, "match": [], "context": context_payload, "spec": spec}
 
 
 def degrees_from_mask(mask: int) -> list[int]:
@@ -273,6 +306,24 @@ def load_session_catalog(path: Path | None = None) -> None:
             if absolute_midi:
                 context_payload["absolute_midi"] = list(absolute_midi)
             SESSION_CHORD_CONTEXT[quality.name] = context_payload
+            scope = context_payload.get("scope", "abstract")
+            tokens = tuple(context_payload.get("tokens", []))
+            absolute_pitches = tuple(Pitch.from_midi(midi) for midi in absolute_midi) if absolute_midi else ()
+            if absolute_pitches:
+                base_midi = absolute_pitches[0].midi
+                voicing = tuple(p.midi - base_midi for p in absolute_pitches)
+            else:
+                voicing = tuple(quality.intervals)
+            spec = ChordSpec(
+                label=name,
+                scope=cast(ScopeLiteral, scope),
+                intervals=tuple(quality.intervals),
+                tokens=tokens,
+                absolute=absolute_pitches,
+                tensions=tuple(getattr(quality, "tensions", ()) or ()),
+                voicing=voicing,
+            ).with_quality(quality.name, matches=[quality.name])
+            SESSION_CHORD_SPECS[quality.name] = spec
 
 
 def save_session_catalog(path: Path | None = None) -> None:

@@ -22,6 +22,30 @@
         "G3",
         "G#4"
       ]
+    },
+    {
+      "absolute_midi": [
+        48,
+        52,
+        55
+      ],
+      "context": "absolute",
+      "intervals": [
+        0,
+        4,
+        7
+      ],
+      "name": "maj",
+      "tensions": [
+        2,
+        5,
+        9
+      ],
+      "tokens": [
+        "C3",
+        "E3",
+        "G3"
+      ]
     }
   ],
   "scales": [

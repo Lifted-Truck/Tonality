@@ -7,6 +7,7 @@ from mts.analysis.builders import (
     SESSION_CHORDS,
     SESSION_SCALE_CONTEXT,
     SESSION_CHORD_CONTEXT,
+    SESSION_CHORD_SPECS,
     register_scale,
     register_chord,
     degrees_from_mask,
@@ -30,11 +31,13 @@ def _clear_sessions():
     SESSION_CHORDS.clear()
     SESSION_SCALE_CONTEXT.clear()
     SESSION_CHORD_CONTEXT.clear()
+    SESSION_CHORD_SPECS.clear()
     yield
     SESSION_SCALES.clear()
     SESSION_CHORDS.clear()
     SESSION_SCALE_CONTEXT.clear()
     SESSION_CHORD_CONTEXT.clear()
+    SESSION_CHORD_SPECS.clear()
 
 
 def test_register_scale_matches_catalog():
@@ -89,8 +92,12 @@ def test_register_chord_runs_analysis():
     builder = ManualChordBuilder(name=None, intervals=[0, 1, 4])
     result = register_chord(builder, catalog=catalog)
     quality = result["quality"]
+    spec = result["spec"]
     assert not result["match"]
     assert quality.name.startswith("ManualChord-")
+    assert spec.quality_name == quality.name
+    assert spec.scope == "abstract"
+    assert spec.intervals == tuple(sorted({0, 1, 4}))
 
     chord = Chord.from_quality(0, quality)
     analysis = analyze_chord(
@@ -114,7 +121,10 @@ def test_register_chord_with_note_names():
         catalog=catalog,
     )
     quality = result["quality"]
+    spec = result["spec"]
     assert list(quality.intervals) == [0, 3, 7]
+    assert spec.tokens == ("C", "Eb", "G")
+    assert spec.scope == "note"
 
 
 def test_register_chord_with_absolute_tokens_updates_context():
@@ -131,10 +141,14 @@ def test_register_chord_with_absolute_tokens_updates_context():
     )
     result = register_chord(builder, catalog={})
     quality = result["quality"]
+    spec = result["spec"]
     context = SESSION_CHORD_CONTEXT[quality.name]
     assert context["scope"] == "absolute"
     assert context["tokens"] == ["C3", "Db3", "E3"]
     assert context["absolute_midi"] == [48, 49, 52]
+    assert spec.scope == "absolute"
+    assert spec.absolute_midi == (48, 49, 52)
+    assert spec.tokens == ("C3", "Db3", "E3")
 
 
 def test_match_helpers_deduplicate_results():

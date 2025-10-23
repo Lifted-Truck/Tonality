@@ -29,6 +29,7 @@ from .comparisons import (
     ScaleChordPlacement,
     compare_chord_qualities,
 )
+from .specs import ChordSpec, ChordParseResult, ScopeLiteral, QualityVariant, parse_chord_spec
 
 __all__ = [
     "ScaleAnalysisRequest",
@@ -40,6 +41,10 @@ __all__ = [
     "ChordBrief",
     "ChordComparison",
     "ScaleChordPlacement",
+    "ChordSpec",
+    "ChordParseResult",
+    "ScopeLiteral",
+    "QualityVariant",
     "ManualScaleBuilder",
     "ManualChordBuilder",
     "analyze_scale",
@@ -48,6 +53,7 @@ __all__ = [
     "generate_sequence",
     "parse_pitch_token",
     "chord_brief",
+    "parse_chord_spec",
     "compare_chord_qualities",
     "register_scale",
     "register_chord",
