@@ -10,7 +10,7 @@ without reshaping the rest of the codebase.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
 
 from .analysis import (
     ScaleAnalysisRequest,
@@ -49,6 +49,9 @@ class Workspace:
     context_scope: str = "abstract"
     context_tokens: tuple[str, ...] = field(default_factory=tuple)
     context_absolute_midi: tuple[int, ...] = field(default_factory=tuple)
+    _listeners: list[Callable[[str, object | None], None]] = field(
+        default_factory=list, init=False, repr=False, compare=False
+    )
 
     def refresh_catalogs(self) -> tuple[Mapping[str, Scale], Mapping[str, ChordQuality]]:
         """Return the latest scale/chord catalogs (including session entries)."""
@@ -65,6 +68,7 @@ class Workspace:
             raise ValueError(f"Unknown scale {name!r}.")
         self.scale = scales[name]
         self._apply_context(SESSION_SCALE_CONTEXT.get(self.scale.name))
+        self._notify("scale", self.scale)
         return self.scale
 
     def register_scale(self, builder: ManualScaleBuilder) -> Scale:
@@ -72,6 +76,7 @@ class Workspace:
         result = register_scale(builder, catalog=scales)
         self.scale = result["scale"]
         self._apply_context(result.get("context"))
+        self._notify("scale", self.scale)
         return self.scale
 
     def analyze_scale(self, **kwargs) -> dict[str, object]:
@@ -92,6 +97,7 @@ class Workspace:
             raise ValueError(f"Unknown chord quality {quality_name!r}.")
         self.chord = Chord.from_quality(root_pc, chords[quality_name])
         self._apply_context(SESSION_CHORD_CONTEXT.get(self.chord.quality.name))
+        self._notify("chord", self.chord)
         return self.chord
 
     def register_chord(self, builder: ManualChordBuilder, *, root_pc: int = 0) -> Chord:
@@ -100,6 +106,7 @@ class Workspace:
         quality = result["quality"]
         self.chord = Chord.from_quality(root_pc, quality)
         self._apply_context(result.get("context"))
+        self._notify("chord", self.chord)
         return self.chord
 
     def analyze_chord(self, **kwargs) -> dict[str, object]:
@@ -116,6 +123,7 @@ class Workspace:
 
     def set_timeline(self, events: Iterable[TimedEvent]) -> None:
         self.timeline_events = list(events)
+        self._notify("timeline", list(self.timeline_events))
 
     def analyze_timeline(self, **kwargs) -> dict[str, object]:
         if not self.timeline_events:
@@ -132,6 +140,10 @@ class Workspace:
         self.context_scope = "abstract"
         self.context_tokens = tuple()
         self.context_absolute_midi = tuple()
+        self._notify("scale", None)
+        self._notify("chord", None)
+        self._notify("timeline", [])
+        self._notify("context", self._context_payload())
 
     # --- Session metadata -----------------------------------------------
 
@@ -148,11 +160,39 @@ class Workspace:
             self.context_scope = "abstract"
             self.context_tokens = tuple()
             self.context_absolute_midi = tuple()
+        else:
+            self.context_scope = context.get("scope", "abstract")
+            self.context_tokens = tuple(context.get("tokens", []))
+            absolute = tuple(int(v) for v in context.get("absolute_midi", []) or [])
+            self.context_absolute_midi = absolute
+        self._notify("context", self._context_payload())
+
+    def add_listener(self, callback: Callable[[str, object | None], None]) -> None:
+        """Register a listener for workspace change events."""
+
+        if callback not in self._listeners:
+            self._listeners.append(callback)
+
+    def remove_listener(self, callback: Callable[[str, object | None], None]) -> None:
+        """Remove a previously registered listener."""
+
+        try:
+            self._listeners.remove(callback)
+        except ValueError:
+            pass
+
+    def _notify(self, event: str, payload: object | None) -> None:
+        if not self._listeners:
             return
-        self.context_scope = context.get("scope", "abstract")
-        self.context_tokens = tuple(context.get("tokens", []))
-        absolute = tuple(int(v) for v in context.get("absolute_midi", []) or [])
-        self.context_absolute_midi = absolute
+        for listener in tuple(self._listeners):
+            listener(event, payload)
+
+    def _context_payload(self) -> dict[str, Any]:
+        return {
+            "scope": self.context_scope,
+            "tokens": tuple(self.context_tokens),
+            "absolute_midi": tuple(self.context_absolute_midi),
+        }
 
     # TODO: integrate persistence/export for session-defined objects.
     # TODO: surface change notifications for GUI/interactive layers.

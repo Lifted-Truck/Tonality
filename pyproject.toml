@@ -15,5 +15,10 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
+[project.optional-dependencies]
+qt = [
+    "PySide6>=6.6,<6.8",
+]
+
 [project.urls]
 Homepage = "https://example.com"
