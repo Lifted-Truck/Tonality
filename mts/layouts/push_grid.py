@@ -59,8 +59,12 @@ def _degree_for_pc(pc: int, tonic_pc: int) -> str:
     return _BASE_DEGREE[rel]
 
 def _pad2_names(s: str) -> str:
-    """Pad to 2 chars for NAME labels only (C -> 'C-'), but NOT for degrees."""
-    return s if len(s) >= 2 else s + "-"
+    """Pad to 2 chars for NAME labels only (C -> 'C_'), but NOT for degrees."""
+    return s if len(s) >= 2 else f"{s}_"
+
+def _pad_degree(token: str) -> str:
+    """Pad single-character degree labels so grid columns stay aligned."""
+    return token if len(token) >= 2 else f"_{token}"
 
 def _row_offset_for(preset: LayoutPreset) -> int:
     return {"fourths": 5, "thirds": 4, "sequential": 1}[preset]
@@ -97,7 +101,7 @@ class PushCell:
         # So rendering here retains fixed width for every token.
         # Label (no dash for degree-style)
         if self.degree_style == "degrees":
-            token = _degree_for_pc(self.pc, self.tonic_pc)
+            token = _pad_degree(_degree_for_pc(self.pc, self.tonic_pc))
         else:
             token = _pad2_names(name_for_pc(self.pc, prefer=self.spelling, key_signature=self.key_signature))
 
@@ -326,16 +330,18 @@ class PushGrid:
         # seed more than 8 so we can elide out-of-scale and still fill 8
         # 8 cols + up to 12 extras to find enough in-scale notes
         base = [self._pc_at(row, c, anchor_pc) for c in range(8)]
-        if self.layout_mode == "in_scale" and self.hide_out_of_key and self.scale_degrees_rel is not None:
+        if self.scale_degrees_rel is not None and (self.layout_mode == "in_scale" or self.hide_out_of_key):
             relset = set(self.scale_degrees_rel)
-            # extend search horizon to ensure we collect 8 in-scale
+            filtered: list[int] = [p for p in base if ((p - self.tonic_pc) % 12) in relset]
             c = 8
-            while len([p for p in base if ((p - self.tonic_pc) % 12) in relset]) < 8 and c < 8 + 24:
-                base.append(self._pc_at(row, c, anchor_pc))
+            while len(filtered) < 8 and c < 8 + 24:
+                candidate = self._pc_at(row, c, anchor_pc)
+                base.append(candidate)
+                if ((candidate - self.tonic_pc) % 12) in relset:
+                    filtered.append(candidate)
                 c += 1
-            # filter to in-scale and take first 8
-            filtered = [p for p in base if ((p - self.tonic_pc) % 12) in relset][:8]
-            return filtered
+            if filtered:
+                return filtered[:8]
         return base[:8]
 
     # ---- build & render ----

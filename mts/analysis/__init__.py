@@ -24,6 +24,11 @@ from .builders import (
     register_scale,
     register_chord,
 )
+from .comparisons import (
+    ChordComparison,
+    ScaleChordPlacement,
+    compare_chord_qualities,
+)
 
 __all__ = [
     "ScaleAnalysisRequest",
@@ -33,6 +38,8 @@ __all__ = [
     "Pitch",
     "ParsedPitch",
     "ChordBrief",
+    "ChordComparison",
+    "ScaleChordPlacement",
     "ManualScaleBuilder",
     "ManualChordBuilder",
     "analyze_scale",
@@ -41,6 +48,7 @@ __all__ = [
     "generate_sequence",
     "parse_pitch_token",
     "chord_brief",
+    "compare_chord_qualities",
     "register_scale",
     "register_chord",
 ]
