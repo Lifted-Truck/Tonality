@@ -1,0 +1,53 @@
+"""Theory helpers that build higher-level constructs from core data."""
+
+from __future__ import annotations
+
+from .functions import (
+    GeneratedFunction,
+    FunctionVariant,
+    FunctionTemplate,
+    generate_functions_for_scale,
+    DEFAULT_FEATURES_MAJOR,
+    DEFAULT_FEATURES_MINOR,
+    TEMPLATES_MAJOR,
+    TEMPLATES_MINOR,
+    FEATURE_ADDED_TONES,
+    FEATURE_ALTERED_DOMINANT,
+    FEATURE_DIATONIC,
+    FEATURE_EXTENDED,
+    FEATURE_LEADING_TONE,
+    FEATURE_LYDIAN_EXTENSIONS,
+    FEATURE_POWER_DYADS,
+    FEATURE_RAISED_SIXTH,
+    FEATURE_SIXTH_CHORDS,
+    FEATURE_SUSPENDED,
+    FEATURE_PARALLEL_MAJOR,
+    FEATURE_PARALLEL_MINOR,
+    TAG_BORROWABLE,
+    TAG_BORROWED,
+)
+
+__all__ = [
+    "GeneratedFunction",
+    "FunctionVariant",
+    "FunctionTemplate",
+    "generate_functions_for_scale",
+    "DEFAULT_FEATURES_MAJOR",
+    "DEFAULT_FEATURES_MINOR",
+    "TEMPLATES_MAJOR",
+    "TEMPLATES_MINOR",
+    "FEATURE_ADDED_TONES",
+    "FEATURE_ALTERED_DOMINANT",
+    "FEATURE_DIATONIC",
+    "FEATURE_EXTENDED",
+    "FEATURE_LEADING_TONE",
+    "FEATURE_LYDIAN_EXTENSIONS",
+    "FEATURE_POWER_DYADS",
+    "FEATURE_RAISED_SIXTH",
+    "FEATURE_SIXTH_CHORDS",
+    "FEATURE_SUSPENDED",
+    "FEATURE_PARALLEL_MAJOR",
+    "FEATURE_PARALLEL_MINOR",
+    "TAG_BORROWABLE",
+    "TAG_BORROWED",
+]

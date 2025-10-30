@@ -17,8 +17,12 @@ classifiers = [
 
 [project.optional-dependencies]
 qt = [
-    "PySide6>=6.6,<6.8",
+    "PySide6>=6.8.0.2,<6.11",
 ]
+
+[tool.setuptools.packages.find]
+include = ["mts*"]
+exclude = ["tests*"]
 
 [project.urls]
 Homepage = "https://example.com"

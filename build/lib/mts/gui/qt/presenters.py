@@ -11,7 +11,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
-from ...core.enharmonics import name_for_pc
 from ...workspace import Workspace
 
 
@@ -44,7 +43,6 @@ class ChordSummary:
     """Structured view of the current chord and its analysis."""
 
     name: str
-    root_pc: int | None
     intervals: Sequence[int]
     voicings: Mapping[str, Any]
     inversions: Sequence[Mapping[str, Any]]
@@ -80,26 +78,15 @@ def build_chord_summary(workspace: Workspace, analysis: Mapping[str, Any]) -> Ch
     """Convert an analyzer dictionary into a `ChordSummary`."""
 
     chord = workspace.chord
-    name = _chord_display_name(chord, analysis)
+    name = chord.label if chord else str(analysis.get("chord_name", ""))
     return ChordSummary(
         name=name,
-        root_pc=chord.root_pc if chord else None,
         intervals=list(analysis.get("intervals", [])),
         voicings=analysis.get("voicings", {}),
         inversions=list(analysis.get("inversions", [])),
         brief=analysis.get("brief"),
         context=_context_from_workspace(workspace),
     )
-
-
-def _chord_display_name(chord, analysis: Mapping[str, Any]) -> str:
-    label = str(analysis.get("chord_name") or "").strip()
-    if label:
-        return label
-    if chord:
-        root = name_for_pc(chord.root_pc)
-        return f"{root}:{chord.quality.name}"
-    return ""
 
 
 __all__ = [
