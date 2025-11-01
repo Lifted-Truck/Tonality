@@ -24,6 +24,8 @@ from ....layouts.push_grid import PushGrid, PushCell
 from ..presenters import ScaleSummary, ChordSummary
 from ....core.enharmonics import name_for_pc, pc_from_name
 from ....analysis import parse_pitch_token
+from ....context.context import DisplayContext
+from ....context.formatters import resolve_label
 
 
 _GRID_ROWS = 8
@@ -107,10 +109,37 @@ class PushGridWidget(QWidget):
         self._hide_out_of_key: bool = False
         self._current_spelling: str = "auto"
         self._key_signature: Optional[int] = 0
+        self._display_context: Optional[DisplayContext] = None
         self._update_key_signature()
         self._refresh()
 
     # --- Public API -------------------------------------------------------
+
+    def set_display_context(self, context: Optional[DisplayContext]) -> None:
+        if self._display_context is context:
+            return
+        if self._display_context is not None:
+            self._display_context.remove_listener(self._on_display_context_event)
+        self._display_context = context
+        if self._display_context is not None:
+            self._display_context.add_listener(self._on_display_context_event)
+        self.refresh_from_context()
+
+    def refresh_from_context(self) -> None:
+        if not self._display_context:
+            return
+        ctx = self._display_context
+        self._current_spelling = ctx.get("spelling", self._current_spelling)
+        self._label_mode = ctx.get("label_mode", self._label_mode)
+        self._tonic_pc = ctx.get("tonic_pc", self._tonic_pc)
+        degrees = ctx.get("scale_degrees")
+        if degrees is not None:
+            self._scale_degrees = tuple(degrees)
+        self._current_chord_root = ctx.get("chord_root_pc", self._current_chord_root)
+        if self._current_chord_root is not None:
+            self._selected_root_pc = self._current_chord_root
+        self._update_key_signature()
+        self._refresh()
 
     def set_scale(self, summary: ScaleSummary | None) -> None:
         if summary:
@@ -224,17 +253,39 @@ class PushGridWidget(QWidget):
                 self._apply_palette(label, cell=cell)
 
     def _label_for_cell(self, cell: PushCell) -> str:
+        context = self._display_context
         mode = self._label_mode
-        tonic_for_labels = self._tonic_pc if self._tonic_pc is not None else self._selected_root_pc
-        if mode == "degrees" and self._scale_degrees is not None and tonic_for_labels is not None:
-            label = self._degree_label(cell.pc, tonic_for_labels)
-        elif mode == "intervals" and self._current_chord_root is not None:
-            label = self._interval_label(cell.pc, self._current_chord_root)
-        elif mode == "semitones":
-            base = self._tonic_pc if self._tonic_pc is not None else self._selected_root_pc
-            label = str((cell.pc - base) % 12)
+
+        def _interval_label_for(pc: int) -> str:
+            base = None
+            if self._anchor_mode == "fixed_C":
+                base = 0
+            elif self._anchor_mode == "tonic" and self._tonic_pc is not None:
+                base = self._tonic_pc
+            elif self._current_chord_root is not None:
+                base = self._current_chord_root
+            elif self._selected_root_pc is not None:
+                base = self._selected_root_pc
+            elif self._tonic_pc is not None:
+                base = self._tonic_pc
+            else:
+                base = 0
+            rel = (pc - base) % 12
+            return _INTERVAL_LABELS.get(rel, str(rel))
+
+        if mode == "intervals":
+            label = _interval_label_for(cell.pc)
+        elif context:
+            label = resolve_label(cell.pc, context, mode=mode)
         else:
-            label = name_for_pc(cell.pc, prefer=self._current_spelling, key_signature=self._key_signature)
+            tonic_for_labels = self._tonic_pc if self._tonic_pc is not None else self._selected_root_pc or 0
+            if mode == "degrees" and self._scale_degrees is not None:
+                label = self._degree_label(cell.pc, tonic_for_labels)
+            elif mode == "semitones":
+                base = tonic_for_labels
+                label = str((cell.pc - base) % 12)
+            else:
+                label = name_for_pc(cell.pc, prefer=self._current_spelling, key_signature=self._key_signature)
 
         if mode == "names" and not cell.in_key and not cell.in_chord:
             label = label.lower()
@@ -265,6 +316,10 @@ class PushGridWidget(QWidget):
         else:
             self._key_signature = None
         self._grid.set_key_signature(self._key_signature)
+
+    def _on_display_context_event(self, event: str, payload: object) -> None:
+        if event in {"setting_changed", "layer_removed", "layer_added"}:
+            self.refresh_from_context()
 
     def _apply_palette(self, label: QLabel, *, cell: PushCell | None = None, base: bool = False) -> None:
         palette = label.palette()

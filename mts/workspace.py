@@ -37,6 +37,11 @@ from .core.scale import Scale
 from .core.quality import ChordQuality
 from .core.chord import Chord
 from .io.loaders import load_scales, load_chord_qualities
+from .context import DisplayContext
+from .context.formatters import (
+    update_context_with_scale,
+    update_context_with_chord_root,
+)
 
 
 @dataclass
@@ -52,6 +57,10 @@ class Workspace:
     _listeners: list[Callable[[str, object | None], None]] = field(
         default_factory=list, init=False, repr=False, compare=False
     )
+    display_context: DisplayContext = field(default_factory=DisplayContext, init=False, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        self.display_context.add_listener(self._on_display_context_change)
 
     def refresh_catalogs(self) -> tuple[Mapping[str, Scale], Mapping[str, ChordQuality]]:
         """Return the latest scale/chord catalogs (including session entries)."""
@@ -68,6 +77,11 @@ class Workspace:
             raise ValueError(f"Unknown scale {name!r}.")
         self.scale = scales[name]
         self._apply_context(SESSION_SCALE_CONTEXT.get(self.scale.name))
+        update_context_with_scale(
+            self.display_context,
+            tonic_pc=None,
+            degrees=self.scale.degrees,
+        )
         self._notify("scale", self.scale)
         return self.scale
 
@@ -76,6 +90,11 @@ class Workspace:
         result = register_scale(builder, catalog=scales)
         self.scale = result["scale"]
         self._apply_context(result.get("context"))
+        update_context_with_scale(
+            self.display_context,
+            tonic_pc=None,
+            degrees=self.scale.degrees,
+        )
         self._notify("scale", self.scale)
         return self.scale
 
@@ -97,6 +116,7 @@ class Workspace:
             raise ValueError(f"Unknown chord quality {quality_name!r}.")
         self.chord = Chord.from_quality(root_pc, chords[quality_name])
         self._apply_context(SESSION_CHORD_CONTEXT.get(self.chord.quality.name))
+        update_context_with_chord_root(self.display_context, root_pc)
         self._notify("chord", self.chord)
         return self.chord
 
@@ -106,6 +126,7 @@ class Workspace:
         quality = result["quality"]
         self.chord = Chord.from_quality(root_pc, quality)
         self._apply_context(result.get("context"))
+        update_context_with_chord_root(self.display_context, root_pc)
         self._notify("chord", self.chord)
         return self.chord
 
@@ -140,6 +161,8 @@ class Workspace:
         self.context_scope = "abstract"
         self.context_tokens = tuple()
         self.context_absolute_midi = tuple()
+        update_context_with_scale(self.display_context, None, [])
+        update_context_with_chord_root(self.display_context, None)
         self._notify("scale", None)
         self._notify("chord", None)
         self._notify("timeline", [])
@@ -193,6 +216,17 @@ class Workspace:
             "tokens": tuple(self.context_tokens),
             "absolute_midi": tuple(self.context_absolute_midi),
         }
+
+    # --- Display context helpers --------------------------------------
+
+    def display_setting(self, key: str, default: Any = None) -> Any:
+        return self.display_context.get(key, default)
+
+    def set_display_setting(self, key: str, value: Any, *, layer: str = "session") -> None:
+        self.display_context.set(key, value, layer=layer)
+
+    def _on_display_context_change(self, event: str, payload: object) -> None:
+        self._notify("display_context", {"event": event, "payload": payload})
 
     # TODO: integrate persistence/export for session-defined objects.
     # TODO: surface change notifications for GUI/interactive layers.

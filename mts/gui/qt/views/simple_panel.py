@@ -66,6 +66,7 @@ class SimpleWorkspacePanel(QWidget):
     def __init__(self, controller: WorkspaceController, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._controller = controller
+        self._display_context = controller.display_context()
         self._updating_ui = False
         self._last_scale_tonic: Optional[int] = None
         self._current_label_mode: str = "names"
@@ -146,6 +147,7 @@ class SimpleWorkspacePanel(QWidget):
         push_layout.addLayout(controls_layout)
 
         self.push_grid_widget = PushGridWidget()
+        self.push_grid_widget.set_display_context(self._display_context)
         push_layout.addWidget(self.push_grid_widget)
         layout.addWidget(self.push_group)
 
@@ -164,6 +166,7 @@ class SimpleWorkspacePanel(QWidget):
         self._controller.scale_changed.connect(self._on_scale_summary_changed)
         self._controller.chord_changed.connect(self._on_chord_summary_changed)
         self._controller.context_changed.connect(self._on_context_changed)
+        self._controller.display_context_changed.connect(self._on_display_context_changed)
 
         self.grid_label_combo.currentIndexChanged.connect(self._on_grid_label_changed)
         self.grid_layout_combo.currentIndexChanged.connect(self._on_grid_layout_changed)
@@ -210,10 +213,12 @@ class SimpleWorkspacePanel(QWidget):
             root_pc = self._current_scale_tonic_pc() or 0
             if self.chord_quality_combo.currentIndex() != 0:
                 self.chord_quality_combo.setCurrentIndex(0)
+            self._controller.set_display_setting("chord_root_pc", None)
             return
         else:
             root_pc = int(data)
             self.push_grid_widget.set_root_pc(root_pc)
+            self._controller.set_display_setting("chord_root_pc", root_pc)
         quality = self.chord_quality_combo.currentData()
         if quality:
             self._controller.set_chord(root_pc, str(quality))
@@ -305,6 +310,7 @@ class SimpleWorkspacePanel(QWidget):
                     return
             self.push_grid_widget.set_label_mode(mode)
             self._current_label_mode = mode
+            self._controller.set_display_setting("label_mode", mode)
             self._update_chord_root_options()
 
     def _on_grid_layout_changed(self, index: int) -> None:
@@ -326,6 +332,10 @@ class SimpleWorkspacePanel(QWidget):
             if self._current_label_mode == "names":
                 self._update_chord_root_options()
             self._refresh_scale_tonic_options()
+            self._controller.set_display_setting("spelling", mode)
+
+    def _on_display_context_changed(self, payload: object) -> None:
+        self.push_grid_widget.refresh_from_context()
 
     # --- Helpers ----------------------------------------------------------
 

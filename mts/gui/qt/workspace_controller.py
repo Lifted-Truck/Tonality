@@ -42,6 +42,7 @@ class WorkspaceController(QObject):
     chord_changed = Signal(object)
     timeline_changed = Signal(object)
     context_changed = Signal(object)
+    display_context_changed = Signal(object)
 
     def __init__(self, workspace: Workspace | None = None) -> None:
         super().__init__()
@@ -49,6 +50,7 @@ class WorkspaceController(QObject):
         self._workspace.add_listener(self._handle_workspace_event)
         self._suppress_events = False
         self._scale_tonic_pc: int | None = None
+        self._emit_display_context()
 
     # --- Scale operations -------------------------------------------------
 
@@ -59,6 +61,8 @@ class WorkspaceController(QObject):
         self._scale_tonic_pc = tonic_pc
         with self._suppress_workspace_events():
             self._workspace.set_scale_by_name(name)
+            if tonic_pc is not None:
+                self._workspace.set_display_setting("tonic_pc", tonic_pc, layer="session")
         summary = self._build_scale_summary()
         self.scale_changed.emit(summary)
         self._emit_context()
@@ -70,6 +74,8 @@ class WorkspaceController(QObject):
         self._scale_tonic_pc = tonic_pc
         with self._suppress_workspace_events():
             self._workspace.register_scale(builder)
+            if tonic_pc is not None:
+                self._workspace.set_display_setting("tonic_pc", tonic_pc, layer="session")
         summary = self._build_scale_summary()
         self.scale_changed.emit(summary)
         self._emit_context()
@@ -98,6 +104,7 @@ class WorkspaceController(QObject):
     def set_chord(self, root_pc: int, quality_name: str) -> ChordSummary | None:
         with self._suppress_workspace_events():
             self._workspace.set_chord(root_pc, quality_name)
+            self._workspace.set_display_setting("chord_root_pc", root_pc, layer="session")
         summary = self._build_chord_summary()
         self.chord_changed.emit(summary)
         self._emit_context()
@@ -106,6 +113,7 @@ class WorkspaceController(QObject):
     def register_chord(self, builder: ManualChordBuilder, *, root_pc: int = 0) -> ChordSummary | None:
         with self._suppress_workspace_events():
             self._workspace.register_chord(builder, root_pc=root_pc)
+            self._workspace.set_display_setting("chord_root_pc", root_pc, layer="session")
         summary = self._build_chord_summary()
         self.chord_changed.emit(summary)
         self._emit_context()
@@ -173,6 +181,14 @@ class WorkspaceController(QObject):
     def dispose(self) -> None:
         self._workspace.remove_listener(self._handle_workspace_event)
 
+    # --- Display context API --------------------------------------------
+
+    def display_context(self) -> object:
+        return self._workspace.display_context
+
+    def set_display_setting(self, key: str, value: object, *, layer: str = "session") -> None:
+        self._workspace.set_display_setting(key, value, layer=layer)
+
     # --- Internal helpers -------------------------------------------------
 
     def _emit_context(self) -> None:
@@ -182,6 +198,10 @@ class WorkspaceController(QObject):
             "absolute_midi": list(self._workspace.context_absolute_midi),
         }
         self.context_changed.emit(payload)
+
+    def _emit_display_context(self, payload: object | None = None) -> None:
+        ctx = self._workspace.display_context
+        self.display_context_changed.emit({"context": ctx, "event": payload})
 
     def _build_scale_summary(self) -> ScaleSummary | None:
         if not self._workspace.scale:
@@ -213,6 +233,8 @@ class WorkspaceController(QObject):
             self.timeline_changed.emit(list(self._workspace.timeline_events))
         elif event == "context":
             self.context_changed.emit(payload)
+        elif event == "display_context":
+            self._emit_display_context(payload)
 
     @contextmanager
     def _suppress_workspace_events(self):

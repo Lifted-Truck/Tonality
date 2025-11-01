@@ -7,11 +7,17 @@ from collections.abc import Iterable
 from ..io.loaders import load_scales, load_chord_qualities, load_function_mappings, FunctionMapping
 from ..core.chord import Chord
 from ..core.quality import ChordQuality
-from ..core.enharmonics import pc_from_name, name_for_pc
+from ..core.enharmonics import pc_from_name
 from ..layouts.push_grid import PushGrid
 from ..theory import functions as fn_defs
 from ..analysis import ChordAnalysisRequest, analyze_chord
 from ..analysis.builders import is_session_chord, SESSION_CHORD_CONTEXT
+from ..context import DisplayContext
+from ..context.formatters import (
+    format_pitch_class,
+    update_context_with_scale,
+    update_context_with_chord_root,
+)
 
 _FUNCTION_FEATURE_CHOICES = sorted(
     {
@@ -183,12 +189,22 @@ def main(argv: list[str] | None = None) -> None:
             _print_function_catalog(mode, mappings)
         return
 
+    # Display context (shared formatting rules)
+    context = DisplayContext()
+    context.set("spelling", args.spelling, layer="cli")
+    context.set("label_mode", "degrees" if args.degrees else "names", layer="cli")
+    context.set("layout_mode", args.mode, layer="cli")
+    context.set("hide_out_of_key", args.hide_ook, layer="cli")
+
     # Resolve tonic and scale
     tonic_pc = pc_from_name(args.key)
     if args.scale not in scales:
         raise SystemExit(f"Unknown scale {args.scale!r}. Use --list-scales to see options.")
     scale = scales[args.scale]
     scale_degrees = list(scale.degrees)
+
+    update_context_with_scale(context, tonic_pc, scale_degrees)
+    context.set("key_signature", args.key_sig, layer="cli")
 
     # Resolve chord (root + quality)
     chord_label = "None"
@@ -197,6 +213,7 @@ def main(argv: list[str] | None = None) -> None:
     chord = None
     chord_quality = None
     chord_context = None
+    chord_root_pc: int | None = None
 
     if args.chord:
         # Parse "Root:Quality"
@@ -209,7 +226,8 @@ def main(argv: list[str] | None = None) -> None:
         chord = Chord.from_quality(chord_root_pc, qualities[qual_str.strip()])
         chord_label = f"{root_str.strip()}{qual_str.strip()}"
         chord_pcs = list(chord.pcs)
-        chord_spelling = chord.spelled(prefer=args.spelling, key_signature=args.key_sig)
+        update_context_with_chord_root(context, chord_root_pc)
+        chord_spelling = [format_pitch_class(pc, context) for pc in chord_pcs]
         chord_quality = chord.quality
         chord_context = SESSION_CHORD_CONTEXT.get(chord_quality.name)
     elif args.chord_root and args.chord_quality:
@@ -219,12 +237,13 @@ def main(argv: list[str] | None = None) -> None:
         chord = Chord.from_quality(chord_root_pc, qualities[args.chord_quality])
         chord_label = f"{args.chord_root}{args.chord_quality}"
         chord_pcs = list(chord.pcs)
-        chord_spelling = chord.spelled(prefer=args.spelling, key_signature=args.key_sig)
+        update_context_with_chord_root(context, chord_root_pc)
+        chord_spelling = [format_pitch_class(pc, context) for pc in chord_pcs]
         chord_quality = chord.quality
         chord_context = SESSION_CHORD_CONTEXT.get(chord_quality.name)
     else:
         # No chord: leave empty; grid will show '-' markers
-        pass
+        update_context_with_chord_root(context, None)
 
     if chord_context:
         tokens = ", ".join(chord_context.get("tokens", []))
@@ -247,8 +266,8 @@ def main(argv: list[str] | None = None) -> None:
 
         if ook_abs:
             # pretty-print names with current spelling prefs
-            ook_names = [name_for_pc(pc, prefer=args.spelling, key_signature=args.key_sig) for pc in ook_abs]
-            root_is_ook = ('chord_root_pc' in locals()) and (((chord_root_pc - tonic_pc) % 12) not in relset)
+            ook_names = [format_pitch_class(pc, context) for pc in ook_abs]
+            root_is_ook = chord_root_pc is not None and (((chord_root_pc - tonic_pc) % 12) not in relset)
 
             # tiny ANSI helper (CLI-only)
             def _warn_paint(text, *, fg=None, bold=False, dim=False):
@@ -293,6 +312,7 @@ def main(argv: list[str] | None = None) -> None:
 
 
     # Build grid
+    degree_style = "degrees" if context.get("label_mode") == "degrees" else "names"
     g = PushGrid(
         preset=args.preset,
         anchor=args.anchor,
@@ -301,14 +321,14 @@ def main(argv: list[str] | None = None) -> None:
         tonic_pc=tonic_pc,
         scale_degrees_rel=scale_degrees,
         chord_pcs_abs=chord_pcs,
-        layout_mode=args.mode,
-        hide_out_of_key=args.hide_ook,
-        degree_style=("degrees" if args.degrees else "names"),
-        spelling=args.spelling,
-        key_signature=args.key_sig,
+        layout_mode=context.get("layout_mode", args.mode),
+        hide_out_of_key=context.get("hide_out_of_key", args.hide_ook),
+        degree_style=degree_style,
+        spelling=context.get("spelling", args.spelling),
+        key_signature=context.get("key_signature", args.key_sig),
     )
     g.color_mode = args.color
-    g.chord_root_pc = chord_root_pc if 'chord_root_pc' in locals() else None
+    g.chord_root_pc = context.get("chord_root_pc")
 
     # Header
     if args.degrees:
@@ -316,7 +336,8 @@ def main(argv: list[str] | None = None) -> None:
     else:
         print(f"\nKey: {args.key}  Scale: {args.scale}  (degrees: {scale_degrees})")
     print(f"Preset: {args.preset}  Mode: {args.mode}  Anchor: {args.anchor}  Origin: {args.origin}")
-    print(f"Labels: {'degrees' if args.degrees else 'names'}  Spelling: {args.spelling}  KeySig: {args.key_sig}")
+    current_label = context.get("label_mode", "names")
+    print(f"Labels: {current_label}  Spelling: {context.get('spelling', args.spelling)}  KeySig: {context.get('key_signature', args.key_sig)}")
 
     # Legend (use same ANSI as grid)
     def _paint(s, *, fg=None, bold=False, dim=False):
