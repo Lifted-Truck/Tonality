@@ -29,6 +29,7 @@ class ScaleSummary:
     """Structured view of the current scale and its analysis."""
 
     name: str
+    tonic_pc: int | None
     degrees: Sequence[int]
     cardinality: int
     step_pattern: Sequence[int]
@@ -45,10 +46,11 @@ class ChordSummary:
 
     name: str
     root_pc: int | None
+    pcs: Sequence[int]
     intervals: Sequence[int]
     voicings: Mapping[str, Any]
     inversions: Sequence[Mapping[str, Any]]
-    brief: Mapping[str, Any] | None
+    brief: Any | None
     context: WorkspaceContext
 
 
@@ -65,6 +67,7 @@ def build_scale_summary(workspace: Workspace, analysis: Mapping[str, Any]) -> Sc
 
     return ScaleSummary(
         name=str(analysis.get("scale_name", workspace.scale.name if workspace.scale else "")),
+        tonic_pc=analysis.get("tonic_pc"),
         degrees=list(analysis.get("degrees", [])),
         cardinality=int(analysis.get("cardinality", 0)),
         step_pattern=list(analysis.get("step_pattern", [])),
@@ -81,10 +84,16 @@ def build_chord_summary(workspace: Workspace, analysis: Mapping[str, Any]) -> Ch
 
     chord = workspace.chord
     name = _chord_display_name(chord, analysis)
+    intervals = list(
+        analysis.get("intervals_relative_to_root")
+        or analysis.get("intervals")
+        or []
+    )
     return ChordSummary(
         name=name,
         root_pc=chord.root_pc if chord else None,
-        intervals=list(analysis.get("intervals", [])),
+        pcs=list(analysis.get("pcs", [])),
+        intervals=intervals,
         voicings=analysis.get("voicings", {}),
         inversions=list(analysis.get("inversions", [])),
         brief=analysis.get("brief"),

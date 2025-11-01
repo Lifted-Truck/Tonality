@@ -170,6 +170,7 @@ def analyze_scale(request: ScaleAnalysisRequest) -> dict[str, object]:
 
     report: dict[str, object] = {
         "scale_name": request.scale.name,
+        "tonic_pc": request.tonic_pc,
         "degrees": list(request.scale.degrees),
         "cardinality": len(request.scale.degrees),
         "step_pattern": step_pattern,

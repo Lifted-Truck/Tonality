@@ -48,11 +48,15 @@ class WorkspaceController(QObject):
         self._workspace = workspace or Workspace()
         self._workspace.add_listener(self._handle_workspace_event)
         self._suppress_events = False
+        self._scale_tonic_pc: int | None = None
 
     # --- Scale operations -------------------------------------------------
 
-    @Slot(str)
-    def set_scale_by_name(self, name: str) -> ScaleSummary | None:
+    @Slot(str, int)
+    def set_scale_by_name(self, name: str, tonic_pc: int | None = None) -> ScaleSummary | None:
+        if tonic_pc is not None and tonic_pc < 0:
+            tonic_pc = None
+        self._scale_tonic_pc = tonic_pc
         with self._suppress_workspace_events():
             self._workspace.set_scale_by_name(name)
         summary = self._build_scale_summary()
@@ -60,7 +64,10 @@ class WorkspaceController(QObject):
         self._emit_context()
         return summary
 
-    def register_scale(self, builder: ManualScaleBuilder) -> ScaleSummary | None:
+    def register_scale(self, builder: ManualScaleBuilder, *, tonic_pc: int | None = None) -> ScaleSummary | None:
+        if tonic_pc is not None and tonic_pc < 0:
+            tonic_pc = None
+        self._scale_tonic_pc = tonic_pc
         with self._suppress_workspace_events():
             self._workspace.register_scale(builder)
         summary = self._build_scale_summary()
@@ -71,7 +78,11 @@ class WorkspaceController(QObject):
     def analyze_scale(self, **kwargs: Any) -> ScaleSummary:
         if not self._workspace.scale:
             raise ValueError("No scale selected.")
-        request = ScaleAnalysisRequest(scale=self._workspace.scale, **kwargs)
+        request = ScaleAnalysisRequest(
+            scale=self._workspace.scale,
+            tonic_pc=self._scale_tonic_pc,
+            **kwargs,
+        )
         analysis = analyze_scale(request)
         summary = build_scale_summary(self._workspace, analysis)
         self.scale_changed.emit(summary)
@@ -175,7 +186,11 @@ class WorkspaceController(QObject):
     def _build_scale_summary(self) -> ScaleSummary | None:
         if not self._workspace.scale:
             return None
-        analysis = analyze_scale(ScaleAnalysisRequest(scale=self._workspace.scale))
+        request = ScaleAnalysisRequest(
+            scale=self._workspace.scale,
+            tonic_pc=self._scale_tonic_pc,
+        )
+        analysis = analyze_scale(request)
         return build_scale_summary(self._workspace, analysis)
 
     def _build_chord_summary(self) -> ChordSummary | None:
