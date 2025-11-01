@@ -43,6 +43,27 @@ _INTERVAL_LABELS = {
     11: "M7",
 }
 
+_KEY_SIGNATURE_BY_TONIC = {
+    0: 0,   # C
+    7: 1,   # G
+    2: 2,   # D
+    9: 3,   # A
+    4: 4,   # E
+    11: 5,  # B
+    6: 6,   # F#
+    5: -1,  # F
+    10: -2, # Bb
+    3: -3,  # Eb
+    8: -4,  # Ab
+    1: -5,  # Db
+}
+
+
+def _key_signature_for_tonic(pc: Optional[int]) -> int | None:
+    if pc is None:
+        return None
+    return _KEY_SIGNATURE_BY_TONIC.get(pc % 12, 0)
+
 
 class PushGridWidget(QWidget):
     """Minimal grid renderer highlighting the active chord."""
@@ -79,12 +100,14 @@ class PushGridWidget(QWidget):
         self._tonic_pc: Optional[int] = None
         self._scale_degrees: Optional[Sequence[int]] = None
         self._current_chord_root: Optional[int] = None
-        self._selected_root_pc: int = 0
+        self._selected_root_pc: Optional[int] = None
         self._label_mode: str = "names"  # names | degrees | intervals
         self._layout_mode: str = "chromatic"
         self._anchor_mode: str = "fixed_C"  # fixed_C | tonic | chord
         self._hide_out_of_key: bool = False
         self._current_spelling: str = "auto"
+        self._key_signature: Optional[int] = 0
+        self._update_key_signature()
         self._refresh()
 
     # --- Public API -------------------------------------------------------
@@ -96,6 +119,8 @@ class PushGridWidget(QWidget):
                 tonic = self._resolve_tonic(summary)
             if tonic is not None:
                 self._tonic_pc = tonic % 12
+                if self._selected_root_pc is None:
+                    self._selected_root_pc = self._tonic_pc
             elif self._tonic_pc is None:
                 self._tonic_pc = 0
             self._scale_degrees = tuple(summary.degrees)
@@ -105,6 +130,7 @@ class PushGridWidget(QWidget):
                 self._tonic_pc = 0
             else:
                 self._tonic_pc = None
+        self._update_key_signature()
         degrees_list = list(self._scale_degrees) if self._scale_degrees else None
         tonic = self._tonic_pc if self._tonic_pc is not None else 0
         self._grid.set_key(tonic, degrees_list)
@@ -114,7 +140,7 @@ class PushGridWidget(QWidget):
     def set_chord(self, summary: ChordSummary | None) -> None:
         if summary is None:
             self._grid.set_chord(None, chord_root_pc=None)
-            self._current_chord_root = self._selected_root_pc
+            self._current_chord_root = None
             self._apply_anchor()
             self._refresh()
             return
@@ -161,16 +187,23 @@ class PushGridWidget(QWidget):
 
     def set_spelling(self, mode: str) -> None:
         self._current_spelling = mode
+        self._update_key_signature()
         self._grid.set_display(spelling=mode)
         self._refresh()
 
     def set_root_pc(self, pc: int | None) -> None:
         if pc is None:
+            self._selected_root_pc = None
+            self._grid.set_chord(None, chord_root_pc=None)
+            self._current_chord_root = None
+            self._apply_anchor()
+            self._refresh()
             return
         pc_norm = pc % 12
         self._selected_root_pc = pc_norm
         if self._current_chord_root is None:
             self._current_chord_root = pc_norm
+        self._update_key_signature()
         self._apply_anchor()
         self._refresh()
 
@@ -201,7 +234,7 @@ class PushGridWidget(QWidget):
             base = self._tonic_pc if self._tonic_pc is not None else self._selected_root_pc
             label = str((cell.pc - base) % 12)
         else:
-            label = name_for_pc(cell.pc, prefer=self._current_spelling)
+            label = name_for_pc(cell.pc, prefer=self._current_spelling, key_signature=self._key_signature)
 
         if mode == "names" and not cell.in_key and not cell.in_chord:
             label = label.lower()
@@ -209,13 +242,29 @@ class PushGridWidget(QWidget):
         markers = ""
         if cell.is_tonic:
             markers += "°"
+        highlight_pc = self._current_chord_root if self._current_chord_root is not None else self._selected_root_pc
+
         if cell.in_chord:
             markers += "*"
             if not cell.in_key:
                 markers += "!"
+                if mode == "names":
+                    label = label.lower()
+            if self._current_chord_root is not None and (cell.pc % 12) == (self._current_chord_root % 12):
+                markers += "^"
+        elif highlight_pc is not None and (cell.pc % 12) == (highlight_pc % 12):
+            markers += "^"
         elif mode not in {"intervals", "semitones"} and not cell.in_key:
             label = label.lower()
         return f"{label}{markers}"
+
+    def _update_key_signature(self) -> None:
+        if self._current_spelling == "auto":
+            reference = self._tonic_pc if self._tonic_pc is not None else self._selected_root_pc
+            self._key_signature = _key_signature_for_tonic(reference)
+        else:
+            self._key_signature = None
+        self._grid.set_key_signature(self._key_signature)
 
     def _apply_palette(self, label: QLabel, *, cell: PushCell | None = None, base: bool = False) -> None:
         palette = label.palette()
@@ -225,16 +274,25 @@ class PushGridWidget(QWidget):
             label.setPalette(palette)
             return
 
+        is_chord_root = self._current_chord_root is not None and ((cell.pc % 12) == self._current_chord_root % 12)
+
+        highlight_pc = self._current_chord_root if self._current_chord_root is not None else self._selected_root_pc
         if cell.is_tonic and cell.in_chord:
             bg, fg = "#f72585", "#ffffff"
         elif cell.is_tonic:
             bg, fg = "#3a86ff", "#ffffff"
+        elif is_chord_root and cell.in_key:
+            bg, fg = "#00b4d8", "#000000"
+        elif is_chord_root and not cell.in_key:
+            bg, fg = "#ef476f", "#ffffff"
         elif cell.in_chord and cell.in_key:
             bg, fg = "#ffbe0b", "#000000"
         elif cell.in_chord:
             bg, fg = "#fb5607", "#000000"
         elif cell.in_key:
             bg, fg = "#8ecae6", "#000000"
+        elif highlight_pc is not None and (cell.pc % 12) == (highlight_pc % 12):
+            bg, fg = "#118ab2", "#ffffff"
         else:
             bg, fg = "#3a3a3a", "#cccccc"
         palette.setColor(QPalette.Window, QColor(bg))

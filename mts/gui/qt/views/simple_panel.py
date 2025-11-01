@@ -29,21 +29,6 @@ from ....core.enharmonics import name_for_pc
 from ..workspace_controller import WorkspaceController
 from .push_grid_widget import PushGridWidget
 
-_ROOT_NAMES = [
-    ("C", 0),
-    ("C#", 1),
-    ("D", 2),
-    ("Eb", 3),
-    ("E", 4),
-    ("F", 5),
-    ("F#", 6),
-    ("G", 7),
-    ("Ab", 8),
-    ("A", 9),
-    ("Bb", 10),
-    ("B", 11),
-]
-
 _INTERVAL_LABELS = {
     0: "P1",
     1: "m2",
@@ -57,6 +42,21 @@ _INTERVAL_LABELS = {
     9: "M6",
     10: "m7",
     11: "M7",
+}
+
+_KEY_SIGNATURE_BY_TONIC = {
+    0: 0,
+    7: 1,
+    2: 2,
+    9: 3,
+    4: 4,
+    11: 5,
+    6: 6,
+    5: -1,
+    10: -2,
+    3: -3,
+    8: -4,
+    1: -5,
 }
 
 
@@ -88,9 +88,6 @@ class SimpleWorkspacePanel(QWidget):
             self.scale_combo.addItem(name, userData=name)
         scale_select_layout.addWidget(self.scale_combo)
         self.scale_tonic_combo = QComboBox()
-        self.scale_tonic_combo.addItem("Auto tonic / intervals", userData=-1)
-        for label, pc in _ROOT_NAMES:
-            self.scale_tonic_combo.addItem(label, userData=pc)
         scale_select_layout.addWidget(self.scale_tonic_combo)
         scale_layout.addLayout(scale_select_layout)
 
@@ -104,7 +101,7 @@ class SimpleWorkspacePanel(QWidget):
         chord_select_layout = QHBoxLayout()
         self.chord_root_combo = QComboBox()
         self.chord_quality_combo = QComboBox()
-        self.chord_quality_combo.addItem("Select quality…", userData=None)
+        self.chord_quality_combo.addItem("None", userData=None)
         for name in self._controller.available_chord_qualities():
             self.chord_quality_combo.addItem(name, userData=name)
         chord_select_layout.addWidget(self.chord_root_combo)
@@ -174,6 +171,7 @@ class SimpleWorkspacePanel(QWidget):
         self.grid_spelling_combo.currentIndexChanged.connect(self._on_grid_spelling_changed)
 
         # Initialize defaults
+        self._refresh_scale_tonic_options()
         self.push_grid_widget.set_label_mode(self.grid_label_combo.currentData())
         layout_mode, hide = self.grid_layout_combo.currentData()
         self.push_grid_widget.set_layout_mode(layout_mode, hide_out_of_key=hide)
@@ -208,9 +206,14 @@ class SimpleWorkspacePanel(QWidget):
     def _on_chord_root_changed(self, index: int) -> None:
         data = self.chord_root_combo.itemData(index)
         if data is None:
+            self.push_grid_widget.set_root_pc(None)
+            root_pc = self._current_scale_tonic_pc() or 0
+            if self.chord_quality_combo.currentIndex() != 0:
+                self.chord_quality_combo.setCurrentIndex(0)
             return
-        root_pc = int(data)
-        self.push_grid_widget.set_root_pc(root_pc)
+        else:
+            root_pc = int(data)
+            self.push_grid_widget.set_root_pc(root_pc)
         quality = self.chord_quality_combo.currentData()
         if quality:
             self._controller.set_chord(root_pc, str(quality))
@@ -218,10 +221,7 @@ class SimpleWorkspacePanel(QWidget):
     def _on_chord_index_changed(self, index: int) -> None:
         quality = self.chord_quality_combo.itemData(index)
         if not quality:
-            root_idx = self.chord_root_combo.currentIndex()
-            root_pc = self.chord_root_combo.itemData(root_idx)
-            if root_pc is not None:
-                self.push_grid_widget.set_root_pc(int(root_pc))
+            self.push_grid_widget.set_chord(None)
             return
         root_idx = self.chord_root_combo.currentIndex()
         root_pc = self.chord_root_combo.itemData(root_idx)
@@ -298,7 +298,7 @@ class SimpleWorkspacePanel(QWidget):
     def _on_grid_label_changed(self, index: int) -> None:
         mode = self.grid_label_combo.itemData(index)
         if mode:
-            if mode in {"names", "degrees"} and self._current_scale_tonic_pc() is None and self._last_scale_tonic is None:
+            if mode == "names" and self._current_scale_tonic_pc() is None and self._last_scale_tonic is None:
                 idx = self.grid_label_combo.findData("semitones")
                 if idx != -1 and idx != index:
                     self.grid_label_combo.setCurrentIndex(idx)
@@ -325,14 +325,36 @@ class SimpleWorkspacePanel(QWidget):
             self.push_grid_widget.set_spelling(mode)
             if self._current_label_mode == "names":
                 self._update_chord_root_options()
+            self._refresh_scale_tonic_options()
 
     # --- Helpers ----------------------------------------------------------
+
+    def _current_spelling_mode(self) -> str:
+        return self.grid_spelling_combo.currentData() or "auto"
 
     def _current_scale_tonic_pc(self) -> int | None:
         data = self.scale_tonic_combo.currentData()
         if data is None or data == -1:
             return None
         return int(data)
+
+    def _refresh_scale_tonic_options(self) -> None:
+        current_value = self._current_scale_tonic_pc()
+        prefer = self._current_spelling_mode()
+        self.scale_tonic_combo.blockSignals(True)
+        self.scale_tonic_combo.clear()
+        self.scale_tonic_combo.addItem("Auto tonic / intervals", userData=-1)
+        for pc in range(12):
+            label = self._spell_pc(pc, prefer)
+            self.scale_tonic_combo.addItem(label, userData=pc)
+        if current_value is None:
+            idx = self.scale_tonic_combo.findData(-1)
+        else:
+            idx = self.scale_tonic_combo.findData(current_value % 12)
+            if idx == -1:
+                idx = self.scale_tonic_combo.findData(-1)
+        self.scale_tonic_combo.setCurrentIndex(idx if idx != -1 else 0)
+        self.scale_tonic_combo.blockSignals(False)
 
     def _sync_scale_controls(self, summary: Any) -> None:
         name_idx = self.scale_combo.findData(summary.name)
@@ -358,23 +380,31 @@ class SimpleWorkspacePanel(QWidget):
         current_pc = self.chord_root_combo.currentData()
         tonic = self._current_scale_tonic_pc()
         base = tonic if tonic is not None else (self._last_scale_tonic if self._last_scale_tonic is not None else 0)
+        prefer = self._current_spelling_mode()
+        if prefer == "auto" and tonic is not None:
+            prefer = "auto"
+        elif prefer == "auto":
+            prefer = "sharps"
         self.chord_root_combo.blockSignals(True)
         self.chord_root_combo.clear()
 
+        self.chord_root_combo.addItem("None", userData=None)
         for pc in range(12):
-            label = self._root_label_for_pc(pc, base, tonic)
+            label = self._root_label_for_pc(pc, base, tonic, prefer)
             self.chord_root_combo.addItem(label, pc)
 
         if current_pc is None:
-            current_pc = base
-        idx = self.chord_root_combo.findData(current_pc % 12)
+            idx = 0
+        else:
+            idx = self.chord_root_combo.findData(current_pc % 12)
+            if idx == -1:
+                idx = 0
         if idx == -1:
             idx = 0
         self.chord_root_combo.setCurrentIndex(idx)
         self.chord_root_combo.blockSignals(False)
         data = self.chord_root_combo.itemData(self.chord_root_combo.currentIndex())
-        if data is not None:
-            self.push_grid_widget.set_root_pc(int(data))
+        self.push_grid_widget.set_root_pc(int(data) if data is not None else None)
 
     @staticmethod
     def _degree_label(pc: int, tonic_pc: int) -> str:
@@ -395,18 +425,29 @@ class SimpleWorkspacePanel(QWidget):
         rel = (pc - tonic_pc) % 12
         return mapping.get(rel, f"pc{rel}")
 
-    def _root_label_for_pc(self, pc: int, base: int, tonic: Optional[int]) -> str:
+    def _root_label_for_pc(self, pc: int, base: int, tonic: Optional[int], prefer: str | None = None) -> str:
         mode = self._current_label_mode
-        if mode == "degrees" and tonic is not None:
-            return self._degree_label(pc, tonic)
+        if mode == "degrees":
+            anchor = tonic if tonic is not None else base
+            return self._degree_label(pc, anchor)
         if mode == "intervals":
             rel = (pc - base) % 12
             return _INTERVAL_LABELS.get(rel, str(rel))
         if mode == "semitones":
             rel = (pc - base) % 12
             return str(rel)
-        spelling = self.grid_spelling_combo.currentData() or "auto"
-        return name_for_pc(pc, prefer=spelling)
+        spelling = prefer or self._current_spelling_mode()
+        key_sig = None
+        if spelling == "auto":
+            reference = tonic if tonic is not None else pc
+            key_sig = _KEY_SIGNATURE_BY_TONIC.get(reference % 12, 0)
+        return name_for_pc(pc, prefer=spelling, key_signature=key_sig)
+
+    def _spell_pc(self, pc: int, prefer: str) -> str:
+        if prefer == "auto":
+            key_sig = _KEY_SIGNATURE_BY_TONIC.get(pc % 12, 0)
+            return name_for_pc(pc, prefer="auto", key_signature=key_sig)
+        return name_for_pc(pc, prefer=prefer)
 
 
 __all__ = ["SimpleWorkspacePanel"]
