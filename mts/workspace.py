@@ -5,11 +5,15 @@ It keeps track of the currently selected scale, chord, and timeline events while
 exposing helper methods that reuse the existing analyzers.  The implementation is
 intentional scaffolding—each method documents TODOs so future features can land
 without reshaping the rest of the codebase.
+
+Each ``Workspace`` owns its own ``SessionCatalog`` so that multiple workspaces
+can coexist with independent user-registered scales and chords.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
 from .analysis import (
@@ -24,14 +28,12 @@ from .analysis import (
 from .analysis.builders import (
     ManualScaleBuilder,
     ManualChordBuilder,
+    SessionCatalog,
     register_scale,
     register_chord,
     match_scale,
     match_chord,
-    SESSION_SCALES,
-    SESSION_CHORDS,
-    SESSION_SCALE_CONTEXT,
-    SESSION_CHORD_CONTEXT,
+    SESSION_FILE,
 )
 from .core.scale import Scale
 from .core.quality import ChordQuality
@@ -54,6 +56,9 @@ class Workspace:
     context_scope: str = "abstract"
     context_tokens: tuple[str, ...] = field(default_factory=tuple)
     context_absolute_midi: tuple[int, ...] = field(default_factory=tuple)
+    _session: SessionCatalog = field(
+        default_factory=SessionCatalog.empty, init=False, repr=False, compare=False
+    )
     _listeners: list[Callable[[str, object | None], None]] = field(
         default_factory=list, init=False, repr=False, compare=False
     )
@@ -63,10 +68,9 @@ class Workspace:
         self.display_context.add_listener(self._on_display_context_change)
 
     def refresh_catalogs(self) -> tuple[Mapping[str, Scale], Mapping[str, ChordQuality]]:
-        """Return the latest scale/chord catalogs (including session entries)."""
-
-        scales = load_scales()
-        chords = load_chord_qualities()
+        """Return the latest scale/chord catalogs (including this workspace's session entries)."""
+        scales = load_scales(session=self._session)
+        chords = load_chord_qualities(session=self._session)
         return scales, chords
 
     # --- Scale utilities -------------------------------------------------
@@ -76,7 +80,7 @@ class Workspace:
         if name not in scales:
             raise ValueError(f"Unknown scale {name!r}.")
         self.scale = scales[name]
-        self._apply_context(SESSION_SCALE_CONTEXT.get(self.scale.name))
+        self._apply_context(self._session.scale_context.get(self.scale.name))
         update_context_with_scale(
             self.display_context,
             tonic_pc=None,
@@ -87,7 +91,7 @@ class Workspace:
 
     def register_scale(self, builder: ManualScaleBuilder) -> Scale:
         scales, _ = self.refresh_catalogs()
-        result = register_scale(builder, catalog=scales)
+        result = register_scale(builder, catalog=scales, session=self._session)
         self.scale = result["scale"]
         self._apply_context(result.get("context"))
         update_context_with_scale(
@@ -115,14 +119,14 @@ class Workspace:
         if quality_name not in chords:
             raise ValueError(f"Unknown chord quality {quality_name!r}.")
         self.chord = Chord.from_quality(root_pc, chords[quality_name])
-        self._apply_context(SESSION_CHORD_CONTEXT.get(self.chord.quality.name))
+        self._apply_context(self._session.chord_context.get(self.chord.quality.name))
         update_context_with_chord_root(self.display_context, root_pc)
         self._notify("chord", self.chord)
         return self.chord
 
     def register_chord(self, builder: ManualChordBuilder, *, root_pc: int = 0) -> Chord:
         _, chords = self.refresh_catalogs()
-        result = register_chord(builder, catalog=chords)
+        result = register_chord(builder, catalog=chords, session=self._session)
         quality = result["quality"]
         self.chord = Chord.from_quality(root_pc, quality)
         self._apply_context(result.get("context"))
@@ -154,7 +158,6 @@ class Workspace:
 
     def clear(self) -> None:
         """Clear the workspace selections (scale/chord/timeline)."""
-
         self.scale = None
         self.chord = None
         self.timeline_events.clear()
@@ -168,15 +171,25 @@ class Workspace:
         self._notify("timeline", [])
         self._notify("context", self._context_payload())
 
-    # --- Session metadata -----------------------------------------------
+    # --- Session management ----------------------------------------------
 
-    @staticmethod
-    def session_scales() -> Mapping[str, Scale]:
-        return SESSION_SCALES
+    def session_scales(self) -> Mapping[str, Scale]:
+        """Return the scales registered in this workspace's session."""
+        return self._session.scales
 
-    @staticmethod
-    def session_chords() -> Mapping[str, ChordQuality]:
-        return SESSION_CHORDS
+    def session_chords(self) -> Mapping[str, ChordQuality]:
+        """Return the chord qualities registered in this workspace's session."""
+        return self._session.chords
+
+    def load_session(self, path: Path | None = None) -> None:
+        """Load session-defined scales/chords from disk into this workspace."""
+        self._session.load(path or SESSION_FILE)
+
+    def save_session(self, path: Path | None = None) -> None:
+        """Persist this workspace's session to disk."""
+        self._session.save(path or SESSION_FILE)
+
+    # --- Session metadata (legacy static access removed; use instance methods above) ---
 
     def _apply_context(self, context: dict[str, object] | None) -> None:
         if not context:
@@ -192,13 +205,11 @@ class Workspace:
 
     def add_listener(self, callback: Callable[[str, object | None], None]) -> None:
         """Register a listener for workspace change events."""
-
         if callback not in self._listeners:
             self._listeners.append(callback)
 
-    def remove_listener(self, callback: Callable[[str, object | None], None]) -> None:
+    def remove_listener(self, callback: callable[[str, object | None], None]) -> None:
         """Remove a previously registered listener."""
-
         try:
             self._listeners.remove(callback)
         except ValueError:
@@ -217,7 +228,7 @@ class Workspace:
             "absolute_midi": tuple(self.context_absolute_midi),
         }
 
-    # --- Display context helpers --------------------------------------
+    # --- Display context helpers ------------------------------------------
 
     def display_setting(self, key: str, default: Any = None) -> Any:
         return self.display_context.get(key, default)

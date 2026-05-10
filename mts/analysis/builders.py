@@ -1,8 +1,14 @@
-"""Manual scale/chord builder scaffolding.
+"""Manual scale/chord builder scaffolding + per-session catalog.
 
-These helper classes give the CLI and future GUI/API layers a single
-place to manage ad hoc user-defined objects.  They currently hold
-session-local registries and basic validation hooks.
+``SessionCatalog`` encapsulates all mutable session state so that
+multiple independent ``Workspace`` instances can coexist without
+sharing global registries.
+
+A module-level ``_DEFAULT_SESSION`` is kept for backward compatibility
+with standalone scripts and the CLI.  The ``SESSION_*`` module attributes
+are **aliases to the same dict objects** inside that default session,
+so existing code (scripts, tests) that does ``SESSION_SCALES["x"] = v``
+or ``SESSION_SCALES.clear()`` continues to work transparently.
 
 TODO:
     - Integrate with persistence once the scale/chord databases expand.
@@ -12,7 +18,7 @@ TODO:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import count
 from pathlib import Path
 import json
@@ -28,6 +34,176 @@ from ..core.quality import ChordQuality
 from .specs import ChordSpec, ScopeLiteral
 
 
+# ---------------------------------------------------------------------------
+# SessionCatalog
+# ---------------------------------------------------------------------------
+
+@dataclass
+class SessionCatalog:
+    """Mutable registry for user-defined scales and chords within a session.
+
+    Each ``Workspace`` owns one ``SessionCatalog`` so that multiple
+    independent workspaces can coexist without sharing global state.
+    """
+
+    scales: dict[str, Scale] = field(default_factory=dict)
+    chords: dict[str, ChordQuality] = field(default_factory=dict)
+    scale_context: dict[str, dict[str, object]] = field(default_factory=dict)
+    chord_context: dict[str, dict[str, object]] = field(default_factory=dict)
+    chord_specs: dict[str, ChordSpec] = field(default_factory=dict)
+
+    @classmethod
+    def empty(cls) -> "SessionCatalog":
+        """Return a fresh, empty catalog (no disk auto-load)."""
+        return cls()
+
+    def is_scale(self, name: str) -> bool:
+        return name in self.scales
+
+    def is_chord(self, name: str) -> bool:
+        return name in self.chords
+
+    def clear(self) -> None:
+        self.scales.clear()
+        self.chords.clear()
+        self.scale_context.clear()
+        self.chord_context.clear()
+        self.chord_specs.clear()
+
+    # --- Persistence --------------------------------------------------------
+
+    def load(self, path: Path) -> None:
+        """Populate this catalog from a JSON session file."""
+        if not path.exists():
+            return
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return
+        for entry in data.get("scales", []):
+            name = entry.get("name")
+            degrees = entry.get("degrees", [])
+            if name:
+                try:
+                    scale_builder = ManualScaleBuilder(name=name, degrees=list(degrees))
+                    scale = scale_builder.to_scale()
+                except Exception:
+                    continue
+                self.scales[scale.name] = scale
+                context_payload: dict[str, object] = {
+                    "scope": entry.get("context", "abstract"),
+                    "tokens": entry.get("tokens", []),
+                }
+                absolute_midi = entry.get("absolute_midi", [])
+                if absolute_midi:
+                    context_payload["absolute_midi"] = list(absolute_midi)
+                self.scale_context[scale.name] = context_payload
+        for entry in data.get("chords", []):
+            name = entry.get("name")
+            intervals = entry.get("intervals", [])
+            tensions = entry.get("tensions", [])
+            if name:
+                try:
+                    chord_builder = ManualChordBuilder(
+                        name=name,
+                        intervals=list(intervals),
+                        tensions=tuple(tensions),
+                    )
+                    quality = chord_builder.to_quality()
+                except Exception:
+                    continue
+                self.chords[quality.name] = quality
+                context_payload = {
+                    "scope": entry.get("context", "abstract"),
+                    "tokens": entry.get("tokens", []),
+                }
+                absolute_midi = entry.get("absolute_midi", [])
+                if absolute_midi:
+                    context_payload["absolute_midi"] = list(absolute_midi)
+                self.chord_context[quality.name] = context_payload
+                scope = context_payload.get("scope", "abstract")
+                tokens = tuple(context_payload.get("tokens", []))
+                absolute_pitches = (
+                    tuple(Pitch.from_midi(midi) for midi in absolute_midi)
+                    if absolute_midi
+                    else ()
+                )
+                if absolute_pitches:
+                    base_midi = absolute_pitches[0].midi
+                    voicing = tuple(p.midi - base_midi for p in absolute_pitches)
+                else:
+                    voicing = tuple(quality.intervals)
+                spec = ChordSpec(
+                    label=name,
+                    scope=cast(ScopeLiteral, scope),
+                    intervals=tuple(quality.intervals),
+                    tokens=tokens,
+                    absolute=absolute_pitches,
+                    tensions=tuple(getattr(quality, "tensions", ()) or ()),
+                    voicing=voicing,
+                ).with_quality(quality.name, matches=[quality.name])
+                self.chord_specs[quality.name] = spec
+
+    def save(self, path: Path) -> None:
+        """Persist this catalog to disk as JSON."""
+        payload = {
+            "scales": [
+                {
+                    "name": scale.name,
+                    "degrees": list(scale.degrees),
+                    "context": self.scale_context.get(scale.name, {}).get("scope", "abstract"),
+                    "tokens": self.scale_context.get(scale.name, {}).get("tokens", []),
+                    "absolute_midi": self.scale_context.get(scale.name, {}).get("absolute_midi", []),
+                }
+                for scale in self.scales.values()
+            ],
+            "chords": [
+                {
+                    "name": quality.name,
+                    "intervals": list(quality.intervals),
+                    "tensions": list(getattr(quality, "tensions", ()) or ()),
+                    "context": self.chord_context.get(quality.name, {}).get("scope", "abstract"),
+                    "tokens": self.chord_context.get(quality.name, {}).get("tokens", []),
+                    "absolute_midi": self.chord_context.get(quality.name, {}).get("absolute_midi", []),
+                }
+                for quality in self.chords.values()
+            ],
+        }
+        global _SAVE_SESSION_ERROR_REPORTED
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+        except Exception:
+            if not _SAVE_SESSION_ERROR_REPORTED:
+                print("Warning: Unable to persist session catalog.", file=sys.stderr)
+                _SAVE_SESSION_ERROR_REPORTED = True
+
+
+# ---------------------------------------------------------------------------
+# Module-level default session (backward compat for scripts / CLI)
+# ---------------------------------------------------------------------------
+
+DEFAULT_SESSION_PATH = Path(__file__).resolve().parents[2] / ".tonality_session.json"
+SESSION_FILE = Path(os.environ.get("TONALITY_SESSION_FILE", DEFAULT_SESSION_PATH))
+_SAVE_SESSION_ERROR_REPORTED = False
+
+_DEFAULT_SESSION: SessionCatalog = SessionCatalog.empty()
+
+# Backward-compatible module-level aliases.  These reference the *same* dict
+# objects that live inside ``_DEFAULT_SESSION``, so code that does
+# ``SESSION_SCALES["k"] = v`` or ``SESSION_SCALES.clear()`` mutates the
+# default session transparently.
+SESSION_SCALES: dict[str, Scale] = _DEFAULT_SESSION.scales
+SESSION_CHORDS: dict[str, ChordQuality] = _DEFAULT_SESSION.chords
+SESSION_SCALE_CONTEXT: dict[str, dict[str, object]] = _DEFAULT_SESSION.scale_context
+SESSION_CHORD_CONTEXT: dict[str, dict[str, object]] = _DEFAULT_SESSION.chord_context
+SESSION_CHORD_SPECS: dict[str, ChordSpec] = _DEFAULT_SESSION.chord_specs
+
+
+# ---------------------------------------------------------------------------
+# Builder dataclasses
+# ---------------------------------------------------------------------------
+
 @dataclass
 class ManualScaleBuilder:
     name: str | None
@@ -40,7 +216,9 @@ class ManualScaleBuilder:
     def to_scale(self) -> Scale:
         # TODO: expose bitmask constructors for non-12TET systems.
         normalized = _normalize_degrees(self.degrees)
-        name = self.name or _placeholder_name("ManualScale", SESSION_SCALES, ())
+        # Placeholder naming uses an empty registry; register_scale handles
+        # collision checking against the active session and catalog.
+        name = self.name or _placeholder_name("ManualScale", {}, ())
         return Scale.from_degrees(name, normalized)
 
 
@@ -57,7 +235,9 @@ class ManualChordBuilder:
         # TODO: support arbitrary tuning systems.
         normalized_intervals = _normalize_intervals(self.intervals)
         normalized_tensions = tuple(_normalize_degrees(self.tensions)) if self.tensions else ()
-        name = self.name or _placeholder_name("ManualChord", SESSION_CHORDS, ())
+        # Placeholder naming uses an empty registry; register_chord handles
+        # collision checking against the active session and catalog.
+        name = self.name or _placeholder_name("ManualChord", {}, ())
         return ChordQuality.from_intervals(name, normalized_intervals, normalized_tensions)
 
     def to_spec(self) -> ChordSpec:
@@ -81,17 +261,9 @@ class ManualChordBuilder:
         )
 
 
-SESSION_SCALES: dict[str, Scale] = {}
-SESSION_CHORDS: dict[str, ChordQuality] = {}
-SESSION_SCALE_CONTEXT: dict[str, dict[str, object]] = {}
-SESSION_CHORD_CONTEXT: dict[str, dict[str, object]] = {}
-SESSION_CHORD_SPECS: dict[str, ChordSpec] = {}
-# TODO: Introduce explicit chord type distinctions (abstract vs. note-named vs. absolute) instead of relying on string markers.
-
-DEFAULT_SESSION_PATH = Path(__file__).resolve().parents[2] / ".tonality_session.json"
-SESSION_FILE = Path(os.environ.get("TONALITY_SESSION_FILE", DEFAULT_SESSION_PATH))
-_SAVE_SESSION_ERROR_REPORTED = False
-
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
 
 def _placeholder_name(stem: str, registry: Mapping[str, object], existing: Iterable[str]) -> str:
     taken = set(registry.keys()) | set(existing)
@@ -160,6 +332,10 @@ def _normalize_intervals(intervals: Iterable[int | str]) -> list[int]:
     return sorted(normalized)
 
 
+# ---------------------------------------------------------------------------
+# Public catalog functions
+# ---------------------------------------------------------------------------
+
 def match_scale(degrees: Iterable[int], catalog: Mapping[str, Scale]) -> list[Scale]:
     target = _normalize_degrees(degrees)
     target_mask = mask_from_pcs(target)
@@ -189,29 +365,36 @@ def register_scale(
     builder: ManualScaleBuilder,
     *,
     catalog: Mapping[str, Scale] | None = None,
+    session: SessionCatalog | None = None,
     auto_placeholder: bool = True,
     persist: bool = False,
     session_path: Path | None = None,
 ) -> dict[str, object]:
+    """Register a scale in *session* (defaults to the module-level default session).
+
+    Passing an explicit ``session`` lets each ``Workspace`` maintain independent
+    state without touching the global default.
+    """
+    _session = session if session is not None else _DEFAULT_SESSION
     catalog = catalog or {}
     context_payload = _builder_context_payload(builder)
     matches = match_scale(builder.degrees, catalog)
     if matches:
         scale = matches[0]
-        SESSION_SCALES[scale.name] = scale
-        SESSION_SCALE_CONTEXT[scale.name] = context_payload
+        _session.scales[scale.name] = scale
+        _session.scale_context[scale.name] = context_payload
         if persist:
-            save_session_catalog(session_path)
+            _session.save(session_path or SESSION_FILE)
         return {"scale": scale, "match": matches, "context": context_payload}
 
     scale = builder.to_scale()
-    if auto_placeholder and (scale.name in catalog or scale.name in SESSION_SCALES):
-        placeholder = _placeholder_name("ManualScale", SESSION_SCALES, catalog.keys())
+    if auto_placeholder and (scale.name in catalog or scale.name in _session.scales):
+        placeholder = _placeholder_name("ManualScale", _session.scales, catalog.keys())
         scale = Scale.from_degrees(placeholder, scale.degrees)
-    SESSION_SCALES[scale.name] = scale
-    SESSION_SCALE_CONTEXT[scale.name] = context_payload
+    _session.scales[scale.name] = scale
+    _session.scale_context[scale.name] = context_payload
     if persist:
-        save_session_catalog(session_path)
+        _session.save(session_path or SESSION_FILE)
     return {"scale": scale, "match": [], "context": context_payload}
 
 
@@ -219,52 +402,57 @@ def register_chord(
     builder: ManualChordBuilder,
     *,
     catalog: Mapping[str, ChordQuality] | None = None,
+    session: SessionCatalog | None = None,
     auto_placeholder: bool = True,
     persist: bool = False,
     session_path: Path | None = None,
 ) -> dict[str, object]:
+    """Register a chord quality in *session* (defaults to the module-level default session).
+
+    Passing an explicit ``session`` lets each ``Workspace`` maintain independent
+    state without touching the global default.
+    """
+    _session = session if session is not None else _DEFAULT_SESSION
     catalog = catalog or {}
     context_payload = _builder_context_payload(builder)
     base_spec = builder.to_spec()
     matches = match_chord(builder.intervals, catalog)
     if matches:
         quality = matches[0]
-        SESSION_CHORDS[quality.name] = quality
-        SESSION_CHORD_CONTEXT[quality.name] = context_payload
+        _session.chords[quality.name] = quality
+        _session.chord_context[quality.name] = context_payload
         spec = base_spec.with_quality(
             quality.name,
             matches=[match.name for match in matches],
         )
-        SESSION_CHORD_SPECS[quality.name] = spec
+        _session.chord_specs[quality.name] = spec
         if persist:
-            save_session_catalog(session_path)
+            _session.save(session_path or SESSION_FILE)
         return {"quality": quality, "match": matches, "context": context_payload, "spec": spec}
 
     quality = builder.to_quality()
-    if auto_placeholder and (quality.name in catalog or quality.name in SESSION_CHORDS):
-        placeholder = _placeholder_name("ManualChord", SESSION_CHORDS, catalog.keys())
+    if auto_placeholder and (quality.name in catalog or quality.name in _session.chords):
+        placeholder = _placeholder_name("ManualChord", _session.chords, catalog.keys())
         quality = ChordQuality.from_intervals(placeholder, quality.intervals, quality.tensions)
-    SESSION_CHORDS[quality.name] = quality
-    SESSION_CHORD_CONTEXT[quality.name] = context_payload
+    _session.chords[quality.name] = quality
+    _session.chord_context[quality.name] = context_payload
     spec = base_spec.with_quality(
         quality.name,
         matches=[match.name for match in matches],
     )
-    SESSION_CHORD_SPECS[quality.name] = spec
+    _session.chord_specs[quality.name] = spec
     if persist:
-        save_session_catalog(session_path)
+        _session.save(session_path or SESSION_FILE)
     return {"quality": quality, "match": [], "context": context_payload, "spec": spec}
 
 
 def degrees_from_mask(mask: int) -> list[int]:
     """Convert a pitch-class mask into normalized degrees."""
-
     return pcs_from_mask(mask)
 
 
 def mask_from_text(text: str) -> int:
     """Parse a decimal or binary mask string."""
-
     stripped = text.strip().lower()
     base = 2 if stripped.startswith("0b") or set(stripped) <= {"0", "1"} else 10
     if stripped.startswith("0b"):
@@ -273,123 +461,41 @@ def mask_from_text(text: str) -> int:
     return value & ((1 << 12) - 1)
 
 
-def is_session_scale(name: str) -> bool:
-    """Return True if the scale name was registered in this session."""
+# ---------------------------------------------------------------------------
+# Backward-compat module-level helpers (delegate to _DEFAULT_SESSION)
+# ---------------------------------------------------------------------------
 
-    return name in SESSION_SCALES
-
-
-def is_session_chord(name: str) -> bool:
-    """Return True if the chord name was registered in this session."""
-
-    return name in SESSION_CHORDS
+def is_session_scale(name: str, session: SessionCatalog | None = None) -> bool:
+    """Return True if *name* is registered in *session* (default: module default)."""
+    return (session if session is not None else _DEFAULT_SESSION).is_scale(name)
 
 
-def load_session_catalog(path: Path | None = None) -> None:
-    """Load session-defined scales/chords from disk."""
-
-    target = path or SESSION_FILE
-    if not target.exists():
-        return
-    try:
-        data = json.loads(target.read_text(encoding="utf-8"))
-    except Exception:
-        return
-    for entry in data.get("scales", []):
-        name = entry.get("name")
-        degrees = entry.get("degrees", [])
-        if name:
-            try:
-                scale_builder = ManualScaleBuilder(name=name, degrees=list(degrees))
-                scale = scale_builder.to_scale()
-            except Exception:
-                continue
-            SESSION_SCALES[scale.name] = scale
-            context_payload = {
-                "scope": entry.get("context", "abstract"),
-                "tokens": entry.get("tokens", []),
-            }
-            absolute_midi = entry.get("absolute_midi", [])
-            if absolute_midi:
-                context_payload["absolute_midi"] = list(absolute_midi)
-            SESSION_SCALE_CONTEXT[scale.name] = context_payload
-    for entry in data.get("chords", []):
-        name = entry.get("name")
-        intervals = entry.get("intervals", [])
-        tensions = entry.get("tensions", [])
-        if name:
-            try:
-                chord_builder = ManualChordBuilder(name=name, intervals=list(intervals), tensions=tuple(tensions))
-                quality = chord_builder.to_quality()
-            except Exception:
-                continue
-            SESSION_CHORDS[quality.name] = quality
-            context_payload = {
-                "scope": entry.get("context", "abstract"),
-                "tokens": entry.get("tokens", []),
-            }
-            absolute_midi = entry.get("absolute_midi", [])
-            if absolute_midi:
-                context_payload["absolute_midi"] = list(absolute_midi)
-            SESSION_CHORD_CONTEXT[quality.name] = context_payload
-            scope = context_payload.get("scope", "abstract")
-            tokens = tuple(context_payload.get("tokens", []))
-            absolute_pitches = tuple(Pitch.from_midi(midi) for midi in absolute_midi) if absolute_midi else ()
-            if absolute_pitches:
-                base_midi = absolute_pitches[0].midi
-                voicing = tuple(p.midi - base_midi for p in absolute_pitches)
-            else:
-                voicing = tuple(quality.intervals)
-            spec = ChordSpec(
-                label=name,
-                scope=cast(ScopeLiteral, scope),
-                intervals=tuple(quality.intervals),
-                tokens=tokens,
-                absolute=absolute_pitches,
-                tensions=tuple(getattr(quality, "tensions", ()) or ()),
-                voicing=voicing,
-            ).with_quality(quality.name, matches=[quality.name])
-            SESSION_CHORD_SPECS[quality.name] = spec
+def is_session_chord(name: str, session: SessionCatalog | None = None) -> bool:
+    """Return True if *name* is registered in *session* (default: module default)."""
+    return (session if session is not None else _DEFAULT_SESSION).is_chord(name)
 
 
-def save_session_catalog(path: Path | None = None) -> None:
-    """Persist session-defined scales/chords to disk."""
+def load_session_catalog(
+    path: Path | None = None,
+    session: SessionCatalog | None = None,
+) -> None:
+    """Load a session JSON file into *session* (default: module default)."""
+    (session if session is not None else _DEFAULT_SESSION).load(path or SESSION_FILE)
 
-    target = path or SESSION_FILE
-    payload = {
-        "scales": [
-            {
-                "name": scale.name,
-                "degrees": list(scale.degrees),
-                "context": SESSION_SCALE_CONTEXT.get(scale.name, {}).get("scope", "abstract"),
-                "tokens": SESSION_SCALE_CONTEXT.get(scale.name, {}).get("tokens", []),
-                "absolute_midi": SESSION_SCALE_CONTEXT.get(scale.name, {}).get("absolute_midi", []),
-            }
-            for scale in SESSION_SCALES.values()
-        ],
-        "chords": [
-            {
-                "name": quality.name,
-                "intervals": list(quality.intervals),
-                "tensions": list(getattr(quality, "tensions", ()) or ()),
-                "context": SESSION_CHORD_CONTEXT.get(quality.name, {}).get("scope", "abstract"),
-                "tokens": SESSION_CHORD_CONTEXT.get(quality.name, {}).get("tokens", []),
-                "absolute_midi": SESSION_CHORD_CONTEXT.get(quality.name, {}).get("absolute_midi", []),
-            }
-            for quality in SESSION_CHORDS.values()
-        ],
-    }
-    global _SAVE_SESSION_ERROR_REPORTED
-    try:
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
-    except Exception:
-        if not _SAVE_SESSION_ERROR_REPORTED:
-            print("Warning: Unable to persist session catalog.", file=sys.stderr)
-            _SAVE_SESSION_ERROR_REPORTED = True
 
+def save_session_catalog(
+    path: Path | None = None,
+    session: SessionCatalog | None = None,
+) -> None:
+    """Persist *session* to disk (default: module default)."""
+    (session if session is not None else _DEFAULT_SESSION).save(path or SESSION_FILE)
+
+
+# ---------------------------------------------------------------------------
+# Auto-load the default session from disk at import time
+# ---------------------------------------------------------------------------
 
 try:
-    load_session_catalog()
+    _DEFAULT_SESSION.load(SESSION_FILE)
 except Exception:
     pass

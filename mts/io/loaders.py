@@ -11,7 +11,7 @@ from ..core.bitmask import validate_pc
 from ..core.interval import Interval
 from ..core.quality import ChordQuality
 from ..core.scale import Scale
-from ..analysis.builders import SESSION_SCALES, SESSION_CHORDS
+from ..analysis.builders import SessionCatalog, _DEFAULT_SESSION
 from ..theory.functions import (
     DEFAULT_FEATURES_MAJOR,
     DEFAULT_FEATURES_MINOR,
@@ -52,7 +52,17 @@ def load_intervals() -> list[Interval]:
     return entries
 
 
-def load_scales() -> dict[str, Scale]:
+def load_scales(session: SessionCatalog | None = None) -> dict[str, Scale]:
+    """Load the scale catalog from JSON, merged with any session-registered scales.
+
+    Parameters
+    ----------
+    session:
+        The ``SessionCatalog`` whose user-defined scales should be merged in.
+        When *None* the module-level default session is used, preserving the
+        original behaviour for standalone scripts and the CLI.
+    """
+    _session = session if session is not None else _DEFAULT_SESSION
     scales: dict[str, Scale] = {}
     for payload in _read_json("scales.json"):
         name = str(payload["name"])
@@ -79,14 +89,23 @@ def load_scales() -> dict[str, Scale]:
             if alias in scales:
                 raise ValueError(f"Duplicate scale alias detected: {alias}")
             scales[alias] = scale
-    if SESSION_SCALES:
-        for manual in SESSION_SCALES.values():
+    if _session.scales:
+        for manual in _session.scales.values():
             if manual.name not in scales:
                 scales[manual.name] = manual
     return scales
 
 
-def load_chord_qualities() -> dict[str, ChordQuality]:
+def load_chord_qualities(session: SessionCatalog | None = None) -> dict[str, ChordQuality]:
+    """Load the chord-quality catalog from JSON, merged with any session-registered qualities.
+
+    Parameters
+    ----------
+    session:
+        The ``SessionCatalog`` whose user-defined chord qualities should be
+        merged in.  When *None* the module-level default session is used.
+    """
+    _session = session if session is not None else _DEFAULT_SESSION
     qualities: dict[str, ChordQuality] = {}
     for payload in _read_json("chord_qualities.json"):
         name = str(payload["name"])
@@ -99,8 +118,8 @@ def load_chord_qualities() -> dict[str, ChordQuality]:
         for tension in tensions:
             validate_pc(int(tension))
         qualities[name] = ChordQuality.from_intervals(name, intervals, tensions)
-    if SESSION_CHORDS:
-        for manual in SESSION_CHORDS.values():
+    if _session.chords:
+        for manual in _session.chords.values():
             if manual.name not in qualities:
                 qualities[manual.name] = manual
     return qualities
