@@ -1,0 +1,229 @@
+"""Typed result dataclasses for scale and chord analysis.
+
+These replace the previous ``dict[str, object]`` returns from
+``analyze_scale`` and ``analyze_chord``.  Attribute access gives calling
+code (including future generative systems) static type information and
+IDE autocomplete without any runtime cost.
+
+``to_dict()`` on either top-level result class delegates to
+``dataclasses.asdict()``, which recursively converts nested dataclasses to
+plain dicts so that ``json.dumps(result.to_dict())`` still works for
+scripts that need JSON output.
+"""
+
+from __future__ import annotations
+
+import dataclasses
+from dataclasses import dataclass
+
+
+# ---------------------------------------------------------------------------
+# Shared sub-types
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class ReflectionAxis:
+    """A single reflective symmetry axis of a pitch-class set."""
+    type: str    # "pitch" | "between"
+    center: float  # integer or half-integer (e.g. 0, 5.5)
+
+
+@dataclass(frozen=True)
+class SymmetryData:
+    """Rotational and reflective symmetry properties of a scale or chord."""
+    rotational_order: int
+    rotational_steps: list[int]
+    achiral: bool
+    reflection_axes: list[ReflectionAxis]
+
+
+# ---------------------------------------------------------------------------
+# Scale-specific sub-types
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class ModeRotation:
+    """One modal rotation of a parent scale."""
+    mode_index: int
+    root_pc: int
+    degrees: list[int]
+    mask: int
+    step_pattern: list[int]
+    interval_vector: list[int]
+
+
+@dataclass(frozen=True)
+class ScaleIntervalSummary:
+    """Interval statistics for a scale."""
+    cardinality: int
+    interval_vector: list[int]
+    largest_step: int | None
+    smallest_step: int | None
+    semitone_count: int
+    tone_count: int
+    tritone_pairs: int
+    ic_map: dict[str, int]
+
+
+# ---------------------------------------------------------------------------
+# Chord-specific sub-types
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class ChordIntervalSummary:
+    """Interval statistics for a chord."""
+    cardinality: int
+    distinct_pcs: int
+    interval_vector: list[int]
+    smallest_interval: int | None
+    largest_interval: int | None
+    span_semitones: int
+    span_compact: int
+    interval_pairs: list[int]
+
+
+@dataclass(frozen=True)
+class Inversion:
+    """One inversion of a chord (root rotated to each chord tone)."""
+    root_pc: int
+    intervals: list[int]
+    interval_labels: list[str]
+    note_names: list[str]
+
+
+@dataclass(frozen=True)
+class VoicingEntry:
+    """A single chord voicing (closed, drop-2, drop-3, etc.)."""
+    label: str
+    semitones_from_root: list[int]
+    intervals_mod_12: list[int]
+    spread: int
+    note_names: list[str]
+
+
+@dataclass(frozen=True)
+class VoicingSet:
+    """All generated voicings for a chord.  ``drop2`` / ``drop3`` are absent
+    for chords with fewer than 3 / 4 voices respectively."""
+    closed: VoicingEntry
+    drop2: VoicingEntry | None = None
+    drop3: VoicingEntry | None = None
+
+
+@dataclass(frozen=True)
+class EnharmonicSpelling:
+    """Preferred and alternate spellings for a single pitch class."""
+    pc: int
+    preferred: str
+    alternates: list[str]
+
+
+@dataclass(frozen=True)
+class NoteInContext:
+    """A chord tone expressed relative to a tonic."""
+    note: str
+    relative_pc: int
+    relative_label: str
+
+
+@dataclass(frozen=True)
+class TonicContext:
+    """Analysis of a chord relative to a named tonic."""
+    tonic_pc: int
+    root_interval_from_tonic: int
+    root_interval_label: str
+    note_names_relative_to_tonic: list[NoteInContext]
+
+
+@dataclass(frozen=True)
+class TonnetzAnalysis:
+    """Tonnetz coordinates for the pitches in a chord."""
+    coordinates: dict[int, tuple[int, int, int]]
+    centroid: tuple[float, float, float] | None
+
+
+# ---------------------------------------------------------------------------
+# Top-level result types
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class ScaleAnalysisResult:
+    """Full analysis result for a scale.
+
+    Optional fields are ``None`` when the corresponding ``include_*`` flag
+    on the request was ``False``, or when the prerequisite data was absent
+    (e.g. ``note_names`` requires ``tonic_pc`` to be set).
+    """
+
+    scale_name: str
+    tonic_pc: int | None
+    degrees: list[int]
+    cardinality: int
+    step_pattern: list[int]
+    interval_vector: list[int]
+    mask: int
+    mask_binary: str
+    note_names: list[str] | None = None
+    modes: list[ModeRotation] | None = None
+    symmetry: SymmetryData | None = None
+    intervals: ScaleIntervalSummary | None = None
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
+class ChordAnalysisResult:
+    """Full analysis result for a chord.
+
+    Optional fields are ``None`` when the corresponding ``include_*`` flag
+    on the request was ``False``, or when the prerequisite data was absent
+    (e.g. ``tonic_context`` requires ``tonic_pc`` to be set).
+    """
+
+    root_pc: int
+    quality: str
+    pcs: list[int]
+    mask: int
+    cardinality: int
+    intervals_relative_to_root: list[int]
+    interval_matrix: list[list[int]]
+    interval_matrix_labels: list[list[str]]
+    interval_class_histogram: dict[str, int]
+    interval_class_histogram_numeric: dict[int, int]
+    inverted_interval_matrix: list[list[int]]
+    inverted_interval_matrix_labels: list[list[str]]
+    inverted_interval_class_histogram: dict[str, int]
+    inverted_interval_class_histogram_numeric: dict[int, int]
+    interval_vector: list[int]
+    interval_summary: ChordIntervalSummary
+    symmetry: SymmetryData
+    tonnetz: TonnetzAnalysis
+    note_names: list[str]
+    tonic_context: TonicContext | None = None
+    inversions: list[Inversion] | None = None
+    voicings: VoicingSet | None = None
+    enharmonics: list[EnharmonicSpelling] | None = None
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
+__all__ = [
+    "ChordAnalysisResult",
+    "ChordIntervalSummary",
+    "EnharmonicSpelling",
+    "Inversion",
+    "ModeRotation",
+    "NoteInContext",
+    "ReflectionAxis",
+    "ScaleAnalysisResult",
+    "ScaleIntervalSummary",
+    "SymmetryData",
+    "TonnetzAnalysis",
+    "TonicContext",
+    "VoicingEntry",
+    "VoicingSet",
+]

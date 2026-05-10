@@ -15,6 +15,7 @@ if str(REPO_ROOT) not in sys.path:
 from mts.io.loaders import load_scales, load_chord_qualities
 from mts.analysis import ScaleAnalysisRequest, analyze_scale
 from mts.analysis.builders import SESSION_SCALE_CONTEXT
+from mts.analysis.results import ScaleAnalysisResult, ScaleIntervalSummary, SymmetryData, ModeRotation
 from mts.core.enharmonics import pc_from_name
 
 
@@ -24,70 +25,60 @@ def _print_section(title: str) -> None:
     print("-" * len(title))
 
 
-def _print_symmetry(symmetry: dict[str, object]) -> None:
+def _print_symmetry(symmetry: SymmetryData) -> None:
     _print_section("Symmetry")
-    print(f"  rotational order: {symmetry.get('rotational_order')}")
-    steps = symmetry.get("rotational_steps", [])
-    if steps:
-        print(f"  rotational steps: {', '.join(str(step) for step in steps)}")
-    print(f"  achiral: {symmetry.get('achiral')}")
-    axes = symmetry.get("reflection_axes", [])
-    if axes:
+    print(f"  rotational order: {symmetry.rotational_order}")
+    if symmetry.rotational_steps:
+        print(f"  rotational steps: {', '.join(str(step) for step in symmetry.rotational_steps)}")
+    print(f"  achiral: {symmetry.achiral}")
+    if symmetry.reflection_axes:
         print("  reflection axes:")
-        for axis in axes:
-            center = axis.get("center")
-            axis_type = axis.get("type")
-            print(f"    - {axis_type} axis @ {center}")
+        for axis in symmetry.reflection_axes:
+            print(f"    - {axis.type} axis @ {axis.center}")
     else:
         print("  reflection axes: none")
 
 
-def _print_intervals(intervals: dict[str, object]) -> None:
+def _print_intervals(intervals: ScaleIntervalSummary) -> None:
     _print_section("Interval Summary")
-    print(f"  cardinality: {intervals.get('cardinality')}")
-    print(f"  interval vector: {intervals.get('interval_vector')}")
-    if intervals.get("largest_step") is not None:
-        print(f"  largest step: {intervals['largest_step']}")
-    if intervals.get("smallest_step") is not None:
-        print(f"  smallest step: {intervals['smallest_step']}")
-    print(f"  semitone steps: {intervals.get('semitone_count')}")
-    print(f"  whole-tone steps: {intervals.get('tone_count')}")
-    print(f"  tritone pairs: {intervals.get('tritone_pairs')}")
-    ic_map = intervals.get("ic_map")
-    if isinstance(ic_map, dict):
+    print(f"  cardinality: {intervals.cardinality}")
+    print(f"  interval vector: {intervals.interval_vector}")
+    if intervals.largest_step is not None:
+        print(f"  largest step: {intervals.largest_step}")
+    if intervals.smallest_step is not None:
+        print(f"  smallest step: {intervals.smallest_step}")
+    print(f"  semitone steps: {intervals.semitone_count}")
+    print(f"  whole-tone steps: {intervals.tone_count}")
+    print(f"  tritone pairs: {intervals.tritone_pairs}")
+    if intervals.ic_map:
         print("  interval class counts:")
-        for ic, count in sorted(ic_map.items(), key=lambda item: int(item[0])):
+        for ic, count in sorted(intervals.ic_map.items(), key=lambda item: int(item[0])):
             print(f"    ic{ic}: {count}")
 
 
-def _print_modes(modes: list[dict[str, object]]) -> None:
+def _print_modes(modes: list[ModeRotation]) -> None:
     _print_section("Modes")
     for mode in modes:
-        name = f"Mode {mode.get('mode_index', '?')}"
-        root = mode.get("root_pc")
-        degrees = mode.get("degrees")
-        pattern = mode.get("step_pattern")
-        vector = mode.get("interval_vector")
-        print(f"  {name} (root pc {root})")
-        print(f"    degrees: {degrees}")
-        print(f"    step pattern: {pattern}")
-        print(f"    interval vector: {vector}")
+        print(f"  Mode {mode.mode_index} (root pc {mode.root_pc})")
+        print(f"    degrees: {mode.degrees}")
+        print(f"    step pattern: {mode.step_pattern}")
+        print(f"    interval vector: {mode.interval_vector}")
 
 
-def _print_report(report: dict[str, object]) -> None:
-    print(f"Scale: {report['scale_name']}")
-    print(f"Degrees: {report['degrees']} (cardinality {report.get('cardinality')})")
-    print(f"Mask: {report.get('mask')} (binary {report.get('mask_binary')})")
-    if "note_names" in report:
-        print(f"Note names: {report['note_names']}")
-    print(f"Step pattern: {report.get('step_pattern')}")
-    print(f"Interval vector: {report.get('interval_vector')}")
-    if "intervals" in report:
-        _print_intervals(report["intervals"])
-    if "symmetry" in report:
-        _print_symmetry(report["symmetry"])
-    if "modes" in report:
-        _print_modes(report["modes"])
+def _print_report(report: ScaleAnalysisResult) -> None:
+    print(f"Scale: {report.scale_name}")
+    print(f"Degrees: {report.degrees} (cardinality {report.cardinality})")
+    print(f"Mask: {report.mask} (binary {report.mask_binary})")
+    if report.note_names is not None:
+        print(f"Note names: {report.note_names}")
+    print(f"Step pattern: {report.step_pattern}")
+    print(f"Interval vector: {report.interval_vector}")
+    if report.intervals is not None:
+        _print_intervals(report.intervals)
+    if report.symmetry is not None:
+        _print_symmetry(report.symmetry)
+    if report.modes is not None:
+        _print_modes(report.modes)
 
 
 def main() -> None:
@@ -127,6 +118,7 @@ def main() -> None:
         return
     if args.scale is None:
         parser.error("Scale name required unless using --list-scales/--list-qualities.")
+
     if args.scale not in scales:
         parser.error(f"Unknown scale {args.scale!r}. Use --list-scales to inspect options.")
 
@@ -150,7 +142,7 @@ def main() -> None:
     )
     report = analyze_scale(request)
     if args.json:
-        print(json.dumps(report, indent=2, sort_keys=True))
+        print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
         return
     _print_report(report)
 

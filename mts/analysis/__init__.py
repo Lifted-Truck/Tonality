@@ -30,6 +30,22 @@ from .comparisons import (
     compare_chord_qualities,
 )
 from .specs import ChordSpec, ChordParseResult, ScopeLiteral, QualityVariant, parse_chord_spec
+from .results import (
+    ChordAnalysisResult,
+    ChordIntervalSummary,
+    EnharmonicSpelling,
+    Inversion,
+    ModeRotation,
+    NoteInContext,
+    ReflectionAxis,
+    ScaleAnalysisResult,
+    ScaleIntervalSummary,
+    SymmetryData,
+    TonnetzAnalysis,
+    TonicContext,
+    VoicingEntry,
+    VoicingSet,
+)
 
 __all__ = [
     "ScaleAnalysisRequest",
@@ -57,4 +73,18 @@ __all__ = [
     "compare_chord_qualities",
     "register_scale",
     "register_chord",
+    "ChordAnalysisResult",
+    "ChordIntervalSummary",
+    "EnharmonicSpelling",
+    "Inversion",
+    "ModeRotation",
+    "NoteInContext",
+    "ReflectionAxis",
+    "ScaleAnalysisResult",
+    "ScaleIntervalSummary",
+    "SymmetryData",
+    "TonnetzAnalysis",
+    "TonicContext",
+    "VoicingEntry",
+    "VoicingSet",
 ]

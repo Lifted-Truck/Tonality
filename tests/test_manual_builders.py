@@ -108,8 +108,10 @@ def test_register_chord_runs_analysis():
             include_enharmonics=False,
         )
     )
-    assert len(analysis["inversions"]) == len(quality.intervals)
-    assert "closed" in analysis["voicings"]
+    assert analysis.inversions is not None
+    assert len(analysis.inversions) == len(quality.intervals)
+    assert analysis.voicings is not None
+    assert analysis.voicings.closed is not None
     assert quality.name in SESSION_CHORDS
     assert SESSION_CHORD_CONTEXT[quality.name]["scope"] == "abstract"
 

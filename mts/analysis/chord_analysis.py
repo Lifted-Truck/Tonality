@@ -10,6 +10,19 @@ from ..core.bitmask import rotate_mask
 from ..core.chord import Chord
 from ..core.enharmonics import PC_TO_NAMES, SpellingPref, name_for_pc
 from ..core.symmetry import mask_symmetry_order
+from .results import (
+    ChordAnalysisResult,
+    ChordIntervalSummary,
+    EnharmonicSpelling,
+    Inversion,
+    NoteInContext,
+    ReflectionAxis,
+    SymmetryData,
+    TonnetzAnalysis,
+    TonicContext,
+    VoicingEntry,
+    VoicingSet,
+)
 
 
 @dataclass
@@ -58,59 +71,61 @@ def _interval_vector(pcs: list[int]) -> list[int]:
     return vector
 
 
-def _reflection_axes(pcs: set[int]) -> list[dict[str, object]]:
-    axes: list[dict[str, object]] = []
+def _reflection_axes(pcs: set[int]) -> list[ReflectionAxis]:
+    axes: list[ReflectionAxis] = []
     if not pcs:
         return axes
     for axis in range(12):
         reflected_pitch = {((2 * axis - pc) % 12) for pc in pcs}
         if reflected_pitch == pcs:
-            axes.append({"type": "pitch", "center": axis})
+            axes.append(ReflectionAxis(type="pitch", center=axis))
         reflected_between = {((2 * axis + 1 - pc) % 12) for pc in pcs}
         if reflected_between == pcs:
-            axes.append({"type": "between", "center": (axis + 0.5) % 12})
-    unique_axes: list[dict[str, object]] = []
-    seen: set[tuple[str, float | int]] = set()
-    for axis in axes:
-        key = (axis["type"], axis["center"])
+            axes.append(ReflectionAxis(type="between", center=(axis + 0.5) % 12))
+    unique_axes: list[ReflectionAxis] = []
+    seen: set[tuple[str, float]] = set()
+    for ax in axes:
+        key = (ax.type, ax.center)
         if key in seen:
             continue
         seen.add(key)
-        unique_axes.append(axis)
+        unique_axes.append(ax)
     return unique_axes
 
 
-def _symmetry_data(chord: Chord) -> dict[str, object]:
+def _symmetry_data(chord: Chord) -> SymmetryData:
     pcs = set(chord.pcs)
     if not pcs:
-        return {
-            "rotational_order": 0,
-            "rotational_steps": [],
-            "achiral": False,
-            "reflection_axes": [],
-        }
+        return SymmetryData(
+            rotational_order=0,
+            rotational_steps=[],
+            achiral=False,
+            reflection_axes=[],
+        )
     mask = chord.mask
     rotational_steps = [step for step in range(1, 12) if rotate_mask(mask, step) == mask]
     order = mask_symmetry_order(mask)
     reflection_axes = _reflection_axes(pcs)
-    return {
-        "rotational_order": order,
-        "rotational_steps": rotational_steps or [12],
-        "achiral": bool(reflection_axes),
-        "reflection_axes": reflection_axes,
-    }
+    return SymmetryData(
+        rotational_order=order,
+        rotational_steps=rotational_steps or [12],
+        achiral=bool(reflection_axes),
+        reflection_axes=reflection_axes,
+    )
 
 
-def _interval_summary(pcs: list[int]) -> dict[str, object]:
+def _interval_summary(pcs: list[int]) -> ChordIntervalSummary:
     if not pcs:
-        return {
-            "cardinality": 0,
-            "interval_vector": [0] * 6,
-            "distinct_pcs": 0,
-            "span_semitones": 0,
-            "span_compact": 0,
-            "interval_pairs": [],
-        }
+        return ChordIntervalSummary(
+            cardinality=0,
+            distinct_pcs=0,
+            interval_vector=[0] * 6,
+            smallest_interval=None,
+            largest_interval=None,
+            span_semitones=0,
+            span_compact=0,
+            interval_pairs=[],
+        )
     unique = sorted({pc % 12 for pc in pcs})
     vector = _interval_vector(unique)
     pairwise = sorted(((b - a) % 12) for a, b in itertools.combinations(unique, 2))
@@ -124,16 +139,16 @@ def _interval_summary(pcs: list[int]) -> dict[str, object]:
         span_compact = min(
             max(doubled[i : i + len(unique)]) - doubled[i] for i in range(len(unique))
         )
-    return {
-        "cardinality": len(pcs),
-        "distinct_pcs": len(unique),
-        "interval_vector": vector,
-        "smallest_interval": smallest,
-        "largest_interval": largest,
-        "span_semitones": span_linear,
-        "span_compact": span_compact,
-        "interval_pairs": pairwise,
-    }
+    return ChordIntervalSummary(
+        cardinality=len(pcs),
+        distinct_pcs=len(unique),
+        interval_vector=vector,
+        smallest_interval=smallest,
+        largest_interval=largest,
+        span_semitones=span_linear,
+        span_compact=span_compact,
+        interval_pairs=pairwise,
+    )
 
 
 def _enharmonic_spellings(
@@ -141,9 +156,9 @@ def _enharmonic_spellings(
     *,
     prefer: SpellingPref,
     key_signature: int | None,
-) -> list[dict[str, object]]:
+) -> list[EnharmonicSpelling]:
     seen: set[int] = set()
-    spellings: list[dict[str, object]] = []
+    spellings: list[EnharmonicSpelling] = []
     for pc in pcs:
         if pc in seen:
             continue
@@ -151,11 +166,11 @@ def _enharmonic_spellings(
         preferred = name_for_pc(pc, prefer=prefer, key_signature=key_signature)
         aliases = PC_TO_NAMES.get(pc % 12, [preferred])
         spellings.append(
-            {
-                "pc": pc,
-                "preferred": preferred,
-                "alternates": [name for name in aliases if name != preferred] or [],
-            }
+            EnharmonicSpelling(
+                pc=pc,
+                preferred=preferred,
+                alternates=[name for name in aliases if name != preferred] or [],
+            )
         )
     return spellings
 
@@ -173,34 +188,40 @@ def _normalize_register(values: list[int]) -> list[int]:
     return normalized
 
 
-def _tonnetz_analysis(chord: Chord) -> dict[str, object]:
+def _tonnetz_analysis(chord: Chord) -> TonnetzAnalysis:
     coords = _tonnetz_coordinates()
-    chord_coords = {pc: coords.get(pc) for pc in chord.pcs if pc in coords}
+    chord_coords = {pc: coords[pc] for pc in chord.pcs if pc in coords}
     if not chord_coords:
-        return {"coordinates": {}, "centroid": None}
+        return TonnetzAnalysis(coordinates={}, centroid=None)
     totals = [0.0, 0.0, 0.0]
     for triple in chord_coords.values():
         for idx, value in enumerate(triple):
             totals[idx] += value
     count = len(chord_coords)
-    centroid = tuple(total / count for total in totals)
-    return {
-        "coordinates": chord_coords,
-        "centroid": centroid,
-    }
+    centroid = (totals[0] / count, totals[1] / count, totals[2] / count)
+    return TonnetzAnalysis(coordinates=chord_coords, centroid=centroid)
 
 
 def _relative_tonic_analysis(
     chord: Chord,
     tonic_pc: int,
     label_style: str,
-) -> dict[str, object]:
+) -> TonicContext:
     root_interval = (chord.root_pc - tonic_pc) % 12
-    return {
-        "tonic_pc": tonic_pc,
-        "root_interval_from_tonic": root_interval,
-        "root_interval_label": _label_interval(root_interval, label_style),
-    }
+    notes_in_context = [
+        NoteInContext(
+            note=name_for_pc(pc),
+            relative_pc=(pc - tonic_pc) % 12,
+            relative_label=_label_interval((pc - tonic_pc) % 12, label_style),
+        )
+        for pc in chord.pcs
+    ]
+    return TonicContext(
+        tonic_pc=tonic_pc,
+        root_interval_from_tonic=root_interval,
+        root_interval_label=_label_interval(root_interval, label_style),
+        note_names_relative_to_tonic=notes_in_context,
+    )
 
 
 def _tonnetz_coordinates() -> dict[int, tuple[int, int, int]]:
@@ -226,18 +247,8 @@ def _label_interval(interval: int, style: str) -> str:
     interval %= 12
     if style == "classical":
         classical = {
-            0: "P1",
-            1: "m2",
-            2: "M2",
-            3: "m3",
-            4: "M3",
-            5: "P4",
-            6: "TT",
-            7: "P5",
-            8: "m6",
-            9: "M6",
-            10: "m7",
-            11: "M7",
+            0: "P1", 1: "m2", 2: "M2", 3: "m3", 4: "M3", 5: "P4",
+            6: "TT", 7: "P5", 8: "m6", 9: "M6", 10: "m7", 11: "M7",
         }
         return classical.get(interval, f"ic{interval}")
     return str(interval)
@@ -260,9 +271,9 @@ def _generate_inversions(
     spelling: SpellingPref,
     key_sig: int | None,
     label_style: str,
-) -> list[dict[str, object]]:
+) -> list[Inversion]:
     pcs = list(chord.pcs)
-    inversions: list[dict[str, object]] = []
+    inversions: list[Inversion] = []
     for idx, root_pc in enumerate(pcs):
         rotated = pcs[idx:] + pcs[:idx]
         intervals = [((pc - root_pc) % 12) for pc in rotated]
@@ -271,12 +282,12 @@ def _generate_inversions(
             for pc in rotated
         ]
         inversions.append(
-            {
-                "root_pc": root_pc,
-                "intervals": intervals,
-                "interval_labels": [_label_interval(iv, label_style) for iv in intervals],
-                "note_names": note_names,
-            }
+            Inversion(
+                root_pc=root_pc,
+                intervals=intervals,
+                interval_labels=[_label_interval(iv, label_style) for iv in intervals],
+                note_names=note_names,
+            )
         )
     return inversions
 
@@ -285,43 +296,43 @@ def _generate_voicings(
     chord: Chord,
     spelling: SpellingPref,
     key_sig: int | None,
-) -> dict[str, object]:
+) -> VoicingSet:
     pcs = list(chord.pcs)
     relative = sorted(((pc - chord.root_pc) % 12) for pc in pcs)
     closed_stack = _normalize_register(relative)
 
-    def make_voicing(intervals: list[int], *, label: str) -> dict[str, object]:
+    def make_voicing(intervals: list[int], *, label: str) -> VoicingEntry:
         ordered = _normalize_register(intervals)
         modulo = [iv % 12 for iv in ordered]
-        return {
-            "label": label,
-            "semitones_from_root": ordered,
-            "intervals_mod_12": modulo,
-            "spread": (ordered[-1] - ordered[0]) if len(ordered) > 1 else 0,
-            "note_names": [
+        return VoicingEntry(
+            label=label,
+            semitones_from_root=ordered,
+            intervals_mod_12=modulo,
+            spread=(ordered[-1] - ordered[0]) if len(ordered) > 1 else 0,
+            note_names=[
                 name_for_pc((chord.root_pc + iv) % 12, prefer=spelling, key_signature=key_sig)
                 for iv in ordered
             ],
-        }
+        )
 
-    voicings: dict[str, object] = {
-        "closed": make_voicing(closed_stack, label="closed"),
-    }
+    closed = make_voicing(closed_stack, label="closed")
+    drop2: VoicingEntry | None = None
+    drop3: VoicingEntry | None = None
 
     if len(closed_stack) >= 3:
-        drop2 = closed_stack.copy()
-        drop2[-2] -= 12
-        voicings["drop2"] = make_voicing(drop2, label="drop2")
+        d2 = closed_stack.copy()
+        d2[-2] -= 12
+        drop2 = make_voicing(d2, label="drop2")
     if len(closed_stack) >= 4:
-        drop3 = closed_stack.copy()
-        drop3[-3] -= 12
-        voicings["drop3"] = make_voicing(drop3, label="drop3")
+        d3 = closed_stack.copy()
+        d3[-3] -= 12
+        drop3 = make_voicing(d3, label="drop3")
 
-    return voicings
+    return VoicingSet(closed=closed, drop2=drop2, drop3=drop3)
 
 
-def analyze_chord(request: ChordAnalysisRequest) -> dict[str, object]:
-    """Return a skeleton analysis dictionary for the given chord."""
+def analyze_chord(request: ChordAnalysisRequest) -> ChordAnalysisResult:
+    """Return a typed analysis result for the given chord."""
 
     pcs = list(request.chord.pcs)
     relative_to_root = _intervals_relative_to_root(request.chord)
@@ -333,57 +344,61 @@ def analyze_chord(request: ChordAnalysisRequest) -> dict[str, object]:
     inverted_flat = [iv for row in inverted_matrix for iv in row if iv != 0]
     inverted_hist_numeric = _interval_class_histogram(inverted_flat)
     inverted_hist_labels = _label_histogram(inverted_hist_numeric, request.interval_label_style)
-
     interval_vector = _interval_vector(pcs)
-    report: dict[str, object] = {
-        "root_pc": request.chord.root_pc,
-        "quality": request.chord.quality.name,
-        "pcs": pcs,
-        "mask": request.chord.mask,
-        "cardinality": len(pcs),
-        "intervals_relative_to_root": relative_to_root,
-        "interval_matrix": pairwise_matrix,
-        "interval_matrix_labels": _label_matrix(pairwise_matrix, request.interval_label_style),
-        "interval_class_histogram": histogram_labeled,
-        "interval_class_histogram_numeric": histogram_numeric,
-        "inverted_interval_matrix": inverted_matrix,
-        "inverted_interval_matrix_labels": _label_matrix(inverted_matrix, request.interval_label_style),
-        "inverted_interval_class_histogram": inverted_hist_labels,
-        "inverted_interval_class_histogram_numeric": inverted_hist_numeric,
-        "interval_vector": interval_vector,
-        "interval_summary": _interval_summary(pcs),
-        "symmetry": _symmetry_data(request.chord),
-        "tonnetz": _tonnetz_analysis(request.chord),
-    }
-    report["note_names"] = request.chord.spelled(prefer=request.spelling, key_signature=request.key_signature)
+
+    tonic_context: TonicContext | None = None
     if request.tonic_pc is not None:
-        tonic_summary = _relative_tonic_analysis(request.chord, request.tonic_pc, request.interval_label_style)
-        tonic_summary["note_names_relative_to_tonic"] = [
-            {
-                "note": name_for_pc(pc, prefer=request.spelling, key_signature=request.key_signature),
-                "relative_pc": (pc - request.tonic_pc) % 12,
-                "relative_label": _label_interval((pc - request.tonic_pc) % 12, request.interval_label_style),
-            }
-            for pc in request.chord.pcs
-        ]
-        report["tonic_context"] = tonic_summary
+        tonic_context = _relative_tonic_analysis(
+            request.chord, request.tonic_pc, request.interval_label_style
+        )
+
+    inversions: list[Inversion] | None = None
     if request.include_inversions:
-        report["inversions"] = _generate_inversions(
+        inversions = _generate_inversions(
             request.chord,
             request.spelling,
             request.key_signature,
             request.interval_label_style,
         )
+
+    voicings: VoicingSet | None = None
     if request.include_voicings:
-        report["voicings"] = _generate_voicings(
+        voicings = _generate_voicings(
             request.chord,
             request.spelling,
             request.key_signature,
         )
+
+    enharmonics: list[EnharmonicSpelling] | None = None
     if request.include_enharmonics:
-        report["enharmonics"] = _enharmonic_spellings(
+        enharmonics = _enharmonic_spellings(
             pcs,
             prefer=request.spelling,
             key_signature=request.key_signature,
         )
-    return report
+
+    return ChordAnalysisResult(
+        root_pc=request.chord.root_pc,
+        quality=request.chord.quality.name,
+        pcs=pcs,
+        mask=request.chord.mask,
+        cardinality=len(pcs),
+        intervals_relative_to_root=relative_to_root,
+        interval_matrix=pairwise_matrix,
+        interval_matrix_labels=_label_matrix(pairwise_matrix, request.interval_label_style),
+        interval_class_histogram=histogram_labeled,
+        interval_class_histogram_numeric=histogram_numeric,
+        inverted_interval_matrix=inverted_matrix,
+        inverted_interval_matrix_labels=_label_matrix(inverted_matrix, request.interval_label_style),
+        inverted_interval_class_histogram=inverted_hist_labels,
+        inverted_interval_class_histogram_numeric=inverted_hist_numeric,
+        interval_vector=interval_vector,
+        interval_summary=_interval_summary(pcs),
+        symmetry=_symmetry_data(request.chord),
+        tonnetz=_tonnetz_analysis(request.chord),
+        note_names=request.chord.spelled(prefer=request.spelling, key_signature=request.key_signature),
+        tonic_context=tonic_context,
+        inversions=inversions,
+        voicings=voicings,
+        enharmonics=enharmonics,
+    )

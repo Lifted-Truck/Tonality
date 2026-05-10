@@ -50,7 +50,7 @@ def chord_brief(
         )
     )
 
-    histogram: dict[int, int] = analysis.get("interval_class_histogram_numeric", {})
+    histogram: dict[int, int] = analysis.interval_class_histogram_numeric
     fingerprint = _format_interval_fingerprint(histogram, limit=3)
 
     if catalog_scales is None:

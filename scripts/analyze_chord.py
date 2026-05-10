@@ -17,6 +17,7 @@ from mts.core.chord import Chord
 from mts.core.enharmonics import pc_from_name
 from mts.analysis import ChordAnalysisRequest, analyze_chord
 from mts.analysis.builders import SESSION_CHORD_CONTEXT
+from mts.analysis.results import ChordAnalysisResult
 
 
 def _print_section(title: str) -> None:
@@ -25,145 +26,127 @@ def _print_section(title: str) -> None:
     print("-" * len(title))
 
 
-def _print_overview(report: dict[str, object]) -> None:
-    print(f"Chord: {report['quality']} (root pc {report['root_pc']})")
-    print(f"Pitch classes: {report['pcs']}  mask={report['mask']}  cardinality={report['cardinality']}")
-    note_names = report.get("note_names")
-    if note_names:
-        print(f"Note names: {note_names}")
+def _print_overview(report: ChordAnalysisResult) -> None:
+    print(f"Chord: {report.quality} (root pc {report.root_pc})")
+    print(f"Pitch classes: {report.pcs}  mask={report.mask}  cardinality={report.cardinality}")
+    if report.note_names:
+        print(f"Note names: {report.note_names}")
 
 
-def _print_interval_details(report: dict[str, object]) -> None:
+def _print_interval_details(report: ChordAnalysisResult) -> None:
     _print_section("Intervals")
-    interval_vector = report.get("interval_vector")
-    if interval_vector is not None:
-        print(f"  interval vector: {interval_vector}")
-    summary = report.get("interval_summary", {})
-    if summary:
-        print(f"  distinct pitch classes: {summary.get('distinct_pcs')}")
-        print(f"  smallest interval: {summary.get('smallest_interval')}")
-        print(f"  largest interval: {summary.get('largest_interval')}")
-        print(f"  span (linear): {summary.get('span_semitones')} semitones")
-        print(f"  span (compact): {summary.get('span_compact')} semitones")
-        pairs = summary.get("interval_pairs")
-        if pairs:
-            print(f"  pairwise intervals: {pairs}")
-    histogram = report.get("interval_class_histogram")
-    if histogram:
+    print(f"  interval vector: {report.interval_vector}")
+    summary = report.interval_summary
+    print(f"  distinct pitch classes: {summary.distinct_pcs}")
+    print(f"  smallest interval: {summary.smallest_interval}")
+    print(f"  largest interval: {summary.largest_interval}")
+    print(f"  span (linear): {summary.span_semitones} semitones")
+    print(f"  span (compact): {summary.span_compact} semitones")
+    if summary.interval_pairs:
+        print(f"  pairwise intervals: {summary.interval_pairs}")
+    if report.interval_class_histogram:
         print("  interval class histogram:")
-        for label, count in histogram.items():
+        for label, count in report.interval_class_histogram.items():
             print(f"    {label}: {count}")
-    matrix_labels = report.get("interval_matrix_labels")
-    if matrix_labels:
+    if report.interval_matrix_labels:
         print("  interval matrix (labels):")
-        for row in matrix_labels:
+        for row in report.interval_matrix_labels:
             print("    " + ", ".join(row))
-    inverted_matrix = report.get("inverted_interval_matrix_labels")
-    if inverted_matrix:
+    if report.inverted_interval_matrix_labels:
         print("  inverted interval matrix (labels):")
-        for row in inverted_matrix:
+        for row in report.inverted_interval_matrix_labels:
             print("    " + ", ".join(row))
 
 
-def _print_symmetry(report: dict[str, object]) -> None:
-    symmetry = report.get("symmetry")
-    if not symmetry:
-        return
+def _print_symmetry(report: ChordAnalysisResult) -> None:
+    symmetry = report.symmetry
     _print_section("Symmetry")
-    print(f"  rotational order: {symmetry.get('rotational_order')}")
-    steps = symmetry.get("rotational_steps", [])
-    if steps:
-        print(f"  rotational steps: {', '.join(str(step) for step in steps)}")
-    print(f"  achiral: {symmetry.get('achiral')}")
-    axes = symmetry.get("reflection_axes", [])
-    if axes:
+    print(f"  rotational order: {symmetry.rotational_order}")
+    if symmetry.rotational_steps:
+        print(f"  rotational steps: {', '.join(str(step) for step in symmetry.rotational_steps)}")
+    print(f"  achiral: {symmetry.achiral}")
+    if symmetry.reflection_axes:
         print("  reflection axes:")
-        for axis in axes:
-            print(f"    - {axis.get('type')} axis @ {axis.get('center')}")
+        for axis in symmetry.reflection_axes:
+            print(f"    - {axis.type} axis @ {axis.center}")
     else:
         print("  reflection axes: none")
 
 
-def _print_tonnetz(report: dict[str, object]) -> None:
-    tonnetz = report.get("tonnetz", {})
-    if not tonnetz:
-        return
+def _print_tonnetz(report: ChordAnalysisResult) -> None:
+    tonnetz = report.tonnetz
     _print_section("Tonnetz")
-    centroid = tonnetz.get("centroid")
-    if centroid is not None:
-        print(f"  centroid: {centroid}")
-    coords = tonnetz.get("coordinates", {})
-    if coords:
+    if tonnetz.centroid is not None:
+        print(f"  centroid: {tonnetz.centroid}")
+    if tonnetz.coordinates:
         print("  coordinates:")
-        for pc, triple in sorted(coords.items()):
+        for pc, triple in sorted(tonnetz.coordinates.items()):
             print(f"    pc {pc}: {triple}")
 
 
-def _print_tonic_context(report: dict[str, object]) -> None:
-    tonic = report.get("tonic_context")
+def _print_tonic_context(report: ChordAnalysisResult) -> None:
+    tonic = report.tonic_context
     if not tonic:
         return
     _print_section("Tonic Context")
-    print(f"  tonic pc: {tonic.get('tonic_pc')}")
+    print(f"  tonic pc: {tonic.tonic_pc}")
     print(
-        "  root interval from tonic: "
-        f"{tonic.get('root_interval_from_tonic')} ({tonic.get('root_interval_label')})"
+        f"  root interval from tonic: "
+        f"{tonic.root_interval_from_tonic} ({tonic.root_interval_label})"
     )
-    rel_notes = tonic.get("note_names_relative_to_tonic", [])
-    if rel_notes:
+    if tonic.note_names_relative_to_tonic:
         print("  chord tones relative to tonic:")
-        for entry in rel_notes:
-            print(
-                f"    {entry.get('note')}: pc+{entry.get('relative_pc')} "
-                f"({entry.get('relative_label')})"
-            )
+        for entry in tonic.note_names_relative_to_tonic:
+            print(f"    {entry.note}: pc+{entry.relative_pc} ({entry.relative_label})")
 
 
-def _print_inversions(report: dict[str, object]) -> None:
-    inversions = report.get("inversions", [])
-    if not inversions:
+def _print_inversions(report: ChordAnalysisResult) -> None:
+    if not report.inversions:
         return
     _print_section("Inversions")
-    for inversion in inversions:
+    for inversion in report.inversions:
         print(
-            f"  Root pc {inversion.get('root_pc')}: "
-            f"intervals {inversion.get('intervals')} "
-            f"labels {inversion.get('interval_labels')}"
+            f"  Root pc {inversion.root_pc}: "
+            f"intervals {inversion.intervals} "
+            f"labels {inversion.interval_labels}"
         )
-        print(f"    note names: {inversion.get('note_names')}")
+        print(f"    note names: {inversion.note_names}")
 
 
-def _print_voicings(report: dict[str, object]) -> None:
-    voicings = report.get("voicings")
+def _print_voicings(report: ChordAnalysisResult) -> None:
+    voicings = report.voicings
     if not voicings:
         return
     _print_section("Voicings")
-    for label, data in voicings.items():
+    entries = [("closed", voicings.closed)]
+    if voicings.drop2 is not None:
+        entries.append(("drop2", voicings.drop2))
+    if voicings.drop3 is not None:
+        entries.append(("drop3", voicings.drop3))
+    for label, data in entries:
         print(
-            f"  {label}: semitones {data.get('semitones_from_root')} "
-            f"(spread {data.get('spread')})"
+            f"  {label}: semitones {data.semitones_from_root} "
+            f"(spread {data.spread})"
         )
-        print(f"    intervals mod 12: {data.get('intervals_mod_12')}")
-        print(f"    note names: {data.get('note_names')}")
+        print(f"    intervals mod 12: {data.intervals_mod_12}")
+        print(f"    note names: {data.note_names}")
 
 
-def _print_enharmonics(report: dict[str, object]) -> None:
-    enharmonics = report.get("enharmonics", [])
-    if not enharmonics:
+def _print_enharmonics(report: ChordAnalysisResult) -> None:
+    if not report.enharmonics:
         return
     _print_section("Enharmonic Spellings")
-    for entry in enharmonics:
-        alternates = entry.get("alternates") or []
-        if alternates:
+    for entry in report.enharmonics:
+        if entry.alternates:
             print(
-                f"  pc {entry.get('pc')}: {entry.get('preferred')} "
-                f"(alternates: {', '.join(alternates)})"
+                f"  pc {entry.pc}: {entry.preferred} "
+                f"(alternates: {', '.join(entry.alternates)})"
             )
         else:
-            print(f"  pc {entry.get('pc')}: {entry.get('preferred')}")
+            print(f"  pc {entry.pc}: {entry.preferred}")
 
 
-def _print_report(report: dict[str, object]) -> None:
+def _print_report(report: ChordAnalysisResult) -> None:
     _print_overview(report)
     _print_interval_details(report)
     _print_symmetry(report)
@@ -241,7 +224,7 @@ def main() -> None:
     )
     report = analyze_chord(request)
     if args.json:
-        print(json.dumps(report, indent=2, sort_keys=True))
+        print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
         return
     _print_report(report)
 
