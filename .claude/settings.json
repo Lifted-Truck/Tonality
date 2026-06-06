@@ -12,9 +12,7 @@
       "Bash(ls:*)",
       "Bash(grep:*)",
       "Bash(find:*)",
-      "Bash(cat:*)",
-      "Bash(/Users/machinepriest/Documents/Tonality/.venv/bin/pytest:*)",
-      "Bash(/Users/machinepriest/Documents/Tonality/.venv/bin/python3.13:*)"
+      "Bash(cat:*)"
     ],
     "ask": [
       "Bash(git push:*)"
@@ -36,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "PYBIN=/Users/machinepriest/Documents/Tonality/.venv/bin/python3.13; { [ -x \"$PYBIN\" ] && [ -d tests ]; } || exit 0; out=$(\"$PYBIN\" -m pytest tests/ -q 2>&1); code=$?; [ \"$code\" -eq 0 ] && exit 0; PYTEST_OUT=\"$out\" PYTEST_CODE=\"$code\" \"$PYBIN\" -c 'import os,json;o=os.environ[\"PYTEST_OUT\"][-1500:];c=os.environ[\"PYTEST_CODE\"];print(json.dumps({\"decision\":\"block\",\"reason\":f\"Tests are failing (pytest exit {c}). Fix before finishing:\\n{o}\"}))'",
+            "command": "d=\"$PWD\"; PYBIN=\"\"\nwhile [ \"$d\" != \"/\" ]; do\n  if [ -x \"$d/.venv/bin/python\" ]; then PYBIN=\"$d/.venv/bin/python\"; break; fi\n  d=\"$(dirname \"$d\")\"\ndone\n[ -z \"$PYBIN\" ] && PYBIN=\"$(command -v python3 2>/dev/null)\"\n{ [ -n \"$PYBIN\" ] && [ -d tests ]; } || exit 0\n\"$PYBIN\" -c 'import pytest' 2>/dev/null || exit 0\nout=$(\"$PYBIN\" -m pytest tests/ -q 2>&1); code=$?\n[ \"$code\" -eq 0 ] && exit 0\nPYTEST_OUT=\"$out\" PYTEST_CODE=\"$code\" \"$PYBIN\" -c 'import os,json;o=os.environ[\"PYTEST_OUT\"][-1500:];c=os.environ[\"PYTEST_CODE\"];print(json.dumps({\"decision\":\"block\",\"reason\":f\"Tests are failing (pytest exit {c}). Fix before finishing:\\n{o}\"}))'",
             "timeout": 120,
             "statusMessage": "Running test suite..."
           }
