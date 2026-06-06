@@ -92,8 +92,10 @@ Workstream A — **named voicings (generation + recognition).**
       its voicing/inversion — an `analyze_voicing` extension, not a generator.
 
 Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelling).**
-- [ ] Add an `aliases` field to `ChordQuality` (parity with `Scale`); catalog the
-      common alternate names.
+- [x] Add an `aliases` field to `ChordQuality` (parity with `Scale`); catalog the
+      common alternate names. Loader registers aliases as extra catalog keys (so
+      `C:major`, `A:m7`, `G:dom7` resolve); `_classify_qualities` de-dupes by
+      canonical name so aliases never appear as separate matches.
 - [ ] Model structural equivalence for symmetric / ambiguous sets and surface *all*
       valid names+roots, not just one: diminished-7th (4 enharmonic names/roots),
       augmented triad (3), and the augmented-sixth family (It/Fr/Ger ↔ the
