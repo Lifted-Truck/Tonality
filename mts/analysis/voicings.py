@@ -110,6 +110,30 @@ _VOICING_BUILDERS: list[tuple[str, VoicingBuilder]] = [
 ]
 
 
+def voicing_shapes(closed_stack: list[int]) -> dict[str, tuple[int, ...]]:
+    """Normalized offset *shapes* for each applicable named voicing.
+
+    Each shape is the voicing's ascending offsets with the lowest note shifted to
+    0 — a register-independent spacing fingerprint. This is the single source of
+    truth shared by generation (``suggest_voicings``) and recognition
+    (``analyze_voicing``): generation labels a chord *with* these shapes;
+    recognition matches an actual realization's spacing *against* them. Builders
+    are applied in registry order, so the first matching label is the canonical
+    one.
+    """
+
+    closed = _normalize_register(closed_stack)
+    shapes: dict[str, tuple[int, ...]] = {}
+    for label, builder in _VOICING_BUILDERS:
+        offsets = builder(closed)
+        if offsets is None:
+            continue
+        ordered = _normalize_register(offsets)
+        base = ordered[0]
+        shapes[label] = tuple(o - base for o in ordered)
+    return shapes
+
+
 def suggest_voicings(
     chord: Chord,
     *,
@@ -155,4 +179,4 @@ def suggest_voicings(
     return VoicingSet(entries=entries)
 
 
-__all__ = ["suggest_voicings"]
+__all__ = ["suggest_voicings", "voicing_shapes"]

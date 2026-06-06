@@ -15,7 +15,8 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
 - `voicings.py` — `suggest_voicings`: **generative**, not analysis. It invents
   register from an identity; kept out of the analysis path deliberately. An
   extensible registry (`_VOICING_BUILDERS`) produces a named vocabulary
-  (closed, drop-2/3, rootless, shell, …).
+  (closed, drop-2/3, rootless, shell, …); `voicing_shapes` exposes those spacings
+  as the single source of truth shared with recognition.
 - `equivalence.py` — `interpret_chord`: identity-level analysis enumerating every
   valid `(root, quality)` naming of a PC set (symmetric chords name at several
   roots; ambiguous sets name as several qualities, e.g. C6 = Am7).
@@ -24,8 +25,10 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   result fields here, not as ad-hoc dict keys.
 - `scale_analysis.py`, `chord_analysis.py` — request in, typed result out. Private
   helpers return typed sub-objects, not dicts. `analyze_chord` is **pure-identity**
-  (PC-set only, invents no register); `analyze_voicing` is the register-required
-  sibling that reads a `Realization` and errors without one.
+  (PC-set only, invents no register; its `Inversion`s carry figured-bass labels);
+  `analyze_voicing` is the register-required sibling that reads a `Realization`,
+  errors without one, and *recognizes* the actual bass inversion + voicing type
+  (matched against `voicing_shapes`).
 - `comparisons.py`, `summaries.py` — cross-object compatibility and compact briefs.
 - `builders.py` — `SessionCatalog` + manual scale/chord registration. **No
   module-level mutable state** — sessions are instances.

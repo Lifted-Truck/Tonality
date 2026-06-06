@@ -98,12 +98,19 @@ Workstream A — **named voicings (generation + recognition).**
       *Deferred:* quartal/quintal, cluster, and idiomatic named voicings (e.g.
       "So What") — these are voicing *styles* less well-defined per-chord; add as
       registry entries when needed.
-- [ ] Express register-bearing-but-rootless voicings as **voicing templates** (the
+- [x] Express register-bearing-but-rootless voicings as **voicing templates** (the
       `REGISTERED + SHAPE` corner Phase 1 unlocked); concrete voicings are
-      `Realization`s.
-- [ ] Inversions as first-class (root position + inversions; figured-bass labels).
-- [ ] **Recognition** (analytical, register-required): given a `Realization`, name
-      its voicing/inversion — an `analyze_voicing` extension, not a generator.
+      `Realization`s. (Delivered in Phase 1: `Realization(root_pc=None)`.)
+- [x] Inversions as first-class (root position + inversions; figured-bass labels).
+      The `Inversion` result carries `position_index` / `position_name` /
+      `figured_bass` (triads: 5/3,6,6/4; sevenths: 7,6/5,4/3,4/2; generic position
+      name otherwise).
+- [x] **Recognition** (analytical, register-required): `analyze_voicing` now reports
+      the actual bass `inversion`/`figured_bass`, an `openness` (closed/open), and a
+      recognized `voicing_type` matched against the *shared* `voicing_shapes`
+      vocabulary (same registry that generates them). *Limits (honest None):*
+      recognition is shape-based, so doubled or non-vocabulary spacings return
+      `voicing_type=None`; inversion-invariant matching is a future refinement.
 
 Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelling).**
 - [x] Add an `aliases` field to `ChordQuality` (parity with `Scale`); catalog the

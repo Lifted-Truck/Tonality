@@ -84,11 +84,19 @@ class ChordIntervalSummary:
 
 @dataclass(frozen=True)
 class Inversion:
-    """One inversion of a chord (root rotated to each chord tone)."""
+    """One inversion of a chord (root rotated to each chord tone).
+
+    ``position_index`` is the inversion number (0 = root position). ``figured_bass``
+    is the conventional shorthand for triads and seventh chords (e.g. ``6``,
+    ``6/4``, ``6/5``); ``None`` for cardinalities without a standard figure.
+    """
     root_pc: int
     intervals: list[int]
     interval_labels: list[str]
     note_names: list[str]
+    position_index: int = 0
+    position_name: str = "root position"
+    figured_bass: str | None = None
 
 
 @dataclass(frozen=True)
@@ -182,6 +190,14 @@ class VoicingAnalysis:
     distinct_pcs: list[int]
     doublings: list[int]
     mask: int
+    # Recognition (register-aware). ``openness`` is always set; the rest require a
+    # known root (``None`` for rootless templates). ``voicing_type`` is ``None``
+    # when the spacing matches no named vocabulary entry.
+    openness: str = "closed"
+    inversion_index: int | None = None
+    position_name: str | None = None
+    figured_bass: str | None = None
+    voicing_type: str | None = None
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""
