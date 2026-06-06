@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(/Users/machinepriest/Documents/Tonality/.venv/bin/pytest:*)",
+      "Bash(/Users/machinepriest/Documents/Tonality/.venv/bin/python3.13:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(rm -fr:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(pip install:*)",
+      "Bash(pip3 install:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYBIN=/Users/machinepriest/Documents/Tonality/.venv/bin/python3.13; { [ -x \"$PYBIN\" ] && [ -d tests ]; } || exit 0; out=$(\"$PYBIN\" -m pytest tests/ -q 2>&1); code=$?; [ \"$code\" -eq 0 ] && exit 0; PYTEST_OUT=\"$out\" PYTEST_CODE=\"$code\" \"$PYBIN\" -c 'import os,json;o=os.environ[\"PYTEST_OUT\"][-1500:];c=os.environ[\"PYTEST_CODE\"];print(json.dumps({\"decision\":\"block\",\"reason\":f\"Tests are failing (pytest exit {c}). Fix before finishing:\\n{o}\"}))'",
+            "timeout": 120,
+            "statusMessage": "Running test suite..."
+          }
+        ]
+      }
+    ]
+  }
+}
