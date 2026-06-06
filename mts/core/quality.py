@@ -14,10 +14,15 @@ class ChordQuality:
     intervals: tuple[int, ...]
     tensions: tuple[int, ...]
     mask: int
+    aliases: tuple[str, ...] = ()
 
     @classmethod
     def from_intervals(
-        cls, name: str, intervals: Sequence[int], tensions: Iterable[int] | None = None
+        cls,
+        name: str,
+        intervals: Sequence[int],
+        tensions: Iterable[int] | None = None,
+        aliases: Iterable[str] | None = None,
     ) -> "ChordQuality":
         normalized_intervals = tuple(sorted({int(iv) % 12 for iv in intervals}))
         normalized_tensions = tuple(sorted({int(tv) % 12 for tv in (tensions or [])}))
@@ -25,8 +30,18 @@ class ChordQuality:
             validate_pc(iv)
         for tv in normalized_tensions:
             validate_pc(tv)
+        # De-duplicate aliases preserving order; drop blanks.
+        normalized_aliases = tuple(
+            dict.fromkeys(str(a).strip() for a in (aliases or []) if str(a).strip())
+        )
         mask = mask_from_pcs(normalized_intervals)
-        return cls(name=name, intervals=normalized_intervals, tensions=normalized_tensions, mask=mask)
+        return cls(
+            name=name,
+            intervals=normalized_intervals,
+            tensions=normalized_tensions,
+            mask=mask,
+            aliases=normalized_aliases,
+        )
 
     def pcs_from_root(self, root_pc: int) -> list[int]:
         validate_pc(root_pc)

@@ -125,14 +125,9 @@ def _print_suggested_voicings(
     # would correctly error; suggestions are the honest thing to show instead.
     voicings = suggest_voicings(chord, spelling=spelling, key_signature=key_sig)
     _print_section("Suggested Voicings (generative)")
-    entries = [("closed", voicings.closed)]
-    if voicings.drop2 is not None:
-        entries.append(("drop2", voicings.drop2))
-    if voicings.drop3 is not None:
-        entries.append(("drop3", voicings.drop3))
-    for label, data in entries:
+    for data in voicings.entries:
         print(
-            f"  {label}: semitones {data.semitones_from_root} "
+            f"  {data.label}: semitones {data.semitones_from_root} "
             f"(spread {data.spread})"
         )
         print(f"    intervals mod 12: {data.intervals_mod_12}")

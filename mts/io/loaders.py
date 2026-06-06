@@ -117,7 +117,20 @@ def load_chord_qualities(session: SessionCatalog | None = None) -> dict[str, Cho
             validate_pc(int(interval))
         for tension in tensions:
             validate_pc(int(tension))
-        qualities[name] = ChordQuality.from_intervals(name, intervals, tensions)
+        aliases_field = payload.get("aliases", [])
+        if aliases_field is None:
+            aliases_field = []
+        if not isinstance(aliases_field, list):
+            raise ValueError(f"Chord quality {name} aliases must be a list if provided")
+        aliases = [str(alias).strip() for alias in aliases_field if str(alias).strip()]
+        quality = ChordQuality.from_intervals(name, intervals, tensions, aliases=aliases)
+        if name in qualities:
+            raise ValueError(f"Duplicate chord quality name detected: {name}")
+        qualities[name] = quality
+        for alias in quality.aliases:
+            if alias in qualities:
+                raise ValueError(f"Duplicate chord quality alias detected: {alias}")
+            qualities[alias] = quality
     if _session.chords:
         for manual in _session.chords.values():
             if manual.name not in qualities:

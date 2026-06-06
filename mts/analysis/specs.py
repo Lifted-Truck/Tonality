@@ -596,7 +596,15 @@ def _classify_qualities(intervals: Iterable[int], catalog: Mapping[str, ChordQua
     supersets: list[QualityVariant] = []
     cousins: list[QualityVariant] = []
 
-    for name, quality in catalog.items():
+    seen_names: set[str] = set()
+    for quality in catalog.values():
+        # Catalogs register aliases as extra keys pointing at the same quality;
+        # classify by canonical name and de-duplicate so aliases don't appear as
+        # separate matches.
+        name = quality.name
+        if name in seen_names:
+            continue
+        seen_names.add(name)
         quality_set = {int(iv) % 12 for iv in quality.intervals}
         missing = tuple(sorted(quality_set - chord_set))
         extra = tuple(sorted(chord_set - quality_set))

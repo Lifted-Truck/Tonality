@@ -108,14 +108,57 @@ class VoicingEntry:
 
 @dataclass(frozen=True)
 class VoicingSet:
-    """All **generated** voicings for a chord (output of ``suggest_voicings``).
+    """An ordered collection of **generated** named voicings for a chord
+    (output of ``suggest_voicings``).
 
-    ``drop2`` / ``drop3`` are absent for chords with fewer than 3 / 4 voices
-    respectively. Generative, not analytical — see :class:`VoicingEntry`.
+    The vocabulary is open-ended (closed, drop-2/3, rootless, shell, …); only the
+    voicings that *apply* to a given chord are present. Generative, not
+    analytical — see :class:`VoicingEntry`. Look up a voicing by name with
+    :meth:`get`.
     """
-    closed: VoicingEntry
-    drop2: VoicingEntry | None = None
-    drop3: VoicingEntry | None = None
+    entries: list[VoicingEntry]
+
+    def get(self, label: str) -> VoicingEntry | None:
+        """Return the entry with this label, or ``None`` if not present."""
+        return next((entry for entry in self.entries if entry.label == label), None)
+
+    @property
+    def labels(self) -> list[str]:
+        """The labels present, in order."""
+        return [entry.label for entry in self.entries]
+
+
+@dataclass(frozen=True)
+class ChordInterpretation:
+    """One valid way to name a pitch-class set as a rooted chord.
+
+    A symmetric set (dim7, augmented) yields several interpretations at different
+    roots; an ambiguous set yields several qualities (e.g. C6 = Am7).
+    """
+    root_pc: int
+    root_name: str
+    quality: str
+    aliases: list[str]
+
+
+@dataclass(frozen=True)
+class ChordInterpretations:
+    """All structurally-valid (root, quality) namings of a pitch-class set.
+
+    Identity-level and register-free: this enumerates how a *set* can be named,
+    surfacing enharmonic/structural equivalence (every root at which the set
+    matches a catalog quality). ``rotational_symmetry`` explains why symmetric
+    chords repeat. Roots are restricted to tones present in the set.
+    """
+    pcs: list[int]
+    mask: int
+    cardinality: int
+    rotational_symmetry: int
+    interpretations: list[ChordInterpretation]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
 
 
 @dataclass(frozen=True)
@@ -247,6 +290,8 @@ class ChordAnalysisResult:
 
 __all__ = [
     "ChordAnalysisResult",
+    "ChordInterpretation",
+    "ChordInterpretations",
     "ChordIntervalSummary",
     "EnharmonicSpelling",
     "Inversion",

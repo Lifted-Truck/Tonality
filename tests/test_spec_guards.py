@@ -63,4 +63,4 @@ def test_analyze_voicing_accepts_rootless_template():
 def test_suggest_voicings_is_generative_and_available():
     # The generative escape hatch still exists, clearly separated from analysis.
     voicings = suggest_voicings(_maj7_chord())
-    assert voicings.closed.label == "closed"
+    assert voicings.get("closed").label == "closed"

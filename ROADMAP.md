@@ -14,6 +14,12 @@ MIDI clip), and gets back structured records annotated with functional role,
 compatible scales, interval/symmetry properties, voicing data, and temporal
 context — reproducibly.
 
+Longer term, the engine should not merely *enumerate* the possible names/analyses of
+a chord or passage but **choose the reading its context actually warrants** — and,
+when readings genuinely conflict, surface the competing interpretations ranked by
+corpus statistics, with evidence. The aspiration: a tool that can reveal *novel*
+music-theoretical readings of existing music, not just confirm textbook ones.
+
 ## Decisions on record (the "why", so we don't relitigate)
 
 1. **Build on the existing engine, don't greenfield.** The bitmask PC substrate,
@@ -40,6 +46,14 @@ context — reproducibly.
    concepts. Only `reduce_to_key()` and `core/bitmask.py` know the substrate is 12.
    New code routes through the reduction rather than open-coding `mask` arithmetic,
    so swapping the substrate later is a localized change, not a rewrite.
+7. **Disambiguation is ranked, explicit, and plural — never an opaque guess.** When a
+   set or passage admits several names/analyses (the candidates `interpret_chord`
+   enumerates), the engine selects the contextually-best reading *and* surfaces the
+   competing alternatives with inspectable, data-derived weights and the evidence
+   behind them. Statistical scoring stays **reproducible** (same input + same corpus
+   → same ranking); it never collapses to a single black-box answer. This preserves
+   the division of labor: transparent combinatorics + explicit statistics *here*,
+   open-ended semantic leaps in the caller.
 
 ## Build sequence
 
@@ -77,9 +91,13 @@ specifications are the same object. Builds directly on the Phase 1 lattice and
 existing object is analytical; *producing* a voicing is generative.
 
 Workstream A — **named voicings (generation + recognition).**
-- [ ] A named-voicing vocabulary: closed, open/spread, drop-2 / drop-3 / drop-2&4,
-      rootless (A/B), shell, quartal/quintal, cluster, and idiomatic named voicings
-      (e.g. "So What"). Each is a transformation/template over an identity.
+- [x] A named-voicing vocabulary (generative, `suggest_voicings`): closed,
+      open/spread, drop-2 / drop-3 / drop-2&3 / drop-2&4, rootless (A/B), and shell.
+      Built as an extensible registry (`_VOICING_BUILDERS`) over the closed stack;
+      each voicing declares applicability and exact duplicates are collapsed.
+      *Deferred:* quartal/quintal, cluster, and idiomatic named voicings (e.g.
+      "So What") — these are voicing *styles* less well-defined per-chord; add as
+      registry entries when needed.
 - [ ] Express register-bearing-but-rootless voicings as **voicing templates** (the
       `REGISTERED + SHAPE` corner Phase 1 unlocked); concrete voicings are
       `Realization`s.
@@ -88,12 +106,17 @@ Workstream A — **named voicings (generation + recognition).**
       its voicing/inversion — an `analyze_voicing` extension, not a generator.
 
 Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelling).**
-- [ ] Add an `aliases` field to `ChordQuality` (parity with `Scale`); catalog the
-      common alternate names.
-- [ ] Model structural equivalence for symmetric / ambiguous sets and surface *all*
-      valid names+roots, not just one: diminished-7th (4 enharmonic names/roots),
-      augmented triad (3), and the augmented-sixth family (It/Fr/Ger ↔ the
-      dominant-7th set respelled).
+- [x] Add an `aliases` field to `ChordQuality` (parity with `Scale`); catalog the
+      common alternate names. Loader registers aliases as extra catalog keys (so
+      `C:major`, `A:m7`, `G:dom7` resolve); `_classify_qualities` de-dupes by
+      canonical name so aliases never appear as separate matches.
+- [x] Model structural equivalence for symmetric / ambiguous sets and surface *all*
+      valid names+roots, not just one: `interpret_chord` (in `equivalence.py`)
+      enumerates every `(root, quality)` naming — diminished-7th (4 roots),
+      augmented triad (3), ambiguous sets (C6 = Am7), and the augmented-sixth
+      family via its enharmonic dominant interpretation. *Deferred:* full
+      *functional* augmented-sixth labelling (It/Fr/Ger + spelling) is Phase 3
+      territory; B2 exposes the pitch-class equivalence it rests on.
 - [ ] Reproducibility: the chosen spelling and any equivalence are explicit in the
       result / dataset record (dovetails with the Phase 3 analytical-vs-display
       context split).
@@ -113,11 +136,34 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       the typed-results base, as one coherent, tested unit.
 - [ ] Define the **dataset record schema** — the enriched unit emitted per musical
       object/event. Reproducible (capture spelling/context choices explicitly).
+- [ ] **Context-sensitive naming / disambiguation:** consume the candidate
+      `(root, quality)` set from `interpret_chord` and pick the contextually-correct
+      reading from key, functional role, and voice-leading context — returning the
+      chosen name *with ranked alternatives and the evidence for each*, not a bare
+      label. (Resolves the deferred functional augmented-sixth labelling from
+      Phase 1.5. Deterministic/rule-based here; corpus-statistical ranking is
+      Phase 4.5.)
 
 ### Phase 4 — MCP endpoint
 - [ ] Thin adapter: one tool per analysis entry point; schemas derived from
       `results.py`; stateless by default, session-backed where multi-turn is needed.
 - [ ] Error/validation surface suitable for blind agent use.
+
+### Phase 4.5 — Contextual & statistical interpretation (corpus-driven)
+The intelligence payoff: move from *enumerating* interpretations to *weighing* them
+with statistics learned from a corpus. Depends on the temporal layer (Phase 2) for
+context, the dataset schema (Phase 3) as the unit of record, and a corpus to learn
+from. Governed by Decision 7 (ranked, explicit, reproducible — never a black box).
+
+- [ ] Score / rank competing interpretations (chord names, key & functional
+      readings, segmentations) by corpus statistics — e.g. progression n-grams,
+      voice-leading likelihood — surfacing conflicts with weights + evidence.
+- [ ] Build / ingest a corpus and a **reproducible** statistical model (explicit,
+      versioned weights; same input + corpus → same ranking).
+- [ ] **North-star use case:** reveal *novel* readings of existing pieces — points
+      where a statistically- or structurally-supported reinterpretation diverges
+      from the conventional analysis. The engine proposes and evidences; the
+      human/agent judges (semantic call stays in the caller, per Decision 7).
 
 ### Phase 5 — Representation / projection layer (visuals as data)
 A render-agnostic layer: the engine emits **typed, structured descriptions** of a

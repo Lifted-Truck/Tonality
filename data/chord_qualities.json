@@ -2,22 +2,26 @@
   {
     "name": "maj",
     "intervals": [0, 4, 7],
-    "tensions": [2, 5, 9]
+    "tensions": [2, 5, 9],
+    "aliases": ["major", "M"]
   },
   {
     "name": "min",
     "intervals": [0, 3, 7],
-    "tensions": [2, 5, 9]
+    "tensions": [2, 5, 9],
+    "aliases": ["minor", "m", "-"]
   },
   {
     "name": "dim",
     "intervals": [0, 3, 6],
-    "tensions": [2, 5, 8, 9]
+    "tensions": [2, 5, 8, 9],
+    "aliases": ["diminished", "o"]
   },
   {
     "name": "aug",
     "intervals": [0, 4, 8],
-    "tensions": [2, 6, 10]
+    "tensions": [2, 6, 10],
+    "aliases": ["augmented", "+"]
   },
   {
     "name": "sus2",
@@ -27,12 +31,14 @@
   {
     "name": "sus4",
     "intervals": [0, 5, 7],
-    "tensions": [2, 9]
+    "tensions": [2, 9],
+    "aliases": ["sus"]
   },
   {
     "name": "power",
     "intervals": [0, 7],
-    "tensions": [4, 9]
+    "tensions": [4, 9],
+    "aliases": ["5", "no3"]
   },
   {
     "name": "maj6",
@@ -52,7 +58,8 @@
   {
     "name": "maj7",
     "intervals": [0, 4, 7, 11],
-    "tensions": [2, 6, 9]
+    "tensions": [2, 6, 9],
+    "aliases": ["major7", "M7"]
   },
   {
     "name": "maj7b5",
@@ -92,17 +99,20 @@
   {
     "name": "min7",
     "intervals": [0, 3, 7, 10],
-    "tensions": [2, 5, 9]
+    "tensions": [2, 5, 9],
+    "aliases": ["minor7", "m7", "-7"]
   },
   {
     "name": "minmaj7",
     "intervals": [0, 3, 7, 11],
-    "tensions": [2, 5, 9]
+    "tensions": [2, 5, 9],
+    "aliases": ["mM7", "minMaj7"]
   },
   {
     "name": "min7b5",
     "intervals": [0, 3, 6, 10],
-    "tensions": [2, 5, 8, 9]
+    "tensions": [2, 5, 8, 9],
+    "aliases": ["halfdim7", "m7b5"]
   },
   {
     "name": "min9",
@@ -132,12 +142,14 @@
   {
     "name": "dim7",
     "intervals": [0, 3, 6, 9],
-    "tensions": [1, 4, 7, 10]
+    "tensions": [1, 4, 7, 10],
+    "aliases": ["diminished7", "o7"]
   },
   {
     "name": "7",
     "intervals": [0, 4, 7, 10],
-    "tensions": [2, 6, 9]
+    "tensions": [2, 6, 9],
+    "aliases": ["dom7", "dominant7"]
   },
   {
     "name": "7sus4",
