@@ -129,6 +129,39 @@ class VoicingSet:
 
 
 @dataclass(frozen=True)
+class ChordInterpretation:
+    """One valid way to name a pitch-class set as a rooted chord.
+
+    A symmetric set (dim7, augmented) yields several interpretations at different
+    roots; an ambiguous set yields several qualities (e.g. C6 = Am7).
+    """
+    root_pc: int
+    root_name: str
+    quality: str
+    aliases: list[str]
+
+
+@dataclass(frozen=True)
+class ChordInterpretations:
+    """All structurally-valid (root, quality) namings of a pitch-class set.
+
+    Identity-level and register-free: this enumerates how a *set* can be named,
+    surfacing enharmonic/structural equivalence (every root at which the set
+    matches a catalog quality). ``rotational_symmetry`` explains why symmetric
+    chords repeat. Roots are restricted to tones present in the set.
+    """
+    pcs: list[int]
+    mask: int
+    cardinality: int
+    rotational_symmetry: int
+    interpretations: list[ChordInterpretation]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
 class VoicingAnalysis:
     """Register-aware analysis of an actual realization (voicing or template).
 
@@ -257,6 +290,8 @@ class ChordAnalysisResult:
 
 __all__ = [
     "ChordAnalysisResult",
+    "ChordInterpretation",
+    "ChordInterpretations",
     "ChordIntervalSummary",
     "EnharmonicSpelling",
     "Inversion",

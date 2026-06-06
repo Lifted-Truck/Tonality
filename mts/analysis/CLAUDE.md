@@ -13,7 +13,12 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   cardinal rule. Register-dependent analysis calls the guard and **errors** when
   handed a register-less identity instead of inventing a voicing.
 - `voicings.py` — `suggest_voicings`: **generative**, not analysis. It invents
-  register from an identity; kept out of the analysis path deliberately.
+  register from an identity; kept out of the analysis path deliberately. An
+  extensible registry (`_VOICING_BUILDERS`) produces a named vocabulary
+  (closed, drop-2/3, rootless, shell, …).
+- `equivalence.py` — `interpret_chord`: identity-level analysis enumerating every
+  valid `(root, quality)` naming of a PC set (symmetric chords name at several
+  roots; ambiguous sets name as several qualities, e.g. C6 = Am7).
 - `results.py` — **typed result dataclasses**. All analysis returns these, never
   raw dicts. Top-level results expose `to_dict()` (JSON/MCP output). Add new
   result fields here, not as ad-hoc dict keys.

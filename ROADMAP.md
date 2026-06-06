@@ -96,10 +96,13 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       common alternate names. Loader registers aliases as extra catalog keys (so
       `C:major`, `A:m7`, `G:dom7` resolve); `_classify_qualities` de-dupes by
       canonical name so aliases never appear as separate matches.
-- [ ] Model structural equivalence for symmetric / ambiguous sets and surface *all*
-      valid names+roots, not just one: diminished-7th (4 enharmonic names/roots),
-      augmented triad (3), and the augmented-sixth family (It/Fr/Ger ↔ the
-      dominant-7th set respelled).
+- [x] Model structural equivalence for symmetric / ambiguous sets and surface *all*
+      valid names+roots, not just one: `interpret_chord` (in `equivalence.py`)
+      enumerates every `(root, quality)` naming — diminished-7th (4 roots),
+      augmented triad (3), ambiguous sets (C6 = Am7), and the augmented-sixth
+      family via its enharmonic dominant interpretation. *Deferred:* full
+      *functional* augmented-sixth labelling (It/Fr/Ger + spelling) is Phase 3
+      territory; B2 exposes the pitch-class equivalence it rests on.
 - [ ] Reproducibility: the chosen spelling and any equivalence are explicit in the
       result / dataset record (dovetails with the Phase 3 analytical-vs-display
       context split).
