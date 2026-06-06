@@ -58,6 +58,9 @@ context — reproducibly.
 - [ ] Resolve the **two "context" concepts**: promote *analytical* context
       (scope, functional role, compatibility) into the core; push *display*
       context (spelling prefs, layout) to the edge/out of core.
+      **Finish & integrate the `wip-context-cli-rewiring` branch here** (see
+      Parked work below) — wire all CLI scripts onto `DisplayContext` on top of
+      the typed-results base, as one coherent, tested unit.
 - [ ] Define the **dataset record schema** — the enriched unit emitted per musical
       object/event. Reproducible (capture spelling/context choices explicitly).
 
@@ -71,6 +74,16 @@ context — reproducibly.
 - `gui/` (Qt) and the audio backend — not on the library/MCP path. Don't delete;
   don't let them shape core architecture.
 - `cli/push.py` — keep as an **example consumer**, not a foundation component.
+
+## Parked work (branches)
+
+- **`wip-context-cli-rewiring`** (`c06270a`, on `origin`) — an *unfinished* migration
+  of the four analysis CLI scripts (`analyze_chord`, `analyze_scale`,
+  `check_chord_scale_compat`, `compare_chords`) from `spelling`/`key_signature`
+  args to `DisplayContext`. **Do not merge as-is:** `check_chord_scale_compat.py`
+  crashes (`context` not threaded through `run_specific`), and two files collide
+  with the Phase 0 typed-results rewrite. Integrate during **Phase 3** as one
+  finished, tested unit. Nothing here is on `main`.
 
 ## Open questions
 
