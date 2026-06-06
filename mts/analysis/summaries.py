@@ -45,7 +45,6 @@ def chord_brief(
         ChordAnalysisRequest(
             chord=chord,
             include_inversions=True,
-            include_voicings=False,
             include_enharmonics=False,
         )
     )

@@ -18,6 +18,7 @@ from mts.analysis.builders import (
     save_session_catalog,
 )
 from mts.analysis import ChordAnalysisRequest, analyze_chord, chord_brief
+from mts.analysis.voicings import suggest_voicings
 from mts.core.chord import Chord
 from mts.core.pitch import Pitch
 from mts.io.loaders import load_scales, load_chord_qualities
@@ -104,14 +105,16 @@ def test_register_chord_runs_analysis():
         ChordAnalysisRequest(
             chord=chord,
             include_inversions=True,
-            include_voicings=True,
             include_enharmonics=False,
         )
     )
     assert analysis.inversions is not None
     assert len(analysis.inversions) == len(quality.intervals)
-    assert analysis.voicings is not None
-    assert analysis.voicings.closed is not None
+    # analyze_chord is pure-identity: it carries no register and invents none.
+    assert not hasattr(analysis, "voicings")
+    # Voicings are generative (register is chosen, not analyzed).
+    voicings = suggest_voicings(chord)
+    assert voicings.closed is not None
     assert quality.name in SESSION_CHORDS
     assert SESSION_CHORD_CONTEXT[quality.name]["scope"] == "abstract"
 

@@ -9,7 +9,9 @@ from dataclasses import dataclass
 from ..core.bitmask import rotate_mask
 from ..core.chord import Chord
 from ..core.enharmonics import PC_TO_NAMES, SpellingPref, name_for_pc
+from ..core.realization import Realization
 from ..core.symmetry import mask_symmetry_order
+from .errors import require_realization
 from .results import (
     ChordAnalysisResult,
     ChordIntervalSummary,
@@ -20,19 +22,23 @@ from .results import (
     SymmetryData,
     TonnetzAnalysis,
     TonicContext,
-    VoicingEntry,
-    VoicingSet,
+    VoicingAnalysis,
 )
 
 
 @dataclass
 class ChordAnalysisRequest:
-    """Container for chord analysis instructions."""
+    """Container for chord analysis instructions.
+
+    ``analyze_chord`` requires only the identity (a pitch-class set), so this
+    request carries no register. Register-dependent voicing analysis lives in
+    ``analyze_voicing``, which takes a
+    :class:`~mts.core.realization.Realization`.
+    """
 
     chord: Chord
     tonic_pc: int | None = None
     include_inversions: bool = True
-    include_voicings: bool = True
     include_enharmonics: bool = True
     spelling: SpellingPref = "auto"
     key_signature: int | None = None
@@ -175,19 +181,6 @@ def _enharmonic_spellings(
     return spellings
 
 
-def _normalize_register(values: list[int]) -> list[int]:
-    if not values:
-        return []
-    ordered = sorted(values)
-    normalized = [ordered[0]]
-    for val in ordered[1:]:
-        nxt = val
-        while nxt <= normalized[-1]:
-            nxt += 12
-        normalized.append(nxt)
-    return normalized
-
-
 def _tonnetz_analysis(chord: Chord) -> TonnetzAnalysis:
     coords = _tonnetz_coordinates()
     chord_coords = {pc: coords[pc] for pc in chord.pcs if pc in coords}
@@ -292,47 +285,52 @@ def _generate_inversions(
     return inversions
 
 
-def _generate_voicings(
-    chord: Chord,
-    spelling: SpellingPref,
-    key_sig: int | None,
-) -> VoicingSet:
-    pcs = list(chord.pcs)
-    relative = sorted(((pc - chord.root_pc) % 12) for pc in pcs)
-    closed_stack = _normalize_register(relative)
+def analyze_voicing(
+    realization: Realization | None,
+    *,
+    spelling: SpellingPref = "auto",
+    key_signature: int | None = None,
+) -> VoicingAnalysis:
+    """Register-aware analysis of an actual realization.
 
-    def make_voicing(intervals: list[int], *, label: str) -> VoicingEntry:
-        ordered = _normalize_register(intervals)
-        modulo = [iv % 12 for iv in ordered]
-        return VoicingEntry(
-            label=label,
-            semitones_from_root=ordered,
-            intervals_mod_12=modulo,
-            spread=(ordered[-1] - ordered[0]) if len(ordered) > 1 else 0,
-            note_names=[
-                name_for_pc((chord.root_pc + iv) % 12, prefer=spelling, key_signature=key_sig)
-                for iv in ordered
-            ],
-        )
+    Requires register: raises
+    :class:`~mts.analysis.errors.SpecificationError` if handed ``None`` (a
+    register-less identity). Every field is read from the real pitches —
+    nothing is invented. Works on both voicings (rooted) and voicing templates
+    (rootless); the bass and all spans are derived from absolute pitch height.
+    """
 
-    closed = make_voicing(closed_stack, label="closed")
-    drop2: VoicingEntry | None = None
-    drop3: VoicingEntry | None = None
-
-    if len(closed_stack) >= 3:
-        d2 = closed_stack.copy()
-        d2[-2] -= 12
-        drop2 = make_voicing(d2, label="drop2")
-    if len(closed_stack) >= 4:
-        d3 = closed_stack.copy()
-        d3[-3] -= 12
-        drop3 = make_voicing(d3, label="drop3")
-
-    return VoicingSet(closed=closed, drop2=drop2, drop3=drop3)
+    real = require_realization(realization, analysis="analyze_voicing")
+    bass = real.bass
+    midi = [p.midi for p in real.pitches]
+    note_names = [
+        f"{name_for_pc(p.pc, prefer=spelling, key_signature=key_signature)}{p.octave}"
+        for p in real.pitches
+    ]
+    intervals_from_bass = [p.midi - bass.midi for p in real.pitches]
+    return VoicingAnalysis(
+        spec_level=real.spec_level.label,
+        rooted=real.is_rooted,
+        root_pc=real.root_pc,
+        midi=midi,
+        note_names=note_names,
+        bass_pc=bass.pc,
+        bass_midi=bass.midi,
+        intervals_from_bass=intervals_from_bass,
+        spread_semitones=max(midi) - min(midi),
+        distinct_pcs=list(real.distinct_pcs),
+        doublings=list(real.doublings),
+        mask=real.reduce_to_key(),
+    )
 
 
 def analyze_chord(request: ChordAnalysisRequest) -> ChordAnalysisResult:
-    """Return a typed analysis result for the given chord."""
+    """Return a typed identity analysis for the given chord.
+
+    Requires only the identity (a pitch-class set); carries no register and
+    invents none. For register-aware voicing analysis use ``analyze_voicing``;
+    for generative voicing suggestions use ``suggest_voicings``.
+    """
 
     pcs = list(request.chord.pcs)
     relative_to_root = _intervals_relative_to_root(request.chord)
@@ -359,14 +357,6 @@ def analyze_chord(request: ChordAnalysisRequest) -> ChordAnalysisResult:
             request.spelling,
             request.key_signature,
             request.interval_label_style,
-        )
-
-    voicings: VoicingSet | None = None
-    if request.include_voicings:
-        voicings = _generate_voicings(
-            request.chord,
-            request.spelling,
-            request.key_signature,
         )
 
     enharmonics: list[EnharmonicSpelling] | None = None
@@ -399,6 +389,5 @@ def analyze_chord(request: ChordAnalysisRequest) -> ChordAnalysisResult:
         note_names=request.chord.spelled(prefer=request.spelling, key_signature=request.key_signature),
         tonic_context=tonic_context,
         inversions=inversions,
-        voicings=voicings,
         enharmonics=enharmonics,
     )

@@ -9,8 +9,51 @@ from typing import Iterable, Literal, Mapping, Sequence, Tuple
 from ..core.enharmonics import name_for_pc
 from ..core.pitch import Pitch, parse_pitch_token, ParsedPitch
 from ..core.quality import ChordQuality
+from ..core.realization import Realization
+from ..core.spec_level import (
+    INTERVAL_SHAPE,
+    NAMED_CHORD,
+    VOICING,
+    VOICING_TEMPLATE,
+    SpecLevel,
+)
 
 ScopeLiteral = Literal["abstract", "note", "absolute"]
+
+# Bridge between the legacy ``scope`` field and the identity lattice. ``scope``
+# walks a diagonal through the lattice and can never reach the fourth corner
+# (registered + rootless); that cell is reachable only via a ``Realization``
+# directly. See ROADMAP Phase 1 and ``core/spec_level.py``.
+_SCOPE_TO_LEVEL: dict[ScopeLiteral, SpecLevel] = {
+    "abstract": INTERVAL_SHAPE,
+    "note": NAMED_CHORD,
+    "absolute": VOICING,
+}
+_LEVEL_TO_SCOPE: dict[SpecLevel, ScopeLiteral] = {
+    level: scope for scope, level in _SCOPE_TO_LEVEL.items()
+}
+
+
+def from_scope(scope: ScopeLiteral) -> SpecLevel:
+    """Map a legacy ``scope`` value to its lattice cell."""
+
+    return _SCOPE_TO_LEVEL[scope]
+
+
+def to_scope(level: SpecLevel) -> ScopeLiteral:
+    """Map a lattice cell back to a legacy ``scope`` value.
+
+    Raises ``ValueError`` for ``VOICING_TEMPLATE`` (registered + rootless),
+    which ``scope`` cannot represent.
+    """
+
+    try:
+        return _LEVEL_TO_SCOPE[level]
+    except KeyError:
+        raise ValueError(
+            f"{level.label!r} has no legacy scope equivalent "
+            "(scope cannot express the registered + rootless corner)."
+        ) from None
 
 
 @dataclass(frozen=True)
@@ -47,6 +90,16 @@ class ChordSpec:
 
         return tuple(p.midi for p in self.absolute)
 
+    @property
+    def spec_level(self) -> SpecLevel:
+        """The lattice cell this spec occupies, derived from ``scope``.
+
+        A spec never reaches ``VOICING_TEMPLATE`` (registered + rootless) — that
+        corner is only expressible via :class:`~mts.core.realization.Realization`.
+        """
+
+        return from_scope(self.scope)
+
 
 @dataclass(frozen=True)
 class ChordParseResult:
@@ -55,6 +108,18 @@ class ChordParseResult:
     spec: ChordSpec
     root_pc: int | None = None
     root_pitch: Pitch | None = None
+
+    def to_realization(self) -> Realization | None:
+        """Build a :class:`Realization` from captured absolute pitches, if any.
+
+        Returns ``None`` when the spec carries no register (abstract/note
+        scope) — there is nothing to realize, and inventing one would violate
+        the cardinal rule. The result is rooted iff a root was parsed.
+        """
+
+        if not self.spec.absolute:
+            return None
+        return Realization(self.spec.absolute, root_pc=self.root_pc)
 
 
 @dataclass(frozen=True)

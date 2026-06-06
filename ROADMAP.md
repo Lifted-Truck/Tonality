@@ -31,6 +31,15 @@ context — reproducibly.
    act. Analysis declares the level it needs and errors when it's missing.
 5. **The MCP layer is a thin adapter, not a subsystem.** Intelligence stays in the
    engine. MCP is the first *consumer* and a forcing function for clean APIs.
+6. **Keep the tuning system behind a reduction boundary.** "The identity key *is* a
+   12-bit bitmask" is a 12-TET-specific choice we accept for now (the substrate is
+   correct and tested; a generalized identity type is premature). To keep the
+   eventual multi-system generalization (see Phase 5) from being a teardown, the
+   **lattice** (transpositional × registral) and the **Realization** API are
+   deliberately tuning-agnostic — rooted-ness and register-ness are not 12-TET
+   concepts. Only `reduce_to_key()` and `core/bitmask.py` know the substrate is 12.
+   New code routes through the reduction rather than open-coding `mask` arithmetic,
+   so swapping the substrate later is a localized change, not a rewrite.
 
 ## Build sequence
 
@@ -39,14 +48,26 @@ context — reproducibly.
 - [x] Replace `dict[str, object]` analysis returns with typed result dataclasses.
 - [x] Project scaffolding: CLAUDE.md, ROADMAP.md, git hygiene, harness.
 
-### Phase 1 — Formalize the identity model
-- [ ] Promote the parser's `scope` (abstract/note/absolute) into a first-class
+### Phase 1 — Formalize the identity model ✅ DONE
+- [x] Promote the parser's `scope` (abstract/note/absolute) into a first-class
       identity concept: an explicit lattice cell (transpositional × registral).
-- [ ] Introduce the **Realization** type (ordered pitches, doublings, bass) as a
+      `core/spec_level.py` defines the two axes and four named corners; `scope`
+      is kept as an additive compat alias bridged in `specs.py` (`from_scope` /
+      `to_scope`). The bridge proves `scope` is a diagonal — it cannot express
+      the registered + rootless corner.
+- [x] Introduce the **Realization** type (ordered pitches, doublings, bass) as a
       sibling to the identity key; define `realization → key` reduction.
-- [ ] Make the **voicing template** (registered + rootless) expressible.
-- [ ] Audit analysis functions: tag each with the specification level it requires;
+      `core/realization.py`; `reduce_to_key()` is the sole 12-TET reduction
+      boundary (Decision 6). `ChordParseResult.to_realization()` builds one from
+      the absolute pitches the parser already captured.
+- [x] Make the **voicing template** (registered + rootless) expressible — a
+      `Realization` with `root_pc=None`.
+- [x] Audit analysis functions: tag each with the specification level it requires;
       add the "error, don't guess" guard for register-dependent analysis.
+      `analyze_chord` is now pure-identity (no fabricated voicings); register
+      analysis moved to the guarded `analyze_voicing` (raises
+      `SpecificationError` via `require_realization`); the synthetic stack
+      generator moved to the explicitly-generative `suggest_voicings`.
 
 ### Phase 2 — Temporal layer
 - [ ] Replace the `timeline.py` stub with real `Event` / `Sequence` types
@@ -68,6 +89,18 @@ context — reproducibly.
 - [ ] Thin adapter: one tool per analysis entry point; schemas derived from
       `results.py`; stateless by default, session-backed where multi-turn is needed.
 - [ ] Error/validation surface suitable for blind agent use.
+
+### Phase 5 (future) — Beyond 12-TET: generalized identity
+- The current substrate is **hard 12-TET** (12-bit bitmask, mod-12 everywhere).
+  Other tonal systems — n-TET, just intonation, microtonal, non-octave-repeating —
+  will require a more expansive identity system, and "the mask is the key" (Decision
+  6, Phase 1) will have to be revisited. This is explicitly **out of scope** until
+  the 12-TET foundation, temporal layer, and MCP endpoint are solid.
+- Forward-compat contract for earlier phases: don't make choices that would have to
+  be *completely* unmade. The lattice and `Realization` stay tuning-agnostic; the
+  12-TET assumption stays behind the reduction boundary (Decision 6). When this
+  phase lands, generalizing means replacing the reduction + substrate, not the
+  identity model layered on top.
 
 ## Demoted / deferred (built for the old "app" frame)
 
