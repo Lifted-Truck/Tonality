@@ -34,7 +34,7 @@ context — reproducibly.
 6. **Keep the tuning system behind a reduction boundary.** "The identity key *is* a
    12-bit bitmask" is a 12-TET-specific choice we accept for now (the substrate is
    correct and tested; a generalized identity type is premature). To keep the
-   eventual multi-system generalization (see Phase 5) from being a teardown, the
+   eventual multi-system generalization (see Phase 6) from being a teardown, the
    **lattice** (transpositional × registral) and the **Realization** API are
    deliberately tuning-agnostic — rooted-ness and register-ness are not 12-TET
    concepts. Only `reduce_to_key()` and `core/bitmask.py` know the substrate is 12.
@@ -69,6 +69,35 @@ context — reproducibly.
       `SpecificationError` via `require_realization`); the synthetic stack
       generator moved to the explicitly-generative `suggest_voicings`.
 
+### Phase 1.5 — Vocabulary completeness (voicings + enharmonic equivalence)
+Near-term enrichment that deepens the identity model just built. Goal: the engine
+knows *all* the standard names a chord/voicing can go by, and recognizes when two
+specifications are the same object. Builds directly on the Phase 1 lattice and
+`Realization`. **Preserve the division of labor:** *naming/recognizing* an
+existing object is analytical; *producing* a voicing is generative.
+
+Workstream A — **named voicings (generation + recognition).**
+- [ ] A named-voicing vocabulary: closed, open/spread, drop-2 / drop-3 / drop-2&4,
+      rootless (A/B), shell, quartal/quintal, cluster, and idiomatic named voicings
+      (e.g. "So What"). Each is a transformation/template over an identity.
+- [ ] Express register-bearing-but-rootless voicings as **voicing templates** (the
+      `REGISTERED + SHAPE` corner Phase 1 unlocked); concrete voicings are
+      `Realization`s.
+- [ ] Inversions as first-class (root position + inversions; figured-bass labels).
+- [ ] **Recognition** (analytical, register-required): given a `Realization`, name
+      its voicing/inversion — an `analyze_voicing` extension, not a generator.
+
+Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelling).**
+- [ ] Add an `aliases` field to `ChordQuality` (parity with `Scale`); catalog the
+      common alternate names.
+- [ ] Model structural equivalence for symmetric / ambiguous sets and surface *all*
+      valid names+roots, not just one: diminished-7th (4 enharmonic names/roots),
+      augmented triad (3), and the augmented-sixth family (It/Fr/Ger ↔ the
+      dominant-7th set respelled).
+- [ ] Reproducibility: the chosen spelling and any equivalence are explicit in the
+      result / dataset record (dovetails with the Phase 3 analytical-vs-display
+      context split).
+
 ### Phase 2 — Temporal layer
 - [ ] Replace the `timeline.py` stub with real `Event` / `Sequence` types
       (onset, duration, realization reference, simultaneity/overlap).
@@ -90,7 +119,37 @@ context — reproducibly.
       `results.py`; stateless by default, session-backed where multi-turn is needed.
 - [ ] Error/validation surface suitable for blind agent use.
 
-### Phase 5 (future) — Beyond 12-TET: generalized identity
+### Phase 5 — Representation / projection layer (visuals as data)
+A render-agnostic layer: the engine emits **typed, structured descriptions** of a
+musical object in its canonical representations — and *rendering to pixels/files
+is a thin edge consumer, not part of core* (same relationship MCP has to analysis).
+Decision: **library-first, no in-repo GUI** (the deferred Qt GUI stays demoted).
+This is the "visual analysis suite" expressed as data an agent or a renderer can
+consume.
+
+- [ ] Each representation **declares the specification level it requires** and
+      errors when under-specified — lattice-governed, "reduce never invent":
+  - *register-less (identity key):* pitch-class **clock / bracelet diagram**,
+    **interval-vector / IC spectrum**, **Tonnetz** (coordinates already exist),
+    **circle of fifths** projection, set-class / normal-form views.
+  - *register-required (`Realization`):* **keyboard / piano diagram** of a chosen
+    voicing, fretboard.
+  - *register + time (depends on Phase 2):* **piano roll**, **staff / sheet-music**
+    engraving model.
+- [ ] Stable output schemas (coordinates, encodings, an engraving model) with
+      parity to `results.py` / the dataset record, so rendering libraries consume
+      them at the edge.
+- [ ] Reuse existing seeds: `TonnetzAnalysis`, interval vector, reflection
+      axes / symmetry (the clock/bracelet math), and re-home `layouts/` out of the
+      demoted GUI frame.
+- Canonical model for the representation set: **Ian Ring's "A Study of Scales"**
+  (see References) — its per-set page enumerates the representations to mirror, and
+  it keys every set by our same identity bitmask.
+
+Open question: which rendering targets to support as *reference* edge consumers
+(SVG? MusicXML? LilyPond?) — deferred; core commits only to the data layer.
+
+### Phase 6 (future) — Beyond 12-TET: generalized identity
 - The current substrate is **hard 12-TET** (12-bit bitmask, mod-12 everywhere).
   Other tonal systems — n-TET, just intonation, microtonal, non-octave-repeating —
   will require a more expansive identity system, and "the mask is the key" (Decision
@@ -123,3 +182,25 @@ context — reproducibly.
 - MIDI ingestion dependency: Mido vs. in-house SMF parser?
 - Dataset record granularity: per-event, per-segment, or per-progression?
 - Does the temporal layer need tempo/meter awareness in Phase 2, or defer to 2.5?
+
+## References & prior art
+
+- **Ian Ring, "A Study of Scales"** — <https://ianring.com/musictheory/scales/>
+  (example entry: <https://ianring.com/musictheory/scales/3055>). An encyclopedic
+  catalog of all 4096 twelve-tone pitch-class sets, **each keyed by a number that
+  is exactly the 12-bit identity bitmask Tonality uses** (a PC set ↔ an integer
+  0–4095). This is the canonical model for two of our workstreams:
+  - **Representation suite (Phase 5):** mirror its representations — bracelet /
+    necklace diagram (with symmetry axes), Tonnetz, interval vector, prime &
+    normal form, Forte class, modes, complement / inverse, rotational & reflective
+    symmetry, ridge tones, maximal evenness, Rothenberg propriety, Myhill's
+    property, Lewin–Quinn DFT (FC) components, brightness / center of gravity,
+    coherence, and the per-set "nearby scales" relational map.
+  - **Naming & equivalence (Phase 1.5):** a cross-reference for alternate naming
+    traditions (Zeitler, Messiaen modes of limited transposition, dozenal, etc.)
+    and for prime-form / inverse equivalence.
+  - **Scope caveat:** Ring catalogs *scales / PC-sets* (and the triads embedded in
+    each), not chord *voicings* or *realizations* — Tonality's register/voicing
+    layer is complementary, not duplicative.
+  - **Possible interop:** expose a cross-reference between our `mask` and a Ring
+    scale number (mind the bit-order convention) so entries can be linked directly.
