@@ -14,6 +14,12 @@ MIDI clip), and gets back structured records annotated with functional role,
 compatible scales, interval/symmetry properties, voicing data, and temporal
 context — reproducibly.
 
+Longer term, the engine should not merely *enumerate* the possible names/analyses of
+a chord or passage but **choose the reading its context actually warrants** — and,
+when readings genuinely conflict, surface the competing interpretations ranked by
+corpus statistics, with evidence. The aspiration: a tool that can reveal *novel*
+music-theoretical readings of existing music, not just confirm textbook ones.
+
 ## Decisions on record (the "why", so we don't relitigate)
 
 1. **Build on the existing engine, don't greenfield.** The bitmask PC substrate,
@@ -40,6 +46,14 @@ context — reproducibly.
    concepts. Only `reduce_to_key()` and `core/bitmask.py` know the substrate is 12.
    New code routes through the reduction rather than open-coding `mask` arithmetic,
    so swapping the substrate later is a localized change, not a rewrite.
+7. **Disambiguation is ranked, explicit, and plural — never an opaque guess.** When a
+   set or passage admits several names/analyses (the candidates `interpret_chord`
+   enumerates), the engine selects the contextually-best reading *and* surfaces the
+   competing alternatives with inspectable, data-derived weights and the evidence
+   behind them. Statistical scoring stays **reproducible** (same input + same corpus
+   → same ranking); it never collapses to a single black-box answer. This preserves
+   the division of labor: transparent combinatorics + explicit statistics *here*,
+   open-ended semantic leaps in the caller.
 
 ## Build sequence
 
@@ -122,11 +136,34 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       the typed-results base, as one coherent, tested unit.
 - [ ] Define the **dataset record schema** — the enriched unit emitted per musical
       object/event. Reproducible (capture spelling/context choices explicitly).
+- [ ] **Context-sensitive naming / disambiguation:** consume the candidate
+      `(root, quality)` set from `interpret_chord` and pick the contextually-correct
+      reading from key, functional role, and voice-leading context — returning the
+      chosen name *with ranked alternatives and the evidence for each*, not a bare
+      label. (Resolves the deferred functional augmented-sixth labelling from
+      Phase 1.5. Deterministic/rule-based here; corpus-statistical ranking is
+      Phase 4.5.)
 
 ### Phase 4 — MCP endpoint
 - [ ] Thin adapter: one tool per analysis entry point; schemas derived from
       `results.py`; stateless by default, session-backed where multi-turn is needed.
 - [ ] Error/validation surface suitable for blind agent use.
+
+### Phase 4.5 — Contextual & statistical interpretation (corpus-driven)
+The intelligence payoff: move from *enumerating* interpretations to *weighing* them
+with statistics learned from a corpus. Depends on the temporal layer (Phase 2) for
+context, the dataset schema (Phase 3) as the unit of record, and a corpus to learn
+from. Governed by Decision 7 (ranked, explicit, reproducible — never a black box).
+
+- [ ] Score / rank competing interpretations (chord names, key & functional
+      readings, segmentations) by corpus statistics — e.g. progression n-grams,
+      voice-leading likelihood — surfacing conflicts with weights + evidence.
+- [ ] Build / ingest a corpus and a **reproducible** statistical model (explicit,
+      versioned weights; same input + corpus → same ranking).
+- [ ] **North-star use case:** reveal *novel* readings of existing pieces — points
+      where a statistically- or structurally-supported reinterpretation diverges
+      from the conventional analysis. The engine proposes and evidences; the
+      human/agent judges (semantic call stays in the caller, per Decision 7).
 
 ### Phase 5 — Representation / projection layer (visuals as data)
 A render-agnostic layer: the engine emits **typed, structured descriptions** of a
