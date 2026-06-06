@@ -9,7 +9,11 @@ future GUI/API integrations.
 from __future__ import annotations
 
 from .scale_analysis import ScaleAnalysisRequest, analyze_scale
-from .chord_analysis import ChordAnalysisRequest, analyze_chord
+from .chord_analysis import ChordAnalysisRequest, analyze_chord, analyze_voicing
+from .voicings import suggest_voicings
+from .errors import SpecificationError, require_realization
+from ..core.realization import Realization
+from ..core.spec_level import Registral, SpecLevel, Transpositional
 from .timeline import (
     TimedEvent,
     TimelineAnalysisRequest,
@@ -29,7 +33,15 @@ from .comparisons import (
     ScaleChordPlacement,
     compare_chord_qualities,
 )
-from .specs import ChordSpec, ChordParseResult, ScopeLiteral, QualityVariant, parse_chord_spec
+from .specs import (
+    ChordSpec,
+    ChordParseResult,
+    ScopeLiteral,
+    QualityVariant,
+    parse_chord_spec,
+    from_scope,
+    to_scope,
+)
 from .results import (
     ChordAnalysisResult,
     ChordIntervalSummary,
@@ -43,6 +55,7 @@ from .results import (
     SymmetryData,
     TonnetzAnalysis,
     TonicContext,
+    VoicingAnalysis,
     VoicingEntry,
     VoicingSet,
 )
@@ -61,10 +74,20 @@ __all__ = [
     "ChordParseResult",
     "ScopeLiteral",
     "QualityVariant",
+    "from_scope",
+    "to_scope",
+    "SpecLevel",
+    "Transpositional",
+    "Registral",
+    "Realization",
+    "SpecificationError",
+    "require_realization",
     "ManualScaleBuilder",
     "ManualChordBuilder",
     "analyze_scale",
     "analyze_chord",
+    "analyze_voicing",
+    "suggest_voicings",
     "analyze_timeline",
     "generate_sequence",
     "parse_pitch_token",
@@ -85,6 +108,7 @@ __all__ = [
     "SymmetryData",
     "TonnetzAnalysis",
     "TonicContext",
+    "VoicingAnalysis",
     "VoicingEntry",
     "VoicingSet",
 ]

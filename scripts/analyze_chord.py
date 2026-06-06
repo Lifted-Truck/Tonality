@@ -18,6 +18,8 @@ from mts.core.enharmonics import pc_from_name
 from mts.analysis import ChordAnalysisRequest, analyze_chord
 from mts.analysis.builders import SESSION_CHORD_CONTEXT
 from mts.analysis.results import ChordAnalysisResult
+from mts.analysis.voicings import suggest_voicings
+from mts.core.enharmonics import SpellingPref
 
 
 def _print_section(title: str) -> None:
@@ -113,11 +115,16 @@ def _print_inversions(report: ChordAnalysisResult) -> None:
         print(f"    note names: {inversion.note_names}")
 
 
-def _print_voicings(report: ChordAnalysisResult) -> None:
-    voicings = report.voicings
-    if not voicings:
-        return
-    _print_section("Voicings")
+def _print_suggested_voicings(
+    chord: Chord,
+    spelling: SpellingPref,
+    key_sig: int | None,
+) -> None:
+    # Generative, not analysis: register is invented from the identity. The
+    # chord here is register-less (note name + quality), so analyze_voicing
+    # would correctly error; suggestions are the honest thing to show instead.
+    voicings = suggest_voicings(chord, spelling=spelling, key_signature=key_sig)
+    _print_section("Suggested Voicings (generative)")
     entries = [("closed", voicings.closed)]
     if voicings.drop2 is not None:
         entries.append(("drop2", voicings.drop2))
@@ -153,7 +160,6 @@ def _print_report(report: ChordAnalysisResult) -> None:
     _print_tonnetz(report)
     _print_tonic_context(report)
     _print_inversions(report)
-    _print_voicings(report)
     _print_enharmonics(report)
 
 
@@ -174,7 +180,7 @@ def main() -> None:
     parser.add_argument("--no-inversions", action="store_true",
                         help="Skip inversion enumeration in the output.")
     parser.add_argument("--no-voicings", action="store_true",
-                        help="Skip voicing generation in the output.")
+                        help="Skip generative voicing suggestions in the output.")
     parser.add_argument("--no-enharmonics", action="store_true",
                         help="Skip enharmonic spelling listings.")
     parser.add_argument("--json", action="store_true",
@@ -219,7 +225,6 @@ def main() -> None:
         key_signature=args.key_sig,
         interval_label_style=args.interval_labels,
         include_inversions=not args.no_inversions,
-        include_voicings=not args.no_voicings,
         include_enharmonics=not args.no_enharmonics,
     )
     report = analyze_chord(request)
@@ -227,6 +232,8 @@ def main() -> None:
         print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
         return
     _print_report(report)
+    if not args.no_voicings:
+        _print_suggested_voicings(chord, args.spelling, args.key_sig)
 
 
 if __name__ == "__main__":

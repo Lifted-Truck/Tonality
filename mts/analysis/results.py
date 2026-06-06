@@ -93,7 +93,12 @@ class Inversion:
 
 @dataclass(frozen=True)
 class VoicingEntry:
-    """A single chord voicing (closed, drop-2, drop-3, etc.)."""
+    """A single **generated** chord voicing (closed, drop-2, drop-3, etc.).
+
+    Produced by ``suggest_voicings`` — a *generative* helper that invents
+    register from a pitch-class identity. This is a suggestion, not analysis;
+    real register-bearing input is described by :class:`VoicingAnalysis`.
+    """
     label: str
     semitones_from_root: list[int]
     intervals_mod_12: list[int]
@@ -103,11 +108,41 @@ class VoicingEntry:
 
 @dataclass(frozen=True)
 class VoicingSet:
-    """All generated voicings for a chord.  ``drop2`` / ``drop3`` are absent
-    for chords with fewer than 3 / 4 voices respectively."""
+    """All **generated** voicings for a chord (output of ``suggest_voicings``).
+
+    ``drop2`` / ``drop3`` are absent for chords with fewer than 3 / 4 voices
+    respectively. Generative, not analytical — see :class:`VoicingEntry`.
+    """
     closed: VoicingEntry
     drop2: VoicingEntry | None = None
     drop3: VoicingEntry | None = None
+
+
+@dataclass(frozen=True)
+class VoicingAnalysis:
+    """Register-aware analysis of an actual realization (voicing or template).
+
+    Requires register: produced only by ``analyze_voicing`` from a
+    :class:`~mts.core.realization.Realization`. Every field is read from real
+    pitches — nothing is invented. Contrast :class:`VoicingSet`, which
+    *generates* plausible register from a register-less identity.
+    """
+    spec_level: str
+    rooted: bool
+    root_pc: int | None
+    midi: list[int]
+    note_names: list[str]
+    bass_pc: int
+    bass_midi: int
+    intervals_from_bass: list[int]
+    spread_semitones: int
+    distinct_pcs: list[int]
+    doublings: list[int]
+    mask: int
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
 
 
 @dataclass(frozen=True)
@@ -203,7 +238,6 @@ class ChordAnalysisResult:
     note_names: list[str]
     tonic_context: TonicContext | None = None
     inversions: list[Inversion] | None = None
-    voicings: VoicingSet | None = None
     enharmonics: list[EnharmonicSpelling] | None = None
 
     def to_dict(self) -> dict:
@@ -224,6 +258,7 @@ __all__ = [
     "SymmetryData",
     "TonnetzAnalysis",
     "TonicContext",
+    "VoicingAnalysis",
     "VoicingEntry",
     "VoicingSet",
 ]

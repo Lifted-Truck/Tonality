@@ -217,7 +217,7 @@ class WorkspaceController(QObject):
         if not self._workspace.chord:
             return None
         chord = self._workspace.chord
-        request = ChordAnalysisRequest(chord=chord, include_voicings=True, include_inversions=True)
+        request = ChordAnalysisRequest(chord=chord, include_inversions=True)
         analysis = analyze_chord(request)
         analysis["brief"] = chord_brief(chord.quality)
         return build_chord_summary(self._workspace, analysis)

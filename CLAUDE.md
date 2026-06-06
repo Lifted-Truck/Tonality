@@ -58,7 +58,10 @@ analysis/    Enrichment engine: specs (parser), *_analysis, comparisons, summari
   ↓
 [temporal]   PLANNED: events, sequences, segmentation, harmonic rhythm (timeline.py is a stub)
   ↓
-[mcp]        PLANNED: thin adapter — one tool per analysis function, schemas from results.py
+[mcp]         PLANNED: thin adapter — one tool per analysis function, schemas from results.py
+[representation] PLANNED: render-agnostic representation DATA (clock/Tonnetz/piano-roll/staff/
+              circle-of-fifths). Library emits descriptions; pixel/file rendering is an edge
+              consumer, NOT core (no in-repo GUI). Each view declares its required spec level.
 ```
 
 `io/` loads catalogs from `data/*.json`. `theory/functions.py` generates functional

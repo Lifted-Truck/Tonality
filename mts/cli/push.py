@@ -145,10 +145,14 @@ def _session_chord_summary(quality: ChordQuality) -> str:
         ChordAnalysisRequest(
             chord=chord,
             include_inversions=True,
-            include_voicings=True,
             include_enharmonics=False,
         )
     )
+    # NOTE: this demoted example consumer predates the Phase 0 typed-results
+    # rewrite and still uses dict-style access on what is now a dataclass; it is
+    # already non-functional and slated for the Phase 3 CLI rework. Voicings are
+    # no longer part of analysis output (they were generative); use
+    # suggest_voicings if/when this is revived.
     voicing_labels = list(analysis.get("voicings", {}).keys())
     voicing_text = ", ".join(voicing_labels) if voicing_labels else "none"
     inversion_count = len(analysis.get("inversions", []))
