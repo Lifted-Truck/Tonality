@@ -77,9 +77,13 @@ specifications are the same object. Builds directly on the Phase 1 lattice and
 existing object is analytical; *producing* a voicing is generative.
 
 Workstream A — **named voicings (generation + recognition).**
-- [ ] A named-voicing vocabulary: closed, open/spread, drop-2 / drop-3 / drop-2&4,
-      rootless (A/B), shell, quartal/quintal, cluster, and idiomatic named voicings
-      (e.g. "So What"). Each is a transformation/template over an identity.
+- [x] A named-voicing vocabulary (generative, `suggest_voicings`): closed,
+      open/spread, drop-2 / drop-3 / drop-2&3 / drop-2&4, rootless (A/B), and shell.
+      Built as an extensible registry (`_VOICING_BUILDERS`) over the closed stack;
+      each voicing declares applicability and exact duplicates are collapsed.
+      *Deferred:* quartal/quintal, cluster, and idiomatic named voicings (e.g.
+      "So What") — these are voicing *styles* less well-defined per-chord; add as
+      registry entries when needed.
 - [ ] Express register-bearing-but-rootless voicings as **voicing templates** (the
       `REGISTERED + SHAPE` corner Phase 1 unlocked); concrete voicings are
       `Realization`s.

@@ -108,14 +108,24 @@ class VoicingEntry:
 
 @dataclass(frozen=True)
 class VoicingSet:
-    """All **generated** voicings for a chord (output of ``suggest_voicings``).
+    """An ordered collection of **generated** named voicings for a chord
+    (output of ``suggest_voicings``).
 
-    ``drop2`` / ``drop3`` are absent for chords with fewer than 3 / 4 voices
-    respectively. Generative, not analytical — see :class:`VoicingEntry`.
+    The vocabulary is open-ended (closed, drop-2/3, rootless, shell, …); only the
+    voicings that *apply* to a given chord are present. Generative, not
+    analytical — see :class:`VoicingEntry`. Look up a voicing by name with
+    :meth:`get`.
     """
-    closed: VoicingEntry
-    drop2: VoicingEntry | None = None
-    drop3: VoicingEntry | None = None
+    entries: list[VoicingEntry]
+
+    def get(self, label: str) -> VoicingEntry | None:
+        """Return the entry with this label, or ``None`` if not present."""
+        return next((entry for entry in self.entries if entry.label == label), None)
+
+    @property
+    def labels(self) -> list[str]:
+        """The labels present, in order."""
+        return [entry.label for entry in self.entries]
 
 
 @dataclass(frozen=True)

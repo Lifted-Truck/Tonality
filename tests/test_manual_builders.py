@@ -114,7 +114,7 @@ def test_register_chord_runs_analysis():
     assert not hasattr(analysis, "voicings")
     # Voicings are generative (register is chosen, not analyzed).
     voicings = suggest_voicings(chord)
-    assert voicings.closed is not None
+    assert voicings.get("closed") is not None
     assert quality.name in SESSION_CHORDS
     assert SESSION_CHORD_CONTEXT[quality.name]["scope"] == "abstract"
 
