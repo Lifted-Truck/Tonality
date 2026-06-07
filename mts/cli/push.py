@@ -11,6 +11,7 @@ from ..core.enharmonics import pc_from_name
 from ..layouts.push_grid import PushGrid
 from ..theory import functions as fn_defs
 from ..analysis import ChordAnalysisRequest, analyze_chord
+from ..analysis.voicings import suggest_voicings
 from ..analysis.builders import is_session_chord, SESSION_CHORD_CONTEXT
 from ..context import DisplayContext
 from ..context.formatters import (
@@ -148,14 +149,13 @@ def _session_chord_summary(quality: ChordQuality) -> str:
             include_enharmonics=False,
         )
     )
-    # NOTE: this demoted example consumer predates the Phase 0 typed-results
-    # rewrite and still uses dict-style access on what is now a dataclass; it is
-    # already non-functional and slated for the Phase 3 CLI rework. Voicings are
-    # no longer part of analysis output (they were generative); use
-    # suggest_voicings if/when this is revived.
-    voicing_labels = list(analysis.get("voicings", {}).keys())
+    # ``analyze_chord`` is pure-identity (typed ``ChordAnalysisResult``), so read
+    # inversions via attribute access. Voicings are no longer part of analysis
+    # output — they are generative — so ask for them explicitly via
+    # ``suggest_voicings`` (see analysis/voicings.py).
+    voicing_labels = suggest_voicings(chord).labels
     voicing_text = ", ".join(voicing_labels) if voicing_labels else "none"
-    inversion_count = len(analysis.get("inversions", []))
+    inversion_count = len(analysis.inversions or [])
     return f"{inversion_count} inversions, voicings -> {voicing_text}"
 
 def main(argv: list[str] | None = None) -> None:
