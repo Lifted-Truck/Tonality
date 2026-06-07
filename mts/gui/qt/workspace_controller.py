@@ -24,6 +24,7 @@ from ...analysis import (
     TimedEvent,
 )
 from ...analysis.builders import ManualScaleBuilder, ManualChordBuilder
+from ...analysis.voicings import suggest_voicings
 from .presenters import build_scale_summary, build_chord_summary, ScaleSummary, ChordSummary
 
 try:  # pragma: no cover - import guard
@@ -122,9 +123,15 @@ class WorkspaceController(QObject):
     def analyze_chord(self, **kwargs: Any) -> ChordSummary:
         if not self._workspace.chord:
             raise ValueError("No chord selected.")
-        request = ChordAnalysisRequest(chord=self._workspace.chord, **kwargs)
+        chord = self._workspace.chord
+        request = ChordAnalysisRequest(chord=chord, **kwargs)
         analysis = analyze_chord(request)
-        summary = build_chord_summary(self._workspace, analysis)
+        summary = build_chord_summary(
+            self._workspace,
+            analysis,
+            brief=chord_brief(chord.quality),
+            voicings=suggest_voicings(chord),
+        )
         self.chord_changed.emit(summary)
         return summary
 
@@ -219,8 +226,12 @@ class WorkspaceController(QObject):
         chord = self._workspace.chord
         request = ChordAnalysisRequest(chord=chord, include_inversions=True)
         analysis = analyze_chord(request)
-        analysis["brief"] = chord_brief(chord.quality)
-        return build_chord_summary(self._workspace, analysis)
+        return build_chord_summary(
+            self._workspace,
+            analysis,
+            brief=chord_brief(chord.quality),
+            voicings=suggest_voicings(chord),
+        )
 
     def _handle_workspace_event(self, event: str, payload: object | None) -> None:
         if self._suppress_events:
