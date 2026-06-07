@@ -129,10 +129,17 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       context split).
 
 ### Phase 2 — Temporal layer
-- [ ] Replace the `timeline.py` stub with real `Event` / `Sequence` types
-      (onset, duration, realization reference, simultaneity/overlap).
-- [ ] Implement `io/midi.py` ingestion (MIDI file → events). Mido or in-house.
-- [ ] Segmentation + harmonic rhythm: derive chord/identity stream from events.
+- [x] Replace the `timeline.py` stub with real `Event` / `Sequence` types — the new
+      `mts/temporal/` package: `Event` (onset/duration in quarter-note beats +
+      `Pitch`), `Sequence` with `sounding_at` / `realization_at` (a window's
+      pitches → a rootless `Realization` → identity key), plus **full tempo + meter**
+      (`TempoMap` beats↔seconds, `MeterMap`/`TimeSignature` → bars/beats/downbeats).
+      `analysis/timeline.py` is now a deprecated shim; migrating `workspace`/`io`
+      off it is a tracked follow-up.
+- [ ] Implement `io/midi.py` ingestion (MIDI file → events). Mido or in-house —
+      **parser decision deferred to this slice (Slice 3).**
+- [ ] Segmentation + harmonic rhythm: derive chord/identity stream from events
+      (Slice 2 — each segment's `Realization` feeds `interpret_chord`).
 
 ### Phase 3 — Contextualization & dataset schema
 - [ ] Resolve the **two "context" concepts**: promote *analytical* context

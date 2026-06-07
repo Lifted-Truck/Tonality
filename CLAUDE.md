@@ -56,7 +56,8 @@ core/        Identity layer: bitmask, pitch, scale, chord, quality, enharmonics,
   ↓
 analysis/    Enrichment engine: specs (parser), *_analysis, comparisons, summaries, results
   ↓
-[temporal]   PLANNED: events, sequences, segmentation, harmonic rhythm (timeline.py is a stub)
+temporal/    Time layer (Phase 2): Event/Sequence + tempo/meter; window → realization → key.
+             Segmentation + harmonic rhythm PLANNED. (analysis/timeline.py is a DEPRECATED stub.)
   ↓
 [mcp]         PLANNED: thin adapter — one tool per analysis function, schemas from results.py
 [representation] PLANNED: render-agnostic representation DATA (clock/Tonnetz/piano-roll/staff/

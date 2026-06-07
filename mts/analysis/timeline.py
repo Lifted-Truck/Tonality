@@ -1,15 +1,11 @@
-"""Timeline analysis scaffolding.
+"""Timeline analysis scaffolding — DEPRECATED stub.
 
-This module sketches the interfaces we will need once the engine starts
-reasoning about sequences (notes, chords, automation) across time.  The
-implementation is intentionally left as TODOs so we can layer features
-incrementally without derailing the current pitch-class work.
-
-TODO:
-    - Wire TimedEvent ingestion to MIDI/MusicXML readers.
-    - Track harmonic context windows for compatibility checks.
-    - Attach meter/tempo metadata for rhythmic analysis.
-    - Surface generative hooks for phrase/voice-leading synthesis.
+Superseded by the real temporal layer in :mod:`mts.temporal` (Phase 2 Slice 1),
+which provides ``Event`` / ``Sequence`` with tempo + meter and the
+event → realization → identity-key reduction. This stub remains only for the
+legacy ``workspace.analyze_timeline`` path pending its migration onto
+``mts.temporal`` (a tracked Phase 2 follow-up). Do not build new code on these
+placeholder types — import from ``mts.temporal`` instead.
 """
 
 from __future__ import annotations

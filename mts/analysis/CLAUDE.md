@@ -32,8 +32,9 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
 - `comparisons.py`, `summaries.py` — cross-object compatibility and compact briefs.
 - `builders.py` — `SessionCatalog` + manual scale/chord registration. **No
   module-level mutable state** — sessions are instances.
-- `timeline.py` — STUB (`NotImplementedError`). Phase 2 replaces it with the real
-  temporal layer. Don't build around the current shape.
+- `timeline.py` — **DEPRECATED stub**, superseded by the `mts/temporal/` package
+  (Phase 2). Kept only for the legacy `workspace.analyze_timeline` path pending
+  migration. Build temporal code in `mts/temporal/`, not here.
 
 **When adding analysis:** declare the specification level it needs (PC-set vs.
 realization). Register-dependent analysis must **error** on a register-less
