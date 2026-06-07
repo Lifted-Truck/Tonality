@@ -12,6 +12,7 @@ from .scale_analysis import ScaleAnalysisRequest, analyze_scale
 from .chord_analysis import ChordAnalysisRequest, analyze_chord, analyze_voicing
 from .voicings import suggest_voicings
 from .equivalence import interpret_chord
+from .analytical_context import AnalyticalContext, ChordInKey, contextualize_chord
 from .errors import SpecificationError, require_realization
 from ..core.realization import Realization
 from ..core.spec_level import Registral, SpecLevel, Transpositional
@@ -90,6 +91,9 @@ __all__ = [
     "analyze_voicing",
     "suggest_voicings",
     "interpret_chord",
+    "AnalyticalContext",
+    "ChordInKey",
+    "contextualize_chord",
     "analyze_timeline",
     "generate_sequence",
     "parse_pitch_token",
