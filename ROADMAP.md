@@ -158,8 +158,32 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       `DisplayContext` and render through the formatters (Slice 3) — the parked
       `wip-context-cli-rewiring` work was **re-done on current main** (incl. the
       `run_specific` shadowing-crash fix) rather than merged, then retired.
-- [ ] Define the **dataset record schema** — the enriched unit emitted per musical
+- [x] Define the **dataset record schema** — the enriched unit emitted per musical
       object/event. Reproducible (capture spelling/context choices explicitly).
+      Delivered as the new `mts/dataset/` package (Slice 4): a flat-leaf
+      `DatasetRecord` (tiers `identity` → `analysis` → optional `realization` →
+      optional temporal `placement`, mirroring `event → realization → identity key`)
+      grouped by a `Dataset` container, with a numeric **canonical core** plus a
+      shed-able reproducibility layer (`source` provenance, `analytical`/`display`
+      context snapshots, and a *derived* `display` block) and a `minimal()`
+      projection. `SCHEMA_VERSION` is explicit. Builders (`record_from_chord`,
+      `record_from_segment`, `dataset_from_sequence`) *assemble* existing typed
+      results — they compute nothing new. Lives **above** analysis/temporal/context
+      (it imports all three; none import it) — which is why it is not in
+      `analysis/results.py` (that would invert the `temporal → analysis.results`
+      dependency).
+
+      **Granularity decision & reflection point.** Slice 4 ships **flat leaf records
+      + a `Dataset` container**, not a recursive record — the honest fit for today's
+      *flat* literal-PC-set `segment()` and flat harmonic-rhythm. Forward-compat is
+      preserved by composition: records carry a `kind` level discriminator and a
+      stable `index` handle, and `Dataset` is a *grouping*, **not** asserted as a
+      flat, non-overlapping, exhaustive timeline partition. **Revisit the
+      flat-vs-recursive distinction when a genuine parent/child *musical* layer
+      arrives** — specifically (a) harmonic segmentation that nests non-harmonic
+      tones under their parent harmony (the Phase 2 deferred refinement), or (b) a
+      form/section layer above progressions. At that trigger, migrate via `Dataset`
+      nesting / `DatasetRecord.children` (additive), **not** a leaf-schema teardown.
 - [ ] **Context-sensitive naming / disambiguation:** consume the candidate
       `(root, quality)` set from `interpret_chord` and pick the contextually-correct
       reading from key, functional role, and voice-leading context — returning the
@@ -279,7 +303,10 @@ Phase 4.5 corpus statistics — so it can land before the Phase 6 tuning work.*
 ## Open questions
 
 - MIDI ingestion dependency: Mido vs. in-house SMF parser?
-- Dataset record granularity: per-event, per-segment, or per-progression?
+- ~~Dataset record granularity: per-event, per-segment, or per-progression?~~
+  **Resolved (Phase 3 Slice 4):** flat leaf record per object/event/segment, grouped
+  by a `Dataset` container; recursion deferred to a future parent/child musical layer
+  (see Slice 4 "reflection point").
 - Does the temporal layer need tempo/meter awareness in Phase 2, or defer to 2.5?
 
 ## References & prior art
