@@ -228,6 +228,15 @@ Open question: which rendering targets to support as *reference* edge consumers
   12-TET assumption stays behind the reduction boundary (Decision 6). When this
   phase lands, generalizing means replacing the reduction + substrate, not the
   identity model layered on top.
+- **Known 12-TET footprint collisions (accepted limitations, not bugs).** 12-TET
+  cannot faithfully hold every named scale, so distinct cultural/tuning scales can
+  share a 12-TET footprint. These are *documented equivalences*, allowlisted so the
+  audit doesn't flag them (see `audit/AUDIT.md` §7). Current list:
+  - `Pelog Selisir` ≡ `Major Pentatonic` `[0,2,4,7,9]` — pelog is non-12-TET; this
+    approximation collapses onto the major pentatonic. Faithful representation
+    awaits this phase.
+  - The long-term goal of cataloguing *all* named scales will surface many more of
+    these; each gets recorded here + in the audit allowlist rather than "fixed."
 
 ## Demoted / deferred (built for the old "app" frame)
 

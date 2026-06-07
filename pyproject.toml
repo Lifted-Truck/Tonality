@@ -23,9 +23,15 @@ qt = [
     "PySide6>=6.8.0.2,<6.11",
 ]
 
+[tool.pytest.ini_options]
+# The dev suite is tests/ only. Audit checks live in audit/checks/ and are run
+# explicitly (`pytest audit/checks`) so a dev fix can never collide with the audit
+# thread's checks in the dev Stop hook. See audit/AUDIT.md.
+testpaths = ["tests"]
+
 [tool.setuptools.packages.find]
 include = ["mts*"]
-exclude = ["tests*"]
+exclude = ["tests*", "audit*"]
 
 [project.urls]
 Homepage = "https://example.com"
