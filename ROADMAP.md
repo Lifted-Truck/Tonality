@@ -150,12 +150,14 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       non-harmonic tones by metric salience.
 
 ### Phase 3 — Contextualization & dataset schema
-- [ ] Resolve the **two "context" concepts**: promote *analytical* context
-      (scope, functional role, compatibility) into the core; push *display*
-      context (spelling prefs, layout) to the edge/out of core.
-      **Finish & integrate the `wip-context-cli-rewiring` branch here** (see
-      Parked work below) — wire all CLI scripts onto `DisplayContext` on top of
-      the typed-results base, as one coherent, tested unit.
+- [x] Resolve the **two "context" concepts**: *display* context pushed to the edge
+      — analysis is numeric/PC-only and spelling/labels render via
+      `mts/context/result_format.py` from a `DisplayContext` (Slices 1a/1b); and
+      *analytical* context made first-class as `AnalyticalContext` /
+      `contextualize_chord` (Slice 2). All four CLI scripts now build a
+      `DisplayContext` and render through the formatters (Slice 3) — the parked
+      `wip-context-cli-rewiring` work was **re-done on current main** (incl. the
+      `run_specific` shadowing-crash fix) rather than merged, then retired.
 - [ ] Define the **dataset record schema** — the enriched unit emitted per musical
       object/event. Reproducible (capture spelling/context choices explicitly).
 - [ ] **Context-sensitive naming / disambiguation:** consume the candidate
@@ -238,6 +240,27 @@ Open question: which rendering targets to support as *reference* edge consumers
   - The long-term goal of cataloguing *all* named scales will surface many more of
     these; each gets recorded here + in the audit allowlist rather than "fixed."
 
+### Phase 7 (future) — Generative: voice leading & progression realization
+*Ordering note: the number groups this with the later work, but it depends only on
+shipped layers (voicings, `Realization`, temporal/segmentation) plus optionally
+Phase 4.5 corpus statistics — so it can land before the Phase 6 tuning work.*
+
+- **Generative, not analysis** (the cardinal rule): given a chord *progression* — a
+  sequence of identities, from segmentation / `interpret_chord` / user input —
+  produce **voice-leading realizations**: concrete `Realization`s per chord,
+  connected with controlled motion. This *invents* register/voicing, so it lives on
+  the generative side (alongside `suggest_voicings`), never in the analysis path.
+- **Parameterized depth & variation:** controls for how elaborate the generation is
+  (voice count, register range, how many variant realizations to return) and the
+  **qualitative characteristics** that shape the search — smoothness / parsimony
+  (total semitone motion), common-tone retention, contrary motion, voice
+  independence, openness, tessitura, dissonance treatment. Different settings →
+  different stylistic outputs at different depths.
+- Builds on the named-voicing vocabulary + `Realization` + the temporal layer;
+  qualitative scoring can draw on Phase 4.5 corpus statistics for "what's idiomatic."
+- Output is ranked generative *suggestion data* (each variant tagged with its
+  qualitative profile), kept out of analysis; spelling/rendering at the edge.
+
 ## Demoted / deferred (built for the old "app" frame)
 
 - `gui/` (Qt) and the audio backend — not on the library/MCP path. Don't delete;
@@ -246,13 +269,12 @@ Open question: which rendering targets to support as *reference* edge consumers
 
 ## Parked work (branches)
 
-- **`wip-context-cli-rewiring`** (`c06270a`, on `origin`) — an *unfinished* migration
-  of the four analysis CLI scripts (`analyze_chord`, `analyze_scale`,
-  `check_chord_scale_compat`, `compare_chords`) from `spelling`/`key_signature`
-  args to `DisplayContext`. **Do not merge as-is:** `check_chord_scale_compat.py`
-  crashes (`context` not threaded through `run_specific`), and two files collide
-  with the Phase 0 typed-results rewrite. Integrate during **Phase 3** as one
-  finished, tested unit. Nothing here is on `main`.
+- ~~**`wip-context-cli-rewiring`**~~ — **RETIRED (Phase 3 Slice 3).** Its intent (the
+  four CLI scripts on `DisplayContext`) was **re-done on current `main`** rather
+  than merged — the branch was ~30 commits behind, collided with the typed-results
+  rewrite, and crashed in `run_specific` (the `context` shadowing bug, now fixed by
+  the `session_context` rename). Branch deleted; recoverable from commit `c06270a`
+  if ever needed.
 
 ## Open questions
 

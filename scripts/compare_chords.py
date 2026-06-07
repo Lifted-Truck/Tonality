@@ -12,9 +12,11 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from mts.io.loaders import load_chord_qualities, load_scales
-from mts.core.enharmonics import pc_from_name, name_for_pc
+from mts.core.enharmonics import pc_from_name
 from mts.core.chord import Chord
 from mts.analysis import compare_chord_qualities
+from mts.context import DisplayContext
+from mts.context.formatters import format_pitch_class
 
 ROMANS = ["I", "II", "III", "IV", "V", "VI", "VII"]
 
@@ -88,6 +90,11 @@ def main(argv: list[str] | None = None) -> None:
     if args.scales:
         include_scales = [name.strip() for name in args.scales.split(",") if name.strip()]
 
+    # Display preferences live on a DisplayContext (spelling is an edge concern).
+    display = DisplayContext()
+    display.set("spelling", args.spelling, layer="cli")
+    display.set("key_signature", args.key_sig, layer="cli")
+
     comparison = compare_chord_qualities(
         quality_a,
         quality_b,
@@ -96,7 +103,7 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     def describe_chord(chord: Chord) -> str:
-        notes = ", ".join(chord.spelled(prefer=args.spelling, key_signature=args.key_sig))
+        notes = ", ".join(format_pitch_class(pc, display) for pc in chord.pcs)
         intervals = ", ".join(str(iv) for iv in chord.quality.intervals)
         return f"notes [{notes}] intervals [{intervals}]"
 

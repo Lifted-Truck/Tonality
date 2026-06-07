@@ -19,9 +19,12 @@ from mts.io.loaders import load_scales, load_chord_qualities
 from mts.core.bitmask import mask_from_pcs, is_subset, pcs_from_mask
 from mts.core.quality import ChordQuality
 from mts.core.scale import Scale
-from mts.core.enharmonics import name_for_pc, pc_from_name, SpellingPref
+from mts.core.enharmonics import pc_from_name
 from mts.analysis import chord_brief
 from mts.analysis.builders import is_session_chord, SESSION_CHORD_CONTEXT
+from mts.context import DisplayContext
+from mts.context.formatters import format_pitch_class
+from mts.context.result_format import interval_label
 
 EXTENSIONS_ORDER: list[tuple[str, int]] = [
     ("power", 0),
@@ -101,31 +104,15 @@ def _sort_key(name: str, quality: ChordQuality) -> tuple[int, int, int, str]:
     return (priority, size, max_interval, name)
 
 
-def _spell_chord(root_pc: int, quality: ChordQuality, prefer: SpellingPref, key_signature: int | None) -> list[str]:
+def _spell_chord(root_pc: int, quality: ChordQuality, display: DisplayContext) -> list[str]:
     return [
-        name_for_pc((root_pc + interval) % 12, prefer=prefer, key_signature=key_signature)
+        format_pitch_class((root_pc + interval) % 12, display)
         for interval in quality.intervals
     ]
 
 
-def _label_interval(value: int, style: str) -> str:
-    if style == "classical":
-        classical = {
-            0: "P1",
-            1: "m2",
-            2: "M2",
-            3: "m3",
-            4: "M3",
-            5: "P4",
-            6: "TT",
-            7: "P5",
-            8: "m6",
-            9: "M6",
-            10: "m7",
-            11: "M7",
-        }
-        return classical.get(value % 12, f"ic{value % 12}")
-    return str(value)
+def _is_classical(display: DisplayContext) -> bool:
+    return display.get("interval_label_style", "numeric") == "classical"
 
 
 def _format_root_positions(
@@ -133,21 +120,17 @@ def _format_root_positions(
     quality: ChordQuality,
     *,
     tonic_pc: int,
-    spelling: SpellingPref,
-    key_signature: int | None,
+    display: DisplayContext,
     include_note_names: bool,
-    label_style: str,
 ) -> str:
     rendered: list[str] = []
+    classical = _is_classical(display)
     for root in roots:
-        base_label = str(root)
-        if label_style == "classical":
-            classical = _label_interval(root, label_style)
-            base_label = f"{root} ({classical})"
+        base_label = f"{root} ({interval_label(root, display)})" if classical else str(root)
         if include_note_names:
             absolute_root = (tonic_pc + root) % 12
-            root_name = name_for_pc(absolute_root, prefer=spelling, key_signature=key_signature)
-            notes = _spell_chord(absolute_root, quality, spelling, key_signature)
+            root_name = format_pitch_class(absolute_root, display)
+            notes = _spell_chord(absolute_root, quality, display)
             rendered.append(f"{base_label}: {root_name} -> {'-'.join(notes)}")
         else:
             rendered.append(base_label)
@@ -158,27 +141,20 @@ def _describe_pcs(
     pcs: list[int],
     *,
     tonic_pc: int,
-    spelling: SpellingPref,
-    key_signature: int | None,
+    display: DisplayContext,
     include_note_names: bool,
-    label_style: str,
 ) -> str:
     if not pcs:
         return "-"
     ordered = sorted(pcs)
     if include_note_names:
-        displays = [
-            name_for_pc((tonic_pc + pc) % 12, prefer=spelling, key_signature=key_signature)
-            for pc in ordered
-        ]
+        displays = [format_pitch_class((tonic_pc + pc) % 12, display) for pc in ordered]
     else:
         displays = [str(pc) for pc in ordered]
-    if label_style == "classical":
-        labeled = [
-            f"{display} ({_label_interval(pc, label_style)})"
-            for display, pc in zip(displays, ordered)
-        ]
-        return ", ".join(labeled)
+    if _is_classical(display):
+        return ", ".join(
+            f"{shown} ({interval_label(pc, display)})" for shown, pc in zip(displays, ordered)
+        )
     return ", ".join(displays)
 
 
@@ -256,10 +232,8 @@ def run_overview(
     qualities: Mapping[str, ChordQuality],
     *,
     tonic_pc: int,
-    spelling: SpellingPref,
-    key_signature: int | None,
+    display: DisplayContext,
     include_note_names: bool,
-    label_style: str,
 ) -> list[dict[str, object]]:
     overview_data: list[dict[str, object]] = []
     for scale_name, scale in sorted(scales.items()):
@@ -275,10 +249,8 @@ def run_overview(
                     roots,
                     quality,
                     tonic_pc=tonic_pc,
-                    spelling=spelling,
-                    key_signature=key_signature,
+                    display=display,
                     include_note_names=include_note_names,
-                    label_style=label_style,
                 )
                 entry = {
                     "quality": quality_name,
@@ -309,10 +281,8 @@ def run_specific(
     scale_name: str,
     chord_quality: str,
     tonic_pc: int,
-    spelling: SpellingPref,
-    key_signature: int | None,
+    display: DisplayContext,
     include_note_names: bool,
-    label_style: str,
 ) -> dict[str, object]:
     scale = scales[scale_name]
     quality = qualities[chord_quality]
@@ -322,58 +292,52 @@ def run_specific(
         "chord_quality": quality.name,
         "chord_intervals": list(quality.intervals),
     }
-    context = SESSION_CHORD_CONTEXT.get(quality.name)
-    if context:
-        result["context"] = context
+    # NB: name the session metadata distinctly so it never shadows ``display``
+    # (the parked branch's bug crashed here by reusing the name ``context``).
+    session_context = SESSION_CHORD_CONTEXT.get(quality.name)
+    if session_context:
+        result["context"] = session_context
     if is_session_chord(quality.name):
         result["session_summary"] = _session_chord_summary(quality)
     roots = compatibility_positions(scale, quality)
     if roots:
-        display = _format_root_positions(
+        display_text = _format_root_positions(
             roots,
             quality,
             tonic_pc=tonic_pc,
-            spelling=spelling,
-            key_signature=key_signature,
+            display=display,
             include_note_names=include_note_names,
-            label_style=label_style,
         )
-        result.update({"compatible": True, "roots": roots, "display": display})
+        result.update({"compatible": True, "roots": roots, "display": display_text})
     else:
         result.update({"compatible": False, "roots": [], "display": None})
         suggestions = _modal_borrow_sources(scale, quality, scales)
         suggestion_data: list[dict[str, object]] = []
         for entry in suggestions:
-            display = _format_root_positions(
+            display_text = _format_root_positions(
                 entry["roots"],
                 quality,
                 tonic_pc=tonic_pc,
-                spelling=spelling,
-                key_signature=key_signature,
+                display=display,
                 include_note_names=include_note_names,
-                label_style=label_style,
             )
             added = _describe_pcs(
                 entry["added"],
                 tonic_pc=tonic_pc,
-                spelling=spelling,
-                key_signature=key_signature,
+                display=display,
                 include_note_names=include_note_names,
-                label_style=label_style,
             )
             removed = _describe_pcs(
                 entry["removed"],
                 tonic_pc=tonic_pc,
-                spelling=spelling,
-                key_signature=key_signature,
+                display=display,
                 include_note_names=include_note_names,
-                label_style=label_style,
             )
             suggestion_data.append(
                 {
                     "scale": entry["scale_name"],
                     "roots": entry["roots"],
-                    "display": display,
+                    "display": display_text,
                     "added": entry["added"],
                     "added_display": added,
                     "removed": entry["removed"],
@@ -419,7 +383,14 @@ def main(argv: Iterable[str] | None = None) -> None:
 
     tonic_pc = pc_from_name(args.tonic) if args.tonic else 0
     include_note_names = args.note_names
-    label_style = args.label_style
+    # Spelling, key signature, label style, and tonal center are display concerns,
+    # carried on a single DisplayContext through the renderers.
+    display = DisplayContext()
+    display.set("spelling", args.spelling, layer="cli")
+    if args.key_sig is not None:
+        display.set("key_signature", args.key_sig, layer="cli")
+    display.set("interval_label_style", args.label_style, layer="cli")
+    display.set("tonic_pc", tonic_pc, layer="cli")
 
     if args.scale and args.chord_quality:
         if args.scale not in scales:
@@ -432,10 +403,8 @@ def main(argv: Iterable[str] | None = None) -> None:
             scale_name=args.scale,
             chord_quality=args.chord_quality,
             tonic_pc=tonic_pc,
-            spelling=args.spelling,
-            key_signature=args.key_sig,
+            display=display,
             include_note_names=include_note_names,
-            label_style=label_style,
         )
         if args.json:
             print(json.dumps(result, indent=2, sort_keys=True))
@@ -474,10 +443,8 @@ def main(argv: Iterable[str] | None = None) -> None:
         selected_scales,
         qualities,
         tonic_pc=tonic_pc,
-        spelling=args.spelling,
-        key_signature=args.key_sig,
+        display=display,
         include_note_names=include_note_names,
-        label_style=label_style,
     )
     if args.json:
         print(json.dumps(overview, indent=2, sort_keys=True))
