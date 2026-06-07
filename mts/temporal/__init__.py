@@ -11,6 +11,7 @@ from __future__ import annotations
 from .tempo import TempoChange, TempoMap
 from .meter import TimeSignature, MetricPosition, MeterChange, MeterMap
 from .sequence import Event, Sequence
+from .segmentation import Segment, HarmonicRhythm, segment, harmonic_rhythm
 
 __all__ = [
     "TempoChange",
@@ -21,4 +22,8 @@ __all__ = [
     "MeterMap",
     "Event",
     "Sequence",
+    "Segment",
+    "HarmonicRhythm",
+    "segment",
+    "harmonic_rhythm",
 ]
