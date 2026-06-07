@@ -73,8 +73,8 @@
   },
   {
     "name": "maj7#11",
-    "intervals": [0, 2, 4, 6, 7, 11],
-    "tensions": [9]
+    "intervals": [0, 4, 6, 7, 11],
+    "tensions": [2, 9]
   },
   {
     "name": "maj9",
@@ -168,13 +168,13 @@
   },
   {
     "name": "7b9",
-    "intervals": [0, 4, 7, 10],
-    "tensions": [1, 6, 8, 9]
+    "intervals": [0, 1, 4, 7, 10],
+    "tensions": [6, 8, 9]
   },
   {
     "name": "7#9",
-    "intervals": [0, 4, 7, 10],
-    "tensions": [2, 3, 6, 8, 11]
+    "intervals": [0, 3, 4, 7, 10],
+    "tensions": [2, 6, 8, 11]
   },
   {
     "name": "7#11",
