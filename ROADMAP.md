@@ -240,6 +240,27 @@ Open question: which rendering targets to support as *reference* edge consumers
   - The long-term goal of cataloguing *all* named scales will surface many more of
     these; each gets recorded here + in the audit allowlist rather than "fixed."
 
+### Phase 7 (future) — Generative: voice leading & progression realization
+*Ordering note: the number groups this with the later work, but it depends only on
+shipped layers (voicings, `Realization`, temporal/segmentation) plus optionally
+Phase 4.5 corpus statistics — so it can land before the Phase 6 tuning work.*
+
+- **Generative, not analysis** (the cardinal rule): given a chord *progression* — a
+  sequence of identities, from segmentation / `interpret_chord` / user input —
+  produce **voice-leading realizations**: concrete `Realization`s per chord,
+  connected with controlled motion. This *invents* register/voicing, so it lives on
+  the generative side (alongside `suggest_voicings`), never in the analysis path.
+- **Parameterized depth & variation:** controls for how elaborate the generation is
+  (voice count, register range, how many variant realizations to return) and the
+  **qualitative characteristics** that shape the search — smoothness / parsimony
+  (total semitone motion), common-tone retention, contrary motion, voice
+  independence, openness, tessitura, dissonance treatment. Different settings →
+  different stylistic outputs at different depths.
+- Builds on the named-voicing vocabulary + `Realization` + the temporal layer;
+  qualitative scoring can draw on Phase 4.5 corpus statistics for "what's idiomatic."
+- Output is ranked generative *suggestion data* (each variant tagged with its
+  qualitative profile), kept out of analysis; spelling/rendering at the edge.
+
 ## Demoted / deferred (built for the old "app" frame)
 
 - `gui/` (Qt) and the audio backend — not on the library/MCP path. Don't delete;
