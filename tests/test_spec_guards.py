@@ -50,7 +50,10 @@ def test_analyze_voicing_reads_real_register():
     assert analysis.intervals_from_bass == [0, 4, 7, 12]  # register-aware, not mod-12
     assert analysis.spread_semitones == 12
     assert analysis.doublings == [0]
-    assert analysis.note_names == ["C3", "E3", "G3", "C4"]
+    # Spelling is a display-edge concern now (analysis carries midi, not names).
+    from mts.context import DisplayContext
+    from mts.context.result_format import spell_voicing
+    assert spell_voicing(analysis, DisplayContext()) == ["C3", "E3", "G3", "C4"]
 
 
 def test_analyze_voicing_accepts_rootless_template():

@@ -22,13 +22,22 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   roots; ambiguous sets name as several qualities, e.g. C6 = Am7).
 - `results.py` — **typed result dataclasses**. All analysis returns these, never
   raw dicts. Top-level results expose `to_dict()` (JSON/MCP output). Add new
-  result fields here, not as ad-hoc dict keys.
+  result fields here, not as ad-hoc dict keys. **Numeric/PC only** — no spelled
+  `note_names`, no styled interval labels, no enharmonic spellings (those are a
+  display concern; render at the edge via `mts/context/result_format.py` from a
+  `DisplayContext`). Litmus test: if a value changes when you flip sharps↔flats
+  or numeric↔classical, it's display and does **not** belong here.
 - `scale_analysis.py`, `chord_analysis.py` — request in, typed result out. Private
-  helpers return typed sub-objects, not dicts. `analyze_chord` is **pure-identity**
-  (PC-set only, invents no register; its `Inversion`s carry figured-bass labels);
-  `analyze_voicing` is the register-required sibling that reads a `Realization`,
-  errors without one, and *recognizes* the actual bass inversion + voicing type
-  (matched against `voicing_shapes`).
+  helpers return typed sub-objects, not dicts. Requests carry **no display params**
+  (spelling/key-signature/label-style live on the `DisplayContext`). `analyze_chord`
+  is **pure-identity** (numeric only; `Inversion`s carry figured-bass — structural,
+  not spelling); `analyze_voicing` is the register-required sibling that reads a
+  `Realization`, errors without one, and *recognizes* the actual bass inversion +
+  voicing type (matched against `voicing_shapes`).
+- `mts/context/result_format.py` (display edge, not this layer) — renders numeric
+  results into spelled/labeled views from a `DisplayContext`
+  (`format_chord_analysis`, `format_scale_analysis`, `name_interpretations`,
+  `spell_voicing`). Display imports analysis; analysis never imports display.
 - `comparisons.py`, `summaries.py` — cross-object compatibility and compact briefs.
 - `builders.py` — `SessionCatalog` + manual scale/chord registration. **No
   module-level mutable state** — sessions are instances.

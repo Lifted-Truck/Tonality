@@ -17,6 +17,8 @@ from mts.analysis import ScaleAnalysisRequest, analyze_scale
 from mts.analysis.builders import SESSION_SCALE_CONTEXT
 from mts.analysis.results import ScaleAnalysisResult, ScaleIntervalSummary, SymmetryData, ModeRotation
 from mts.core.enharmonics import pc_from_name
+from mts.context import DisplayContext
+from mts.context.result_format import format_scale_analysis
 
 
 def _print_section(title: str) -> None:
@@ -65,12 +67,12 @@ def _print_modes(modes: list[ModeRotation]) -> None:
         print(f"    interval vector: {mode.interval_vector}")
 
 
-def _print_report(report: ScaleAnalysisResult) -> None:
+def _print_report(report: ScaleAnalysisResult, ctx: DisplayContext, *, note_names: bool = True) -> None:
     print(f"Scale: {report.scale_name}")
     print(f"Degrees: {report.degrees} (cardinality {report.cardinality})")
     print(f"Mask: {report.mask} (binary {report.mask_binary})")
-    if report.note_names is not None:
-        print(f"Note names: {report.note_names}")
+    if note_names:
+        print(f"Note names: {format_scale_analysis(report, ctx).note_names}")
     print(f"Step pattern: {report.step_pattern}")
     print(f"Interval vector: {report.interval_vector}")
     if report.intervals is not None:
@@ -133,18 +135,22 @@ def main() -> None:
         print(line)
 
     tonic_pc = pc_from_name(args.tonic) if args.tonic else None
-    request = ScaleAnalysisRequest(
-        scale=scale,
-        tonic_pc=tonic_pc,
-        spelling=args.spelling,
-        key_signature=args.key_sig,
-        include_note_names=not args.no_note_names,
-    )
+
+    ctx = DisplayContext()
+    ctx.set("spelling", args.spelling, layer="cli")
+    if args.key_sig is not None:
+        ctx.set("key_signature", args.key_sig, layer="cli")
+    if tonic_pc is not None:
+        ctx.set("tonic_pc", tonic_pc, layer="cli")
+
+    request = ScaleAnalysisRequest(scale=scale, tonic_pc=tonic_pc)
     report = analyze_scale(request)
     if args.json:
-        print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
+        payload = report.to_dict()
+        payload["display"] = format_scale_analysis(report, ctx).to_dict()
+        print(json.dumps(payload, indent=2, sort_keys=True))
         return
-    _print_report(report)
+    _print_report(report, ctx, note_names=not args.no_note_names)
 
 
 if __name__ == "__main__":

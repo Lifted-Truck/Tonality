@@ -30,8 +30,9 @@ def test_segments_track_the_chord_stream():
 
 def test_segment_interprets_to_chord_names():
     segs = segment(_progression())
-    names = [(s.interpret().interpretations[0].root_name, s.interpret().interpretations[0].quality) for s in segs]
-    assert names == [("C", "maj"), ("F", "maj"), ("G", "7")]
+    # interpret_chord is numeric (root_pc + quality); spelling is a display edge.
+    named = [(s.interpret().interpretations[0].root_pc, s.interpret().interpretations[0].quality) for s in segs]
+    assert named == [(0, "maj"), (5, "maj"), (7, "7")]
 
 
 def test_octave_doubling_does_not_split_a_segment():

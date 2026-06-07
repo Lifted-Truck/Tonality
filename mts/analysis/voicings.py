@@ -18,7 +18,6 @@ from __future__ import annotations
 from typing import Callable
 
 from ..core.chord import Chord
-from ..core.enharmonics import SpellingPref, name_for_pc
 from .results import VoicingEntry, VoicingSet
 
 # A builder maps the closed stack -> a re-spaced offset list (or None if N/A).
@@ -134,17 +133,13 @@ def voicing_shapes(closed_stack: list[int]) -> dict[str, tuple[int, ...]]:
     return shapes
 
 
-def suggest_voicings(
-    chord: Chord,
-    *,
-    spelling: SpellingPref = "auto",
-    key_signature: int | None = None,
-) -> VoicingSet:
+def suggest_voicings(chord: Chord) -> VoicingSet:
     """Generate a vocabulary of suggested voicings for a chord.
 
     Generative, not analytical: the register is *chosen*, not read from input.
     Only voicings that apply to the chord are returned, and exact duplicate
-    spacings are collapsed (keeping the first / most-canonical label).
+    spacings are collapsed (keeping the first / most-canonical label). Pitch
+    spelling is a display concern (apply it at the edge from the offsets).
     """
 
     relative = sorted(((pc - chord.root_pc) % 12) for pc in chord.pcs)
@@ -157,10 +152,6 @@ def suggest_voicings(
             semitones_from_root=ordered,
             intervals_mod_12=[o % 12 for o in ordered],
             spread=(ordered[-1] - ordered[0]) if len(ordered) > 1 else 0,
-            note_names=[
-                name_for_pc((chord.root_pc + o) % 12, prefer=spelling, key_signature=key_signature)
-                for o in ordered
-            ],
         )
 
     entries: list[VoicingEntry] = []

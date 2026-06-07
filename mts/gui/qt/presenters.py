@@ -17,6 +17,7 @@ from ...analysis.results import (
     ScaleAnalysisResult,
     VoicingSet,
 )
+from ...context.result_format import format_scale_analysis
 from ...workspace import Workspace
 
 
@@ -80,7 +81,7 @@ def build_scale_summary(workspace: Workspace, analysis: ScaleAnalysisResult) -> 
         interval_vector=list(analysis.interval_vector),
         modes=analysis.modes,
         symmetry=analysis.symmetry,
-        note_names=analysis.note_names,
+        note_names=format_scale_analysis(analysis, workspace.display_context).note_names,
         context=_context_from_workspace(workspace),
     )
 

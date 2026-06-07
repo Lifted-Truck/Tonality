@@ -13,7 +13,6 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 
 from ..core.bitmask import mask_from_pcs, rotate_mask
-from ..core.enharmonics import SpellingPref, name_for_pc
 from ..core.scale import Scale
 from .results import (
     ModeRotation,
@@ -30,12 +29,9 @@ class ScaleAnalysisRequest:
 
     scale: Scale
     tonic_pc: int | None = None
-    spelling: SpellingPref = "auto"
-    key_signature: int | None = None
     include_modes: bool = True
     include_symmetry: bool = True
     include_interval_report: bool = True
-    include_note_names: bool = True
 
 
 def _normalize_degrees(degrees: Iterable[int]) -> list[int]:
@@ -173,17 +169,6 @@ def analyze_scale(request: ScaleAnalysisRequest) -> ScaleAnalysisResult:
     step_pattern = _step_pattern(normalized_degrees)
     interval_vector = _interval_vector(normalized_degrees)
 
-    note_names: list[str] | None = None
-    if request.include_note_names and request.tonic_pc is not None:
-        note_names = [
-            name_for_pc(
-                (request.tonic_pc + degree) % 12,
-                prefer=request.spelling,
-                key_signature=request.key_signature,
-            )
-            for degree in request.scale.degrees
-        ]
-
     modes: list[ModeRotation] | None = None
     if request.include_modes:
         modes = _modal_rotations(request.scale)
@@ -207,7 +192,6 @@ def analyze_scale(request: ScaleAnalysisRequest) -> ScaleAnalysisResult:
         mask_binary="".join(
             "1" if request.scale.mask & (1 << pc) else "0" for pc in range(12)
         ),
-        note_names=note_names,
         modes=modes,
         symmetry=symmetry,
         intervals=intervals,

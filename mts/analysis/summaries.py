@@ -45,11 +45,10 @@ def chord_brief(
         ChordAnalysisRequest(
             chord=chord,
             include_inversions=True,
-            include_enharmonics=False,
         )
     )
 
-    histogram: dict[int, int] = analysis.interval_class_histogram_numeric
+    histogram: dict[int, int] = analysis.interval_class_histogram
     fingerprint = _format_interval_fingerprint(histogram, limit=3)
 
     if catalog_scales is None:

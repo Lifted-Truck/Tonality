@@ -146,7 +146,6 @@ def _session_chord_summary(quality: ChordQuality) -> str:
         ChordAnalysisRequest(
             chord=chord,
             include_inversions=True,
-            include_enharmonics=False,
         )
     )
     # ``analyze_chord`` is pure-identity (typed ``ChordAnalysisResult``), so read

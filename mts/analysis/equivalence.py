@@ -23,7 +23,6 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 
 from ..core.bitmask import mask_from_pcs
-from ..core.enharmonics import SpellingPref, name_for_pc
 from ..core.quality import ChordQuality
 from ..core.symmetry import mask_symmetry_order
 from .results import ChordInterpretation, ChordInterpretations
@@ -33,10 +32,13 @@ def interpret_chord(
     pcs: Iterable[int],
     *,
     catalog: Mapping[str, ChordQuality] | None = None,
-    spelling: SpellingPref = "auto",
-    key_signature: int | None = None,
 ) -> ChordInterpretations:
-    """Enumerate every valid (root, quality) naming of a pitch-class set."""
+    """Enumerate every valid (root, quality) naming of a pitch-class set.
+
+    Identity-level and register-free: returns numeric ``(root_pc, quality)``
+    namings. Spell the roots at the display edge with
+    ``mts.context.result_format.name_interpretations``.
+    """
 
     pc_set = sorted({int(p) % 12 for p in pcs})
     if not pc_set:
@@ -61,7 +63,6 @@ def interpret_chord(
                 interpretations.append(
                     ChordInterpretation(
                         root_pc=root,
-                        root_name=name_for_pc(root, prefer=spelling, key_signature=key_signature),
                         quality=quality.name,
                         aliases=list(quality.aliases),
                     )
