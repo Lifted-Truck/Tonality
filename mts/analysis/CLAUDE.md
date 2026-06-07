@@ -20,6 +20,11 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
 - `equivalence.py` — `interpret_chord`: identity-level analysis enumerating every
   valid `(root, quality)` naming of a PC set (symmetric chords name at several
   roots; ambiguous sets name as several qualities, e.g. C6 = Am7).
+- `analytical_context.py` — `AnalyticalContext` (tonal center + optional key) and
+  `contextualize_chord` → `ChordInKey` (scale-degree placement, diatonic vs
+  chromatic). The **analytical** frame; the counterpart to the display-edge
+  `DisplayContext` in `mts/context/`. Numeric only; foundation for context-sensitive
+  naming + dataset records.
 - `results.py` — **typed result dataclasses**. All analysis returns these, never
   raw dicts. Top-level results expose `to_dict()` (JSON/MCP output). Add new
   result fields here, not as ad-hoc dict keys. **Numeric/PC only** — no spelled
