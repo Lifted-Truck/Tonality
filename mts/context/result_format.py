@@ -110,9 +110,16 @@ def format_chord_analysis(
 def format_scale_analysis(
     result: ScaleAnalysisResult, context: DisplayContext
 ) -> ScaleAnalysisDisplay:
-    """Render a scale analysis: spelled degree names."""
+    """Render a scale analysis: spelled note names.
+
+    The scale's ``degrees`` are stored relative to C; if the result carries a
+    ``tonic_pc`` the names are transposed to that tonic. (For best auto-spelling,
+    set ``tonic_pc`` on the context too.)
+    """
+    tonic = result.tonic_pc or 0
+    pcs = [(tonic + degree) % 12 for degree in result.degrees]
     return ScaleAnalysisDisplay(
-        note_names=[format_pitch_class(pc, context) for pc in result.degrees],
+        note_names=[format_pitch_class(pc, context) for pc in pcs],
     )
 
 

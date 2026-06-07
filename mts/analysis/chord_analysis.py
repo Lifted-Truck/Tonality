@@ -1,4 +1,11 @@
-"""Chord analysis utilities."""
+"""Chord analysis utilities — pure identity / numeric analysis.
+
+This layer produces pitch-class and interval *facts*. Spelling (note names),
+enharmonic alternates, and interval-label *style* are display concerns rendered at
+the edge by :mod:`mts.context.result_format` from a ``DisplayContext`` — they do
+not live here (ROADMAP Phase 3; CLAUDE.md "combinatorics here, presentation at the
+edge").
+"""
 
 from __future__ import annotations
 
@@ -8,7 +15,6 @@ from dataclasses import dataclass
 
 from ..core.bitmask import rotate_mask
 from ..core.chord import Chord
-from ..core.enharmonics import PC_TO_NAMES, SpellingPref, name_for_pc
 from ..core.realization import Realization
 from ..core.symmetry import mask_symmetry_order
 from .errors import require_realization
@@ -16,9 +22,7 @@ from .voicings import voicing_shapes
 from .results import (
     ChordAnalysisResult,
     ChordIntervalSummary,
-    EnharmonicSpelling,
     Inversion,
-    NoteInContext,
     ReflectionAxis,
     SymmetryData,
     TonnetzAnalysis,
@@ -32,18 +36,14 @@ class ChordAnalysisRequest:
     """Container for chord analysis instructions.
 
     ``analyze_chord`` requires only the identity (a pitch-class set), so this
-    request carries no register. Register-dependent voicing analysis lives in
-    ``analyze_voicing``, which takes a
-    :class:`~mts.core.realization.Realization`.
+    request carries no register and no display preferences. Register-dependent
+    voicing analysis lives in ``analyze_voicing``; spelling/labels are applied at
+    the display edge from a ``DisplayContext``.
     """
 
     chord: Chord
     tonic_pc: int | None = None
     include_inversions: bool = True
-    include_enharmonics: bool = True
-    spelling: SpellingPref = "auto"
-    key_signature: int | None = None
-    interval_label_style: str = "numeric"  # "numeric" or "classical"
 
 
 def _intervals_relative_to_root(chord: Chord) -> list[int]:
@@ -158,30 +158,6 @@ def _interval_summary(pcs: list[int]) -> ChordIntervalSummary:
     )
 
 
-def _enharmonic_spellings(
-    pcs: list[int],
-    *,
-    prefer: SpellingPref,
-    key_signature: int | None,
-) -> list[EnharmonicSpelling]:
-    seen: set[int] = set()
-    spellings: list[EnharmonicSpelling] = []
-    for pc in pcs:
-        if pc in seen:
-            continue
-        seen.add(pc)
-        preferred = name_for_pc(pc, prefer=prefer, key_signature=key_signature)
-        aliases = PC_TO_NAMES.get(pc % 12, [preferred])
-        spellings.append(
-            EnharmonicSpelling(
-                pc=pc,
-                preferred=preferred,
-                alternates=[name for name in aliases if name != preferred] or [],
-            )
-        )
-    return spellings
-
-
 def _tonnetz_analysis(chord: Chord) -> TonnetzAnalysis:
     coords = _tonnetz_coordinates()
     chord_coords = {pc: coords[pc] for pc in chord.pcs if pc in coords}
@@ -196,25 +172,11 @@ def _tonnetz_analysis(chord: Chord) -> TonnetzAnalysis:
     return TonnetzAnalysis(coordinates=chord_coords, centroid=centroid)
 
 
-def _relative_tonic_analysis(
-    chord: Chord,
-    tonic_pc: int,
-    label_style: str,
-) -> TonicContext:
-    root_interval = (chord.root_pc - tonic_pc) % 12
-    notes_in_context = [
-        NoteInContext(
-            note=name_for_pc(pc),
-            relative_pc=(pc - tonic_pc) % 12,
-            relative_label=_label_interval((pc - tonic_pc) % 12, label_style),
-        )
-        for pc in chord.pcs
-    ]
+def _relative_tonic_analysis(chord: Chord, tonic_pc: int) -> TonicContext:
     return TonicContext(
         tonic_pc=tonic_pc,
-        root_interval_from_tonic=root_interval,
-        root_interval_label=_label_interval(root_interval, label_style),
-        note_names_relative_to_tonic=notes_in_context,
+        root_interval_from_tonic=(chord.root_pc - tonic_pc) % 12,
+        relative_pcs=[(pc - tonic_pc) % 12 for pc in chord.pcs],
     )
 
 
@@ -235,25 +197,6 @@ def _tonnetz_coordinates() -> dict[int, tuple[int, int, int]]:
                 coords[target] = tuple(base[i] + delta[i] for i in range(3))
                 queue.append(target)
     return coords
-
-
-def _label_interval(interval: int, style: str) -> str:
-    interval %= 12
-    if style == "classical":
-        classical = {
-            0: "P1", 1: "m2", 2: "M2", 3: "m3", 4: "M3", 5: "P4",
-            6: "TT", 7: "P5", 8: "m6", 9: "M6", 10: "m7", 11: "M7",
-        }
-        return classical.get(interval, f"ic{interval}")
-    return str(interval)
-
-
-def _label_matrix(matrix: list[list[int]], style: str) -> list[list[str]]:
-    return [[_label_interval(iv, style) for iv in row] for row in matrix]
-
-
-def _label_histogram(histogram: dict[int, int], style: str) -> dict[str, int]:
-    return {_label_interval(k, style): v for k, v in histogram.items()}
 
 
 def _invert_matrix(matrix: list[list[int]]) -> list[list[int]]:
@@ -285,29 +228,18 @@ def _inversion_naming(cardinality: int, index: int) -> tuple[str, str | None]:
     return position, figured
 
 
-def _generate_inversions(
-    chord: Chord,
-    spelling: SpellingPref,
-    key_sig: int | None,
-    label_style: str,
-) -> list[Inversion]:
+def _generate_inversions(chord: Chord) -> list[Inversion]:
     pcs = list(chord.pcs)
     cardinality = len(pcs)
     inversions: list[Inversion] = []
     for idx, root_pc in enumerate(pcs):
         rotated = pcs[idx:] + pcs[:idx]
         intervals = [((pc - root_pc) % 12) for pc in rotated]
-        note_names = [
-            name_for_pc(pc, prefer=spelling, key_signature=key_sig)
-            for pc in rotated
-        ]
         position_name, figured_bass = _inversion_naming(cardinality, idx)
         inversions.append(
             Inversion(
                 root_pc=root_pc,
                 intervals=intervals,
-                interval_labels=[_label_interval(iv, label_style) for iv in intervals],
-                note_names=note_names,
                 position_index=idx,
                 position_name=position_name,
                 figured_bass=figured_bass,
@@ -316,12 +248,7 @@ def _generate_inversions(
     return inversions
 
 
-def analyze_voicing(
-    realization: Realization | None,
-    *,
-    spelling: SpellingPref = "auto",
-    key_signature: int | None = None,
-) -> VoicingAnalysis:
+def analyze_voicing(realization: Realization | None) -> VoicingAnalysis:
     """Register-aware analysis of an actual realization.
 
     Requires register: raises
@@ -329,15 +256,12 @@ def analyze_voicing(
     register-less identity). Every field is read from the real pitches —
     nothing is invented. Works on both voicings (rooted) and voicing templates
     (rootless); the bass and all spans are derived from absolute pitch height.
+    Pitch *spelling* is a display concern (apply ``spell_voicing`` at the edge).
     """
 
     real = require_realization(realization, analysis="analyze_voicing")
     bass = real.bass
     midi = [p.midi for p in real.pitches]
-    note_names = [
-        f"{name_for_pc(p.pc, prefer=spelling, key_signature=key_signature)}{p.octave}"
-        for p in real.pitches
-    ]
     intervals_from_bass = [p.midi - bass.midi for p in real.pitches]
     spread = max(midi) - min(midi)
 
@@ -368,7 +292,6 @@ def analyze_voicing(
         rooted=real.is_rooted,
         root_pc=real.root_pc,
         midi=midi,
-        note_names=note_names,
         bass_pc=bass.pc,
         bass_midi=bass.midi,
         intervals_from_bass=intervals_from_bass,
@@ -388,44 +311,25 @@ def analyze_chord(request: ChordAnalysisRequest) -> ChordAnalysisResult:
     """Return a typed identity analysis for the given chord.
 
     Requires only the identity (a pitch-class set); carries no register and
-    invents none. For register-aware voicing analysis use ``analyze_voicing``;
-    for generative voicing suggestions use ``suggest_voicings``.
+    invents none, and emits no spelled note names (apply
+    ``mts.context.result_format.format_chord_analysis`` at the edge). For
+    register-aware voicing analysis use ``analyze_voicing``; for generative
+    voicing suggestions use ``suggest_voicings``.
     """
 
     pcs = list(request.chord.pcs)
-    relative_to_root = _intervals_relative_to_root(request.chord)
     pairwise_matrix = _interval_matrix(pcs)
     inverted_matrix = _invert_matrix(pairwise_matrix)
     intervals_flat = [iv for row in pairwise_matrix for iv in row if iv != 0]
-    histogram_numeric = _interval_class_histogram(intervals_flat)
-    histogram_labeled = _label_histogram(histogram_numeric, request.interval_label_style)
     inverted_flat = [iv for row in inverted_matrix for iv in row if iv != 0]
-    inverted_hist_numeric = _interval_class_histogram(inverted_flat)
-    inverted_hist_labels = _label_histogram(inverted_hist_numeric, request.interval_label_style)
-    interval_vector = _interval_vector(pcs)
 
     tonic_context: TonicContext | None = None
     if request.tonic_pc is not None:
-        tonic_context = _relative_tonic_analysis(
-            request.chord, request.tonic_pc, request.interval_label_style
-        )
+        tonic_context = _relative_tonic_analysis(request.chord, request.tonic_pc)
 
     inversions: list[Inversion] | None = None
     if request.include_inversions:
-        inversions = _generate_inversions(
-            request.chord,
-            request.spelling,
-            request.key_signature,
-            request.interval_label_style,
-        )
-
-    enharmonics: list[EnharmonicSpelling] | None = None
-    if request.include_enharmonics:
-        enharmonics = _enharmonic_spellings(
-            pcs,
-            prefer=request.spelling,
-            key_signature=request.key_signature,
-        )
+        inversions = _generate_inversions(request.chord)
 
     return ChordAnalysisResult(
         root_pc=request.chord.root_pc,
@@ -433,21 +337,15 @@ def analyze_chord(request: ChordAnalysisRequest) -> ChordAnalysisResult:
         pcs=pcs,
         mask=request.chord.mask,
         cardinality=len(pcs),
-        intervals_relative_to_root=relative_to_root,
+        intervals_relative_to_root=_intervals_relative_to_root(request.chord),
         interval_matrix=pairwise_matrix,
-        interval_matrix_labels=_label_matrix(pairwise_matrix, request.interval_label_style),
-        interval_class_histogram=histogram_labeled,
-        interval_class_histogram_numeric=histogram_numeric,
+        interval_class_histogram=_interval_class_histogram(intervals_flat),
         inverted_interval_matrix=inverted_matrix,
-        inverted_interval_matrix_labels=_label_matrix(inverted_matrix, request.interval_label_style),
-        inverted_interval_class_histogram=inverted_hist_labels,
-        inverted_interval_class_histogram_numeric=inverted_hist_numeric,
-        interval_vector=interval_vector,
+        inverted_interval_class_histogram=_interval_class_histogram(inverted_flat),
+        interval_vector=_interval_vector(pcs),
         interval_summary=_interval_summary(pcs),
         symmetry=_symmetry_data(request.chord),
         tonnetz=_tonnetz_analysis(request.chord),
-        note_names=request.chord.spelled(prefer=request.spelling, key_signature=request.key_signature),
         tonic_context=tonic_context,
         inversions=inversions,
-        enharmonics=enharmonics,
     )

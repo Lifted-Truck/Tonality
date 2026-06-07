@@ -43,9 +43,12 @@ def test_plain_triad_has_single_interpretation():
     assert [(i.root_pc, i.quality) for i in result.interpretations] == [(0, "maj")]
 
 
-def test_interpretation_carries_root_name_and_aliases():
+def test_interpretation_is_numeric_with_aliases():
+    # interpret_chord is identity-level: numeric root_pc + canonical quality +
+    # aliases. Spelling the root is a display-edge concern (name_interpretation).
     interp = interpret_chord([0, 4, 7]).interpretations[0]
-    assert interp.root_name == "C"
+    assert interp.root_pc == 0
+    assert interp.quality == "maj"
     assert "major" in interp.aliases
 
 

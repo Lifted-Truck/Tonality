@@ -92,8 +92,6 @@ class Inversion:
     """
     root_pc: int
     intervals: list[int]
-    interval_labels: list[str]
-    note_names: list[str]
     position_index: int = 0
     position_name: str = "root position"
     figured_bass: str | None = None
@@ -111,7 +109,6 @@ class VoicingEntry:
     semitones_from_root: list[int]
     intervals_mod_12: list[int]
     spread: int
-    note_names: list[str]
 
 
 @dataclass(frozen=True)
@@ -144,7 +141,6 @@ class ChordInterpretation:
     roots; an ambiguous set yields several qualities (e.g. C6 = Am7).
     """
     root_pc: int
-    root_name: str
     quality: str
     aliases: list[str]
 
@@ -182,7 +178,6 @@ class VoicingAnalysis:
     rooted: bool
     root_pc: int | None
     midi: list[int]
-    note_names: list[str]
     bass_pc: int
     bass_midi: int
     intervals_from_bass: list[int]
@@ -205,28 +200,11 @@ class VoicingAnalysis:
 
 
 @dataclass(frozen=True)
-class EnharmonicSpelling:
-    """Preferred and alternate spellings for a single pitch class."""
-    pc: int
-    preferred: str
-    alternates: list[str]
-
-
-@dataclass(frozen=True)
-class NoteInContext:
-    """A chord tone expressed relative to a tonic."""
-    note: str
-    relative_pc: int
-    relative_label: str
-
-
-@dataclass(frozen=True)
 class TonicContext:
-    """Analysis of a chord relative to a named tonic."""
+    """Analysis of a chord relative to a named tonic (numeric; spelling at edge)."""
     tonic_pc: int
     root_interval_from_tonic: int
-    root_interval_label: str
-    note_names_relative_to_tonic: list[NoteInContext]
+    relative_pcs: list[int]  # chord tones as intervals above the tonic
 
 
 @dataclass(frozen=True)
@@ -257,7 +235,6 @@ class ScaleAnalysisResult:
     interval_vector: list[int]
     mask: int
     mask_binary: str
-    note_names: list[str] | None = None
     modes: list[ModeRotation] | None = None
     symmetry: SymmetryData | None = None
     intervals: ScaleIntervalSummary | None = None
@@ -283,21 +260,15 @@ class ChordAnalysisResult:
     cardinality: int
     intervals_relative_to_root: list[int]
     interval_matrix: list[list[int]]
-    interval_matrix_labels: list[list[str]]
-    interval_class_histogram: dict[str, int]
-    interval_class_histogram_numeric: dict[int, int]
+    interval_class_histogram: dict[int, int]
     inverted_interval_matrix: list[list[int]]
-    inverted_interval_matrix_labels: list[list[str]]
-    inverted_interval_class_histogram: dict[str, int]
-    inverted_interval_class_histogram_numeric: dict[int, int]
+    inverted_interval_class_histogram: dict[int, int]
     interval_vector: list[int]
     interval_summary: ChordIntervalSummary
     symmetry: SymmetryData
     tonnetz: TonnetzAnalysis
-    note_names: list[str]
     tonic_context: TonicContext | None = None
     inversions: list[Inversion] | None = None
-    enharmonics: list[EnharmonicSpelling] | None = None
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""
@@ -309,10 +280,8 @@ __all__ = [
     "ChordInterpretation",
     "ChordInterpretations",
     "ChordIntervalSummary",
-    "EnharmonicSpelling",
     "Inversion",
     "ModeRotation",
-    "NoteInContext",
     "ReflectionAxis",
     "ScaleAnalysisResult",
     "ScaleIntervalSummary",

@@ -105,7 +105,6 @@ def test_register_chord_runs_analysis():
         ChordAnalysisRequest(
             chord=chord,
             include_inversions=True,
-            include_enharmonics=False,
         )
     )
     assert analysis.inversions is not None
