@@ -92,7 +92,7 @@ There is **no bare `python`** on this machine. Use the project venv explicitly:
 ```
 
 The venv is at the **main repo root** (`/Users/machinepriest/Documents/Tonality/.venv`),
-not inside the worktree. There are **28 tests**; keep them green on every commit.
+not inside the worktree. There are **109 tests**; keep them green on every commit.
 
 ## Gotchas
 
