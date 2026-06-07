@@ -12,6 +12,7 @@ from ..core.enharmonics import PC_TO_NAMES, SpellingPref, name_for_pc
 from ..core.realization import Realization
 from ..core.symmetry import mask_symmetry_order
 from .errors import require_realization
+from .voicings import voicing_shapes
 from .results import (
     ChordAnalysisResult,
     ChordIntervalSummary,
@@ -259,6 +260,31 @@ def _invert_matrix(matrix: list[list[int]]) -> list[list[int]]:
     return [[(-iv) % 12 for iv in row] for row in matrix]
 
 
+_POSITION_NAMES = [
+    "root position",
+    "first inversion",
+    "second inversion",
+    "third inversion",
+    "fourth inversion",
+    "fifth inversion",
+]
+
+# Conventional figured-bass shorthand, keyed by (cardinality, inversion index).
+# Defined for tertian triads and seventh chords; other cardinalities get no figure.
+_FIGURED_BASS: dict[int, dict[int, str]] = {
+    3: {0: "5/3", 1: "6", 2: "6/4"},
+    4: {0: "7", 1: "6/5", 2: "4/3", 3: "4/2"},
+}
+
+
+def _inversion_naming(cardinality: int, index: int) -> tuple[str, str | None]:
+    """Return (position_name, figured_bass) for an inversion index."""
+
+    position = _POSITION_NAMES[index] if index < len(_POSITION_NAMES) else f"inversion {index}"
+    figured = _FIGURED_BASS.get(cardinality, {}).get(index)
+    return position, figured
+
+
 def _generate_inversions(
     chord: Chord,
     spelling: SpellingPref,
@@ -266,6 +292,7 @@ def _generate_inversions(
     label_style: str,
 ) -> list[Inversion]:
     pcs = list(chord.pcs)
+    cardinality = len(pcs)
     inversions: list[Inversion] = []
     for idx, root_pc in enumerate(pcs):
         rotated = pcs[idx:] + pcs[:idx]
@@ -274,12 +301,16 @@ def _generate_inversions(
             name_for_pc(pc, prefer=spelling, key_signature=key_sig)
             for pc in rotated
         ]
+        position_name, figured_bass = _inversion_naming(cardinality, idx)
         inversions.append(
             Inversion(
                 root_pc=root_pc,
                 intervals=intervals,
                 interval_labels=[_label_interval(iv, label_style) for iv in intervals],
                 note_names=note_names,
+                position_index=idx,
+                position_name=position_name,
+                figured_bass=figured_bass,
             )
         )
     return inversions
@@ -308,6 +339,30 @@ def analyze_voicing(
         for p in real.pitches
     ]
     intervals_from_bass = [p.midi - bass.midi for p in real.pitches]
+    spread = max(midi) - min(midi)
+
+    # --- recognition ---------------------------------------------------------
+    openness = "closed" if spread <= 12 else "open"
+    inversion_index: int | None = None
+    position_name: str | None = None
+    figured_bass: str | None = None
+    voicing_type: str | None = None
+    if real.is_rooted:
+        root = real.root_pc
+        chord_intervals = sorted({(pc - root) % 12 for pc in real.pcs})
+        bass_interval = (bass.pc - root) % 12
+        if bass_interval in chord_intervals:
+            inversion_index = chord_intervals.index(bass_interval)
+            position_name, figured_bass = _inversion_naming(len(chord_intervals), inversion_index)
+        # Match the actual spacing (distinct pitches, min-anchored) against the
+        # shared voicing vocabulary; first match in registry order wins.
+        distinct_midi = sorted(set(midi))
+        actual_shape = tuple(m - distinct_midi[0] for m in distinct_midi)
+        for label, shape in voicing_shapes(chord_intervals).items():
+            if shape == actual_shape:
+                voicing_type = label
+                break
+
     return VoicingAnalysis(
         spec_level=real.spec_level.label,
         rooted=real.is_rooted,
@@ -317,10 +372,15 @@ def analyze_voicing(
         bass_pc=bass.pc,
         bass_midi=bass.midi,
         intervals_from_bass=intervals_from_bass,
-        spread_semitones=max(midi) - min(midi),
+        spread_semitones=spread,
         distinct_pcs=list(real.distinct_pcs),
         doublings=list(real.doublings),
         mask=real.reduce_to_key(),
+        openness=openness,
+        inversion_index=inversion_index,
+        position_name=position_name,
+        figured_bass=figured_bass,
+        voicing_type=voicing_type,
     )
 
 
