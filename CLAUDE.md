@@ -99,8 +99,10 @@ not inside the worktree. There are **28 tests**; keep them green on every commit
 - **Ignore `build/`** — it is a stale generated copy of `mts/` (now gitignored).
   Never edit it; never trust search hits inside it.
 - `.tonality_session.json` is user session state, not source. Gitignored.
-- `timeline.py` and `io/midi.py` raise `NotImplementedError` by design — they are
-  the temporal-layer placeholders, not bugs.
+- `analysis/timeline.py` is a DEPRECATED stub (superseded by `mts/temporal/`).
+  `io/midi.py` parses Standard MIDI Files via **mido** (a runtime dependency);
+  only `events_from_live_midi` is still `NotImplementedError` (streaming is out of
+  scope). `mido` is required — `pip install` it into the venv.
 
 ## Git workflow
 

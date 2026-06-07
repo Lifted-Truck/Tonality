@@ -128,7 +128,7 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       result / dataset record (dovetails with the Phase 3 analytical-vs-display
       context split).
 
-### Phase 2 — Temporal layer
+### Phase 2 — Temporal layer ✅ DONE
 - [x] Replace the `timeline.py` stub with real `Event` / `Sequence` types — the new
       `mts/temporal/` package: `Event` (onset/duration in quarter-note beats +
       `Pitch`), `Sequence` with `sounding_at` / `realization_at` (a window's
@@ -136,10 +136,18 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       (`TempoMap` beats↔seconds, `MeterMap`/`TimeSignature` → bars/beats/downbeats).
       `analysis/timeline.py` is now a deprecated shim; migrating `workspace`/`io`
       off it is a tracked follow-up.
-- [ ] Implement `io/midi.py` ingestion (MIDI file → events). Mido or in-house —
-      **parser decision deferred to this slice (Slice 3).**
-- [ ] Segmentation + harmonic rhythm: derive chord/identity stream from events
-      (Slice 2 — each segment's `Realization` feeds `interpret_chord`).
+- [x] Implement `io/midi.py` ingestion (MIDI file → events). **Decision: mido**
+      (runtime dependency; thin adapter so the engine never imports mido directly).
+      `sequence_from_midi_file` / `events_from_midi_file` map ticks→quarter-beats,
+      pair note on/off (incl. velocity-0), and read `set_tempo`→`TempoMap` /
+      `time_signature`→`MeterMap`. Live/streaming MIDI stays out of scope.
+- [x] Segmentation + harmonic rhythm: `mts/temporal/segmentation.py` — `segment()`
+      partitions a `Sequence` into maximal stable-pitch-class-set spans (`Segment`
+      carries pcs/mask + a representative `Realization`; `.interpret()` names it via
+      `interpret_chord`); `harmonic_rhythm()` reports segment count, mean duration
+      (beats/seconds), and changes-per-bar. Silences dropped; octave doublings don't
+      split a segment. *Future:* harmonic (chord-level) segmentation that filters
+      non-harmonic tones by metric salience.
 
 ### Phase 3 — Contextualization & dataset schema
 - [ ] Resolve the **two "context" concepts**: promote *analytical* context
