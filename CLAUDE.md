@@ -104,6 +104,17 @@ not inside the worktree. There are **109 tests**; keep them green on every commi
   only `events_from_live_midi` is still `NotImplementedError` (streaming is out of
   scope). `mido` is required — `pip install` it into the venv.
 
+## Parallel audit thread
+
+A separate **audit loop** periodically checks capabilities and surfaces bugs. Its
+contract is **[audit/AUDIT.md](audit/AUDIT.md)** — read it if you touch audit
+scaffolding. Key fences for the dev loop: the audit runs in its **own git
+worktree** (not this checkout), files findings as **GitHub issues**, and keeps its
+checks in **`audit/checks/`** — which is *excluded* from the dev suite via
+`testpaths = ["tests"]`, so `pytest tests/` (the Stop hook) never runs them. **Do
+not put audit checks in `tests/`**; promote a proven invariant into `tests/` only
+via a reviewed PR.
+
 ## Git workflow
 
 - Work on a branch; `main` has branch protection (push succeeds via bypass, but
