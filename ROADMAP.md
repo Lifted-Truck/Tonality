@@ -138,8 +138,13 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       off it is a tracked follow-up.
 - [ ] Implement `io/midi.py` ingestion (MIDI file → events). Mido or in-house —
       **parser decision deferred to this slice (Slice 3).**
-- [ ] Segmentation + harmonic rhythm: derive chord/identity stream from events
-      (Slice 2 — each segment's `Realization` feeds `interpret_chord`).
+- [x] Segmentation + harmonic rhythm: `mts/temporal/segmentation.py` — `segment()`
+      partitions a `Sequence` into maximal stable-pitch-class-set spans (`Segment`
+      carries pcs/mask + a representative `Realization`; `.interpret()` names it via
+      `interpret_chord`); `harmonic_rhythm()` reports segment count, mean duration
+      (beats/seconds), and changes-per-bar. Silences dropped; octave doublings don't
+      split a segment. *Future:* harmonic (chord-level) segmentation that filters
+      non-harmonic tones by metric salience.
 
 ### Phase 3 — Contextualization & dataset schema
 - [ ] Resolve the **two "context" concepts**: promote *analytical* context
