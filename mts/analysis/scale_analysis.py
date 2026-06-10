@@ -8,15 +8,16 @@ TODO:
 
 from __future__ import annotations
 
-import itertools
 from collections.abc import Iterable
 from dataclasses import dataclass
 
-from ..core.bitmask import mask_from_pcs, rotate_mask
+from ..core.bitmask import mask_from_pcs
 from ..core.scale import Scale
+from ..core.symmetry import rotational_steps
+from .pcset_math import interval_vector as _interval_vector
+from .pcset_math import reflection_axes as _reflection_axes
 from .results import (
     ModeRotation,
-    ReflectionAxis,
     ScaleAnalysisResult,
     ScaleIntervalSummary,
     SymmetryData,
@@ -56,18 +57,6 @@ def _step_pattern(degrees: Iterable[int]) -> list[int]:
     return pattern
 
 
-def _interval_vector(degrees: Iterable[int]) -> list[int]:
-    ordered = _normalize_degrees(degrees)
-    vector = [0] * 6
-    for a, b in itertools.combinations(ordered, 2):
-        diff = (b - a) % 12
-        step = diff if diff <= 6 else 12 - diff
-        if step == 0 or step > 6:
-            continue
-        vector[step - 1] += 1
-    return vector
-
-
 def _modal_rotations(scale: Scale) -> list[ModeRotation]:
     if not scale.degrees:
         return []
@@ -90,28 +79,6 @@ def _modal_rotations(scale: Scale) -> list[ModeRotation]:
     return rotations
 
 
-def _reflection_axes(pcs: set[int]) -> list[ReflectionAxis]:
-    axes: list[ReflectionAxis] = []
-    if not pcs:
-        return axes
-    for axis in range(12):
-        reflected_pitch = {((2 * axis - pc) % 12) for pc in pcs}
-        if reflected_pitch == pcs:
-            axes.append(ReflectionAxis(type="pitch", center=axis))
-        reflected_between = {((2 * axis + 1 - pc) % 12) for pc in pcs}
-        if reflected_between == pcs:
-            axes.append(ReflectionAxis(type="between", center=(axis + 0.5) % 12))
-    unique_axes: list[ReflectionAxis] = []
-    seen: set[tuple[str, float]] = set()
-    for ax in axes:
-        key = (ax.type, ax.center)
-        if key in seen:
-            continue
-        seen.add(key)
-        unique_axes.append(ax)
-    return unique_axes
-
-
 def _symmetry_data(scale: Scale, step_pattern: list[int]) -> SymmetryData:
     if not step_pattern:
         return SymmetryData(
@@ -121,7 +88,6 @@ def _symmetry_data(scale: Scale, step_pattern: list[int]) -> SymmetryData:
             reflection_axes=[],
         )
     mask = scale.mask
-    rotational_steps = [step for step in range(1, 12) if rotate_mask(mask, step) == mask]
     rotational_order = scale.symmetry_order
     reversed_pattern = list(reversed(step_pattern))
     achiral = any(
@@ -131,7 +97,7 @@ def _symmetry_data(scale: Scale, step_pattern: list[int]) -> SymmetryData:
     reflection_axes = _reflection_axes(set(scale.degrees))
     return SymmetryData(
         rotational_order=rotational_order,
-        rotational_steps=rotational_steps or [12],
+        rotational_steps=list(rotational_steps(mask)),
         achiral=achiral,
         reflection_axes=reflection_axes,
     )

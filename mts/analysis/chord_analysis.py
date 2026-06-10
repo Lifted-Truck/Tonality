@@ -13,17 +13,17 @@ import itertools
 from collections import Counter, deque
 from dataclasses import dataclass
 
-from ..core.bitmask import rotate_mask
 from ..core.chord import Chord
 from ..core.realization import Realization
-from ..core.symmetry import mask_symmetry_order
+from ..core.symmetry import mask_symmetry_order, rotational_steps
 from .errors import require_realization
+from .pcset_math import interval_vector as _interval_vector
+from .pcset_math import reflection_axes as _reflection_axes
 from .voicings import voicing_shapes
 from .results import (
     ChordAnalysisResult,
     ChordIntervalSummary,
     Inversion,
-    ReflectionAxis,
     SymmetryData,
     TonnetzAnalysis,
     TonicContext,
@@ -66,40 +66,6 @@ def _interval_class_histogram(intervals: list[int]) -> dict[int, int]:
     return dict(sorted(counts.items()))
 
 
-def _interval_vector(pcs: list[int]) -> list[int]:
-    unique = sorted({pc % 12 for pc in pcs})
-    vector = [0] * 6
-    for a, b in itertools.combinations(unique, 2):
-        diff = (b - a) % 12
-        step = diff if diff <= 6 else 12 - diff
-        if step == 0 or step > 6:
-            continue
-        vector[step - 1] += 1
-    return vector
-
-
-def _reflection_axes(pcs: set[int]) -> list[ReflectionAxis]:
-    axes: list[ReflectionAxis] = []
-    if not pcs:
-        return axes
-    for axis in range(12):
-        reflected_pitch = {((2 * axis - pc) % 12) for pc in pcs}
-        if reflected_pitch == pcs:
-            axes.append(ReflectionAxis(type="pitch", center=axis))
-        reflected_between = {((2 * axis + 1 - pc) % 12) for pc in pcs}
-        if reflected_between == pcs:
-            axes.append(ReflectionAxis(type="between", center=(axis + 0.5) % 12))
-    unique_axes: list[ReflectionAxis] = []
-    seen: set[tuple[str, float]] = set()
-    for ax in axes:
-        key = (ax.type, ax.center)
-        if key in seen:
-            continue
-        seen.add(key)
-        unique_axes.append(ax)
-    return unique_axes
-
-
 def _symmetry_data(chord: Chord) -> SymmetryData:
     pcs = set(chord.pcs)
     if not pcs:
@@ -110,12 +76,10 @@ def _symmetry_data(chord: Chord) -> SymmetryData:
             reflection_axes=[],
         )
     mask = chord.mask
-    rotational_steps = [step for step in range(1, 12) if rotate_mask(mask, step) == mask]
-    order = mask_symmetry_order(mask)
     reflection_axes = _reflection_axes(pcs)
     return SymmetryData(
-        rotational_order=order,
-        rotational_steps=rotational_steps or [12],
+        rotational_order=mask_symmetry_order(mask),
+        rotational_steps=list(rotational_steps(mask)),
         achiral=bool(reflection_axes),
         reflection_axes=reflection_axes,
     )

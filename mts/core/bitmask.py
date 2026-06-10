@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
+from functools import lru_cache
 
 
 def validate_pc(pc: int) -> int:
@@ -38,3 +39,20 @@ def rotate_mask(mask: int, semitones: int) -> int:
 
 def transpose_pcs(pcs: Sequence[int], semitones: int) -> list[int]:
     return [validate_pc((pc + semitones) % 12) for pc in pcs]
+
+
+@lru_cache(maxsize=4096)
+def interval_vector_from_mask(mask: int) -> tuple[int, int, int, int, int, int]:
+    """Interval-class vector of a PC-set mask.
+
+    There are only 4096 possible masks, so each vector is computed at most
+    once per process; the cache makes repeated identity analysis O(1).
+    """
+    pcs = pcs_from_mask(mask)
+    vector = [0, 0, 0, 0, 0, 0]
+    for i, a in enumerate(pcs):
+        for b in pcs[i + 1 :]:
+            diff = (b - a) % 12
+            ic = diff if diff <= 6 else 12 - diff
+            vector[ic - 1] += 1
+    return (vector[0], vector[1], vector[2], vector[3], vector[4], vector[5])

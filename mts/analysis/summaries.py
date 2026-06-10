@@ -7,6 +7,7 @@ from functools import lru_cache
 from typing import Iterable, Mapping, Any
 
 from .chord_analysis import ChordAnalysisRequest, analyze_chord
+from .pcset_math import compatibility_roots as _compatibility_roots
 from ..core.chord import Chord
 from ..core.quality import ChordQuality
 from ..core.scale import Scale
@@ -97,19 +98,6 @@ def _compatibility_snapshot(
         display = ", ".join(str(r) for r in roots)
         formatted.append(f"{name} (roots {display})")
     return formatted
-
-
-@lru_cache(maxsize=2048)
-def _compatibility_roots(scale: Scale, quality: ChordQuality) -> tuple[int, ...]:
-    from ..core.bitmask import mask_from_pcs, is_subset
-
-    roots: list[int] = []
-    base_intervals = tuple(quality.intervals)
-    for root in range(12):
-        pcs = [((iv + root) % 12) for iv in base_intervals]
-        if is_subset(mask_from_pcs(pcs), scale.mask):
-            roots.append(root)
-    return tuple(roots)
 
 
 def _functional_alignment(chord_quality_name: str) -> list[str]:
