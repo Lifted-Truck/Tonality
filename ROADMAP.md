@@ -284,7 +284,7 @@ should be designed against real producer output — correlation margins, the
 relative-major/minor near-ties Krumhansl-style profiles are notorious for — not
 placeholder contexts. Momentum was the only argument for consumer-first.
 
-- [ ] **3.5a — set-class & spectral tables.** Normal order and prime form (Rahn),
+- [x] **3.5a — set-class & spectral tables.** Normal order and prime form (Rahn),
       set-class identity (prime-form mask — same integer convention as Ian Ring's
       scale numbers, see References), Z-relation partners, and **DFT magnitudes**
       (|f₁..f₆| of the PC-set characteristic function — a transposition- and
@@ -301,14 +301,24 @@ placeholder contexts. Momentum was the only argument for consumer-first.
       DFT-based key-finding refinement. *Deferred:* Forte names need a vetted
       reference table (deriving ordinals algorithmically mislabels the known
       Forte/Rahn discrepancy sets); prime form is the unambiguous set-class name
-      until then.
-- [ ] **3.5b — key induction.** `infer_key(sequence) → ranked (key, score,
+      until then. **Delivered:** `core/setclass.py` + `SetClassData` on both
+      analysis results; prime form = min mask over the 24 zero-rooted images
+      (provably Rahn — see module docstring); verified exhaustively over the
+      4096-mask space (224 set classes, 23 Z-pairs — textbook counts).
+- [x] **3.5b — key induction.** `infer_key(sequence) → ranked (key, score,
       margin, evidence)`, producing `AnalyticalContext` candidates — the producer
       for the Phase 3 disambiguation seam. **v1 is global key only:**
       whole-sequence Krumhansl–Schmuckler-style profile correlation over
       duration-weighted PC content (durations already exist in the temporal
       layer), ranked candidates per Decision 7. Profiles are **versioned
-      empirical priors** (pattern below). *Parked extension (not this phase):*
+      empirical priors** (pattern below). **Delivered:**
+      `analysis/key_induction.py` (`infer_key` + `candidate_context` →
+      `AnalyticalContext`), `Sequence.pc_weights()` (duration-weighted PC
+      content; `infer_key` duck-types a `Sequence`), Krumhansl–Kessler profiles
+      as the first versioned prior (`data/key_profiles.json`, `kk-1982.1`);
+      every result carries all 24 candidates, the top-two margin, the input
+      weights, and the profile version. Degenerate input (silence / uniform)
+      errors rather than guesses. *Parked extension (not this phase):*
       windowed/local key tracking and modulation detection.
 - [ ] **Voice-leading distance** (parallel track; leaf primitive with no
       dependencies). Exact minimal voice-leading distance between two identities:

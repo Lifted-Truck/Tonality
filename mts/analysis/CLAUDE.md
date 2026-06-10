@@ -25,6 +25,14 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   chromatic). The **analytical** frame; the counterpart to the display-edge
   `DisplayContext` in `mts/context/`. Numeric only; foundation for context-sensitive
   naming + dataset records.
+- `key_induction.py` — `infer_key`: the upstream **producer** for the
+  `AnalyticalContext` seam (Phase 3.5b). Global-key v1: profile correlation over
+  duration-weighted PC content; returns *all* ranked `KeyCandidate`s + the
+  top-two margin (Decision 7 — relative-key near-ties are surfaced, never
+  collapsed). Profiles are versioned priors from `data/key_profiles.json`;
+  results cite the version. Accepts a 12-vector or anything with
+  `pc_weights()` (duck-typed so `temporal.Sequence` works without an upward
+  import). `candidate_context` realizes a candidate as an `AnalyticalContext`.
 - `results.py` — **typed result dataclasses**. All analysis returns these, never
   raw dicts. Top-level results expose `to_dict()` (JSON/MCP output). Add new
   result fields here, not as ad-hoc dict keys. **Numeric/PC only** — no spelled

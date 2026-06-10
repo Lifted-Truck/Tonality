@@ -13,6 +13,7 @@ from .chord_analysis import ChordAnalysisRequest, analyze_chord, analyze_voicing
 from .voicings import suggest_voicings
 from .equivalence import interpret_chord
 from .analytical_context import AnalyticalContext, ChordInKey, contextualize_chord
+from .key_induction import candidate_context, infer_key
 from .errors import SpecificationError, require_realization
 from ..core.realization import Realization
 from ..core.spec_level import Registral, SpecLevel, Transpositional
@@ -50,6 +51,8 @@ from .results import (
     ChordInterpretations,
     ChordIntervalSummary,
     Inversion,
+    KeyCandidate,
+    KeyInductionResult,
     ModeRotation,
     ReflectionAxis,
     ScaleAnalysisResult,
@@ -95,6 +98,10 @@ __all__ = [
     "AnalyticalContext",
     "ChordInKey",
     "contextualize_chord",
+    "infer_key",
+    "candidate_context",
+    "KeyCandidate",
+    "KeyInductionResult",
     "analyze_timeline",
     "generate_sequence",
     "parse_pitch_token",

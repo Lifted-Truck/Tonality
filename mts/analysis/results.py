@@ -235,6 +235,40 @@ class TonnetzAnalysis:
     centroid: tuple[float, float, float] | None
 
 
+@dataclass(frozen=True)
+class KeyCandidate:
+    """One candidate key reading: a tonic, a mode, and its correlation score."""
+
+    tonic_pc: int
+    mode: str     # a mode name from the profile set, e.g. "major" | "minor"
+    score: float  # Pearson correlation of input weights vs. the rotated profile
+
+
+@dataclass(frozen=True)
+class KeyInductionResult:
+    """Ranked key candidates for a body of pitch material (Phase 3.5b).
+
+    Per Decision 7 this is plural and evidenced: every candidate is present
+    with its score, ``margin`` is the gap between the top two (small margins —
+    canonically relative major/minor — mean "genuinely ambiguous, treat as
+    such"), ``pc_weights`` is the exact input the ranking was computed from,
+    and ``profile_version`` cites the versioned prior used.
+    """
+
+    candidates: list[KeyCandidate]  # all candidates, best first
+    margin: float
+    pc_weights: list[float]
+    profile_version: str
+
+    @property
+    def best(self) -> KeyCandidate:
+        return self.candidates[0]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
 # ---------------------------------------------------------------------------
 # Top-level result types
 # ---------------------------------------------------------------------------
@@ -301,6 +335,8 @@ class ChordAnalysisResult:
 __all__ = [
     "ChordAnalysisResult",
     "ChordInterpretation",
+    "KeyCandidate",
+    "KeyInductionResult",
     "ChordInterpretations",
     "ChordIntervalSummary",
     "Inversion",
