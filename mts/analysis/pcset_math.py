@@ -19,9 +19,17 @@ from ..core.bitmask import (
     pcs_from_mask,
     rotate_mask,
 )
+from ..core.bitmask import complement_mask
 from ..core.quality import ChordQuality
 from ..core.scale import Scale
-from .results import ReflectionAxis
+from ..core.setclass import (
+    dft_magnitudes,
+    normal_order,
+    prime_form,
+    prime_form_mask,
+    z_partner_mask,
+)
+from .results import ReflectionAxis, SetClassData
 
 
 def interval_vector(pcs: Iterable[int]) -> list[int]:
@@ -76,3 +84,21 @@ def compatibility_roots(scale: Scale, quality: ChordQuality) -> tuple[int, ...]:
     """Return root positions (0..11) where the chord quality fits inside the scale."""
 
     return _compatibility_roots_for_masks(scale.mask, quality.mask)
+
+
+def set_class_data(mask: int) -> SetClassData:
+    """Set-class identity for a mask (Phase 3.5a).
+
+    Built fresh per call (list fields stay unshared); the underlying core
+    functions are mask-cached, so construction is cheap.
+    """
+
+    partner = z_partner_mask(mask)
+    return SetClassData(
+        normal_order=list(normal_order(mask)),
+        prime_form=list(prime_form(mask)),
+        prime_form_mask=prime_form_mask(mask),
+        dft_magnitudes=list(dft_magnitudes(mask)),
+        z_partner_prime_form=list(pcs_from_mask(partner)) if partner is not None else None,
+        complement_prime_form=list(prime_form(complement_mask(mask))),
+    )

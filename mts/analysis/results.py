@@ -37,6 +37,27 @@ class SymmetryData:
     reflection_axes: list[ReflectionAxis]
 
 
+@dataclass(frozen=True)
+class SetClassData:
+    """Set-class identity of a pitch-class set (Phase 3.5a).
+
+    ``prime_form`` follows Rahn's convention; ``prime_form_mask`` is the
+    canonical set-class id (same integer convention as Ian Ring's scale
+    numbers). ``dft_magnitudes`` is |f1|..|f6| of the PC-set characteristic
+    function — a transposition- and inversion-invariant fingerprint
+    (|f5|≈diatonicity, |f6|≈whole-tone-ness, |f4|≈octatonicity).
+    ``z_partner_prime_form`` is the prime form sharing this set's interval
+    vector, when one exists.
+    """
+
+    normal_order: list[int]
+    prime_form: list[int]
+    prime_form_mask: int
+    dft_magnitudes: list[float]
+    z_partner_prime_form: list[int] | None
+    complement_prime_form: list[int]
+
+
 # ---------------------------------------------------------------------------
 # Scale-specific sub-types
 # ---------------------------------------------------------------------------
@@ -238,6 +259,7 @@ class ScaleAnalysisResult:
     modes: list[ModeRotation] | None = None
     symmetry: SymmetryData | None = None
     intervals: ScaleIntervalSummary | None = None
+    set_class: SetClassData | None = None
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""
@@ -269,6 +291,7 @@ class ChordAnalysisResult:
     tonnetz: TonnetzAnalysis
     tonic_context: TonicContext | None = None
     inversions: list[Inversion] | None = None
+    set_class: SetClassData | None = None
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""
@@ -285,6 +308,7 @@ __all__ = [
     "ReflectionAxis",
     "ScaleAnalysisResult",
     "ScaleIntervalSummary",
+    "SetClassData",
     "SymmetryData",
     "TonnetzAnalysis",
     "TonicContext",
