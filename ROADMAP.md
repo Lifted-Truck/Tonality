@@ -20,6 +20,50 @@ when readings genuinely conflict, surface the competing interpretations ranked b
 corpus statistics, with evidence. The aspiration: a tool that can reveal *novel*
 music-theoretical readings of existing music, not just confirm textbook ones.
 
+## Target applications (what the engine must make possible)
+
+Concrete programs we want to plug the engine into. These are **edge consumers,
+not in-repo features** (same relationship MCP and rendering have to core —
+library-first stands). Their value here is as *acceptance tests*: each one
+decomposes into engine capabilities, and any capability no phase provides is a
+gap to record, not a thing to improvise later. Added 2026-06-10; extend this
+list as new applications come into view.
+
+- **A1 — Key-aware MIDI analyzer.** Read a MIDI file → infer what key/scale it
+  is in, split it at key changes, and emit per-section analysis (scale, chords,
+  functional roles) as an enriched dataset.
+  *Capabilities:* MIDI ingestion ✅ (Phase 2) · segmentation ✅ (Phase 2, literal;
+  harmonic refinement parked) · global key induction → **Phase 3.5b** ·
+  **key-change splitting = local key tracking** — currently a parked 3.5b
+  extension; A1 is its concrete demand driver (still sequenced after the global
+  v1) · per-section enrichment ✅ (Phase 3 dataset records).
+- **A2 — Smart MIDI transformer.** Apply musically-aware transformations to an
+  existing MIDI file: re-voice chord progressions; add or alter voices; change
+  scale intelligently (preserve contour and degree-function, not literal
+  pitches); change the time signature; insert key changes with coherent
+  movement (circle-of-fifths paths, or some other stated musical bias).
+  *Capabilities:* analysis side ✅/planned as above · re-voicing + added voices →
+  **Phase 7** (voice-leading realization) · scale re-mapping, meter re-mapping,
+  modulation path planning → **Phase 7 extensions** (recorded there) · writing
+  the result → **MIDI export, a gap** (recorded as Phase 2 addendum).
+- **A3 — Complementary part generator.** Given a MIDI file, generate companion
+  MIDI for different instrument classes (bass line, pad, lead, counter-melody)
+  that is harmonically and rhythmically coherent with the source.
+  *Capabilities:* full analysis pipeline (A1) · Phase 7 generation constrained
+  by **instrument-class profiles** (register range, polyphony, idiom) — a new
+  data vocabulary; ships as versioned priors (Phase 3.5 pattern) · MIDI export.
+
+**Gaps this list surfaces (recorded, not yet scheduled):**
+1. **MIDI export** — `io/midi.py` is read-only; every transformation app needs
+   `Sequence → SMF`. Small and well-bounded (mido already a dependency); Phase 2
+   addendum.
+2. **Generative transformations** (scale re-mapping, meter re-mapping,
+   modulation path planning) — Phase 7 extensions; all generative-side per the
+   cardinal rule.
+3. **Instrument-class profiles** — versioned data vocabulary for A3.
+Local key tracking was already parked (Phase 3.5b extension); A1 names its
+customer.
+
 ## Decisions on record (the "why", so we don't relitigate)
 
 1. **Build on the existing engine, don't greenfield.** The bitmask PC substrate,
@@ -156,6 +200,12 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       key induction (Phase 3.5) as inputs — sequenced after both. This is the
       demo-vs-tool gap for real performed MIDI: literal PC-set stability
       over-segments badly on passing tones and arpeggiation.
+- [ ] **Addendum (2026-06-10, application-driven): MIDI export** — the write-side
+      mirror of ingestion: `Sequence` (+ `TempoMap`/`MeterMap`) → Standard MIDI
+      File via the same thin mido adapter. Surfaced by the Target-applications
+      list (every A2/A3 transformation must close the loop back to a file).
+      Small and well-bounded; no new dependency. Round-trip
+      (`read → write → read`) is the natural invariant to test.
 
 ### Phase 3 — Contextualization & dataset schema
 - [x] Resolve the **two "context" concepts**: *display* context pushed to the edge
@@ -372,6 +422,25 @@ Phase 4.5 corpus statistics — so it can land before the Phase 6 tuning work.*
   qualitative scoring can draw on Phase 4.5 corpus statistics for "what's idiomatic."
 - Output is ranked generative *suggestion data* (each variant tagged with its
   qualitative profile), kept out of analysis; spelling/rendering at the edge.
+
+**Extensions (2026-06-10, from the Target-applications list — same generative
+frame, recorded here so A2/A3 decompose onto named work):**
+- **Scale re-mapping** — transform material from one scale to another preserving
+  contour and degree-function rather than literal pitches (degree-correspondence
+  mapping; NHTs re-mapped relative to their resolution targets). Analysis names
+  the degrees; the re-mapping *invents* pitches → generative.
+- **Meter re-mapping** — re-cast a `Sequence` under a new `TimeSignature`
+  (re-group beats, preserve or intelligently re-place metric accents). Lives on
+  the temporal types; generative because accent placement is a choice.
+- **Modulation path planning** — given source and target keys, plan a key-change
+  route with a stated bias (shortest circle-of-fifths walk, chromatic-mediant
+  color, pivot-chord availability) and realize the connecting material via the
+  voice-leading machinery above. Key-distance metrics come cheap from Phase 3.5a
+  (|f₅| phase distance ≈ circle-of-fifths position) and Phase 3.5b key profiles.
+- **Instrument-class profiles** — the constraint vocabulary A3 needs (register
+  range, polyphony, idiomatic spacing per class: bass/pad/lead/counter-melody),
+  shipped as versioned priors (Phase 3.5 pattern) so generation under a profile
+  stays reproducible.
 
 ## Demoted / deferred (built for the old "app" frame)
 
