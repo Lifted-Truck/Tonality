@@ -269,6 +269,28 @@ class KeyInductionResult:
         return dataclasses.asdict(self)
 
 
+@dataclass(frozen=True)
+class VoiceLeadingResult:
+    """Minimal voice leading between two pc-set identities (Phase 3.5).
+
+    ``distance`` is the total motion in semitones under the optimal
+    assignment; ``mapping`` is that assignment as ``[from_pc, to_pc]`` voice
+    pairs (the evidence, and the seed generative consumers realize in
+    register). ``policy`` names the cardinality convention used — the choice
+    is a versioned prior, not a fact; cite it when comparing numbers.
+    """
+
+    distance: int
+    mapping: list[list[int]]  # [from_pc, to_pc] per voice
+    policy: str
+    source_pcs: list[int]
+    target_pcs: list[int]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
 # ---------------------------------------------------------------------------
 # Top-level result types
 # ---------------------------------------------------------------------------
@@ -348,6 +370,7 @@ __all__ = [
     "SymmetryData",
     "TonnetzAnalysis",
     "TonicContext",
+    "VoiceLeadingResult",
     "VoicingAnalysis",
     "VoicingEntry",
     "VoicingSet",

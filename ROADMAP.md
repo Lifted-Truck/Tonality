@@ -272,7 +272,7 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       context that produced it (the door to joint key/chord reasoning stays
       open); (c) may use VL-distance (Phase 3.5) as a signal.
 
-### Phase 3.5 — Identity-analysis primitives & key induction
+### Phase 3.5 — Identity-analysis primitives & key induction ✅ DONE
 Inserted 2026-06-10 after an external consult, before the Phase 3 disambiguation
 slice. Rationale: disambiguation consumes an `AnalyticalContext` that nothing in
 the pipeline yet *produces* — without a producer, the flagship pipeline
@@ -320,7 +320,7 @@ placeholder contexts. Momentum was the only argument for consumer-first.
       weights, and the profile version. Degenerate input (silence / uniform)
       errors rather than guesses. *Parked extension (not this phase):*
       windowed/local key tracking and modulation detection.
-- [ ] **Voice-leading distance** (parallel track; leaf primitive with no
+- [x] **Voice-leading distance** (parallel track; leaf primitive with no
       dependencies). Exact minimal voice-leading distance between two identities:
       min-cost bipartite matching for equal cardinality; the unequal-cardinality
       doubling/omission policy is **named and versioned** (multiple defensible
@@ -330,7 +330,12 @@ placeholder contexts. Momentum was the only argument for consumer-first.
       segmentation), progression similarity (Phase 4.5 features), Phase 7 input.
       In datasets it lives as **Dataset-level edges** between records — the first
       relational structure in the schema; additive container-level fields, same
-      SCHEMA_VERSION policy as additive leaf fields.
+      SCHEMA_VERSION policy as additive leaf fields. **Delivered:**
+      `analysis/voice_leading.py` — exact via the non-crossing theorem (equal
+      cardinality: best of n sorted rotations; unequal: non-crossing surjections
+      enumerated as circular block compositions), brute-force-verified in tests;
+      policy `doubling.1`; `VoiceLeadingResult` carries the optimal mapping as
+      evidence. Dataset-edge integration lands with its first consumer.
 
 **Versioned-priors pattern (Decision 7 infrastructure):** every empirical prior
 the engine bakes in — key profiles (3.5b), the disambiguation weight table

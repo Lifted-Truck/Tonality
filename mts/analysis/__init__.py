@@ -14,6 +14,7 @@ from .voicings import suggest_voicings
 from .equivalence import interpret_chord
 from .analytical_context import AnalyticalContext, ChordInKey, contextualize_chord
 from .key_induction import candidate_context, infer_key
+from .voice_leading import POLICY_DOUBLING_V1, voice_leading
 from .errors import SpecificationError, require_realization
 from ..core.realization import Realization
 from ..core.spec_level import Registral, SpecLevel, Transpositional
@@ -61,6 +62,7 @@ from .results import (
     SymmetryData,
     TonnetzAnalysis,
     TonicContext,
+    VoiceLeadingResult,
     VoicingAnalysis,
     VoicingEntry,
     VoicingSet,
@@ -102,6 +104,9 @@ __all__ = [
     "candidate_context",
     "KeyCandidate",
     "KeyInductionResult",
+    "voice_leading",
+    "POLICY_DOUBLING_V1",
+    "VoiceLeadingResult",
     "analyze_timeline",
     "generate_sequence",
     "parse_pitch_token",
