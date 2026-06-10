@@ -108,6 +108,19 @@ class Sequence:
 
         return self.tempo.seconds_at(beat)
 
+    def pc_weights(self) -> tuple[float, ...]:
+        """Duration-weighted pitch-class content: 12 weights, index = pc.
+
+        The salience input for key induction (``mts.analysis.key_induction.
+        infer_key`` accepts a ``Sequence`` directly via this method). Octave
+        doublings accumulate — register reduces to pc, per the core model.
+        """
+
+        weights = [0.0] * 12
+        for event in self.events:
+            weights[event.pitch.pc] += event.duration
+        return tuple(weights)
+
     @property
     def duration_beats(self) -> float:
         """End of the last-sounding event, in beats (0.0 if empty)."""

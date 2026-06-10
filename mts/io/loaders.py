@@ -28,6 +28,7 @@ DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 # the JSON is re-read only when the file changes on disk.
 _BASE_SCALES_CACHE: tuple[Path, int, dict[str, Scale]] | None = None
 _BASE_QUALITIES_CACHE: tuple[Path, int, dict[str, ChordQuality]] | None = None
+_KEY_PROFILES_CACHE: tuple[Path, int, tuple["KeyProfileSet", ...]] | None = None
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,20 @@ class FunctionMapping:
     tags: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True)
+class KeyProfileSet:
+    """One versioned set of key profiles (a versioned empirical prior).
+
+    ``profiles`` maps a mode name (e.g. ``"major"``) to 12 per-pc weights with
+    the tonic at index 0. Results derived from a profile set cite ``version``
+    so rankings stay reproducible (ROADMAP "versioned-priors pattern").
+    """
+
+    version: str
+    source: str
+    profiles: dict[str, tuple[float, ...]]
+
+
 def _read_json(name: str) -> list[dict]:
     path = DATA_DIR / name
     with path.open("r", encoding="utf-8") as handle:
@@ -47,6 +62,50 @@ def _read_json(name: str) -> list[dict]:
     if not isinstance(data, list):
         raise ValueError(f"JSON file {name} must contain a list")
     return data
+
+
+def load_key_profiles(version: str | None = None) -> KeyProfileSet:
+    """Load a versioned key-profile set from ``data/key_profiles.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime,
+    like the catalogs.
+    """
+    global _KEY_PROFILES_CACHE
+    path = DATA_DIR / "key_profiles.json"
+    mtime = path.stat().st_mtime_ns
+    if _KEY_PROFILES_CACHE is not None and _KEY_PROFILES_CACHE[:2] == (path, mtime):
+        entries = _KEY_PROFILES_CACHE[2]
+    else:
+        parsed: list[KeyProfileSet] = []
+        for payload in _read_json("key_profiles.json"):
+            profiles: dict[str, tuple[float, ...]] = {}
+            for mode, values in dict(payload["profiles"]).items():
+                weights = tuple(float(v) for v in values)
+                if len(weights) != 12:
+                    raise ValueError(
+                        f"Key profile {payload['version']!r}/{mode!r} must have 12 weights"
+                    )
+                profiles[str(mode)] = weights
+            if not profiles:
+                raise ValueError(f"Key profile set {payload['version']!r} defines no modes")
+            parsed.append(
+                KeyProfileSet(
+                    version=str(payload["version"]),
+                    source=str(payload.get("source", "")),
+                    profiles=profiles,
+                )
+            )
+        if not parsed:
+            raise ValueError("key_profiles.json contains no profile sets")
+        entries = tuple(parsed)
+        _KEY_PROFILES_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown key-profile version {version!r} (known: {known})")
 
 
 def load_intervals() -> list[Interval]:
