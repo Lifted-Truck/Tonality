@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 
-from ..core.bitmask import mask_from_pcs
+from ..core.bitmask import mask_from_pcs, rotate_mask
 from ..core.quality import ChordQuality
 from ..core.symmetry import mask_symmetry_order
 from .results import ChordInterpretation, ChordInterpretations
@@ -49,24 +49,28 @@ def interpret_chord(
 
         catalog = load_chord_qualities()
 
-    # De-duplicate alias keys down to one quality per canonical name.
-    qualities: dict[str, ChordQuality] = {}
+    # De-duplicate alias keys down to one quality per canonical name, indexed
+    # by mask: one pass over the catalog instead of a full scan per root.
+    by_mask: dict[int, list[ChordQuality]] = {}
+    seen_names: set[str] = set()
     for quality in catalog.values():
-        qualities.setdefault(quality.name, quality)
+        if quality.name in seen_names:
+            continue
+        seen_names.add(quality.name)
+        by_mask.setdefault(quality.mask, []).append(quality)
 
     mask = mask_from_pcs(pc_set)
     interpretations: list[ChordInterpretation] = []
     for root in pc_set:
-        relative_mask = mask_from_pcs((pc - root) % 12 for pc in pc_set)
-        for quality in qualities.values():
-            if quality.mask == relative_mask:
-                interpretations.append(
-                    ChordInterpretation(
-                        root_pc=root,
-                        quality=quality.name,
-                        aliases=list(quality.aliases),
-                    )
+        relative_mask = rotate_mask(mask, -root)
+        for quality in by_mask.get(relative_mask, ()):
+            interpretations.append(
+                ChordInterpretation(
+                    root_pc=root,
+                    quality=quality.name,
+                    aliases=list(quality.aliases),
                 )
+            )
 
     interpretations.sort(key=lambda i: (i.root_pc, i.quality))
     return ChordInterpretations(
