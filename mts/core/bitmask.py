@@ -41,6 +41,35 @@ def transpose_pcs(pcs: Sequence[int], semitones: int) -> list[int]:
     return [validate_pc((pc + semitones) % 12) for pc in pcs]
 
 
+def invert_mask(mask: int, index: int = 0) -> int:
+    """The inversion I_n: each pc maps to (index - pc) mod 12."""
+    inverted = 0
+    for pc in range(12):
+        if mask & (1 << pc):
+            inverted |= 1 << ((index - pc) % 12)
+    return inverted
+
+
+def complement_mask(mask: int) -> int:
+    """The pitch classes absent from the set."""
+    return ~mask & 0xFFF
+
+
+def multiply_mask(mask: int, multiplier: int) -> int:
+    """The multiplication M_m: each pc maps to (pc * multiplier) mod 12.
+
+    Only multipliers coprime with 12 (1, 5, 7, 11) are bijections; M5/M7 are
+    the classic cycle-of-fourths/fifths mappings (e.g. M5 sends the diatonic
+    scale to a chromatic cluster). Non-coprime multipliers are allowed but
+    collapse pitch classes.
+    """
+    multiplied = 0
+    for pc in range(12):
+        if mask & (1 << pc):
+            multiplied |= 1 << ((pc * multiplier) % 12)
+    return multiplied
+
+
 @lru_cache(maxsize=4096)
 def interval_vector_from_mask(mask: int) -> tuple[int, int, int, int, int, int]:
     """Interval-class vector of a PC-set mask.

@@ -19,6 +19,7 @@ from ..core.symmetry import mask_symmetry_order, rotational_steps
 from .errors import require_realization
 from .pcset_math import interval_vector as _interval_vector
 from .pcset_math import reflection_axes as _reflection_axes
+from .pcset_math import set_class_data
 from .voicings import voicing_shapes
 from .results import (
     ChordAnalysisResult,
@@ -44,6 +45,7 @@ class ChordAnalysisRequest:
     chord: Chord
     tonic_pc: int | None = None
     include_inversions: bool = True
+    include_set_class: bool = True
 
 
 def _intervals_relative_to_root(chord: Chord) -> list[int]:
@@ -312,4 +314,5 @@ def analyze_chord(request: ChordAnalysisRequest) -> ChordAnalysisResult:
         tonnetz=_tonnetz_analysis(request.chord),
         tonic_context=tonic_context,
         inversions=inversions,
+        set_class=set_class_data(request.chord.mask) if request.include_set_class else None,
     )

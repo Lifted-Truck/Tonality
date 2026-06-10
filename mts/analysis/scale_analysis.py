@@ -16,6 +16,7 @@ from ..core.scale import Scale
 from ..core.symmetry import rotational_steps
 from .pcset_math import interval_vector as _interval_vector
 from .pcset_math import reflection_axes as _reflection_axes
+from .pcset_math import set_class_data
 from .results import (
     ModeRotation,
     ScaleAnalysisResult,
@@ -33,6 +34,7 @@ class ScaleAnalysisRequest:
     include_modes: bool = True
     include_symmetry: bool = True
     include_interval_report: bool = True
+    include_set_class: bool = True
 
 
 def _normalize_degrees(degrees: Iterable[int]) -> list[int]:
@@ -161,4 +163,5 @@ def analyze_scale(request: ScaleAnalysisRequest) -> ScaleAnalysisResult:
         modes=modes,
         symmetry=symmetry,
         intervals=intervals,
+        set_class=set_class_data(request.scale.mask) if request.include_set_class else None,
     )

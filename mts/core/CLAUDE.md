@@ -21,6 +21,10 @@ by `Pitch` but identity reduces to pitch-classes).
 - `enharmonics.py` — spelling preference / PC ↔ name. Presentation-adjacent; callers
   pass preferences in, don't hardcode.
 - `symmetry.py` — rotational/reflective symmetry over masks.
+- `setclass.py` — set-class identity over masks: normal order, **Rahn** prime form
+  (min-mask over the 24 zero-rooted images — see module docstring for why that
+  equals Rahn), Z-relation partners, DFT components/magnitudes. All cached over
+  the 4096-mask space. Forte *names* deliberately absent pending a vetted table.
 
 **Rules:** frozen + hashable; mod-12 only; no I/O, no session state, no upward
 imports (`core` depends on nothing else in `mts`). See root CLAUDE.md for the
