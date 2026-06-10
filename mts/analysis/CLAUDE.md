@@ -57,3 +57,7 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
 **When adding analysis:** declare the specification level it needs (PC-set vs.
 realization). Register-dependent analysis must **error** on a register-less
 identity, not guess a voicing. See root CLAUDE.md.
+
+Planned work for this layer is tracked in [ROADMAP.md](../../ROADMAP.md) (the
+single source of truth for direction) — link phases from here; don't record
+plans here.

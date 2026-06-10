@@ -29,3 +29,7 @@ by `Pitch` but identity reduces to pitch-classes).
 **Rules:** frozen + hashable; mod-12 only; no I/O, no session state, no upward
 imports (`core` depends on nothing else in `mts`). See root CLAUDE.md for the
 identity-key vs. realization model before adding types.
+
+Planned work for this layer is tracked in [ROADMAP.md](../../ROADMAP.md) (the
+single source of truth for direction) — link phases from here; don't record
+plans here.

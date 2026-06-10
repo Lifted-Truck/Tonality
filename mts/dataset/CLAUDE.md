@@ -67,3 +67,7 @@ register/in_key/display), `record_from_segment` (adds placement; rootless identi
 namings, no single rooted `chord`), `dataset_from_sequence` (segments → indexed
 records + `TemporalSummary`). When adding a builder for a new input, follow the same
 rule: reuse a typed-analysis function, snapshot any context, never re-derive.
+
+Planned work for this layer is tracked in [ROADMAP.md](../../ROADMAP.md) (the
+single source of truth for direction) — link phases from here; don't record
+plans here.

@@ -1,5 +1,13 @@
 # Tonality — Roadmap & Architecture Decision Record
 
+> **Single source of truth for project direction.** The build sequence,
+> decisions on record, target applications, and deferred/demoted scope all live
+> here. Forward-looking statements anywhere else in the repo (README, per-layer
+> CLAUDE.md files, docstrings) defer to this file — link the relevant phase
+> instead of restating the plan. When a planning decision is made *or rejected*,
+> fold it in here in the same PR; a decision that isn't recorded here isn't
+> decided.
+
 This is the strategic companion to [CLAUDE.md](CLAUDE.md). CLAUDE.md says *how to
 work in the code*; this says *where we are going and why*.
 
