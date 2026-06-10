@@ -20,6 +20,50 @@ when readings genuinely conflict, surface the competing interpretations ranked b
 corpus statistics, with evidence. The aspiration: a tool that can reveal *novel*
 music-theoretical readings of existing music, not just confirm textbook ones.
 
+## Target applications (what the engine must make possible)
+
+Concrete programs we want to plug the engine into. These are **edge consumers,
+not in-repo features** (same relationship MCP and rendering have to core —
+library-first stands). Their value here is as *acceptance tests*: each one
+decomposes into engine capabilities, and any capability no phase provides is a
+gap to record, not a thing to improvise later. Added 2026-06-10; extend this
+list as new applications come into view.
+
+- **A1 — Key-aware MIDI analyzer.** Read a MIDI file → infer what key/scale it
+  is in, split it at key changes, and emit per-section analysis (scale, chords,
+  functional roles) as an enriched dataset.
+  *Capabilities:* MIDI ingestion ✅ (Phase 2) · segmentation ✅ (Phase 2, literal;
+  harmonic refinement parked) · global key induction → **Phase 3.5b** ·
+  **key-change splitting = local key tracking** — currently a parked 3.5b
+  extension; A1 is its concrete demand driver (still sequenced after the global
+  v1) · per-section enrichment ✅ (Phase 3 dataset records).
+- **A2 — Smart MIDI transformer.** Apply musically-aware transformations to an
+  existing MIDI file: re-voice chord progressions; add or alter voices; change
+  scale intelligently (preserve contour and degree-function, not literal
+  pitches); change the time signature; insert key changes with coherent
+  movement (circle-of-fifths paths, or some other stated musical bias).
+  *Capabilities:* analysis side ✅/planned as above · re-voicing + added voices →
+  **Phase 7** (voice-leading realization) · scale re-mapping, meter re-mapping,
+  modulation path planning → **Phase 7 extensions** (recorded there) · writing
+  the result → **MIDI export, a gap** (recorded as Phase 2 addendum).
+- **A3 — Complementary part generator.** Given a MIDI file, generate companion
+  MIDI for different instrument classes (bass line, pad, lead, counter-melody)
+  that is harmonically and rhythmically coherent with the source.
+  *Capabilities:* full analysis pipeline (A1) · Phase 7 generation constrained
+  by **instrument-class profiles** (register range, polyphony, idiom) — a new
+  data vocabulary; ships as versioned priors (Phase 3.5 pattern) · MIDI export.
+
+**Gaps this list surfaces (recorded, not yet scheduled):**
+1. **MIDI export** — `io/midi.py` is read-only; every transformation app needs
+   `Sequence → SMF`. Small and well-bounded (mido already a dependency); Phase 2
+   addendum.
+2. **Generative transformations** (scale re-mapping, meter re-mapping,
+   modulation path planning) — Phase 7 extensions; all generative-side per the
+   cardinal rule.
+3. **Instrument-class profiles** — versioned data vocabulary for A3.
+Local key tracking was already parked (Phase 3.5b extension); A1 names its
+customer.
+
 ## Decisions on record (the "why", so we don't relitigate)
 
 1. **Build on the existing engine, don't greenfield.** The bitmask PC substrate,
@@ -147,7 +191,21 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       `interpret_chord`); `harmonic_rhythm()` reports segment count, mean duration
       (beats/seconds), and changes-per-bar. Silences dropped; octave doublings don't
       split a segment. *Future:* harmonic (chord-level) segmentation that filters
-      non-harmonic tones by metric salience.
+      non-harmonic tones by metric salience. *(Reframed 2026-06-10, parked after
+      Phase 3.5:)* treat it as **cover-maximization** — choose boundaries and one
+      catalog identity per span to maximize metrically-weighted explained notes;
+      the residue is classified as non-harmonic tones by approach/departure
+      intervals over the event graph (passing, neighbor, suspension, anticipation
+      are decidable combinatorially). Wants VL-distance (chord-change cost) and
+      key induction (Phase 3.5) as inputs — sequenced after both. This is the
+      demo-vs-tool gap for real performed MIDI: literal PC-set stability
+      over-segments badly on passing tones and arpeggiation.
+- [ ] **Addendum (2026-06-10, application-driven): MIDI export** — the write-side
+      mirror of ingestion: `Sequence` (+ `TempoMap`/`MeterMap`) → Standard MIDI
+      File via the same thin mido adapter. Surfaced by the Target-applications
+      list (every A2/A3 transformation must close the loop back to a file).
+      Small and well-bounded; no new dependency. Round-trip
+      (`read → write → read`) is the natural invariant to test.
 
 ### Phase 3 — Contextualization & dataset schema
 - [x] Resolve the **two "context" concepts**: *display* context pushed to the edge
@@ -192,10 +250,90 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       Phase 1.5. Deterministic/rule-based here; corpus-statistical ranking is
       Phase 4.5.)
 
+      **Sequenced after Phase 3.5** (consult, 2026-06-10): this consumes an
+      `AnalyticalContext`, and Phase 3.5b is the upstream *producer* of that
+      object — the seam itself is correct (analysis must not hardcode
+      key-finding). Building the consumer first would mean validating only on
+      hand-authored keys, and inventing an evidence vocabulary against toy
+      inputs rather than real producer output. **Design requirements
+      (preserved from the prior design discussion — re-derive the rest when
+      this slice starts):** (a) runnable per-candidate over a *ranked set* of
+      `AnalyticalContext`s — key induction returns ranked candidates with
+      margins, and relative-major/minor near-ties are the canonical hard
+      input; (b) the result schema labels each reading as conditional on the
+      context that produced it (the door to joint key/chord reasoning stays
+      open); (c) may use VL-distance (Phase 3.5) as a signal.
+
+### Phase 3.5 — Identity-analysis primitives & key induction
+Inserted 2026-06-10 after an external consult, before the Phase 3 disambiguation
+slice. Rationale: disambiguation consumes an `AnalyticalContext` that nothing in
+the pipeline yet *produces* — without a producer, the flagship pipeline
+(MIDI → enriched dataset) has a caller-shaped hole, and disambiguation could only
+ever be validated on hand-authored keys. **Rejected alternative (recorded so we
+don't relitigate):** build disambiguation first on its signed-off design, backfill
+key induction after. Rejected because the disambiguator's evidence vocabulary
+should be designed against real producer output — correlation margins, the
+relative-major/minor near-ties Krumhansl-style profiles are notorious for — not
+placeholder contexts. Momentum was the only argument for consumer-first.
+
+- [ ] **3.5a — set-class & spectral tables.** Normal order and prime form (Rahn),
+      set-class identity (prime-form mask — same integer convention as Ian Ring's
+      scale numbers, see References), Z-relation partners, and **DFT magnitudes**
+      (|f₁..f₆| of the PC-set characteristic function — a transposition- and
+      inversion-invariant set-class fingerprint and continuous 6-D similarity
+      embedding: |f₅|≈diatonicity, |f₆|≈whole-tone-ness, |f₄|≈octatonicity,
+      |f₃|≈hexatonicity). All cached tables over the 4096-mask space (the PR-#17
+      pattern). Includes the transformation operators the table build needs as
+      internals, exposed as public named functions at near-zero marginal cost:
+      `T_n` (existing rotation), inversion `I_n`, complement, M5/M7
+      multiplication. Surfaced as identity/analysis-tier fields on the typed
+      results (and thence dataset records). *Note:* the DFT **magnitudes**
+      deliberately conflate a set with its inversion (right for similarity);
+      phases are kept available — they distinguish T_n/T_nI and feed the later
+      DFT-based key-finding refinement. *Deferred:* Forte names need a vetted
+      reference table (deriving ordinals algorithmically mislabels the known
+      Forte/Rahn discrepancy sets); prime form is the unambiguous set-class name
+      until then.
+- [ ] **3.5b — key induction.** `infer_key(sequence) → ranked (key, score,
+      margin, evidence)`, producing `AnalyticalContext` candidates — the producer
+      for the Phase 3 disambiguation seam. **v1 is global key only:**
+      whole-sequence Krumhansl–Schmuckler-style profile correlation over
+      duration-weighted PC content (durations already exist in the temporal
+      layer), ranked candidates per Decision 7. Profiles are **versioned
+      empirical priors** (pattern below). *Parked extension (not this phase):*
+      windowed/local key tracking and modulation detection.
+- [ ] **Voice-leading distance** (parallel track; leaf primitive with no
+      dependencies). Exact minimal voice-leading distance between two identities:
+      min-cost bipartite matching for equal cardinality; the unequal-cardinality
+      doubling/omission policy is **named and versioned** (multiple defensible
+      conventions exist — the choice is an empirical prior, not a fact).
+      Analytical, not generative — it measures, it does not realize. Consumers:
+      disambiguation signal (3.5→Phase 3), segmentation cost (harmonic
+      segmentation), progression similarity (Phase 4.5 features), Phase 7 input.
+      In datasets it lives as **Dataset-level edges** between records — the first
+      relational structure in the schema; additive container-level fields, same
+      SCHEMA_VERSION policy as additive leaf fields.
+
+**Versioned-priors pattern (Decision 7 infrastructure):** every empirical prior
+the engine bakes in — key profiles (3.5b), the disambiguation weight table
+(Phase 3), VL cardinality policy (3.5), corpus statistics (Phase 4.5) — ships as
+a versioned data asset with one shared mechanism; results cite the prior version
+they used. Same input + same prior version → same output.
+
 ### Phase 4 — MCP endpoint
 - [ ] Thin adapter: one tool per analysis entry point; schemas derived from
       `results.py`; stateless by default, session-backed where multi-turn is needed.
 - [ ] Error/validation surface suitable for blind agent use.
+- [ ] *(parked here 2026-06-10)* **Constraint search / "inverse analysis":**
+      `search_identities(constraints)` / `search_voicings(identity, constraints)`
+      — exhaustive, exact queries over the 4096-identity universe and the small
+      voicing spaces ("all 7-note scales containing this tetrachord with no
+      consecutive semitones"; "all voicings of Cmaj9 under 19 semitones of spread
+      with no m9 against the bass"). Generalizes `suggest_voicings` into a query
+      layer; explicitly generative-side (cardinal rule). Parked because demand is
+      MCP-shaped — it's the marquee agent-facing tool, not a library-internal
+      need. The Phase 3.5a tables are its index, so parking costs nothing: the
+      substrate accrues anyway.
 
 ### Phase 4.5 — Contextual & statistical interpretation (corpus-driven)
 The intelligence payoff: move from *enumerating* interpretations to *weighing* them
@@ -284,6 +422,25 @@ Phase 4.5 corpus statistics — so it can land before the Phase 6 tuning work.*
   qualitative scoring can draw on Phase 4.5 corpus statistics for "what's idiomatic."
 - Output is ranked generative *suggestion data* (each variant tagged with its
   qualitative profile), kept out of analysis; spelling/rendering at the edge.
+
+**Extensions (2026-06-10, from the Target-applications list — same generative
+frame, recorded here so A2/A3 decompose onto named work):**
+- **Scale re-mapping** — transform material from one scale to another preserving
+  contour and degree-function rather than literal pitches (degree-correspondence
+  mapping; NHTs re-mapped relative to their resolution targets). Analysis names
+  the degrees; the re-mapping *invents* pitches → generative.
+- **Meter re-mapping** — re-cast a `Sequence` under a new `TimeSignature`
+  (re-group beats, preserve or intelligently re-place metric accents). Lives on
+  the temporal types; generative because accent placement is a choice.
+- **Modulation path planning** — given source and target keys, plan a key-change
+  route with a stated bias (shortest circle-of-fifths walk, chromatic-mediant
+  color, pivot-chord availability) and realize the connecting material via the
+  voice-leading machinery above. Key-distance metrics come cheap from Phase 3.5a
+  (|f₅| phase distance ≈ circle-of-fifths position) and Phase 3.5b key profiles.
+- **Instrument-class profiles** — the constraint vocabulary A3 needs (register
+  range, polyphony, idiomatic spacing per class: bass/pad/lead/counter-melody),
+  shipped as versioned priors (Phase 3.5 pattern) so generation under a profile
+  stays reproducible.
 
 ## Demoted / deferred (built for the old "app" frame)
 
