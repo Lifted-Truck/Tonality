@@ -23,6 +23,12 @@ from ..theory.functions import (
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
+# Parsed base catalogs, cached per (path, mtime). Catalog objects are frozen
+# dataclasses, so sharing them across the dicts returned to callers is safe;
+# the JSON is re-read only when the file changes on disk.
+_BASE_SCALES_CACHE: tuple[Path, int, dict[str, Scale]] | None = None
+_BASE_QUALITIES_CACHE: tuple[Path, int, dict[str, ChordQuality]] | None = None
+
 
 @dataclass(frozen=True)
 class FunctionMapping:
@@ -52,17 +58,15 @@ def load_intervals() -> list[Interval]:
     return entries
 
 
-def load_scales(session: SessionCatalog | None = None) -> dict[str, Scale]:
-    """Load the scale catalog from JSON, merged with any session-registered scales.
-
-    Parameters
-    ----------
-    session:
-        The ``SessionCatalog`` whose user-defined scales should be merged in.
-        When *None* the module-level default session is used, preserving the
-        original behaviour for standalone scripts and the CLI.
-    """
-    _session = session if session is not None else _DEFAULT_SESSION
+def _base_scales() -> dict[str, Scale]:
+    """Parse the scale catalog JSON, cached until the file's mtime changes."""
+    global _BASE_SCALES_CACHE
+    path = DATA_DIR / "scales.json"
+    mtime = path.stat().st_mtime_ns
+    if _BASE_SCALES_CACHE is not None:
+        cached_path, cached_mtime, cached_scales = _BASE_SCALES_CACHE
+        if cached_path == path and cached_mtime == mtime:
+            return cached_scales
     scales: dict[str, Scale] = {}
     for payload in _read_json("scales.json"):
         name = str(payload["name"])
@@ -89,6 +93,22 @@ def load_scales(session: SessionCatalog | None = None) -> dict[str, Scale]:
             if alias in scales:
                 raise ValueError(f"Duplicate scale alias detected: {alias}")
             scales[alias] = scale
+    _BASE_SCALES_CACHE = (path, mtime, scales)
+    return scales
+
+
+def load_scales(session: SessionCatalog | None = None) -> dict[str, Scale]:
+    """Load the scale catalog from JSON, merged with any session-registered scales.
+
+    Parameters
+    ----------
+    session:
+        The ``SessionCatalog`` whose user-defined scales should be merged in.
+        When *None* the module-level default session is used, preserving the
+        original behaviour for standalone scripts and the CLI.
+    """
+    _session = session if session is not None else _DEFAULT_SESSION
+    scales = dict(_base_scales())
     if _session.scales:
         for manual in _session.scales.values():
             if manual.name not in scales:
@@ -96,16 +116,15 @@ def load_scales(session: SessionCatalog | None = None) -> dict[str, Scale]:
     return scales
 
 
-def load_chord_qualities(session: SessionCatalog | None = None) -> dict[str, ChordQuality]:
-    """Load the chord-quality catalog from JSON, merged with any session-registered qualities.
-
-    Parameters
-    ----------
-    session:
-        The ``SessionCatalog`` whose user-defined chord qualities should be
-        merged in.  When *None* the module-level default session is used.
-    """
-    _session = session if session is not None else _DEFAULT_SESSION
+def _base_chord_qualities() -> dict[str, ChordQuality]:
+    """Parse the chord-quality catalog JSON, cached until the file's mtime changes."""
+    global _BASE_QUALITIES_CACHE
+    path = DATA_DIR / "chord_qualities.json"
+    mtime = path.stat().st_mtime_ns
+    if _BASE_QUALITIES_CACHE is not None:
+        cached_path, cached_mtime, cached_qualities = _BASE_QUALITIES_CACHE
+        if cached_path == path and cached_mtime == mtime:
+            return cached_qualities
     qualities: dict[str, ChordQuality] = {}
     for payload in _read_json("chord_qualities.json"):
         name = str(payload["name"])
@@ -131,6 +150,21 @@ def load_chord_qualities(session: SessionCatalog | None = None) -> dict[str, Cho
             if alias in qualities:
                 raise ValueError(f"Duplicate chord quality alias detected: {alias}")
             qualities[alias] = quality
+    _BASE_QUALITIES_CACHE = (path, mtime, qualities)
+    return qualities
+
+
+def load_chord_qualities(session: SessionCatalog | None = None) -> dict[str, ChordQuality]:
+    """Load the chord-quality catalog from JSON, merged with any session-registered qualities.
+
+    Parameters
+    ----------
+    session:
+        The ``SessionCatalog`` whose user-defined chord qualities should be
+        merged in.  When *None* the module-level default session is used.
+    """
+    _session = session if session is not None else _DEFAULT_SESSION
+    qualities = dict(_base_chord_qualities())
     if _session.chords:
         for manual in _session.chords.values():
             if manual.name not in qualities:
