@@ -5,24 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable, Mapping, Sequence
 
-from ..core.bitmask import mask_from_pcs, is_subset
 from ..core.quality import ChordQuality
 from ..core.scale import Scale
+from .pcset_math import compatibility_roots as _compatibility_roots
 from .summaries import chord_brief
 
 ROMANS = ["I", "II", "III", "IV", "V", "VI", "VII"]
-
-
-def _compatibility_roots(scale: Scale, quality: ChordQuality) -> tuple[int, ...]:
-    """Return root positions (0..11) where the chord quality fits inside the scale."""
-
-    roots: list[int] = []
-    intervals = tuple(quality.intervals)
-    for root in range(12):
-        pcs = [((root + iv) % 12) for iv in intervals]
-        if is_subset(mask_from_pcs(pcs), scale.mask):
-            roots.append(root)
-    return tuple(roots)
 
 
 def _degree_labels(scale: Scale, chord_pcs: Sequence[int]) -> list[str]:

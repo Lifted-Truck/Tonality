@@ -43,6 +43,10 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   results into spelled/labeled views from a `DisplayContext`
   (`format_chord_analysis`, `format_scale_analysis`, `name_interpretations`,
   `spell_voicing`). Display imports analysis; analysis never imports display.
+- `pcset_math.py` — shared PC-set math (interval vector, reflection axes,
+  compatibility roots) used by the chord/scale/comparison modules. Helpers are
+  cached over the 4096-mask space; add new mask-keyed math here instead of
+  duplicating it per module.
 - `comparisons.py`, `summaries.py` — cross-object compatibility and compact briefs.
 - `builders.py` — `SessionCatalog` + manual scale/chord registration. **No
   module-level mutable state** — sessions are instances.
