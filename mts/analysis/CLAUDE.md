@@ -33,6 +33,12 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   results cite the version. Accepts a 12-vector or anything with
   `pc_weights()` (duck-typed so `temporal.Sequence` works without an upward
   import). `candidate_context` realizes a candidate as an `AnalyticalContext`.
+- `voice_leading.py` — `voice_leading`: minimal voice-leading distance between
+  two pc-set identities (total circular motion under the optimal non-crossing
+  assignment; exact, brute-force-verified in tests). **Analytical** — measures,
+  never realizes register (Phase 7 consumes it). The unequal-cardinality
+  convention is a named, cited policy (`doubling.1`); results carry the optimal
+  mapping as evidence.
 - `results.py` — **typed result dataclasses**. All analysis returns these, never
   raw dicts. Top-level results expose `to_dict()` (JSON/MCP output). Add new
   result fields here, not as ad-hoc dict keys. **Numeric/PC only** — no spelled
