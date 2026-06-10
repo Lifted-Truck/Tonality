@@ -78,6 +78,12 @@ keep it lean; it is *a* entry point, not *the* API).
   User-defined scales/chords live in a `SessionCatalog` instance.
 - **Mod-12 everywhere** in the identity layer. Register lives only in realizations.
 - Prefer pure functions in `analysis/`; side effects and state stay in `workspace`/sessions.
+- **Plans live in [ROADMAP.md](ROADMAP.md) — the single source of truth for
+  direction.** Don't write forward-looking roadmaps, "next steps", or TODO
+  sections in the README, per-layer CLAUDE.md files, or module docstrings; link
+  the ROADMAP phase instead. When you make (or reject) a planning decision in
+  conversation or a PR, fold it into ROADMAP.md in the same PR — an unrecorded
+  decision isn't decided. This keeps every agent and device aligned on one plan.
 
 ## Running things (IMPORTANT — environment quirks)
 

@@ -137,19 +137,17 @@ python3 scripts/build_scale_or_chord.py chord NAME 0,3,7
 
 See `mts/analysis/` for the Python interfaces behind these commands; the modules are designed so features can expand alongside the catalog data.
 
-## Temporal Roadmap (Work in Progress)
+## Time-aware analysis
 
-The new `mts.analysis.timeline` module is a scaffold for future, time-aware theory work. Current TODOs:
+Temporal features live in `mts/temporal/` (events, sequences, tempo/meter maps,
+segmentation, harmonic rhythm), with MIDI ingestion in `mts/io/midi.py`. The
+older `mts.analysis.timeline` module is a **deprecated stub** kept only for a
+legacy workspace path — build against `mts/temporal/`.
 
-- TODO: ingest MIDI/MusicXML (or live MIDI) into `TimedEvent` objects that capture onset, duration, velocity, tempo, and meter.
-- TODO: reuse the scale/chord analyzers to compute sliding harmonic windows along a timeline.
-- TODO: profile rhythm (density, syncopation, accents) alongside harmonic tension metrics.
-- TODO: surface generative hooks that can propose new events based on harmonic and rhythmic context.
-- TODO: extend the CLI family with sequence-aware commands once the core timeline utilities solidify.
-- TODO: flesh out the new `mts.workspace.Workspace` orchestration layer so CLI/GUI front-ends can share and persist context.
+## Roadmap
 
-## Next Steps
-
-- Tie the engine into a GUI or audio layer for real-time auditioning.
-- Add more aliases or scale families and extend the validator to cover harmonic/melodic variants.
-- Script additional CLIs for chord identification or progression generation using the enriched quality catalog.
+The canonical plan — build sequence, architecture decisions, target
+applications, and what is deferred or demoted — lives in
+**[ROADMAP.md](ROADMAP.md)**, the project's single source of truth for
+direction. Forward-looking statements anywhere else (including this README)
+defer to it. For contributor and agent workflow, see [CLAUDE.md](CLAUDE.md).
