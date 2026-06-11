@@ -151,3 +151,10 @@ applications, and what is deferred or demoted — lives in
 **[ROADMAP.md](ROADMAP.md)**, the project's single source of truth for
 direction. Forward-looking statements anywhere else (including this README)
 defer to it. For contributor and agent workflow, see [CLAUDE.md](CLAUDE.md).
+
+## Integrating an external project?
+
+**[INTEGRATION.md](INTEGRATION.md)** is the capability schematic for outside
+consumers (synths, generators, visualizers, agents): what the engine can do
+today, the three integration doors (Python / MCP / dataset files), the
+contracts to design around, and what's coming that you should leave room for.
