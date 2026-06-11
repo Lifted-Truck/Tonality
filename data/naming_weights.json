@@ -1,0 +1,20 @@
+[
+  {
+    "version": "naming-rules.1",
+    "source": "Slice 5 rule-based signal weights (hand-set; corpus calibration is Phase 4.5)",
+    "weights": {
+      "bass_is_root": 1.5,
+      "quality_canonicality": 0.25,
+      "root_diatonic": 1.0,
+      "functional_fit": 2.0,
+      "all_tones_diatonic": 1.0,
+      "special_function": 2.0
+    },
+    "ambiguity_margin": 0.5,
+    "marginalization": {
+      "version": "key-marginalization.1",
+      "top_n": 3,
+      "scheme": "relu-normalized"
+    }
+  }
+]

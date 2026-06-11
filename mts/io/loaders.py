@@ -29,6 +29,7 @@ DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 _BASE_SCALES_CACHE: tuple[Path, int, dict[str, Scale]] | None = None
 _BASE_QUALITIES_CACHE: tuple[Path, int, dict[str, ChordQuality]] | None = None
 _KEY_PROFILES_CACHE: tuple[Path, int, tuple["KeyProfileSet", ...]] | None = None
+_NAMING_WEIGHTS_CACHE: tuple[Path, int, tuple["NamingWeights", ...]] | None = None
 
 
 @dataclass(frozen=True)
@@ -39,6 +40,23 @@ class FunctionMapping:
     role: str
     modal_label: str
     tags: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class NamingWeights:
+    """One versioned naming-signal weight table (a versioned empirical prior).
+
+    ``weights`` maps signal name → weight; ``ambiguity_margin`` is the
+    top-two score gap below which a naming is flagged ambiguous;
+    ``marginalization`` configures how multi-key namings combine per-key
+    scores. Results cite ``version`` (ROADMAP "versioned-priors pattern").
+    """
+
+    version: str
+    source: str
+    weights: dict[str, float]
+    ambiguity_margin: float
+    marginalization: dict
 
 
 @dataclass(frozen=True)
@@ -106,6 +124,44 @@ def load_key_profiles(version: str | None = None) -> KeyProfileSet:
             return entry
     known = ", ".join(e.version for e in entries)
     raise ValueError(f"Unknown key-profile version {version!r} (known: {known})")
+
+
+def load_naming_weights(version: str | None = None) -> NamingWeights:
+    """Load a versioned naming-weight table from ``data/naming_weights.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime.
+    """
+    global _NAMING_WEIGHTS_CACHE
+    path = DATA_DIR / "naming_weights.json"
+    mtime = path.stat().st_mtime_ns
+    if _NAMING_WEIGHTS_CACHE is not None and _NAMING_WEIGHTS_CACHE[:2] == (path, mtime):
+        entries = _NAMING_WEIGHTS_CACHE[2]
+    else:
+        parsed: list[NamingWeights] = []
+        for payload in _read_json("naming_weights.json"):
+            weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
+            if not weights:
+                raise ValueError(f"Naming weights {payload['version']!r} define no signals")
+            parsed.append(
+                NamingWeights(
+                    version=str(payload["version"]),
+                    source=str(payload.get("source", "")),
+                    weights=weights,
+                    ambiguity_margin=float(payload.get("ambiguity_margin", 0.0)),
+                    marginalization=dict(payload.get("marginalization", {})),
+                )
+            )
+        if not parsed:
+            raise ValueError("naming_weights.json contains no weight tables")
+        entries = tuple(parsed)
+        _NAMING_WEIGHTS_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown naming-weights version {version!r} (known: {known})")
 
 
 def load_intervals() -> list[Interval]:

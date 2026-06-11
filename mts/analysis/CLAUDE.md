@@ -33,6 +33,14 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   results cite the version. Accepts a 12-vector or anything with
   `pc_weights()` (duck-typed so `temporal.Sequence` works without an upward
   import). `candidate_context` realizes a candidate as an `AnalyticalContext`.
+- `naming.py` — `name_chord`: the disambiguator (Phase 3 final slice). Ranks
+  every `interpret_chord` candidate inside an `AnalyticalContext` with scored,
+  inspectable evidence; weights are a versioned prior
+  (`data/naming_weights.json`). `context=None` → intrinsic-only ranking
+  (never fabricates a key — the key-side don't-guess rule). Special-function
+  seam flags aug-6/secondary-dominant/Neapolitan instead of penalizing their
+  chromaticism. `name_chord_across_keys` maps it over ranked `infer_key`
+  candidates: per-key conditional namings + key-weighted combined view.
 - `voice_leading.py` — `voice_leading`: minimal voice-leading distance between
   two pc-set identities (total circular motion under the optimal non-crossing
   assignment; exact, brute-force-verified in tests). **Analytical** — measures,

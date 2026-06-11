@@ -22,8 +22,11 @@ present only when its spec level is satisfied (cardinal rule: reduce never inven
   `spec_level`). Numeric/PC-only.
 - `analysis` — the numeric enrichment: `chord` / `scale` single-reading analyses,
   `interpretations` (every valid naming), `in_key` (chord placed in an
-  `AnalyticalContext`). Reuses `analysis.results` / `analytical_context` types —
-  don't duplicate fields here.
+  `AnalyticalContext`), `naming` (the contextually-chosen reading with ranked
+  alternatives + evidence, conditional on its snapshotted context — Slice 5).
+  Reuses `analysis.results` / `analytical_context` types — don't duplicate
+  fields here. (`AnalyticalContextSnapshot` itself now lives in
+  `analysis/results.py` and is re-exported from `record.py`.)
 - `realization` — **register tier**, present only for register-bearing input
   (`midi` + a `VoicingAnalysis` from `analyze_voicing`).
 - `placement` — **temporal tier**, present only for time-based material (beats,

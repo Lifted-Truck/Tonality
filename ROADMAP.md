@@ -215,7 +215,7 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       Small and well-bounded; no new dependency. Round-trip
       (`read → write → read`) is the natural invariant to test.
 
-### Phase 3 — Contextualization & dataset schema
+### Phase 3 — Contextualization & dataset schema ✅ DONE
 - [x] Resolve the **two "context" concepts**: *display* context pushed to the edge
       — analysis is numeric/PC-only and spelling/labels render via
       `mts/context/result_format.py` from a `DisplayContext` (Slices 1a/1b); and
@@ -250,13 +250,24 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       tones under their parent harmony (the Phase 2 deferred refinement), or (b) a
       form/section layer above progressions. At that trigger, migrate via `Dataset`
       nesting / `DatasetRecord.children` (additive), **not** a leaf-schema teardown.
-- [ ] **Context-sensitive naming / disambiguation:** consume the candidate
+- [x] **Context-sensitive naming / disambiguation:** consume the candidate
       `(root, quality)` set from `interpret_chord` and pick the contextually-correct
       reading from key, functional role, and voice-leading context — returning the
       chosen name *with ranked alternatives and the evidence for each*, not a bare
       label. (Resolves the deferred functional augmented-sixth labelling from
-      Phase 1.5. Deterministic/rule-based here; corpus-statistical ranking is
-      Phase 4.5.)
+      Phase 1.5 at detect-and-flag level. Deterministic/rule-based here;
+      corpus-statistical ranking is Phase 4.5.) **Delivered (2026-06-10), per
+      the design on record below:** `analysis/naming.py` (`name_chord` +
+      `name_chord_across_keys`), signal tiers (a)+(b), weight table as
+      versioned prior (`data/naming_weights.json`, `naming-rules.1`),
+      special-function seam (aug-6 German/French, secondary dominants,
+      Neapolitan), `RecordAnalysis.naming` wired in both record builders, and
+      `AnalyticalContextSnapshot` moved down to `analysis/results.py`
+      (re-exported from `dataset.record`) so readings label their context
+      without an upward import. Behavior pins: C6=Am7 ties honestly in
+      C major until a bass note or A-minor frame decides it; dim7 stays a
+      three-way diatonic tie pending tier (c). *Follow-ups:* tier (c)
+      sequential/VL signals; fully-spelled It/Fr/Ger labels.
 
       **Sequenced after Phase 3.5** (consult, 2026-06-10): this consumes an
       `AnalyticalContext`, and Phase 3.5b is the upstream *producer* of that
