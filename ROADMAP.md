@@ -263,14 +263,56 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       object — the seam itself is correct (analysis must not hardcode
       key-finding). Building the consumer first would mean validating only on
       hand-authored keys, and inventing an evidence vocabulary against toy
-      inputs rather than real producer output. **Design requirements
-      (preserved from the prior design discussion — re-derive the rest when
-      this slice starts):** (a) runnable per-candidate over a *ranked set* of
-      `AnalyticalContext`s — key induction returns ranked candidates with
-      margins, and relative-major/minor near-ties are the canonical hard
-      input; (b) the result schema labels each reading as conditional on the
-      context that produced it (the door to joint key/chord reasoning stays
-      open); (c) may use VL-distance (Phase 3.5) as a signal.
+      inputs rather than real producer output. **Design requirements:**
+      (a) runnable per-candidate over a *ranked set* of `AnalyticalContext`s —
+      key induction returns ranked candidates with margins, and relative
+      major/minor near-ties are the canonical hard input; (b) the result
+      schema labels each reading as conditional on the context that produced
+      it (the door to joint key/chord reasoning stays open); (c) may use
+      VL-distance (Phase 3.5) as a signal.
+
+      **Design on record (proposed by the prior session, recovered + adapted
+      2026-06-10; merging the PR that adds this block = sign-off):**
+      - *Entry point & placement:* new `mts/analysis/naming.py` —
+        `name_chord(chord, context, *, realization=None) -> ChordNaming`.
+        Pure/numeric; consumes `interpret_chord` + `contextualize_chord` +
+        `theory/functions.py` (+ `pcset_math.compatibility_roots` as a scoring
+        input). Result types in `results.py`; roman-numeral *string* rendering
+        at the display edge (`mts/context/result_format.py`). Nests into the
+        Slice 4 record: `RecordAnalysis` gains optional
+        `naming: ChordNaming | None` — the "chosen reading."
+      - *Signal tiers* — ship (a)+(b) now, (c) as an additive follow-up:
+        (a) intrinsic: bass-is-root (when a realization is present), quality
+        canonicality; (b) key-relative: root-is-diatonic, functional fit via
+        `theory/functions.py` + `compatibility_roots`, all-tones-diatonic
+        (unless a recognized special function); (c) sequential/voice-leading:
+        resolution behavior + VL smoothness/common-tones between neighbors
+        (needs progression context; VL-distance now exists for it).
+      - *Result shape* (numeric facts in analysis; strings at the edge):
+        `NamingEvidence {signal, weight, detail}` ·
+        `RankedInterpretation {interpretation, score, rank, functional_role,
+        root_degree, function_category, evidence}` ·
+        `ChordNaming {chosen, alternatives, is_ambiguous, context}` — where
+        `context` is the `AnalyticalContextSnapshot` the reading is
+        conditional on (requirement (b)). Signal weights live in an explicit
+        **versioned weight table** (the versioned-priors pattern; cite the
+        version in results).
+      - *No-context behavior:* graceful intrinsic-only ranking with
+        `is_ambiguous` set; never fabricate a key (the don't-guess rule —
+        documented as distinct from the register rule).
+      - *Augmented-sixth scope:* detect-and-flag `function_category`
+        (`augmented_sixth_german`, …) via a general special-function seam
+        that also covers secondary dominants / Neapolitan; fully-spelled
+        It/Fr/Ger labelling deferred to a follow-up.
+      - *Ranked-context adaptation* (the one structural change vs. the
+        original proposal, which predated key induction): keep `name_chord`
+        **single-context and pure**; add a thin wrapper that maps it over
+        ranked key candidates (`infer_key` output → `candidate_context`) and
+        returns the per-key conditional namings plus a combined view weighted
+        by key confidence. Rationale: the core scorer stays testable in
+        isolation; the key-confidence marginalization is its own (versioned)
+        policy that can evolve without touching the scorer; and the no-context
+        path already gives the core a single-arity shape.
 
 ### Phase 3.5 — Identity-analysis primitives & key induction ✅ DONE
 Inserted 2026-06-10 after an external consult, before the Phase 3 disambiguation
