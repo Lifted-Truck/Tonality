@@ -31,8 +31,10 @@ from dataclasses import dataclass, field, replace
 
 from ..analysis.analytical_context import ChordInKey
 from ..analysis.results import (
+    AnalyticalContextSnapshot,
     ChordAnalysisResult,
     ChordInterpretations,
+    ChordNaming,
     ScaleAnalysisResult,
     VoicingAnalysis,
 )
@@ -67,13 +69,9 @@ class SourceRef:
     kind: str | None = None
 
 
-@dataclass(frozen=True)
-class AnalyticalContextSnapshot:
-    """Frozen capture of the :class:`AnalyticalContext` used (numeric)."""
-
-    tonic_pc: int | None = None
-    key_name: str | None = None
-    key_degrees: list[int] | None = None
+# AnalyticalContextSnapshot moved to mts/analysis/results.py (the naming slice
+# labels readings with the context they are conditional on, and analysis may
+# not import this layer). Re-exported here unchanged for existing consumers.
 
 
 @dataclass(frozen=True)
@@ -114,6 +112,7 @@ class RecordAnalysis:
     scale: ScaleAnalysisResult | None = None
     interpretations: ChordInterpretations | None = None
     in_key: ChordInKey | None = None
+    naming: ChordNaming | None = None  # the chosen reading (Slice 5), context-conditional
 
 
 @dataclass(frozen=True)

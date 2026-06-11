@@ -292,6 +292,104 @@ class VoiceLeadingResult:
 
 
 # ---------------------------------------------------------------------------
+# Context-sensitive naming (Phase 3 disambiguation slice)
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class AnalyticalContextSnapshot:
+    """Frozen capture of the :class:`AnalyticalContext` used (numeric).
+
+    Lives here (not in ``mts/dataset``) so naming results can label each
+    reading with the context it is conditional on without an upward import;
+    the dataset layer re-exports it.
+    """
+
+    tonic_pc: int | None = None
+    key_name: str | None = None
+    key_degrees: list[int] | None = None
+
+
+@dataclass(frozen=True)
+class NamingEvidence:
+    """One scored signal behind a ranked interpretation (inspectable, per
+    Decision 7). ``weight`` is the value applied from the versioned table."""
+
+    signal: str
+    weight: float
+    detail: str | None = None
+
+
+@dataclass(frozen=True)
+class RankedInterpretation:
+    """One candidate naming with its score and the evidence behind it."""
+
+    interpretation: ChordInterpretation
+    score: float
+    rank: int
+    functional_role: str | None = None    # "tonic" | "predominant" | "dominant"
+    root_degree: int | None = None        # 0-based degree of the root in the key
+    function_category: str | None = None  # special-function flag (aug6, V/x, ...)
+    evidence: list[NamingEvidence] = dataclasses.field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ChordNaming:
+    """The contextually-chosen reading of a pc set, with ranked alternatives.
+
+    Per Decision 7: plural (every alternative kept, scored), explicit
+    (``evidence`` per reading; ``weights_version`` cites the prior), and
+    honest (``is_ambiguous`` flags near-ties instead of hiding them).
+    ``context`` is the snapshot this naming is *conditional on* — ``None``
+    means intrinsic-only ranking (no key was supplied; none was invented).
+    ``chosen`` is ``None`` when the set matches nothing in the catalog.
+    """
+
+    chosen: RankedInterpretation | None
+    alternatives: list[RankedInterpretation]
+    is_ambiguous: bool
+    context: AnalyticalContextSnapshot | None
+    weights_version: str
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
+class NamingUnderKey:
+    """One key candidate's conditional naming, with its marginalization weight."""
+
+    candidate: KeyCandidate
+    key_weight: float
+    naming: ChordNaming
+
+
+@dataclass(frozen=True)
+class MultiKeyNaming:
+    """Namings conditional on each ranked key candidate, plus a combined view.
+
+    ``per_key`` keeps every reading conditional on its context (requirement
+    of the recorded design); ``combined`` marginalizes scores over the key
+    weights. Combined entries carry no functional_role / root_degree /
+    function_category — those facts are key-conditional and live on the
+    per-key readings.
+    """
+
+    per_key: list[NamingUnderKey]
+    combined: list[RankedInterpretation]
+    is_ambiguous: bool
+    weights_version: str
+
+    @property
+    def chosen(self) -> RankedInterpretation | None:
+        return self.combined[0] if self.combined else None
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
+# ---------------------------------------------------------------------------
 # Top-level result types
 # ---------------------------------------------------------------------------
 
@@ -355,10 +453,16 @@ class ChordAnalysisResult:
 
 
 __all__ = [
+    "AnalyticalContextSnapshot",
     "ChordAnalysisResult",
     "ChordInterpretation",
+    "ChordNaming",
     "KeyCandidate",
     "KeyInductionResult",
+    "MultiKeyNaming",
+    "NamingEvidence",
+    "NamingUnderKey",
+    "RankedInterpretation",
     "ChordInterpretations",
     "ChordIntervalSummary",
     "Inversion",

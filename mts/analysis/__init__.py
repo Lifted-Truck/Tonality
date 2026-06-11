@@ -14,6 +14,7 @@ from .voicings import suggest_voicings
 from .equivalence import interpret_chord
 from .analytical_context import AnalyticalContext, ChordInKey, contextualize_chord
 from .key_induction import candidate_context, infer_key
+from .naming import name_chord, name_chord_across_keys
 from .voice_leading import POLICY_DOUBLING_V1, voice_leading
 from .errors import SpecificationError, require_realization
 from ..core.realization import Realization
@@ -50,11 +51,17 @@ from .results import (
     ChordAnalysisResult,
     ChordInterpretation,
     ChordInterpretations,
+    AnalyticalContextSnapshot,
     ChordIntervalSummary,
+    ChordNaming,
     Inversion,
     KeyCandidate,
     KeyInductionResult,
     ModeRotation,
+    MultiKeyNaming,
+    NamingEvidence,
+    NamingUnderKey,
+    RankedInterpretation,
     ReflectionAxis,
     ScaleAnalysisResult,
     ScaleIntervalSummary,
@@ -107,6 +114,14 @@ __all__ = [
     "voice_leading",
     "POLICY_DOUBLING_V1",
     "VoiceLeadingResult",
+    "name_chord",
+    "name_chord_across_keys",
+    "AnalyticalContextSnapshot",
+    "ChordNaming",
+    "MultiKeyNaming",
+    "NamingEvidence",
+    "NamingUnderKey",
+    "RankedInterpretation",
     "analyze_timeline",
     "generate_sequence",
     "parse_pitch_token",

@@ -21,6 +21,7 @@ from ..analysis.chord_analysis import (
     analyze_voicing,
 )
 from ..analysis.equivalence import interpret_chord
+from ..analysis.naming import name_chord
 from ..context.context import DisplayContext
 from ..context.result_format import format_chord_analysis
 from ..core.chord import Chord
@@ -121,6 +122,7 @@ def record_from_chord(
         chord=chord_result,
         interpretations=interpretations,
         in_key=in_key,
+        naming=name_chord(chord, analytical_context, realization=realization),
     )
 
     realization_record = None
@@ -166,10 +168,12 @@ def record_from_segment(
     """Build a ``segment``-kind record from a temporal :class:`Segment`.
 
     A segment is a *rootless* PC-set span: its identity enumerates namings
-    (``interpret_chord``) rather than committing to a single rooted reading — that
-    contextual choice is Phase 3 Slice 5. The segment's representative realization
-    is a rootless voicing template, analysed register-aware. When ``sequence`` is
-    given, the placement is enriched with seconds and metric bar/beat.
+    (``interpret_chord``), and ``naming`` carries the contextually-chosen
+    reading (Slice 5) — conditional on the supplied analytical context, or an
+    intrinsic-only ranking when none is given. The segment's representative
+    realization is a rootless voicing template, analysed register-aware. When
+    ``sequence`` is given, the placement is enriched with seconds and metric
+    bar/beat.
     """
 
     placement = _placement_for_span(seg.start, seg.duration_beats, sequence)
@@ -185,7 +189,10 @@ def record_from_segment(
             cardinality=len(set(seg.pcs)),
             spec_level=SpecLevel.INTERVAL_SHAPE.label,
         ),
-        analysis=RecordAnalysis(interpretations=seg.interpret()),
+        analysis=RecordAnalysis(
+            interpretations=seg.interpret(),
+            naming=name_chord(seg.pcs, analytical_context, realization=seg.realization),
+        ),
         realization=RealizationRecord(
             midi=[p.midi for p in seg.realization.pitches],
             voicing=voicing,
