@@ -59,7 +59,9 @@ analysis/    Enrichment engine: specs (parser), *_analysis, comparisons, summari
 temporal/    Time layer (Phase 2): Event/Sequence + tempo/meter; window → realization → key.
              Segmentation + harmonic rhythm PLANNED. (analysis/timeline.py is a DEPRECATED stub.)
   ↓
-[mcp]         PLANNED: thin adapter — one tool per analysis function, schemas from results.py
+mcp/         Thin adapter (Phase 4): one tool per analysis entry point. tools.py is
+             pure + SDK-free (fully testable); server.py needs the optional `mcp`
+             extra (`python -m mts.mcp`). Intelligence stays below this line.
 [representation] PLANNED: render-agnostic representation DATA (clock/Tonnetz/piano-roll/staff/
               circle-of-fifths). Library emits descriptions; pixel/file rendering is an edge
               consumer, NOT core (no in-repo GUI). Each view declares its required spec level.
@@ -98,7 +100,8 @@ There is **no bare `python`** on this machine. Use the project venv explicitly:
 ```
 
 The venv is at the **main repo root** (`/Users/machinepriest/Documents/Tonality/.venv`),
-not inside the worktree. There are **109 tests**; keep them green on every commit.
+not inside the worktree. Keep the full `tests/` suite green on every commit
+(one test needs the optional `mcp` extra and skips without it).
 
 ## Gotchas
 

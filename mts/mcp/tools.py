@@ -1,0 +1,308 @@
+"""MCP tool functions: one thin adapter per analysis entry point.
+
+Every function here is pure glue — parse agent-friendly inputs (note names or
+pitch-class ints, catalog names, MIDI numbers), call exactly one engine entry
+point, return its dict form. Errors surface as ``ValueError`` with actionable
+messages (a blind agent can discover valid names via ``list_scales`` /
+``list_chord_qualities``). The functions are SDK-free so the full surface is
+testable without the optional ``mcp`` dependency; ``server.py`` registers
+``TOOLS`` with FastMCP.
+"""
+
+from __future__ import annotations
+
+import dataclasses
+
+from ..analysis import (
+    AnalyticalContext,
+    ChordAnalysisRequest,
+    ScaleAnalysisRequest,
+    analyze_chord,
+    analyze_scale,
+    analyze_voicing,
+    contextualize_chord,
+    infer_key,
+    interpret_chord,
+    name_chord,
+    name_chord_across_keys,
+    parse_chord_spec,
+    suggest_voicings,
+    voice_leading,
+)
+from ..analysis.comparisons import compare_chord_qualities
+from ..analysis.pcset_math import set_class_data
+from ..analysis.summaries import chord_brief
+from ..core.bitmask import mask_from_pcs
+from ..core.chord import Chord
+from ..core.enharmonics import pc_from_name
+from ..core.pitch import Pitch
+from ..core.realization import Realization
+from ..core.symmetry import mask_symmetry_order
+from ..dataset.builders import dataset_from_sequence
+from ..io.loaders import load_chord_qualities, load_scales
+
+
+# --- input helpers (agent-friendly coercions) --------------------------------------
+
+def _pc(value: int | str) -> int:
+    """A pitch class from an int (0-11) or a note name ('C', 'F#', 'Bb')."""
+    if isinstance(value, str):
+        return pc_from_name(value)
+    pc = int(value)
+    if not 0 <= pc < 12:
+        raise ValueError(f"Pitch class out of range: {pc} (use 0-11 or a note name).")
+    return pc
+
+
+def _quality(name: str):
+    catalog = load_chord_qualities()
+    if name not in catalog:
+        raise ValueError(
+            f"Unknown chord quality {name!r}. Call list_chord_qualities for valid names/aliases."
+        )
+    return catalog[name]
+
+
+def _scale(name: str):
+    catalog = load_scales()
+    if name not in catalog:
+        raise ValueError(f"Unknown scale {name!r}. Call list_scales for valid names/aliases.")
+    return catalog[name]
+
+
+def _context(tonic: int | str | None, key_name: str | None) -> AnalyticalContext | None:
+    if tonic is None and key_name is None:
+        return None
+    if tonic is None:
+        raise ValueError("A key_name needs a tonic (the key's root pitch class or note name).")
+    key = _scale(key_name) if key_name is not None else None
+    return AnalyticalContext(tonic_pc=_pc(tonic), key=key)
+
+
+def _realization(midi_notes: list[int] | None, root: int | str | None = None) -> Realization | None:
+    if not midi_notes:
+        return None
+    pitches = tuple(Pitch.from_midi(int(m)) for m in midi_notes)
+    return Realization(pitches, root_pc=_pc(root) if root is not None else None)
+
+
+# --- catalog discovery (for blind agent use) -----------------------------------------
+
+def list_scales() -> list[dict]:
+    """All catalog scales: name, degrees (intervals above the root), aliases."""
+    seen: dict[str, dict] = {}
+    for scale in load_scales().values():
+        seen.setdefault(
+            scale.name,
+            {"name": scale.name, "degrees": list(scale.degrees), "aliases": list(scale.aliases)},
+        )
+    return list(seen.values())
+
+
+def list_chord_qualities() -> list[dict]:
+    """All catalog chord qualities: name, intervals above the root, tensions, aliases."""
+    seen: dict[str, dict] = {}
+    for quality in load_chord_qualities().values():
+        seen.setdefault(
+            quality.name,
+            {
+                "name": quality.name,
+                "intervals": list(quality.intervals),
+                "tensions": list(quality.tensions),
+                "aliases": list(quality.aliases),
+            },
+        )
+    return list(seen.values())
+
+
+# --- identity analysis ---------------------------------------------------------------
+
+def parse_chord(text: str) -> dict:
+    """Parse a chord expression in any supported notation.
+
+    Forms: interval lists "C3[0,4,7]" / "[0,3,7]", degree lists "(1,b3,5)",
+    note tokens "[C,E,G]", MIDI sets "{60,64,67}", catalog names "C:min7",
+    inline alias "=label".
+    """
+    return dataclasses.asdict(parse_chord_spec(text))
+
+
+def chord_analysis(
+    root: int | str,
+    quality: str,
+    tonic: int | str | None = None,
+    include_inversions: bool = True,
+    include_set_class: bool = True,
+) -> dict:
+    """Full identity analysis of a rooted chord (intervals, symmetry, set class, Tonnetz)."""
+    chord = Chord.from_quality(_pc(root), _quality(quality))
+    request = ChordAnalysisRequest(
+        chord=chord,
+        tonic_pc=_pc(tonic) if tonic is not None else None,
+        include_inversions=include_inversions,
+        include_set_class=include_set_class,
+    )
+    return analyze_chord(request).to_dict()
+
+
+def scale_analysis(
+    scale_name: str | None = None,
+    degrees: list[int] | None = None,
+    tonic: int | str | None = None,
+) -> dict:
+    """Full analysis of a scale by catalog name OR an explicit degree list."""
+    if (scale_name is None) == (degrees is None):
+        raise ValueError("Provide exactly one of scale_name or degrees.")
+    if scale_name is not None:
+        scale = _scale(scale_name)
+    else:
+        from ..core.scale import Scale
+
+        scale = Scale.from_degrees("Custom", [int(d) % 12 for d in degrees])
+    request = ScaleAnalysisRequest(
+        scale=scale, tonic_pc=_pc(tonic) if tonic is not None else None
+    )
+    return analyze_scale(request).to_dict()
+
+
+def set_class_info(pcs: list[int]) -> dict:
+    """Set-class identity of a pc set: normal order, Rahn prime form, Z-partner,
+    DFT magnitudes, rotational symmetry."""
+    mask = mask_from_pcs({int(pc) % 12 for pc in pcs})
+    if mask == 0:
+        raise ValueError("set_class_info needs at least one pitch class.")
+    data = dataclasses.asdict(set_class_data(mask))
+    data["rotational_symmetry_order"] = mask_symmetry_order(mask)
+    data["mask"] = mask
+    return data
+
+
+def interpretations(pcs: list[int]) -> dict:
+    """Every structurally-valid (root, quality) naming of a pc set
+    (symmetric and ambiguous sets yield several)."""
+    return interpret_chord(int(pc) % 12 for pc in pcs).to_dict()
+
+
+# --- contextual analysis -----------------------------------------------------------------
+
+def chord_in_key(root: int | str, quality: str, tonic: int | str, key_name: str) -> dict:
+    """Place a rooted chord in a key: scale degrees, diatonic membership, chromatic tones."""
+    chord = Chord.from_quality(_pc(root), _quality(quality))
+    context = _context(tonic, key_name)
+    return contextualize_chord(chord, context).to_dict()
+
+
+def name_pcs(
+    pcs: list[int],
+    tonic: int | str | None = None,
+    key_name: str | None = None,
+    realization_midi: list[int] | None = None,
+) -> dict:
+    """The contextually-chosen naming of a pc set, with ranked alternatives and
+    evidence. Omit tonic/key_name for intrinsic-only ranking (no key is invented);
+    pass realization_midi (actual sounding notes) to let the bass note weigh in."""
+    return name_chord(
+        pcs, _context(tonic, key_name), realization=_realization(realization_midi)
+    ).to_dict()
+
+
+def key_induction(pc_weights: list[float]) -> dict:
+    """Ranked key candidates for duration-weighted pitch-class content
+    (12 weights, index = pc). All 24 candidates, scores, and the top-two margin."""
+    return infer_key(pc_weights).to_dict()
+
+
+def name_pcs_in_inferred_keys(
+    pcs: list[int],
+    pc_weights: list[float],
+    realization_midi: list[int] | None = None,
+) -> dict:
+    """Infer the key from pc_weights, then name the pc set conditional on each
+    ranked key candidate, plus a key-confidence-weighted combined ranking."""
+    keys = infer_key(pc_weights)
+    return name_chord_across_keys(
+        pcs, keys, realization=_realization(realization_midi)
+    ).to_dict()
+
+
+def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict:
+    """Minimal voice-leading distance between two pc sets, with the optimal
+    voice mapping as evidence."""
+    return voice_leading(source_pcs, target_pcs).to_dict()
+
+
+# --- register-aware & generative ------------------------------------------------------------
+
+def voicing_analysis(midi_notes: list[int], root: int | str | None = None) -> dict:
+    """Register-aware analysis of actual sounding notes (inversion, spacing,
+    recognized voicing type). Requires real notes — register is never invented."""
+    realization = _realization(midi_notes, root)
+    if realization is None:
+        raise ValueError("voicing_analysis needs at least one MIDI note.")
+    return analyze_voicing(realization).to_dict()
+
+
+def voicing_suggestions(root: int | str, quality: str) -> dict:
+    """GENERATIVE: invent candidate voicings (closed, drop-2/3, rootless, shell)
+    for a chord identity."""
+    chord = Chord.from_quality(_pc(root), _quality(quality))
+    return dataclasses.asdict(suggest_voicings(chord))
+
+
+# --- comparison & summary ----------------------------------------------------------------------
+
+def quality_comparison(quality_a: str, quality_b: str) -> dict:
+    """Compare two chord qualities across the scale catalog (shared scales,
+    placements, unique fits)."""
+    return dataclasses.asdict(
+        compare_chord_qualities(_quality(quality_a), _quality(quality_b))
+    )
+
+
+def quality_brief(quality: str) -> dict:
+    """Compact brief for a chord quality: interval fingerprint, top compatible
+    scales, functional roles."""
+    return dataclasses.asdict(chord_brief(_quality(quality)))
+
+
+# --- the A1 pipeline ------------------------------------------------------------------------------
+
+def midi_file_analysis(path: str, infer_context: bool = True) -> dict:
+    """Analyze a Standard MIDI File end-to-end: segment it, infer the global key,
+    and emit the enriched dataset (per-segment identity, namings, placement).
+
+    When infer_context is true, the best inferred key becomes the analytical
+    context every segment's naming is conditional on; the full ranked key
+    result is returned alongside either way.
+    """
+    from ..analysis import candidate_context
+    from ..io.midi import sequence_from_midi_file
+
+    sequence = sequence_from_midi_file(path)
+    keys = infer_key(sequence)
+    context = candidate_context(keys.best) if infer_context else None
+    dataset = dataset_from_sequence(sequence, analytical_context=context)
+    return {"key": keys.to_dict(), "dataset": dataset.to_dict()}
+
+
+TOOLS = (
+    list_scales,
+    list_chord_qualities,
+    parse_chord,
+    chord_analysis,
+    scale_analysis,
+    set_class_info,
+    interpretations,
+    chord_in_key,
+    name_pcs,
+    key_induction,
+    name_pcs_in_inferred_keys,
+    voice_leading_distance,
+    voicing_analysis,
+    voicing_suggestions,
+    quality_comparison,
+    quality_brief,
+    midi_file_analysis,
+)
+
+__all__ = [fn.__name__ for fn in TOOLS] + ["TOOLS"]

@@ -419,9 +419,26 @@ a versioned data asset with one shared mechanism; results cite the prior version
 they used. Same input + same prior version → same output.
 
 ### Phase 4 — MCP endpoint
-- [ ] Thin adapter: one tool per analysis entry point; schemas derived from
+- [x] Thin adapter: one tool per analysis entry point; schemas derived from
       `results.py`; stateless by default, session-backed where multi-turn is needed.
-- [ ] Error/validation surface suitable for blind agent use.
+      **Delivered (2026-06-10):** `mts/mcp/` — `tools.py` holds 17 pure,
+      SDK-free adapter functions (each parses agent-friendly inputs, calls one
+      engine entry point, returns its `to_dict()`; Decision 5 honored —
+      nothing computed in the layer); `server.py` wires them into FastMCP
+      behind a guarded import (`mcp` is an optional extra; `python -m mts.mcp`
+      runs stdio). Tool set spans identity (parse / chord / scale / set-class /
+      interpretations), context (in-key, naming, key induction,
+      naming-across-keys, VL distance), register/generative (voicing analysis
+      + suggestions), comparison/brief, catalog discovery, and the end-to-end
+      `midi_file_analysis` (the A1 pipeline minus local keys). Stateless-only;
+      the session-backed variant is deferred until a multi-turn consumer
+      exists.
+- [x] Error/validation surface suitable for blind agent use.
+      **Delivered:** every tool raises `ValueError` with actionable messages
+      that point at the discovery tools (`list_scales` /
+      `list_chord_qualities`); inputs accept note names or pc ints; the server
+      instructions tell agents that ranked alternatives + `is_ambiguous` are
+      part of the answer, not noise.
 - [ ] *(parked here 2026-06-10)* **Constraint search / "inverse analysis":**
       `search_identities(constraints)` / `search_voicings(identity, constraints)`
       — exhaustive, exact queries over the 4096-identity universe and the small
