@@ -107,6 +107,21 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
   timestamps) so a streaming adapter can slot in later, and prefer pull-based
   queries against the batch API in the interim (it is fast enough to re-query
   per phrase, just not per note).
+- **Compositional rulesets** (Phase 4.6 / Decision 8) — *for everyone,
+  eventually the biggest one*: a declarative, JSON-serializable constraint
+  syntax over the engine's analytical vocabulary. Rulesets will be
+  first-class versioned artifacts flowing in both directions: **impose** one
+  on generation or analysis (conformance reports with violation locations),
+  **derive** candidate rulesets from existing material (a narrowable
+  rule-space), and **compare** rulesets (shared rules, conflicts, empirical
+  profiles). An LLM can translate a theory text into the DSL through MCP;
+  the engine validates and evaluates it exactly. *What to anticipate:*
+  generators — a ruleset becomes the "style" parameter, and your output can
+  be checked against one; analyzers/visualizers — conformance reports are a
+  new renderable result type; all projects — rulesets are JSON artifacts you
+  can store, version, and trade between projects like patches. The
+  supporting vocabulary expansion (voice identity, melodic contour,
+  rhythmic patterns) is recorded alongside it.
 
 ## What to send back (per candidate project)
 

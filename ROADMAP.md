@@ -128,6 +128,22 @@ customer, and A4 raises the requirement from windowed to *online*.
    → same ranking); it never collapses to a single black-box answer. This preserves
    the division of labor: transparent combinatorics + explicit statistics *here*,
    open-ended semantic leaps in the caller.
+8. **Rulesets are declarative, serializable, versioned artifacts over the
+   engine's own analytical vocabulary** (added 2026-06-11; see Phase 4.6). A
+   compositional ruleset is a set of predicates over facts the typed results
+   already expose — scoped (per-event / adjacent-pair / phrase / global), hard
+   or soft-weighted, declaring the specification level each rule requires
+   (cardinal rule applies: a parallel-fifths rule *errors* on voiceless
+   material). Rulesets are versioned priors (the Phase 3.5 pattern; the naming
+   weight table is the degenerate first instance). **Rule *proposal* is the
+   caller's job; rule *verification and evaluation* are the engine's** — an
+   LLM translates a treatise into candidate rules in the DSL, the engine
+   validates and evaluates them exactly. Rule *induction* is exact
+   version-space mining over a template vocabulary, scored against null
+   models — statistics, never an in-engine learned black box. Corollary: the
+   engine can only express, check, and induce what its analytical vocabulary
+   can say — vocabulary expansion (voice, melody, rhythm) is therefore a
+   first-class investment, not a side effect.
 
 ## Build sequence
 
@@ -448,7 +464,10 @@ they used. Same input + same prior version → same output.
       layer; explicitly generative-side (cardinal rule). Parked because demand is
       MCP-shaped — it's the marquee agent-facing tool, not a library-internal
       need. The Phase 3.5a tables are its index, so parking costs nothing: the
-      substrate accrues anyway.
+      substrate accrues anyway. *(2026-06-11: Phase 4.6 rulesets generalize
+      this — a search constraint and a checkable rule are the same predicate
+      pointed in different directions; build the constraint vocabulary once,
+      there.)*
 
 ### Phase 4.5 — Contextual & statistical interpretation (corpus-driven)
 The intelligence payoff: move from *enumerating* interpretations to *weighing* them
@@ -465,6 +484,66 @@ from. Governed by Decision 7 (ranked, explicit, reproducible — never a black b
       where a statistically- or structurally-supported reinterpretation diverges
       from the conventional analysis. The engine proposes and evidences; the
       human/agent judges (semantic call stays in the caller, per Decision 7).
+
+### Phase 4.6 — Rulesets: a constraint syntax over the analytical vocabulary
+Added 2026-06-11 (Decision 8). The articulated vision: **extract, impose, and
+compare compositional rulesets** as first-class artifacts. An LLM translates a
+theory treatise into the DSL through MCP; the engine validates, evaluates
+against material, induces candidate rulesets *from* compositions, and feeds
+rulesets into generation as constraints. Lineage: species counterpoint is a
+ruleset; constraint programming for music (Ebcioğlu's CHORAL, Anders'
+Strasheela) built the imposition half; version-space rule induction builds the
+extraction half. What's novel here is the ruleset as a serializable, versioned,
+MCP-portable object flowing both directions. Intertwined with Phase 4.5 — soft
+rules and corpus statistics are the same object (weighted constraints with
+provenance).
+
+- [ ] **Workstream 0 — vocabulary prerequisites** (per the Decision 8
+      corollary, these are first-class engine capabilities in their own right,
+      wanted independent of rulesets):
+      - [ ] **Voice identity** — counterpoint rules (parallel fifths, voice
+            crossing) need to know *which voice moved*; `Event` has no
+            voice/part concept yet (MIDI tracks/channels seed it; explicit
+            voice-separation for merged material is a later refinement).
+      - [ ] **Melodic atoms** — contour, step/leap classification,
+            approach/departure intervals, NHT typing (shared with the parked
+            harmonic-segmentation work).
+      - [ ] **Rhythmic atoms** — duration patterns, syncopation, metric
+            placement classes (meter maps exist; the pattern vocabulary
+            doesn't).
+- [ ] **The DSL (v1).** Declarative, JSON-serializable, no code execution.
+      Each rule: an *atom* (a path into the typed-results vocabulary), a
+      *scope* (per-event / per-segment / adjacent-pair / phrase / global), a
+      *predicate* (equals / in-set / threshold / forbidden-pattern), a
+      *polarity* (hard, or soft with weight), and the *specification level it
+      requires* (error-don't-guess). Rulesets: named, versioned, composable
+      (combine / specialize / diff). Schema validation strict enough that a
+      blind LLM's translation is mechanically checkable.
+- [ ] **The evaluator** (analysis side; build first — deterministic, no new
+      theory). `evaluate(ruleset, dataset) → ConformanceReport`: which rules
+      hold, violation locations with evidence (Decision 7), per-rule
+      conformance frequency. Operates on dataset records — they already carry
+      every fact the atoms reference. Ruleset *comparison* falls out: shared
+      rules, direct conflicts, implication checks where decidable by
+      enumeration over the small spaces, empirical conformance profiles on a
+      shared corpus.
+- [ ] **Induction** (the rule-space). Version-space mining, not learning:
+      enumerate which instantiations of the template vocabulary a corpus
+      satisfies (or satisfies at frequency ≥ θ). Output is a *rule-space* —
+      plural by construction — narrowed by counterexample pieces, thresholds,
+      or projection onto one compositional element (filter by atom family).
+      The hard part is **interestingness**: score candidates against null
+      models (chance material, permuted corpora; MDL flavor — good rulesets
+      *compress*), reusing Phase 4.5's statistical machinery. Honest bound:
+      induction can only discover what the vocabulary expresses (Decision 8
+      corollary) — interpretable by design, and the reason Workstream 0 leads.
+- [ ] **Generation coupling** (lands with Phase 7): rulesets are the
+      constraint/cost input to generative search — hard rules prune, soft
+      rules score. This *is* Phase 7's "qualitative characteristics"
+      parameterization, in principled, composable form.
+- *No neural network required* — evaluation, comparison, and induction are
+  exact. Learned components (novel template proposal, treatise translation)
+  live in the caller per Decision 8: the LLM proposes, the engine verifies.
 
 ### Phase 5 — Representation / projection layer (visuals as data)
 A render-agnostic layer: the engine emits **typed, structured descriptions** of a
@@ -532,7 +611,9 @@ Phase 4.5 corpus statistics — so it can land before the Phase 6 tuning work.*
   **qualitative characteristics** that shape the search — smoothness / parsimony
   (total semitone motion), common-tone retention, contrary motion, voice
   independence, openness, tessitura, dissonance treatment. Different settings →
-  different stylistic outputs at different depths.
+  different stylistic outputs at different depths. *(2026-06-11: the principled
+  form of these controls is a Phase 4.6 **ruleset** — hard rules prune the
+  search, soft rules score it; "a style" is a ruleset handed to the generator.)*
 - Builds on the named-voicing vocabulary + `Realization` + the temporal layer;
   qualitative scoring can draw on Phase 4.5 corpus statistics for "what's idiomatic."
 - Output is ranked generative *suggestion data* (each variant tagged with its
