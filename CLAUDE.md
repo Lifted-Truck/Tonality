@@ -113,6 +113,17 @@ not inside the worktree. Keep the full `tests/` suite green on every commit
   only `events_from_live_midi` is still `NotImplementedError` (streaming is out of
   scope). `mido` is required — `pip install` it into the venv.
 
+## Cross-project integration channel
+
+External consumer projects (Julian's synths/generators/visualizers) exchange
+briefs and responses with this repo through **`integrations/`** — see
+[integrations/README.md](integrations/README.md) for the protocol. If you find
+an un-triaged `brief.md` there (or one arrives by relay), triage it: verify
+"already shipped" claims in code, write the per-request `response.md`, and
+fold durable outcomes into ROADMAP.md (target application + gaps) in the same
+PR. Decisions never live in `integrations/` — it records exchanges; ROADMAP.md
+records what was decided.
+
 ## Parallel audit thread
 
 A separate **audit loop** periodically checks capabilities and surfaces bugs. Its
