@@ -76,6 +76,18 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
 - **Near-silence contract**: all-zero or perfectly uniform pc weights raise
   (no tonal information — the engine won't guess). Streaming consumers with
   decaying histograms should gate induction calls on total weight.
+- **Mask bit convention**: Tonality masks are *absolute* — bit *n* = pitch
+  class *n* (C=0), the same integer convention as Ian Ring's scale numbers.
+  If your project keeps *root-relative* masks (bit 0 = your root), convert
+  with `rotate_mask(mask, root_pc)`. Set-class identity (prime form, Ring
+  number, DFT) is exhaustive over all 4096 sets — catalog *names* exist only
+  for cataloged sets, but identity never requires the catalog.
+- **Per-segment records, not roll-ups**: `midi_file_analysis` /
+  `dataset_from_sequence` return one record per stable-harmony segment, each
+  carrying `placement` (onset/duration in beats *and* seconds, bar/beat),
+  `interpretations`, and key-conditional `naming` — directly renderable as
+  timeline overlays. Shape: `DatasetRecord.to_dict()` with `SCHEMA_VERSION`
+  for pinning (`mts/dataset/record.py` is the schema of record).
 
 ## Three doors in
 
@@ -90,6 +102,17 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
 3. **Dataset artifacts** (offline/pipeline): JSON `DatasetRecord`s with an
    explicit `SCHEMA_VERSION`, a numeric canonical core, provenance, and
    context snapshots — built for reproducible interchange between projects.
+
+**Browser consumers (no door fits yet — interim guidance):** a browser SPA
+can't import Python or spawn the stdio MCP server. The sanctioned pattern
+(ruled 2026-06-11; recorded as ROADMAP gap 9) is a **thin local HTTP bridge**
+over the pure functions in `mts.mcp.tools` — they are SDK-free and return
+JSON-ready dicts, so a bridge is a page of glue. An official bridge is an
+engine-side deliverable; until it ships, stand up your own against
+`mts.mcp.tools` (the tool signatures and `to_dict()` shapes are the
+contract — swapping to the official bridge later should be a URL change).
+Hosted endpoints are declined (local-first); a WASM core is an explicit
+non-commitment. Offline file analysis via dataset artifacts works today.
 
 ## Contracts to design around (important)
 

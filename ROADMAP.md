@@ -78,8 +78,9 @@ list as new applications come into view.
   API shape (update state, don't recompute from zero) · Phase 7 generation
   under a latency budget + instrument-class profiles (A3).
 
-- **A5 — TERRANE** *(added 2026-06-11 from the project's relay brief; full
-  design doc available from Julian on request)*. An adaptive synthesizer in
+- **A5 — TERRANE** *(added 2026-06-11 from the project's relay brief; intake
+  closed by brief 2 — design doc: github.com/Lifted-Truck/Terrane, §11 is the
+  TERRANE-side mirror of the exchange)*. An adaptive synthesizer in
   early design: sound is a function of performance history — a particle with
   mass/friction moves through a timbre space whose terrain is reshaped by
   harmonic state, *relational* to a slowly-drifting, confidence-gated "home"
@@ -102,6 +103,47 @@ list as new applications come into view.
   **cadence detection — gap 7 below** (TERRANE stopgaps locally meanwhile) ·
   streaming session API — gap 5; TERRANE joins A4 as a named customer while
   explicitly *not* requiring it for Phase 1.
+- **A6 — AUDIOLOGY** *(added 2026-06-11 from its brief —
+  `integrations/audiology/`)*. A browser SPA (TypeScript/React, local-first,
+  no backend): a Push-3-style scale/chord **explorer** (8×8 grid + keyboard,
+  scale-membership coloring), a MIDI-file **player/analyzer** (WebAudio
+  transport, canvas piano-roll), and a **live-play** surface (Web MIDI /
+  computer keyboard) with a three-mode chord card. Wants to retire its two
+  naive-TS theory functions (`analyzeSelection`, `scalesContaining`) in favor
+  of engine calls; already lives by the contracts (plural answers, numeric
+  core, errors-as-signals, sends richest form incl. bass). Interactive
+  (~60–100 ms) pull-based; no hard real-time.
+  *Capabilities:* bass-aware chord naming + inversion recognition ✅ shipped
+  (`name_pcs` + `voicing_analysis`) · file-level key induction + per-segment
+  dataset with placements ✅ shipped (`midi_file_analysis`) · per-segment keys
+  → **local key tracking** (A6 joins A1 as customer) · catalog of record ✅
+  shipped (`list_scales` / `list_chord_qualities`) · **pc-set containment
+  query — gap 8 below** · voicing recognition/suggestions ✅ shipped ·
+  **browser door — gap 9 below** (the blocking question; ruled: local HTTP
+  bridge is the sanctioned shape) · named consumer of the **Phase 5
+  representation layer** (keyboard + piano-roll descriptors; its three
+  surfaces are ready render targets).
+- **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
+  `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
+  A generative instrument: a K=6-state cellular automaton under Glauber
+  dynamics whose musical mode (root-fixed, walking the 2,048-vertex mode
+  hypercube) *generates the physics*; a pure deterministic TS core emits a
+  byte-exact event chronicle, with Tonality strictly in adapters and offline
+  enrichment (core purity is absolute). Chronicle fixtures make **versioned
+  priors a regression-grade dependency** — the strongest consumer yet of
+  that pattern. MCP + dataset doors; chord/epoch-rate pull; no hard
+  real-time for us.
+  *Capabilities:* voicing naming + disambiguation ✅ shipped · exhaustive
+  12-bit mode identity (prime form / Ring number for arbitrary sets, beyond
+  the named catalog) ✅ shipped, verified — with the **root-relative →
+  absolute mask rotation contract** documented in INTEGRATION.md · DFT
+  magnitudes / evenness as CC signals ✅ shipped · velocity-weighted decaying
+  key induction ✅ shipped (margin as confidence CC) · VL distance ✅
+  identity-level; joins **gap 6** with a **test-corpus offer** (recorded
+  there) · MIDI export + dataset enrichment ✅ shipped · prospective **Phase
+  4.6 induction consumer** ("derive the idiom from the affinity matrix");
+  a sibling instrument is noted as a likely second consumer of the same
+  doors.
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — `io/midi.py` is read-only; every transformation app needs
@@ -119,18 +161,35 @@ list as new applications come into view.
    memory, event emission) is the natural shape (per the TERRANE brief).
    Subsumes and extends the parked local-key-tracking item. Not required for
    TERRANE Phase 1 — per-event batch calls over snapshots suffice.
-6. **Realization-level voice-leading distance** (A5; also Phase 7) — the
+6. **Realization-level voice-leading distance** (A5, A7; also Phase 7) — the
    shipped `voice_leading` is identity-level (mod-12 circular). The
    register-aware sibling measures actual semitone motion between two voiced
    `Realization`s, optimal assignment with the pairing as evidence, doubling/
    omission for unequal voice counts. Consumed by TERRANE as "harmonic
-   effort"; Phase 7 wants the same metric for scoring realized voice leading.
+   effort" and by Solve et Coagula as a **validation oracle** for its own
+   nearest-octave voicing engine — which has offered a concrete test corpus
+   (5 voices, permitted doublings, range clamps root+3..root+40) to seed
+   this gap's test suite; Phase 7 wants the same metric for scoring realized
+   voice leading. Most-demanded unbuilt item.
 7. **Cadence detection as evidenced events** (A5, A1, A4) — V–I and related
    root-motion patterns emitted as discrete events with per-signal evidence
    (Decision 7 shape). Kin to the Slice 5 tier-(c) sequential signals —
    build the sequential vocabulary once, serve both.
+8. **Catalog containment query** (A6) — "which catalog scales/qualities
+   contain this pc-set, at which roots." Ruled **engine-side** (exact
+   combinatorics); the first concrete slice of the parked constraint-search
+   vision, cheap over the cached tables. Retires Audiology's naive
+   `scalesContaining`.
+9. **The web door** (A6; the Phase 5 visualizer class) — browsers cannot
+   spawn the stdio MCP server. Sanctioned shape, ruled 2026-06-11: a thin
+   local HTTP bridge over the existing pure `mts.mcp.tools` functions
+   (Decision 5-compliant glue; tools already return JSON-ready dicts).
+   Hosted endpoint declined (local-first); WASM noted as an explicit
+   non-commitment. Until this ships, web consumers may stand up their own
+   bridge against `mts.mcp.tools` — the tool signatures are the contract.
 Local key tracking was already parked (Phase 3.5b extension); A1 names its
-customer, and A4 raises the requirement from windowed to *online*.
+customer, A6 adds per-segment key regions as a second concrete demand, and
+A4 raises the requirement from windowed to *online*.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
@@ -593,6 +652,12 @@ provenance).
   both persist extracted musical habit as versioned state. When either is
   designed in detail, keep the bridge in view: a terrain state should be able
   to reference the ruleset version active when it was carved.
+- *Prospective induction consumer (2026-06-11, from the Solve et Coagula
+  brief):* deriving a ruleset from its deterministic event chronicles
+  ("derive the idiom from the affinity matrix") and checking the
+  instrument's own output against it — a first-class evaluator+induction
+  use case, compatible with its core-determinism requirement by
+  construction (rulesets are deterministic + versioned).
 
 ### Phase 5 — Representation / projection layer (visuals as data)
 A render-agnostic layer: the engine emits **typed, structured descriptions** of a
@@ -623,6 +688,12 @@ consume.
 
 Open question: which rendering targets to support as *reference* edge consumers
 (SVG? MusicXML? LilyPond?) — deferred; core commits only to the data layer.
+
+*Named consumer (2026-06-11):* **A6 Audiology** — its 8×8 grid, keyboard, and
+canvas piano-roll all map through one pitch axis and are ready render targets
+for these descriptors; keyboard + piano-roll view types are confirmed
+in-scope. Delivery for the web-visualizer class runs through **gap 9** (the
+HTTP door).
 
 ### Phase 6 (future) — Beyond 12-TET: generalized identity
 - The current substrate is **hard 12-TET** (12-bit bitmask, mod-12 everywhere).
