@@ -60,6 +60,23 @@ list as new applications come into view.
   *Capabilities:* full analysis pipeline (A1) · Phase 7 generation constrained
   by **instrument-class profiles** (register range, polyphony, idiom) — a new
   data vocabulary; ships as versioned priors (Phase 3.5 pattern) · MIDI export.
+- **A4 — Live MIDI companion** *(added 2026-06-10)*. A device/plugin that
+  listens to what is being played and composes complementary MIDI **in real
+  time** — A3's brain under a latency budget. The device frame itself
+  (hardware/plugin/app, scheduling, audio I/O) is an edge consumer; the
+  engine supplies analysis + generation. This is the most demanding entry on
+  the list: it needs essentially everything A1+A3 need, **plus** two
+  capabilities no phase currently provides.
+  *Capabilities:* offline analysis/generation stack — as A1/A3 ·
+  **live MIDI input** — streaming was *explicitly* descoped in Phase 2
+  (`events_from_live_midi` is `NotImplementedError`); A4 is its first real
+  demand driver (stays descoped until A4 is scheduled — recorded, not
+  re-scoped) · **online/incremental analysis APIs** — today every analysis
+  is whole-sequence; A4 needs rolling forms (incremental `pc_weights` + key
+  tracking, rolling segmentation, per-window naming). Raw compute is *not*
+  the gap — the cached mask-space tables answer in microseconds; the gap is
+  API shape (update state, don't recompute from zero) · Phase 7 generation
+  under a latency budget + instrument-class profiles (A3).
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — `io/midi.py` is read-only; every transformation app needs
@@ -69,8 +86,13 @@ list as new applications come into view.
    modulation path planning) — Phase 7 extensions; all generative-side per the
    cardinal rule.
 3. **Instrument-class profiles** — versioned data vocabulary for A3.
+4. **Live MIDI input** (A4) — streaming `events_from_live_midi`; stays
+   explicitly out of scope until A4 is scheduled.
+5. **Online/incremental analysis APIs** (A4) — rolling-window key tracking,
+   segmentation, and naming that update state instead of recomputing;
+   subsumes and extends the parked local-key-tracking item.
 Local key tracking was already parked (Phase 3.5b extension); A1 names its
-customer.
+customer, and A4 raises the requirement from windowed to *online*.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
