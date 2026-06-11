@@ -44,7 +44,7 @@ each level unlocks more analysis.
 | **Chord / scale analysis** | intervals, interval vector, symmetry axes, inversions + figured bass, Tonnetz coordinates, modes |
 | **Set-class identity** | normal order, Rahn prime form, Z-partners, **DFT magnitudes** (a 6-D "harmonic color" embedding: \|f₅\|≈diatonicity, \|f₆\|≈whole-tone-ness) |
 | **Exhaustive naming** | every valid (root, quality) reading of a pc set — symmetric/ambiguous sets yield several (C6 = Am7; dim7 names at 4 roots) |
-| **Key induction** | ranked key candidates with scores + top-two margin from duration-weighted pc content |
+| **Key induction** | ranked key candidates with scores + top-two margin from **any non-negative pc-weight 12-vector** (summed durations, exponentially-decaying histograms, velocity-weighted counts — your weighting policy, our ranking) |
 | **Contextual disambiguation** | *the* chosen reading in a key, with ranked alternatives and per-signal evidence; flags aug-6ths, secondary dominants, Neapolitans; honest `is_ambiguous` |
 | **Voice-leading distance** | exact minimal motion between two chord identities + the optimal voice mapping |
 | **Voicing analysis / suggestions** | recognition of real voicings (inversion, spread, named type); generative suggestions (closed, drop-2/3, rootless, shell) |
@@ -55,6 +55,27 @@ each level unlocks more analysis.
 **Performance:** identity analyses are table-driven over the 4096 possible
 pitch-class sets and answer in **microseconds** after first touch. Current
 APIs are whole-sequence (batch), not incremental — see "Coming" below.
+
+### Recipes (derived values consumers asked about)
+
+- **Chord evenness** (distance from the nearest perfectly even chord, for
+  spectral/timbral mappings): for a chord of cardinality *n*,
+  `evenness = set_class.dft_magnitudes[n-1] / n` ∈ [0, 1]. Verified anchors:
+  augmented triad / dim7 / whole-tone = 1.0 exactly; major triad ≈ 0.745;
+  dominant 7th ≈ 0.661; a 4-note chromatic cluster = 0.25.
+- **Voice pairing as evidence**: `voice_leading(...)` returns not just the
+  distance but the optimal `mapping` of `[from_pc, to_pc]` voice pairs —
+  consume it directly (e.g. as per-voice motion vectors). Identity-level
+  (mod-12); register-aware realization-level transitions are a recorded gap.
+- **Key-induction margin as a control signal**: `margin` is the difference
+  between the top two candidates' Pearson correlation scores under the cited
+  profile version — a continuous confidence value in [0, 2], in practice
+  ~0–0.5. **Stability contract:** these semantics hold per profile version;
+  a different prior version may shift absolute values, which is exactly why
+  results cite the version — pin it if you map margin to a control curve.
+- **Near-silence contract**: all-zero or perfectly uniform pc weights raise
+  (no tonal information — the engine won't guess). Streaming consumers with
+  decaying histograms should gate induction calls on total weight.
 
 ## Three doors in
 
@@ -92,6 +113,13 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
 ## Coming (prepare for, don't depend on yet — phases in ROADMAP.md)
 
 - **Local key tracking** (modulation-aware splitting; Phase 3.5b extension).
+- **Realization-level voice-leading distance** (gap 6) — register-aware
+  motion between two *voiced* chords with the pairing as evidence; the
+  shipped metric is identity-level (mod-12). Consumers: TERRANE ("harmonic
+  effort"), Phase 7 scoring.
+- **Cadence detection as evidenced events** (gap 7) — V–I and related
+  root-motion patterns as discrete, evidence-carrying events. Consumers:
+  TERRANE home-center impulses, A1, A4.
 - **Representation layer** (Phase 5) — *for visualizers*: typed, render-
   agnostic descriptions of clock/bracelet diagrams, Tonnetz, circle of
   fifths, piano-roll/keyboard views, each declaring the input it requires.
