@@ -49,6 +49,7 @@ each level unlocks more analysis.
 | **Voice-leading distance** | exact minimal motion between two chord identities + the optimal voice mapping |
 | **Voicing analysis / suggestions** | recognition of real voicings (inversion, spread, named type); generative suggestions (closed, drop-2/3, rootless, shell) |
 | **MIDI file pipeline** | SMF → events → stable-harmony segments → inferred key → enriched per-segment dataset records (JSON-ready) |
+| **MIDI export** | `Sequence` → SMF (single track; tempo/meter, velocity, channel preserved) — the write-back loop for transformers/generators |
 | **Catalog** | ~35 scales / ~40 chord qualities with aliases, extensible per session |
 
 **Performance:** identity analyses are table-driven over the 4096 possible
@@ -90,8 +91,6 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
 
 ## Coming (prepare for, don't depend on yet — phases in ROADMAP.md)
 
-- **MIDI export** (`Sequence` → SMF; Phase 2 addendum) — closes the
-  write-back loop for generators/transformers.
 - **Local key tracking** (modulation-aware splitting; Phase 3.5b extension).
 - **Representation layer** (Phase 5) — *for visualizers*: typed, render-
   agnostic descriptions of clock/bracelet diagrams, Tonnetz, circle of
