@@ -150,6 +150,19 @@ def test_dft_diatonic_f5_is_maximal_fifthiness():
     assert dft_magnitudes(MAJOR_SCALE)[4] == pytest.approx(2 + math.sqrt(3))
 
 
+def test_documented_evenness_recipe():
+    """INTEGRATION.md recipe: evenness = dft_magnitudes[n-1] / n, with anchors."""
+    def evenness(pcs):
+        return dft_magnitudes(mask_from_pcs(pcs))[len(pcs) - 1] / len(pcs)
+
+    assert evenness([0, 4, 8]) == pytest.approx(1.0)            # augmented
+    assert evenness([0, 3, 6, 9]) == pytest.approx(1.0)         # dim7
+    assert evenness([0, 2, 4, 6, 8, 10]) == pytest.approx(1.0)  # whole tone
+    assert evenness([0, 4, 7]) == pytest.approx(0.7454, abs=1e-4)
+    assert evenness([0, 4, 7, 10]) == pytest.approx(0.6614, abs=1e-4)
+    assert evenness([0, 1, 2, 3]) == pytest.approx(0.25)        # cluster
+
+
 def test_dft_magnitudes_invariant_under_tn_and_inversion():
     for mask in (MAJOR_TRIAD, DOM7, MAJOR_SCALE, mask_from_pcs([0, 1, 4, 6])):
         base = dft_magnitudes(mask)

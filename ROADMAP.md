@@ -78,6 +78,31 @@ list as new applications come into view.
   API shape (update state, don't recompute from zero) · Phase 7 generation
   under a latency budget + instrument-class profiles (A3).
 
+- **A5 — TERRANE** *(added 2026-06-11 from the project's relay brief; full
+  design doc available from Julian on request)*. An adaptive synthesizer in
+  early design: sound is a function of performance history — a particle with
+  mass/friction moves through a timbre space whose terrain is reshaped by
+  harmonic state, *relational* to a slowly-drifting, confidence-gated "home"
+  tonal center. Division of labor mirrors our thesis exactly: TERRANE owns
+  dynamics, terrain, and feel; all exact pc analysis is delegated here.
+  Queries at chord-event rate (seconds), so **batch APIs suffice for its
+  Phase 1** (Python import door, in-process; browser frontend is
+  visualization only). Epistemically aligned by design: key-induction margins
+  and ambiguity are *rendered* (terrain ruggedness, gated home-pull), not
+  worked around — margin semantics are therefore a stability contract
+  (documented in INTEGRATION.md).
+  *Capabilities:* weighted-distribution key induction ✅ shipped — `infer_key`
+  takes any non-negative 12-vector, so decaying pc histograms work today;
+  profiles are swappable versioned priors, and **Temperley/Aarden profile
+  variants are welcome as additional `key_profiles.json` entries** ·
+  identity-level VL distance with the voice pairing as evidence ✅ shipped
+  (the `mapping` field) · **realization-level VL transitions — gap 6 below** ·
+  chord evenness ✅ derivable from the DFT embedding
+  (`dft_magnitudes[n-1] / n`; mapping documented in INTEGRATION.md) ·
+  **cadence detection — gap 7 below** (TERRANE stopgaps locally meanwhile) ·
+  streaming session API — gap 5; TERRANE joins A4 as a named customer while
+  explicitly *not* requiring it for Phase 1.
+
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — `io/midi.py` is read-only; every transformation app needs
    `Sequence → SMF`. Small and well-bounded (mido already a dependency); Phase 2
@@ -88,9 +113,22 @@ list as new applications come into view.
 3. **Instrument-class profiles** — versioned data vocabulary for A3.
 4. **Live MIDI input** (A4) — streaming `events_from_live_midi`; stays
    explicitly out of scope until A4 is scheduled.
-5. **Online/incremental analysis APIs** (A4) — rolling-window key tracking,
-   segmentation, and naming that update state instead of recomputing;
-   subsumes and extends the parked local-key-tracking item.
+5. **Online/incremental analysis APIs** (A4, A5) — rolling-window key
+   tracking, segmentation, and naming that update state instead of
+   recomputing; a stateful session object (decaying histograms, last-chord
+   memory, event emission) is the natural shape (per the TERRANE brief).
+   Subsumes and extends the parked local-key-tracking item. Not required for
+   TERRANE Phase 1 — per-event batch calls over snapshots suffice.
+6. **Realization-level voice-leading distance** (A5; also Phase 7) — the
+   shipped `voice_leading` is identity-level (mod-12 circular). The
+   register-aware sibling measures actual semitone motion between two voiced
+   `Realization`s, optimal assignment with the pairing as evidence, doubling/
+   omission for unequal voice counts. Consumed by TERRANE as "harmonic
+   effort"; Phase 7 wants the same metric for scoring realized voice leading.
+7. **Cadence detection as evidenced events** (A5, A1, A4) — V–I and related
+   root-motion patterns emitted as discrete events with per-signal evidence
+   (Decision 7 shape). Kin to the Slice 5 tier-(c) sequential signals —
+   build the sequential vocabulary once, serve both.
 Local key tracking was already parked (Phase 3.5b extension); A1 names its
 customer, and A4 raises the requirement from windowed to *online*.
 
@@ -550,6 +588,11 @@ provenance).
 - *No neural network required* — evaluation, comparison, and induction are
   exact. Learned components (novel template proposal, treatise translation)
   live in the caller per Decision 8: the LLM proposes, the engine verifies.
+- *Long-range bridge (recorded 2026-06-11, from the TERRANE brief):* TERRANE's
+  serialized **terrain plasticity** and our rulesets are sibling artifacts —
+  both persist extracted musical habit as versioned state. When either is
+  designed in detail, keep the bridge in view: a terrain state should be able
+  to reference the ruleset version active when it was carved.
 
 ### Phase 5 — Representation / projection layer (visuals as data)
 A render-agnostic layer: the engine emits **typed, structured descriptions** of a
