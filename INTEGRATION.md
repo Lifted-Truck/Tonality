@@ -165,6 +165,11 @@ To prepare an integration schematic, each project should answer:
 6. **Spelling/labeling needs:** raw numbers, or spelled note names / chord
    symbols / roman numerals for display.
 
-Send those six answers per project and we can map each onto the capability
-table, identify gaps, and record the integration as a target application in
-[ROADMAP.md](ROADMAP.md).
+**Where answers land:** file them as `integrations/<project>/brief.md` in
+this repo (directly via a PR, or relayed through Julian) — see
+[integrations/README.md](integrations/README.md) for the channel protocol.
+Tonality's agent triages every brief into a per-request verdict
+(`integrations/<project>/response.md`), verifies "already shipped" claims in
+code, records the project as a target application in
+[ROADMAP.md](ROADMAP.md), and documents anything usable today back into this
+file. Worked example: [integrations/terrane/](integrations/terrane/).
