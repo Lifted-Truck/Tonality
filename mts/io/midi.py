@@ -1,12 +1,15 @@
-"""MIDI ingestion: Standard MIDI Files → temporal ``Event`` / ``Sequence``.
+"""MIDI I/O: Standard MIDI Files ↔ temporal ``Event`` / ``Sequence``.
 
 A **thin adapter** over the `mido` library (Phase 2 Slice 3 decision: Mido). The
 rest of the engine depends only on ``mts.temporal`` types — never on mido — so the
-parser stays swappable. Responsibilities here:
+adapter stays swappable. Responsibilities here:
 
-- convert MIDI ticks to quarter-note beats (``tick / ticks_per_beat``),
-- pair ``note_on`` / ``note_off`` (and ``note_on`` velocity-0) into ``Event``s,
-- read ``set_tempo`` / ``time_signature`` meta into a ``TempoMap`` / ``MeterMap``.
+- read: convert ticks to quarter-note beats, pair ``note_on`` / ``note_off``
+  (and ``note_on`` velocity-0) into ``Event``s, read ``set_tempo`` /
+  ``time_signature`` meta into a ``TempoMap`` / ``MeterMap``;
+- write (Phase 2 addendum): the mirror — ``Sequence`` → single-track SMF,
+  preserving tempo/meter maps and per-pitch velocity/channel. Round-trip
+  (read → write → read) is the tested invariant.
 
 Live/streaming MIDI is out of scope; this handles files.
 """
@@ -51,6 +54,95 @@ def events_from_live_midi(source: object) -> Iterable[Event]:
         "Live MIDI ingestion is not implemented. Parse a file with "
         "sequence_from_midi_file / events_from_midi_file instead."
     )
+
+
+_DEFAULT_VELOCITY = 64
+
+
+def sequence_to_midi_file(
+    sequence: Sequence, path: str, *, ticks_per_beat: int = 480
+) -> None:
+    """Write a :class:`Sequence` to a Standard MIDI File (the read mirror).
+
+    Single track; tempo and meter maps become ``set_tempo`` /
+    ``time_signature`` meta events; each event's pitch keeps its velocity and
+    channel when present (``64`` / channel ``0`` otherwise). Onsets and
+    durations are quantized to ``ticks_per_beat`` — values representable in
+    480ths of a beat round-trip exactly; tempo round-trips to within the SMF
+    format's integer microseconds-per-beat resolution (~1e-4 bpm).
+    """
+
+    midi_file_from_sequence(sequence, ticks_per_beat=ticks_per_beat).save(path)
+
+
+def midi_file_from_sequence(
+    sequence: Sequence, *, ticks_per_beat: int = 480
+) -> "mido.MidiFile":
+    """Build the in-memory :class:`mido.MidiFile` for a :class:`Sequence`."""
+
+    def ticks(beat: float) -> int:
+        return int(round(beat * ticks_per_beat))
+
+    # (tick, sort_rank, message) — rank orders simultaneous messages: meta
+    # first, then note_offs (so re-struck notes re-trigger), then note_ons.
+    timed: list[tuple[int, int, "mido.Message"]] = []
+
+    for change in sequence.tempo.changes:
+        timed.append(
+            (
+                ticks(change.beat),
+                0,
+                mido.MetaMessage("set_tempo", tempo=mido.bpm2tempo(change.bpm)),
+            )
+        )
+
+    beat = 0.0
+    changes = sequence.meter.changes
+    for i, change in enumerate(changes):
+        timed.append(
+            (
+                ticks(beat),
+                0,
+                mido.MetaMessage(
+                    "time_signature",
+                    numerator=change.signature.numerator,
+                    denominator=change.signature.denominator,
+                ),
+            )
+        )
+        if i + 1 < len(changes):
+            beat += (changes[i + 1].bar - change.bar) * change.signature.beats_per_bar
+
+    for event in sequence.events:
+        velocity = event.pitch.velocity if event.pitch.velocity is not None else _DEFAULT_VELOCITY
+        channel = event.pitch.channel if event.pitch.channel is not None else 0
+        timed.append(
+            (
+                ticks(event.onset),
+                2,
+                mido.Message(
+                    "note_on", note=event.pitch.midi, velocity=velocity, channel=channel
+                ),
+            )
+        )
+        timed.append(
+            (
+                ticks(event.offset),
+                1,
+                mido.Message("note_off", note=event.pitch.midi, velocity=0, channel=channel),
+            )
+        )
+
+    timed.sort(key=lambda item: (item[0], item[1]))
+
+    midi = mido.MidiFile(ticks_per_beat=ticks_per_beat)
+    track = mido.MidiTrack()
+    midi.tracks.append(track)
+    previous_tick = 0
+    for tick, _, message in timed:
+        track.append(message.copy(time=tick - previous_tick))
+        previous_tick = tick
+    return midi
 
 
 def _sequence_from_mido(midi: "mido.MidiFile") -> Sequence:
@@ -140,4 +232,6 @@ __all__ = [
     "sequence_from_midi_file",
     "events_from_midi_file",
     "events_from_live_midi",
+    "sequence_to_midi_file",
+    "midi_file_from_sequence",
 ]

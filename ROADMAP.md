@@ -246,12 +246,18 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       key induction (Phase 3.5) as inputs — sequenced after both. This is the
       demo-vs-tool gap for real performed MIDI: literal PC-set stability
       over-segments badly on passing tones and arpeggiation.
-- [ ] **Addendum (2026-06-10, application-driven): MIDI export** — the write-side
+- [x] **Addendum (2026-06-10, application-driven): MIDI export** — the write-side
       mirror of ingestion: `Sequence` (+ `TempoMap`/`MeterMap`) → Standard MIDI
       File via the same thin mido adapter. Surfaced by the Target-applications
       list (every A2/A3 transformation must close the loop back to a file).
       Small and well-bounded; no new dependency. Round-trip
       (`read → write → read`) is the natural invariant to test.
+      **Delivered (2026-06-11):** `sequence_to_midi_file` /
+      `midi_file_from_sequence` — single track, tempo/meter maps preserved,
+      per-pitch velocity/channel round-trip, note_off-before-note_on ordering
+      so re-struck notes survive. Quantization is honest: beats exact at
+      480ths; bpm to within SMF's integer-microsecond resolution. Round-trip
+      and the full write→analyze loop (A2's skeleton) are tested.
 
 ### Phase 3 — Contextualization & dataset schema ✅ DONE
 - [x] Resolve the **two "context" concepts**: *display* context pushed to the edge
