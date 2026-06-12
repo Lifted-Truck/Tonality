@@ -15,6 +15,12 @@ Per Decision 7 the result is plural — every candidate with its score, plus the
 top-two margin. Relative major/minor near-ties are normal and are surfaced,
 not collapsed.
 
+The candidate space is the loaded profile set's modes — **major and minor
+only under ``kk-1982.1``** (theory-grounding review pass #1, accepted
+limitation): modal material ranks as its relative major/minor, not its modal
+tonic. The extension is nearly data-only — add modal rows to
+``key_profiles.json`` and entries to ``_MODE_SCALE_NAMES`` below.
+
 Layering: this module is pure over a weights vector and imports nothing from
 ``temporal``. ``infer_key`` also accepts any object with a ``pc_weights()``
 method (e.g. ``mts.temporal.Sequence``) by duck typing, so callers can write

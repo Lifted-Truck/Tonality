@@ -37,6 +37,14 @@ order (first match wins):
   departure to pattern-match).
 
 Notes outside every provided span get no claim (``is_chord_tone=None``).
+
+Known limitation (theory-grounding review pass #1): typing is
+**onset-based** — a note is judged in the span containing its onset only.
+A *tied* suspension (one held note across the harmony change — the most
+common kind) is therefore invisible: the sustained portion still reads as
+the chord tone it was at onset, even where the harmony has moved under it.
+Only re-attacked suspensions (unison approach) are typed. Tie-aware typing
+(judging a note against every span it overlaps) is the recorded refinement.
 """
 
 from __future__ import annotations
