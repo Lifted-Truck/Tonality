@@ -52,8 +52,9 @@ list as new applications come into view.
   movement (circle-of-fifths paths, or some other stated musical bias).
   *Capabilities:* analysis side ✅/planned as above · re-voicing + added voices →
   **Phase 7** (voice-leading realization) · scale re-mapping, meter re-mapping,
-  modulation path planning → **Phase 7 extensions** (recorded there) · writing
-  the result → **MIDI export, a gap** (recorded as Phase 2 addendum).
+  modulation path planning → **Phase 7 extensions** (recorded there) ·
+  **groove apply — gap 10** (its first concrete transformation) · writing
+  the result → MIDI export ✅ shipped (Phase 2 addendum).
 - **A3 — Complementary part generator.** Given a MIDI file, generate companion
   MIDI for different instrument classes (bass line, pad, lead, counter-melody)
   that is harmonically and rhythmically coherent with the source.
@@ -149,9 +150,9 @@ list as new applications come into view.
   doors.
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
-1. **MIDI export** — `io/midi.py` is read-only; every transformation app needs
-   `Sequence → SMF`. Small and well-bounded (mido already a dependency); Phase 2
-   addendum.
+1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
+   (`Sequence → SMF`, single track, tempo/meter/velocity/channel preserved,
+   round-trip tested). This entry predated delivery; corrected 2026-06-12.
 2. **Generative transformations** (scale re-mapping, meter re-mapping,
    modulation path planning) — Phase 7 extensions; all generative-side per the
    cardinal rule.
@@ -214,6 +215,44 @@ list as new applications come into view.
    because the boundary is loopback, not origin. The tool signatures and
    `to_dict()` shapes remain the only contract — consumers who stood up
    interim bridges swap by changing a URL.
+10. **Groove extract / apply** (added 2026-06-12, prompted by Julian —
+    Ableton Live's Extract Groove is the reference model). Two halves on
+    opposite sides of the cardinal rule:
+    *Extract* (analysis) — distill a `GrooveTemplate` from a symbolic loop:
+    per grid slot at a chosen base resolution, the signed onset offset (as a
+    fraction of the grid unit) and velocity, cycled over the loop length.
+    Builds directly on the rhythmic atoms; `analyze_swing` is the
+    one-parameter special case (a groove template generalizes the division
+    fraction to arbitrary per-slot offsets). Same honesty bound as swing:
+    quantized input yields a null groove — the feel must be in the onsets.
+    *Apply* (generative) — **A2's first concrete transformation**: new
+    `Sequence` with onsets pre-quantized by a quantize %, interpolated
+    toward template offsets by a timing %, velocities scaled by a signed
+    velocity % (negative reverses, per the Live model); a random component
+    requires an explicit seed (same-input-same-output is an engine
+    invariant). Parameter vocabulary maps 1:1 onto Live's Groove Pool
+    (Base / Quantize / Timing / Random / Velocity / Amount), so grooves
+    round-trip conceptually with DAW workflows. Boundary: extraction from
+    *audio* stays consumer-side per Decision 9 — consumers send onsets,
+    never audio. Template extraction policy knobs (if any emerge) ship as
+    versioned priors. Depends on gap 11 only for *trustworthiness*: a wrong
+    declared grid poisons offsets, but extraction against a correct
+    declared grid works today.
+11. **Meter estimation** (added 2026-06-12; promoted from the theory-
+    grounding review agenda's "we trust the file's time signature"). The
+    time system is declarative: `MeterMap` answers every bar/downbeat
+    question exactly, but only from file meta — there is no inference of
+    time signature, meter changes, or bar lines from note content, and a
+    loop exported with default 4/4 meta poisons every metric judgment
+    downstream (rhythmic atoms, syncopation, swing, groove extraction).
+    Wanted: batch estimation — ranked candidate signatures with scores and
+    margin (Decision 7 shape; profile-correlation over onset/accent
+    autocorrelation is the classic method family), change-point detection
+    for meter changes, and a declared-vs-estimated disagreement signal
+    rather than silent override (the engine never replaces the file's
+    claim — it evidences against it). Empirical templates ship as
+    versioned priors. The *online* form joins gap 5's session, as with
+    key tracking.
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.
@@ -719,7 +758,9 @@ provenance).
             divisions raises (no feel from no evidence); and swing that
             lives only in performance timing (quantized-straight MIDI)
             is invisible to symbolic data by nature — documented in the
-            tool. MCP: `swing_analysis` (#24).
+            tool. MCP: `swing_analysis` (#24). Generalizes to **groove
+            templates — gap 10** (per-slot offsets + velocity, the
+            Ableton Extract Groove model).
 - [ ] **The DSL (v1).** Declarative, JSON-serializable, no code execution.
       Each rule: an *atom* (a path into the typed-results vocabulary), a
       *scope* (per-event / per-segment / adjacent-pair / phrase / global), a
@@ -908,7 +949,9 @@ profile bias (KK profiles are classical-corpus priors; jazz/modal/folk
 material may rank oddly — Temperley/Aarden variants already invited by A5) ·
 modal vs functional harmony assumptions in `theory/functions.py` · the
 melodic step/skip/leap mapping's fit for non-Western melody · meter
-inference absent (we trust the file's time signature).
+inference absent (we trust the file's time signature) — *promoted to
+gap 11 (2026-06-12), the review's first graduate; groove extract/apply
+(gap 10) was recorded the same day from the same conversation.*
 
 ## Demoted / deferred (built for the old "app" frame)
 
