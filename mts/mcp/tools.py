@@ -21,6 +21,7 @@ from ..analysis import (
     analyze_scale,
     analyze_voicing,
     contextualize_chord,
+    find_containers,
     infer_key,
     interpret_chord,
     name_chord,
@@ -183,6 +184,13 @@ def interpretations(pcs: list[int]) -> dict:
     return interpret_chord(int(pc) % 12 for pc in pcs).to_dict()
 
 
+def catalog_containment(pcs: list[int]) -> dict:
+    """Every catalog scale and chord quality that contains a pc set, at which
+    roots — tightest containers first, exact matches flagged, absolute masks.
+    The reverse of chord-in-scale compatibility."""
+    return find_containers(pcs).to_dict()
+
+
 # --- contextual analysis -----------------------------------------------------------------
 
 def chord_in_key(root: int | str, quality: str, tonic: int | str, key_name: str) -> dict:
@@ -304,6 +312,7 @@ TOOLS = (
     scale_analysis,
     set_class_info,
     interpretations,
+    catalog_containment,
     chord_in_key,
     name_pcs,
     key_induction,

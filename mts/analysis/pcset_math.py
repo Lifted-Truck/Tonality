@@ -86,6 +86,25 @@ def compatibility_roots(scale: Scale, quality: ChordQuality) -> tuple[int, ...]:
     return _compatibility_roots_for_masks(scale.mask, quality.mask)
 
 
+@lru_cache(maxsize=4096)
+def _containing_roots_for_masks(container_mask: int, query_mask: int) -> tuple[int, ...]:
+    return tuple(
+        root
+        for root in range(12)
+        if is_subset(query_mask, rotate_mask(container_mask, root))
+    )
+
+
+def containing_roots(container_mask: int, query_mask: int) -> tuple[int, ...]:
+    """Roots (0..11) where the catalog identity, transposed there, contains the query.
+
+    The reverse question of :func:`compatibility_roots`: the container moves,
+    the query stays absolute.
+    """
+
+    return _containing_roots_for_masks(container_mask, query_mask)
+
+
 def set_class_data(mask: int) -> SetClassData:
     """Set-class identity for a mask (Phase 3.5a).
 

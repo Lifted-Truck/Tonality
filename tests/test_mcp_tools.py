@@ -60,6 +60,18 @@ def test_interpretations_surface_equivalence():
     assert {(0, "maj6"), (9, "min7")} <= namings
 
 
+def test_catalog_containment_finds_scales_and_qualities_with_roots():
+    result = _json_safe(tools.catalog_containment([0, 4, 7]))
+    ionian_roots = {s["root_pc"] for s in result["scales"] if s["name"] == "Ionian"}
+    assert ionian_roots == {0, 5, 7}
+    assert any(
+        q["name"] == "maj" and q["root_pc"] == 0 and q["is_exact"]
+        for q in result["qualities"]
+    )
+    with pytest.raises(ValueError):
+        tools.catalog_containment([])
+
+
 # --- contextual tools -----------------------------------------------------------------
 
 def test_name_pcs_with_and_without_context():

@@ -117,8 +117,9 @@ list as new applications come into view.
   (`name_pcs` + `voicing_analysis`) · file-level key induction + per-segment
   dataset with placements ✅ shipped (`midi_file_analysis`) · per-segment keys
   → **local key tracking** (A6 joins A1 as customer) · catalog of record ✅
-  shipped (`list_scales` / `list_chord_qualities`) · **pc-set containment
-  query — gap 8 below** · voicing recognition/suggestions ✅ shipped ·
+  shipped (`list_scales` / `list_chord_qualities`) · pc-set containment
+  query ✅ shipped (gap 8 below; `catalog_containment` — retires its naive
+  `scalesContaining`) · voicing recognition/suggestions ✅ shipped ·
   browser door ✅ shipped (gap 9 below; `mts.mcp.bridge`, the local HTTP
   bridge — was the blocking question) · named consumer of the **Phase 5
   representation layer** (keyboard + piano-roll descriptors; its three
@@ -186,7 +187,15 @@ list as new applications come into view.
    contain this pc-set, at which roots." Ruled **engine-side** (exact
    combinatorics); the first concrete slice of the parked constraint-search
    vision, cheap over the cached tables. Retires Audiology's naive
-   `scalesContaining`.
+   `scalesContaining`. **Delivered (2026-06-11):** `find_containers`
+   (`analysis/containment.py`) + MCP tool `catalog_containment` (#19; the
+   HTTP bridge exposes it automatically). Reverse of compatibility — the
+   container transposes, the query stays absolute (`containing_roots`,
+   mask-cached in `pcset_math`). Tightest containers first, exact matches
+   flagged (modal spellings of one mask are distinct exact answers),
+   symmetric containers report every valid root; takes explicit catalog
+   mappings so session catalogs are searchable. No ranking policy — pure
+   subset combinatorics, deterministic ordering only.
 9. **The web door** (A6; the Phase 5 visualizer class) — browsers cannot
    spawn the stdio MCP server. Sanctioned shape, ruled 2026-06-11: a thin
    local HTTP bridge over the existing pure `mts.mcp.tools` functions

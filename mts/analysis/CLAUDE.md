@@ -20,6 +20,11 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
 - `equivalence.py` — `interpret_chord`: identity-level analysis enumerating every
   valid `(root, quality)` naming of a PC set (symmetric chords name at several
   roots; ambiguous sets name as several qualities, e.g. C6 = Am7).
+- `containment.py` — `find_containers`: the gap-8 catalog containment query —
+  every catalog scale/quality containing a pc set, at which roots (the reverse
+  of compatibility: the container transposes, the query stays absolute).
+  Tightest-first ordering, exact matches flagged; symmetric containers report
+  every valid root. Takes explicit catalog mappings for session-catalog views.
 - `analytical_context.py` — `AnalyticalContext` (tonal center + optional key) and
   `contextualize_chord` → `ChordInKey` (scale-degree placement, diatonic vs
   chromatic). The **analytical** frame; the counterpart to the display-edge
