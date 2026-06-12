@@ -60,6 +60,10 @@ temporal/    Time layer (Phase 2): Event/Sequence + tempo/meter; window → real
              Segmentation, harmonic rhythm, local key tracking, voice identity/motion,
              melodic + rhythmic atoms. (analysis/timeline.py is a DEPRECATED stub.)
   ↓
+rules/       Rulesets (Phase 4.6): declarative JSON rules over the atom vocabulary;
+             strict total validation + deterministic conformance evaluator. No code
+             execution; rules are data.
+  ↓
 mcp/         Thin adapter (Phase 4): one tool per analysis entry point. tools.py is
              pure + SDK-free (fully testable); server.py needs the optional `mcp`
              extra (`python -m mts.mcp`). Intelligence stays below this line.
