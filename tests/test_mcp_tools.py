@@ -168,6 +168,20 @@ def test_swing_analysis_estimates_feel():
         tools.swing_analysis([[0, 1, 60], [1, 1, 62]])  # no divisions at all
 
 
+def test_coalesce_events_repairs_humanized_timing():
+    humanized = [[0, 2, 60], [0.013, 1.99, 64], [0.021, 1.98, 67]]
+    result = _json_safe(tools.coalesce_events(humanized, onset_window_beats=0.05))
+    assert [e[0] for e in result["events"]] == [0.0, 0.0, 0.0]
+    assert result["moved_events"] == 2
+    assert result["dropped"] == []
+    voiced = _json_safe(tools.coalesce_events([[0.01, 1, 60, "lead"]],
+                                              onset_window_beats=0,
+                                              snap_grid_beats=0.25))
+    assert voiced["events"] == [[0.0, 1.0, 60, "lead"]]  # both ends snapped
+    with pytest.raises(ValueError, match="Nothing to do"):
+        tools.coalesce_events([[0, 1, 60]], onset_window_beats=0)
+
+
 def test_ruleset_validation_and_evaluation():
     ruleset = {
         "name": "counterpoint-smoke", "version": "t.1",
@@ -253,6 +267,32 @@ def test_midi_file_analysis_end_to_end(tmp_path):
     assert (regions[0]["tonic_pc"], regions[0]["mode"]) == (0, "major")
     without = tools.midi_file_analysis(str(path), include_key_regions=False)
     assert "key_regions" not in without
+
+
+def test_midi_file_analysis_with_coalescing(tmp_path):
+    import mido
+
+    mid = mido.MidiFile(ticks_per_beat=480)
+    track = mido.MidiTrack()
+    mid.tracks.append(track)
+    # one C-major chord, humanized: onsets spread across ~10 ticks
+    track.append(mido.Message("note_on", note=60, velocity=80, time=0))
+    track.append(mido.Message("note_on", note=64, velocity=80, time=6))
+    track.append(mido.Message("note_on", note=67, velocity=80, time=4))
+    track.append(mido.Message("note_off", note=60, velocity=0, time=950))
+    track.append(mido.Message("note_off", note=64, velocity=0, time=5))
+    track.append(mido.Message("note_off", note=67, velocity=0, time=3))
+    path = tmp_path / "humanized.mid"
+    mid.save(path)
+
+    raw = tools.midi_file_analysis(str(path), include_key_regions=False)
+    assert len(raw["dataset"]["records"]) > 1  # micro-segment fragmentation
+    cleaned = _json_safe(tools.midi_file_analysis(
+        str(path), include_key_regions=False, coalesce_window_beats=0.05))
+    assert len(cleaned["dataset"]["records"]) == 1
+    assert cleaned["coalesce"]["onset_window_beats"] == 0.05
+    assert cleaned["coalesce"]["moved_events"] >= 2
+    assert "coalesce" not in raw
 
 
 # --- server wiring (only when the optional SDK is installed) ------------------------------------

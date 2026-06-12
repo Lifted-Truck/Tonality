@@ -102,6 +102,12 @@ CASES: list[tuple[str, dict]] = [
                            "numerator": 6, "denominator": 8}),
     ("swing_analysis", {"events": _swung_events()}),
     (
+        "coalesce_events",
+        {"events": [[0, 2, 60], [0.013, 1.99, 64], [0.021, 1.98, 67],
+                    [2, 2, 65], [2.008, 1.99, 69], [2.017, 1.98, 72]],
+         "onset_window_beats": 0.05},
+    ),
+    (
         "validate_ruleset",
         {"ruleset": {"name": "x", "version": "1",
                      "rules": [{"id": "r", "family": "nope", "forbid": {"x": 1}}]}},
