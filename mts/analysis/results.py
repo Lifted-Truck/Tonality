@@ -359,12 +359,16 @@ class AnalyticalContextSnapshot:
 
     Lives here (not in ``mts/dataset``) so naming results can label each
     reading with the context it is conditional on without an upward import;
-    the dataset layer re-exports it.
+    the dataset layer re-exports it. ``margin`` (additive, 2026-06-12) is
+    the key-confidence margin of the induction candidate or key region this
+    context came from — ``None`` when the context was supplied directly
+    rather than inferred.
     """
 
     tonic_pc: int | None = None
     key_name: str | None = None
     key_degrees: list[int] | None = None
+    margin: float | None = None
 
 
 @dataclass(frozen=True)

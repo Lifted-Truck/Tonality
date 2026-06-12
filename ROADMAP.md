@@ -300,7 +300,18 @@ list as new applications come into view.
     knows how to avoid). Wanted: per-segment context selection from the
     key region containing the segment's onset, with the global form kept
     as an option; the region's `mean_margin` rides along as the context's
-    confidence evidence.
+    confidence evidence. **Delivered (2026-06-12):**
+    `dataset_from_sequence(key_regions=)` selects each segment's context
+    from the region containing its onset (fallback: the supplied global
+    context); `AnalyticalContextSnapshot` gains an additive `margin`
+    field carrying the region's `mean_margin` (None when the context was
+    supplied directly — confidence is only claimed when inferred).
+    `midi_file_analysis` defaults to per-region conditioning
+    (`per_region_context=false` restores single-global-key); the
+    dataset-level snapshot stays global, per-record snapshots carry the
+    local readings. Conformance goldens regenerated (additive field —
+    a 4-line reviewable diff, the harness working as designed). Directly
+    serves A6's player overlays now that A6 is the explicit GUI.
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.

@@ -21,12 +21,15 @@ from ..analysis.chord_analysis import (
     analyze_voicing,
 )
 from ..analysis.equivalence import interpret_chord
+from ..analysis.key_induction import candidate_context
 from ..analysis.naming import name_chord
+from ..analysis.results import KeyCandidate
 from ..context.context import DisplayContext
 from ..context.result_format import format_chord_analysis
 from ..core.chord import Chord
 from ..core.realization import Realization
 from ..core.spec_level import SpecLevel
+from ..temporal.key_tracking import KeyTrackingResult
 from ..temporal.segmentation import Segment, harmonic_rhythm, segment
 from ..temporal.sequence import Sequence
 from .record import (
@@ -54,6 +57,7 @@ _EPS = 1e-9
 
 def _snapshot_analytical(
     context: AnalyticalContext | None,
+    margin: float | None = None,
 ) -> AnalyticalContextSnapshot | None:
     if context is None:
         return None
@@ -61,6 +65,7 @@ def _snapshot_analytical(
         tonic_pc=context.tonic_pc,
         key_name=context.key.name if context.key is not None else None,
         key_degrees=list(context.key.degrees) if context.key is not None else None,
+        margin=margin,
     )
 
 
@@ -164,6 +169,7 @@ def record_from_segment(
     display_context: DisplayContext | None = None,
     source: SourceRef | None = None,
     index: int | None = None,
+    context_margin: float | None = None,
 ) -> DatasetRecord:
     """Build a ``segment``-kind record from a temporal :class:`Segment`.
 
@@ -173,7 +179,9 @@ def record_from_segment(
     intrinsic-only ranking when none is given. The segment's representative
     realization is a rootless voicing template, analysed register-aware. When
     ``sequence`` is given, the placement is enriched with seconds and metric
-    bar/beat.
+    bar/beat. ``context_margin`` is the confidence margin of the inferred
+    key the context came from (per-region pipelines pass the region's
+    ``mean_margin``); it rides on the record's context snapshot.
     """
 
     placement = _placement_for_span(seg.start, seg.duration_beats, sequence)
@@ -199,7 +207,7 @@ def record_from_segment(
         ),
         placement=placement,
         source=source,
-        analytical_context=_snapshot_analytical(analytical_context),
+        analytical_context=_snapshot_analytical(analytical_context, context_margin),
         display_context=_snapshot_display(display_context),
     )
 
@@ -238,24 +246,47 @@ def dataset_from_sequence(
     analytical_context: AnalyticalContext | None = None,
     display_context: DisplayContext | None = None,
     source: SourceRef | None = None,
+    key_regions: "KeyTrackingResult | None" = None,
 ) -> Dataset:
     """Segment ``sequence`` into a :class:`Dataset` of ``segment``-kind records.
 
     Records carry their stable ``index``; the dataset's ``temporal`` summary holds
     the starting tempo/meter and the harmonic-rhythm metrics.
+
+    With ``key_regions`` (gap 13), each segment's naming is conditional on
+    the **local** key region containing its onset — the region's
+    ``mean_margin`` rides on the record's context snapshot as confidence —
+    instead of one global context; segments outside every region fall back
+    to ``analytical_context``. The dataset-level context snapshot remains
+    the global one (per-record snapshots carry the local readings).
     """
 
+    def _context_for(onset: float) -> tuple[AnalyticalContext | None, float | None]:
+        if key_regions is not None:
+            for region in key_regions.regions:
+                if region.start_beats - _EPS <= onset < region.end_beats - _EPS:
+                    candidate = KeyCandidate(
+                        tonic_pc=region.tonic_pc,
+                        mode=region.mode,
+                        score=region.mean_score,
+                    )
+                    return candidate_context(candidate), region.mean_margin
+        return analytical_context, None
+
     segments = segment(sequence)
-    records = [
-        record_from_segment(
-            seg,
-            sequence=sequence,
-            analytical_context=analytical_context,
-            display_context=display_context,
-            index=i,
+    records = []
+    for i, seg in enumerate(segments):
+        seg_context, seg_margin = _context_for(seg.start)
+        records.append(
+            record_from_segment(
+                seg,
+                sequence=sequence,
+                analytical_context=seg_context,
+                display_context=display_context,
+                index=i,
+                context_margin=seg_margin,
+            )
         )
-        for i, seg in enumerate(segments)
-    ]
 
     signature = sequence.meter.changes[0].signature
     temporal = TemporalSummary(
