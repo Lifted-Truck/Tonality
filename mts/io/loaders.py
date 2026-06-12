@@ -30,6 +30,7 @@ _BASE_SCALES_CACHE: tuple[Path, int, dict[str, Scale]] | None = None
 _BASE_QUALITIES_CACHE: tuple[Path, int, dict[str, ChordQuality]] | None = None
 _KEY_PROFILES_CACHE: tuple[Path, int, tuple["KeyProfileSet", ...]] | None = None
 _NAMING_WEIGHTS_CACHE: tuple[Path, int, tuple["NamingWeights", ...]] | None = None
+_SWING_FEEL_CACHE: tuple[Path, int, tuple["SwingFeelPriors", ...]] | None = None
 
 
 @dataclass(frozen=True)
@@ -57,6 +58,25 @@ class NamingWeights:
     weights: dict[str, float]
     ambiguity_margin: float
     marginalization: dict
+
+
+@dataclass(frozen=True)
+class SwingFeelPriors:
+    """One versioned swing-feel classification table (a versioned empirical prior).
+
+    ``straight_tolerance`` is the half-width around the even split (0.5)
+    within which a mean division fraction still reads as straight;
+    ``consistency_tolerance`` is the fraction-stddev ceiling above which a
+    line has no single feel (``mixed``); ``min_divisions`` is the evidence
+    floor below which no feel claim is made. Results cite ``version``
+    (ROADMAP "versioned-priors pattern").
+    """
+
+    version: str
+    source: str
+    straight_tolerance: float
+    consistency_tolerance: float
+    min_divisions: int
 
 
 @dataclass(frozen=True)
@@ -162,6 +182,44 @@ def load_naming_weights(version: str | None = None) -> NamingWeights:
             return entry
     known = ", ".join(e.version for e in entries)
     raise ValueError(f"Unknown naming-weights version {version!r} (known: {known})")
+
+
+def load_swing_priors(version: str | None = None) -> SwingFeelPriors:
+    """Load a versioned swing-feel prior from ``data/swing_feel.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime.
+    """
+    global _SWING_FEEL_CACHE
+    path = DATA_DIR / "swing_feel.json"
+    mtime = path.stat().st_mtime_ns
+    if _SWING_FEEL_CACHE is not None and _SWING_FEEL_CACHE[:2] == (path, mtime):
+        entries = _SWING_FEEL_CACHE[2]
+    else:
+        parsed: list[SwingFeelPriors] = []
+        for payload in _read_json("swing_feel.json"):
+            priors = SwingFeelPriors(
+                version=str(payload["version"]),
+                source=str(payload.get("source", "")),
+                straight_tolerance=float(payload["straight_tolerance"]),
+                consistency_tolerance=float(payload["consistency_tolerance"]),
+                min_divisions=int(payload["min_divisions"]),
+            )
+            if not 0.0 < priors.straight_tolerance < 0.5:
+                raise ValueError(f"Swing prior {priors.version!r}: straight_tolerance out of (0, 0.5)")
+            if priors.min_divisions < 1:
+                raise ValueError(f"Swing prior {priors.version!r}: min_divisions must be >= 1")
+            parsed.append(priors)
+        if not parsed:
+            raise ValueError("swing_feel.json contains no prior tables")
+        entries = tuple(parsed)
+        _SWING_FEEL_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown swing-feel version {version!r} (known: {known})")
 
 
 def load_intervals() -> list[Interval]:

@@ -346,6 +346,36 @@ def rhythmic_analysis(
     return analyze_rhythm(sequence).to_dict()
 
 
+def swing_analysis(
+    events: list[list[float]],
+    numerator: int = 4,
+    denominator: int = 4,
+) -> dict:
+    """Swing-feel estimate for a monophonic line with symbolically-encoded
+    timing: measures where each two-way beat division places its interior
+    onset (0.5 = straight, 2/3 = triplet swing 2:1, 0.75 = dotted shuffle
+    3:1, < 0.5 = reversed) and classifies the feel under a versioned prior
+    cited in the result. Raises when there are too few divisions to claim a
+    feel. events: each [onset_beats, duration_beats, midi_note]. NOTE:
+    quantized-straight MIDI carries no swing to measure — swing must be in
+    the onsets themselves."""
+    from ..temporal import Event, Sequence, analyze_swing
+
+    try:
+        parsed = tuple(
+            Event(float(onset), float(duration), Pitch.from_midi(int(midi)))
+            for onset, duration, midi in events
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"Each event must be [onset_beats, duration_beats, midi_note]: {exc}"
+        ) from exc
+    sequence = Sequence.from_events(
+        parsed, time_signature=(int(numerator), int(denominator))
+    )
+    return analyze_swing(sequence).to_dict()
+
+
 def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict:
     """Minimal voice-leading distance between two pc sets, with the optimal
     voice mapping as evidence."""
@@ -446,6 +476,7 @@ TOOLS = (
     voice_pair_motion,
     melodic_analysis,
     rhythmic_analysis,
+    swing_analysis,
     realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,

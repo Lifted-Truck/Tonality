@@ -15,7 +15,14 @@ from .segmentation import Segment, HarmonicRhythm, segment, harmonic_rhythm
 from .key_tracking import KeyRegion, KeyTrackingResult, KeyWindow, track_keys
 from .voice_motion import VoiceMotionResult, VoicePairMotion, voice_motion
 from .melodic import MelodicAnalysis, MelodicNoteAtoms, analyze_melody
-from .rhythmic import RhythmicAnalysis, RhythmicNoteAtoms, analyze_rhythm
+from .rhythmic import (
+    RhythmicAnalysis,
+    RhythmicNoteAtoms,
+    SwingAnalysis,
+    SwingDivision,
+    analyze_rhythm,
+    analyze_swing,
+)
 
 __all__ = [
     "TempoChange",
@@ -43,4 +50,7 @@ __all__ = [
     "RhythmicAnalysis",
     "RhythmicNoteAtoms",
     "analyze_rhythm",
+    "SwingAnalysis",
+    "SwingDivision",
+    "analyze_swing",
 ]

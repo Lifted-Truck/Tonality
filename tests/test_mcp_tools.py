@@ -156,6 +156,18 @@ def test_rhythmic_analysis_with_meter():
         tools.rhythmic_analysis([[0, 1]])
 
 
+def test_swing_analysis_estimates_feel():
+    swung = []
+    for b in range(4):  # triplet-position eighths, 2:1
+        swung += [[b, 2 / 3, 60], [b + 2 / 3, 1 / 3, 62]]
+    result = _json_safe(tools.swing_analysis(swung))
+    assert result["feel"] == "swung"
+    assert result["swing_ratio"] == pytest.approx(2.0)
+    assert result["prior_version"] == "swing-feel.1"
+    with pytest.raises(ValueError, match="too little evidence"):
+        tools.swing_analysis([[0, 1, 60], [1, 1, 62]])  # no divisions at all
+
+
 def test_chord_in_key_and_voice_leading():
     placed = _json_safe(tools.chord_in_key("D", "min7", tonic="C", key_name="Ionian"))
     assert placed["root_degree"] == 1

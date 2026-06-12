@@ -706,6 +706,20 @@ provenance).
             vocabulary layer. MCP: `rhythmic_analysis` (#23, constant meter
             via numerator/denominator; full meter maps via the library
             door). **Workstream 0 is complete — the DSL is unblocked.**
+            *Extension — swing feel (2026-06-12, prompted by Julian's
+            review):* `analyze_swing` measures where each **two-way beat
+            division** places its interior onset (division fraction: 0.5
+            straight, 2/3 triplet swing 2:1, 0.75 dotted shuffle 3:1,
+            < 0.5 reversed) and classifies straight / swung / reversed /
+            mixed under the first rhythm-side **versioned prior**
+            (`data/swing_feel.json`, `swing-feel.1`: straight window,
+            consistency ceiling, evidence floor — engineering defaults
+            pending corpus calibration; results cite the version). Honest
+            bounds: three-way divisions are not swing pairs; too few
+            divisions raises (no feel from no evidence); and swing that
+            lives only in performance timing (quantized-straight MIDI)
+            is invisible to symbolic data by nature — documented in the
+            tool. MCP: `swing_analysis` (#24).
 - [ ] **The DSL (v1).** Declarative, JSON-serializable, no code execution.
       Each rule: an *atom* (a path into the typed-results vocabulary), a
       *scope* (per-event / per-segment / adjacent-pair / phrase / global), a
@@ -864,6 +878,37 @@ frame, recorded here so A2/A3 decompose onto named work):**
   range, polyphony, idiomatic spacing per class: bass/pad/lead/counter-melody),
   shipped as versioned priors (Phase 3.5 pattern) so generation under a profile
   stays reproducible.
+
+## Standing review — theory grounding (scheduled 2026-06-12)
+
+A recurring capability review against the **broader principles of music
+theory and real-world musical practice**, to surface embedded assumptions
+before they undercut the engine's utility outside the cases we built
+against. The swing gap is the type specimen: the rhythmic atoms shipped
+straight-grid-first, and only a direct question exposed that swung material
+read as `subdivision` noise. Each review walks the shipped capability
+surface (INTEGRATION.md's table is the checklist) and asks, per capability:
+
+- What idiom/notation/practice does this silently assume (classical/notated,
+  straight-grid, quantized, equal-tempered, Western-functional)?
+- What common real-world material would it misread rather than refuse?
+  (Misreading is worse than erroring — the contracts promise
+  error-don't-guess.)
+- Is the assumption *documented as definitional*, *priced as a versioned
+  prior*, or *invisible* — only the last is a finding.
+
+Findings become recorded gaps or accepted-limitation entries (the Phase 6
+12-TET-collision pattern), never silent. **Cadence:** once before the Phase
+4.6 DSL v1 ships (the DSL freezes atom semantics — assumptions baked into
+the vocabulary get expensive after that), then at each phase boundary.
+Candidate first-pass agenda, from known territory: performance timing vs
+symbolic data (swing was one case; rubato, humanization, groove templates
+are siblings) · literal vs harmonic segmentation (NHT-blind) · key induction
+profile bias (KK profiles are classical-corpus priors; jazz/modal/folk
+material may rank oddly — Temperley/Aarden variants already invited by A5) ·
+modal vs functional harmony assumptions in `theory/functions.py` · the
+melodic step/skip/leap mapping's fit for non-Western melody · meter
+inference absent (we trust the file's time signature).
 
 ## Demoted / deferred (built for the old "app" frame)
 

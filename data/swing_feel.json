@@ -1,0 +1,9 @@
+[
+  {
+    "version": "swing-feel.1",
+    "source": "Engineering defaults pending corpus calibration: straight window +/-0.05 around the even split (50%), consistency ceiling 0.08 stddev over division fractions, minimum 3 two-way divisions to claim a feel.",
+    "straight_tolerance": 0.05,
+    "consistency_tolerance": 0.08,
+    "min_divisions": 3
+  }
+]
