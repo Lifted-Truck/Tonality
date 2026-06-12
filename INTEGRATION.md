@@ -51,6 +51,7 @@ each level unlocks more analysis.
 | **MIDI file pipeline** | SMF → events → stable-harmony segments → inferred key → enriched per-segment dataset records (JSON-ready) |
 | **MIDI export** | `Sequence` → SMF (single track; tempo/meter, velocity, channel preserved) — the write-back loop for transformers/generators |
 | **Catalog** | ~35 scales / ~40 chord qualities with aliases, extensible per session |
+| **Catalog containment query** | every catalog scale/quality that **contains** a pc set, at which roots — tightest containers first, exact matches flagged, absolute rooted masks (`find_containers` / `catalog_containment`) |
 
 **Performance:** identity analyses are table-driven over the 4096 possible
 pitch-class sets and answer in **microseconds** after first touch. Current
@@ -96,7 +97,7 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
    infer_key, name_chord, voice_leading, ...` — typed frozen dataclasses, each
    with `to_dict()`. Best for Python-native projects and lowest latency.
 2. **MCP endpoint** (cross-language / agent-facing): `pip install 'mts[mcp]'`,
-   then `python -m mts.mcp` (stdio). 18 tools mirroring the library surface,
+   then `python -m mts.mcp` (stdio). 19 tools mirroring the library surface,
    including `midi_file_analysis` (file → key-aware dataset in one call) and
    catalog discovery (`list_scales`, `list_chord_qualities`). Inputs accept
    note names (`"C"`, `"F#"`, `"Bb"`) or pc ints; MIDI numbers for register.

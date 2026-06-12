@@ -313,6 +313,42 @@ class RealizedVoiceLeading:
         return dataclasses.asdict(self)
 
 
+@dataclass(frozen=True)
+class CatalogContainer:
+    """One catalog identity (scale or chord quality) that contains the query.
+
+    ``root_pc`` is the transposition at which containment holds; ``mask`` is
+    the *absolute* mask of the identity rooted there (same bit convention as
+    everywhere: bit n = pitch class n). ``is_exact`` marks the query being
+    that identity in full, not a proper subset.
+    """
+
+    name: str
+    root_pc: int
+    mask: int
+    cardinality: int
+    is_exact: bool
+    aliases: list[str]
+
+
+@dataclass(frozen=True)
+class CatalogContainment:
+    """All catalog scales/qualities containing a pc set (the gap-8 query).
+
+    Containers are sorted tightest-first (cardinality, then name, then root),
+    so exact matches lead and the widest scales trail.
+    """
+
+    query_pcs: list[int]
+    query_mask: int
+    scales: list[CatalogContainer]
+    qualities: list[CatalogContainer]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
 # ---------------------------------------------------------------------------
 # Context-sensitive naming (Phase 3 disambiguation slice)
 # ---------------------------------------------------------------------------
@@ -476,6 +512,8 @@ class ChordAnalysisResult:
 
 __all__ = [
     "AnalyticalContextSnapshot",
+    "CatalogContainer",
+    "CatalogContainment",
     "ChordAnalysisResult",
     "ChordInterpretation",
     "ChordNaming",
