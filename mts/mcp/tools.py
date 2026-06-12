@@ -376,9 +376,39 @@ def swing_analysis(
     return analyze_swing(sequence).to_dict()
 
 
+# --- performed-input tolerance (gap 12) ----------------------------------------------
+
+def coalesce_events(
+    events: list[list],
+    onset_window_beats: float,
+    snap_grid_beats: float | None = None,
+) -> dict:
+    """Opt-in repair for performed/humanized timing BEFORE temporal analysis:
+    clusters near-simultaneous onsets/offsets (within onset_window_beats of a
+    cluster's earliest point) and optionally snaps to a grid. Returns the
+    cleaned events plus what changed (moved count, max shift) and any events
+    dropped for collapsing to zero length — losses are itemized, never
+    hidden. events: each [onset_beats, duration_beats, midi_note] or
+    [..., voice_label]. The engine never coalesces implicitly; exact input
+    stays exact unless you call this."""
+    from ..temporal import coalesce
+
+    result = coalesce(
+        _flex_events(events),
+        onset_window_beats=float(onset_window_beats),
+        snap_grid_beats=float(snap_grid_beats) if snap_grid_beats is not None else None,
+    )
+    voiced = any(e.voice is not None for e in result.sequence.events)
+    cleaned = [
+        [e.onset, e.duration, e.pitch.midi] + ([e.voice] if voiced else [])
+        for e in result.sequence.events
+    ]
+    return {"events": cleaned, **result.to_dict()}
+
+
 # --- rulesets (Phase 4.6) -----------------------------------------------------------
 
-def _ruleset_events(events: list[list]) -> "Sequence":
+def _flex_events(events: list[list]) -> "Sequence":
     """Events as [onset, duration, midi] or [onset, duration, midi, voice]."""
     from ..temporal import Event, Sequence
 
@@ -388,7 +418,7 @@ def _ruleset_events(events: list[list]) -> "Sequence":
                 float(entry[0]),
                 float(entry[1]),
                 Pitch.from_midi(int(entry[2])),
-                voice=str(entry[3]) if len(entry) > 3 else None,
+                voice=str(entry[3]) if len(entry) > 3 and entry[3] is not None else None,
             )
             for entry in events
         )
@@ -437,7 +467,7 @@ def evaluate_ruleset(
             raise ValueError(
                 f"Each harmony span must be [start_beat, end_beat, [pcs]]: {exc}"
             ) from exc
-    return evaluate(ruleset, _ruleset_events(events), harmony=spans).to_dict()
+    return evaluate(ruleset, _flex_events(events), harmony=spans).to_dict()
 
 
 def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict:
@@ -494,7 +524,10 @@ def quality_brief(quality: str) -> dict:
 # --- the A1 pipeline ------------------------------------------------------------------------------
 
 def midi_file_analysis(
-    path: str, infer_context: bool = True, include_key_regions: bool = True
+    path: str,
+    infer_context: bool = True,
+    include_key_regions: bool = True,
+    coalesce_window_beats: float | None = None,
 ) -> dict:
     """Analyze a Standard MIDI File end-to-end: segment it, infer the global key,
     and emit the enriched dataset (per-segment identity, namings, placement).
@@ -503,17 +536,26 @@ def midi_file_analysis(
     context every segment's naming is conditional on; the full ranked key
     result is returned alongside either way. When include_key_regions is true,
     local key tracking adds "key_regions" (windowed; null if no window carries
-    tonal information).
-    """
+    tonal information). For performed/humanized files, set
+    coalesce_window_beats (e.g. 0.05) to coalesce near-simultaneous timing
+    before analysis — off by default, and cited in the result under
+    "coalesce" when used (losses itemized)."""
     from ..analysis import candidate_context
     from ..io.midi import sequence_from_midi_file
-    from ..temporal import track_keys
+    from ..temporal import coalesce, track_keys
 
     sequence = sequence_from_midi_file(path)
+    coalesce_meta = None
+    if coalesce_window_beats is not None:
+        cleaned = coalesce(sequence, onset_window_beats=float(coalesce_window_beats))
+        sequence = cleaned.sequence
+        coalesce_meta = cleaned.to_dict()
     keys = infer_key(sequence)
     context = candidate_context(keys.best) if infer_context else None
     dataset = dataset_from_sequence(sequence, analytical_context=context)
     result = {"key": keys.to_dict(), "dataset": dataset.to_dict()}
+    if coalesce_meta is not None:
+        result["coalesce"] = coalesce_meta
     if include_key_regions:
         try:
             result["key_regions"] = track_keys(sequence).to_dict()
@@ -541,6 +583,7 @@ TOOLS = (
     melodic_analysis,
     rhythmic_analysis,
     swing_analysis,
+    coalesce_events,
     validate_ruleset,
     evaluate_ruleset,
     realized_voice_leading,

@@ -15,6 +15,7 @@ from .segmentation import Segment, HarmonicRhythm, segment, harmonic_rhythm
 from .key_tracking import KeyRegion, KeyTrackingResult, KeyWindow, track_keys
 from .voice_motion import VoiceMotionResult, VoicePairMotion, voice_motion
 from .melodic import MelodicAnalysis, MelodicNoteAtoms, analyze_melody
+from .tolerance import CoalesceResult, DroppedEvent, coalesce
 from .rhythmic import (
     RhythmicAnalysis,
     RhythmicNoteAtoms,
@@ -53,4 +54,7 @@ __all__ = [
     "SwingAnalysis",
     "SwingDivision",
     "analyze_swing",
+    "CoalesceResult",
+    "DroppedEvent",
+    "coalesce",
 ]

@@ -268,8 +268,22 @@ list as new applications come into view.
     construction or as a preprocessing pass, **caller-set and cited in
     results** like window geometry, default off so exactness stays exact.
     Audiology already coalesces at ~60 ms client-side — existing demand
-    and a working precedent. Until this ships: consumers must quantize or
-    coalesce before sending events (interim guidance in INTEGRATION.md).
+    and a working precedent. **Delivered (2026-06-12):**
+    `temporal/tolerance.py` `coalesce(sequence, onset_window_beats=,
+    snap_grid_beats=)` — clusters *all* time points (onsets AND offsets,
+    healing performed-legato seams) greedily by anchor (the cluster's
+    earliest point — the perceived onset of a spread chord; anchoring
+    prevents unbounded chaining), optional grid snap after. Explicit
+    opt-in preprocessing returning a new `Sequence` — the engine never
+    coalesces implicitly, and every downstream analysis benefits without
+    learning a tolerance parameter. Result cites the parameters and
+    itemizes the changes (moved count, max shift) and any events dropped
+    for collapsing (grace notes shorter than the window) — losses are
+    reported, never hidden. The review's probe is the acceptance test:
+    the 10-micro-segment chords segment cleanly into 2; the
+    all-`subdivision` melody places on the beat after snap. MCP:
+    `coalesce_events` (#27) + opt-in `coalesce_window_beats` on
+    `midi_file_analysis` (metadata cited in the result when used).
 13. **Per-region analytical context in the A1 pipeline** (added 2026-06-12;
     review pass #1). `midi_file_analysis` now computes local key regions
     *and* still conditions every segment's naming on the single global

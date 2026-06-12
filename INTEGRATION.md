@@ -53,6 +53,7 @@ each level unlocks more analysis.
 | **Rhythmic atoms** | per-note metric placement (downbeat / beat / offbeat / subdivision) against the felt beat (compound meters beat in threes), a precise **syncopation** predicate (weak onset sounding through the next stronger grid line), durations + inter-onset intervals (`analyze_rhythm`) |
 | **Swing feel** | straight / swung / reversed / mixed from two-way beat divisions, with the division-fraction evidence and ratio (2/3 → 2:1 triplet swing, 0.75 → 3:1 shuffle); thresholds are a **versioned prior** (`swing-feel.1`, cited). Only reads swing encoded in the onsets — quantized-straight MIDI carries none (`analyze_swing`) |
 | **Rulesets (DSL) + conformance evaluator** | declarative JSON rules over the atom vocabulary (voice motion / melody / rhythm): `where`-filtered `forbid`/`require`, hard or soft-weighted. Strict total validation (`validate_ruleset` returns *every* error — built for LLM-translated rulesets); `evaluate_ruleset` → per-rule violations with locations + atom evidence, conformance frequencies, hard/soft rollups. Rules the material can't ground come back `applicable: false` with the reason — never silently skipped |
+| **Performed-input tolerance** | opt-in coalescing of humanized timing before analysis (`coalesce_events`): clusters near-simultaneous onsets *and* offsets, optional grid snap; result cites the window and itemizes moves/drops. Repairs the micro-segment + all-`subdivision` misreads on real performances; never applied implicitly |
 | **Voicing analysis / suggestions** | recognition of real voicings (inversion, spread, named type); generative suggestions (closed, drop-2/3, rootless, shell) |
 | **MIDI file pipeline** | SMF → events → stable-harmony segments → inferred key → enriched per-segment dataset records (JSON-ready) |
 | **MIDI export** | `Sequence` → SMF (single track; tempo/meter, velocity, channel preserved) — the write-back loop for transformers/generators |
@@ -103,7 +104,7 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
    infer_key, name_chord, voice_leading, ...` — typed frozen dataclasses, each
    with `to_dict()`. Best for Python-native projects and lowest latency.
 2. **MCP endpoint** (cross-language / agent-facing): `pip install 'mts[mcp]'`,
-   then `python -m mts.mcp` (stdio). 26 tools mirroring the library surface,
+   then `python -m mts.mcp` (stdio). 27 tools mirroring the library surface,
    including `midi_file_analysis` (file → key-aware dataset in one call) and
    catalog discovery (`list_scales`, `list_chord_qualities`). Inputs accept
    note names (`"C"`, `"F#"`, `"Bb"`) or pc ints; MIDI numbers for register.
@@ -133,14 +134,16 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
 - **Versioned priors.** Anything empirical (key profiles, naming weights,
   VL cardinality policy) is a versioned asset cited in results. Pin versions
   if you need byte-stable outputs across engine upgrades.
-- **Send grid-exact events (for now).** The temporal analyses (segmentation,
-  metric placement, voice motion) treat onsets as exact: humanized/performed
-  timing fragments segmentation into micro-segments and reads on-the-beat
-  notes as off-grid subdivisions. Until the engine-side tolerance layer
-  lands (ROADMAP gap 12), quantize or coalesce near-simultaneous onsets
-  before sending (Audiology's ~60 ms client-side coalescing is the working
-  precedent). Swing/groove material is the exception that *should* keep its
-  encoded offsets — see the swing row's caveat.
+- **Performed timing needs an explicit coalesce.** The temporal analyses
+  (segmentation, metric placement, voice motion) treat onsets as exact:
+  humanized/performed timing fragments segmentation into micro-segments and
+  reads on-the-beat notes as off-grid subdivisions. The engine never repairs
+  this implicitly — call `coalesce_events` (or `coalesce` in-process, or
+  `coalesce_window_beats` on `midi_file_analysis`) before analysis; the
+  result cites the window used and itemizes what moved or was dropped.
+  Client-side coalescing (Audiology's ~60 ms) remains equally valid — same
+  contract, either side of the wire. Swing/groove material is the exception
+  that *should* keep its encoded offsets — see the swing row's caveat.
 - **Key candidates span the loaded profile modes** — major and minor under
   `kk-1982.1`. Modal material (a dorian vamp) will rank as its relative
   major/minor rather than its modal tonic; modal profile rows join the
