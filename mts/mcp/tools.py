@@ -260,6 +260,31 @@ def key_tracking(
     ).to_dict()
 
 
+def voice_pair_motion(events: list[list]) -> dict:
+    """Classify how voice pairs move (parallel/similar/contrary/oblique, with
+    interval evidence) for voiced events, each [onset_beats, duration_beats,
+    midi_note, voice_label]. The 'which voice moved' primitive counterpoint
+    predicates filter — e.g. parallel fifths = motion 'parallel' with
+    interval_class 7."""
+    from ..temporal import Event, Sequence, voice_motion
+
+    try:
+        parsed = tuple(
+            Event(
+                float(onset),
+                float(duration),
+                Pitch.from_midi(int(midi)),
+                voice=str(voice),
+            )
+            for onset, duration, midi, voice in events
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"Each event must be [onset_beats, duration_beats, midi_note, voice_label]: {exc}"
+        ) from exc
+    return voice_motion(Sequence.from_events(parsed)).to_dict()
+
+
 def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict:
     """Minimal voice-leading distance between two pc sets, with the optimal
     voice mapping as evidence."""
@@ -357,6 +382,7 @@ TOOLS = (
     key_tracking,
     name_pcs_in_inferred_keys,
     voice_leading_distance,
+    voice_pair_motion,
     realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,

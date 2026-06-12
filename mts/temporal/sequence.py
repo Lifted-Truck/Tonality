@@ -27,12 +27,20 @@ _EPS = 1e-9
 
 @dataclass(frozen=True)
 class Event:
-    """A single pitched event at a musical position (quarter-note beats)."""
+    """A single pitched event at a musical position (quarter-note beats).
+
+    ``voice`` is an optional part label (Phase 4.6 Workstream 0: voice
+    identity) — "which voice moved" is the prerequisite for counterpoint
+    rules. MIDI ingestion seeds it per (track, channel) as ``t{n}c{n}``;
+    ``None`` means unvoiced (the engine never invents a voice assignment —
+    explicit voice separation of merged material is a recorded refinement).
+    """
 
     onset: float
     duration: float
     pitch: Pitch
     tags: tuple[str, ...] = ()
+    voice: str | None = None
 
     def __post_init__(self) -> None:
         if self.onset < -_EPS:
@@ -129,6 +137,20 @@ class Sequence:
             if hi - lo > _EPS:
                 weights[event.pitch.pc] += hi - lo
         return tuple(weights)
+
+    def voices(self) -> tuple[str, ...]:
+        """The distinct voice labels present, sorted (unvoiced events excluded)."""
+
+        return tuple(sorted({e.voice for e in self.events if e.voice is not None}))
+
+    def filter_voice(self, voice: str) -> "Sequence":
+        """A sequence of just one voice's events (tempo/meter maps shared)."""
+
+        return Sequence(
+            events=tuple(e for e in self.events if e.voice == voice),
+            tempo=self.tempo,
+            meter=self.meter,
+        )
 
     @property
     def duration_beats(self) -> float:
