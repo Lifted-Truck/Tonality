@@ -689,9 +689,23 @@ provenance).
             escape / free, documented precedence); notes outside every span
             get no claim. The sequential vocabulary gap 7 (cadences) and
             harmonic segmentation will reuse. MCP: `melodic_analysis` (#22).
-      - [ ] **Rhythmic atoms** — duration patterns, syncopation, metric
-            placement classes (meter maps exist; the pattern vocabulary
-            doesn't).
+      - [x] **Rhythmic atoms** — duration patterns, syncopation, metric
+            placement classes. **Delivered (2026-06-12):**
+            `temporal/rhythmic.py` `analyze_rhythm(sequence, voice=)` — per
+            note: metric placement (downbeat / beat / offbeat / subdivision)
+            against the **felt beat** derived from the signature at the
+            onset (compound meters — numerator > 3, divisible by 3 — beat in
+            threes: 6/8 → dotted quarter; definitional, not a knob);
+            a precise syncopation predicate (an offbeat/subdivision onset
+            sounding through the next beat line, or a weak-beat onset
+            sounding through the next downbeat — downbeats never syncopate);
+            durations + inter-onset intervals per note and as line-level
+            sequences. Same line discipline as melodic atoms (one voice,
+            monophonic; polyphonic rhythm is per-voice). Pattern *mining*
+            (which patterns recur) is Phase 4.5/4.6 statistics, not this
+            vocabulary layer. MCP: `rhythmic_analysis` (#23, constant meter
+            via numerator/denominator; full meter maps via the library
+            door). **Workstream 0 is complete — the DSL is unblocked.**
 - [ ] **The DSL (v1).** Declarative, JSON-serializable, no code execution.
       Each rule: an *atom* (a path into the typed-results vocabulary), a
       *scope* (per-event / per-segment / adjacent-pair / phrase / global), a

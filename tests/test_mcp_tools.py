@@ -143,6 +143,19 @@ def test_melodic_analysis_with_and_without_harmony():
         tools.melodic_analysis(events, harmony=[[0, 4]])
 
 
+def test_rhythmic_analysis_with_meter():
+    events = [[0, 1.5, 60], [1.5, 2.5, 62]]  # Charleston figure in 4/4
+    result = _json_safe(tools.rhythmic_analysis(events))
+    assert result["placements"] == ["downbeat", "offbeat"]
+    assert result["syncopation_count"] == 1
+    compound = _json_safe(
+        tools.rhythmic_analysis([[1.5, 0.5, 60]], numerator=6, denominator=8)
+    )
+    assert compound["placements"] == ["beat"]  # the second dotted-quarter beat
+    with pytest.raises(ValueError, match="onset_beats"):
+        tools.rhythmic_analysis([[0, 1]])
+
+
 def test_chord_in_key_and_voice_leading():
     placed = _json_safe(tools.chord_in_key("D", "min7", tonic="C", key_name="Ionian"))
     assert placed["root_degree"] == 1

@@ -317,6 +317,35 @@ def melodic_analysis(
     return analyze_melody(Sequence.from_events(parsed), harmony=spans).to_dict()
 
 
+def rhythmic_analysis(
+    events: list[list[float]],
+    numerator: int = 4,
+    denominator: int = 4,
+) -> dict:
+    """Rhythmic atoms for one monophonic line: metric placement (downbeat /
+    beat / offbeat / subdivision against the felt beat — compound meters
+    beat in threes), a precise syncopation predicate (a weak onset sounding
+    through the next stronger grid line), durations and inter-onset
+    intervals. events: each [onset_beats, duration_beats, midi_note];
+    numerator/denominator set a constant time signature (full meter maps via
+    the library door)."""
+    from ..temporal import Event, Sequence, analyze_rhythm
+
+    try:
+        parsed = tuple(
+            Event(float(onset), float(duration), Pitch.from_midi(int(midi)))
+            for onset, duration, midi in events
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"Each event must be [onset_beats, duration_beats, midi_note]: {exc}"
+        ) from exc
+    sequence = Sequence.from_events(
+        parsed, time_signature=(int(numerator), int(denominator))
+    )
+    return analyze_rhythm(sequence).to_dict()
+
+
 def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict:
     """Minimal voice-leading distance between two pc sets, with the optimal
     voice mapping as evidence."""
@@ -416,6 +445,7 @@ TOOLS = (
     voice_leading_distance,
     voice_pair_motion,
     melodic_analysis,
+    rhythmic_analysis,
     realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,
