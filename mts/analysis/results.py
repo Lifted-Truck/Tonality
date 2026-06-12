@@ -291,6 +291,28 @@ class VoiceLeadingResult:
         return dataclasses.asdict(self)
 
 
+@dataclass(frozen=True)
+class RealizedVoiceLeading:
+    """Minimal voice leading between two *voiced* chords (register-aware).
+
+    The register-required sibling of :class:`VoiceLeadingResult`: ``distance``
+    is total motion in actual semitones between MIDI pitches (octaves cost
+    12); ``mapping`` is the optimal assignment as ``[from_midi, to_midi]``
+    voice pairs. Doublings participate as distinct voices. ``policy`` names
+    the cardinality convention (shared with the identity-level metric).
+    """
+
+    distance: int
+    mapping: list[list[int]]  # [from_midi, to_midi] per voice
+    policy: str
+    source_midi: list[int]
+    target_midi: list[int]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
 # ---------------------------------------------------------------------------
 # Context-sensitive naming (Phase 3 disambiguation slice)
 # ---------------------------------------------------------------------------
@@ -474,6 +496,7 @@ __all__ = [
     "SymmetryData",
     "TonnetzAnalysis",
     "TonicContext",
+    "RealizedVoiceLeading",
     "VoiceLeadingResult",
     "VoicingAnalysis",
     "VoicingEntry",

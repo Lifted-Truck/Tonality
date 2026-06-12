@@ -46,7 +46,10 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   assignment; exact, brute-force-verified in tests). **Analytical** — measures,
   never realizes register (Phase 7 consumes it). The unequal-cardinality
   convention is a named, cited policy (`doubling.1`); results carry the optimal
-  mapping as evidence.
+  mapping as evidence. `voice_leading_realized` is the register-required
+  sibling over voiced chords (actual semitones, octaves cost 12, doublings are
+  voices; raises on `None` per the cardinal rule) — linear pitch space, so
+  optimal pairing is sorted index-wise / contiguous blocks, also exact.
 - `results.py` — **typed result dataclasses**. All analysis returns these, never
   raw dicts. Top-level results expose `to_dict()` (JSON/MCP output). Add new
   result fields here, not as ad-hoc dict keys. **Numeric/PC only** — no spelled

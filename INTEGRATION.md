@@ -46,7 +46,7 @@ each level unlocks more analysis.
 | **Exhaustive naming** | every valid (root, quality) reading of a pc set — symmetric/ambiguous sets yield several (C6 = Am7; dim7 names at 4 roots) |
 | **Key induction** | ranked key candidates with scores + top-two margin from **any non-negative pc-weight 12-vector** (summed durations, exponentially-decaying histograms, velocity-weighted counts — your weighting policy, our ranking) |
 | **Contextual disambiguation** | *the* chosen reading in a key, with ranked alternatives and per-signal evidence; flags aug-6ths, secondary dominants, Neapolitans; honest `is_ambiguous` |
-| **Voice-leading distance** | exact minimal motion between two chord identities + the optimal voice mapping |
+| **Voice-leading distance** | exact minimal motion between two chord identities + the optimal voice mapping; **register-aware form** for voiced chords (actual MIDI notes — octaves cost 12, doublings are voices) via `voice_leading_realized` |
 | **Voicing analysis / suggestions** | recognition of real voicings (inversion, spread, named type); generative suggestions (closed, drop-2/3, rootless, shell) |
 | **MIDI file pipeline** | SMF → events → stable-harmony segments → inferred key → enriched per-segment dataset records (JSON-ready) |
 | **MIDI export** | `Sequence` → SMF (single track; tempo/meter, velocity, channel preserved) — the write-back loop for transformers/generators |
@@ -63,10 +63,11 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
   `evenness = set_class.dft_magnitudes[n-1] / n` ∈ [0, 1]. Verified anchors:
   augmented triad / dim7 / whole-tone = 1.0 exactly; major triad ≈ 0.745;
   dominant 7th ≈ 0.661; a 4-note chromatic cluster = 0.25.
-- **Voice pairing as evidence**: `voice_leading(...)` returns not just the
-  distance but the optimal `mapping` of `[from_pc, to_pc]` voice pairs —
-  consume it directly (e.g. as per-voice motion vectors). Identity-level
-  (mod-12); register-aware realization-level transitions are a recorded gap.
+- **Voice pairing as evidence**: both VL metrics return not just the distance
+  but the optimal `mapping` of voice pairs — `[from_pc, to_pc]` at identity
+  level (`voice_leading`), `[from_midi, to_midi]` at register level
+  (`voice_leading_realized`) — consume them directly as per-voice motion
+  vectors. Same named cardinality policy (`doubling.1`) on both.
 - **Key-induction margin as a control signal**: `margin` is the difference
   between the top two candidates' Pearson correlation scores under the cited
   profile version — a continuous confidence value in [0, 2], in practice
@@ -136,10 +137,6 @@ non-commitment. Offline file analysis via dataset artifacts works today.
 ## Coming (prepare for, don't depend on yet — phases in ROADMAP.md)
 
 - **Local key tracking** (modulation-aware splitting; Phase 3.5b extension).
-- **Realization-level voice-leading distance** (gap 6) — register-aware
-  motion between two *voiced* chords with the pairing as evidence; the
-  shipped metric is identity-level (mod-12). Consumers: TERRANE ("harmonic
-  effort"), Phase 7 scoring.
 - **Cadence detection as evidenced events** (gap 7) — V–I and related
   root-motion patterns as discrete, evidence-carrying events. Consumers:
   TERRANE home-center impulses, A1, A4.
