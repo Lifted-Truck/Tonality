@@ -285,6 +285,38 @@ def voice_pair_motion(events: list[list]) -> dict:
     return voice_motion(Sequence.from_events(parsed)).to_dict()
 
 
+def melodic_analysis(
+    events: list[list[float]],
+    harmony: list[list] | None = None,
+) -> dict:
+    """Melodic atoms for one monophonic line: signed intervals, step/skip/leap
+    classes, Parsons contour, ambitus, approach/departure per note — plus
+    non-harmonic-tone typing (passing, neighbor, appoggiatura, escape,
+    suspension, anticipation, pedal) when harmony is given. events: each
+    [onset_beats, duration_beats, midi_note]. harmony (optional): spans
+    [start_beat, end_beat, [pcs]] — without it no chord-tone claims are made."""
+    from ..temporal import Event, Sequence, analyze_melody
+
+    try:
+        parsed = tuple(
+            Event(float(onset), float(duration), Pitch.from_midi(int(midi)))
+            for onset, duration, midi in events
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"Each event must be [onset_beats, duration_beats, midi_note]: {exc}"
+        ) from exc
+    spans = None
+    if harmony is not None:
+        try:
+            spans = [(float(s), float(e), [int(pc) for pc in pcs]) for s, e, pcs in harmony]
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Each harmony span must be [start_beat, end_beat, [pcs]]: {exc}"
+            ) from exc
+    return analyze_melody(Sequence.from_events(parsed), harmony=spans).to_dict()
+
+
 def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict:
     """Minimal voice-leading distance between two pc sets, with the optimal
     voice mapping as evidence."""
@@ -383,6 +415,7 @@ TOOLS = (
     name_pcs_in_inferred_keys,
     voice_leading_distance,
     voice_pair_motion,
+    melodic_analysis,
     realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,

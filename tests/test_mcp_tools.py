@@ -128,6 +128,21 @@ def test_voice_pair_motion_over_event_quadruples():
         tools.voice_pair_motion([[0, 1, 60]])  # missing the voice
 
 
+def test_melodic_analysis_with_and_without_harmony():
+    events = [[0, 1, 60], [1, 1, 62], [2, 1, 64]]
+    bare = _json_safe(tools.melodic_analysis(events))
+    assert bare["parsons_code"] == "*uu"
+    assert bare["notes"][1]["nht_type"] is None  # no harmony, no claim
+    typed = _json_safe(
+        tools.melodic_analysis(events, harmony=[[0, 4, [0, 4, 7]]])
+    )
+    assert typed["notes"][1]["nht_type"] == "passing"
+    with pytest.raises(ValueError, match="onset_beats"):
+        tools.melodic_analysis([[0, 1]])
+    with pytest.raises(ValueError, match="harmony span"):
+        tools.melodic_analysis(events, harmony=[[0, 4]])
+
+
 def test_chord_in_key_and_voice_leading():
     placed = _json_safe(tools.chord_in_key("D", "min7", tonic="C", key_name="Ionian"))
     assert placed["root_degree"] == 1
