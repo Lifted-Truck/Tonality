@@ -346,6 +346,27 @@ windowed batch form; A4's *online* requirement remains with gap 5.
    continuous harmonic control signals — see Phase 5), never sound. Which
    synthesis stack a consumer uses (DDSP, RAVE, analog modeling, …) is a
    per-project choice made in *their* repo.
+10. **C++ is the engine's eventual home — port once, bind back.** (Decided
+    2026-06-12 with Julian.) When the 12-TET conception is established, the
+    engine migrates to a C++ core with Python bindings (pybind11-class) —
+    **not** a second parallel implementation (two implementations drift;
+    a fork is the failure mode). Motivations on record: A4's plugin/device
+    frame cannot ship a CPython runtime (the one consumer the Python engine
+    structurally cannot serve in-process); an embedded profile (below)
+    needs it; a C++ core compiles to WASM nearly for free, incidentally
+    reopening the declined browser-door commitment as a side effect rather
+    than a promise. Sequencing fence: port **after** the 12-TET surface is
+    frozen — Phase 6 renegotiates "the mask is the key", so porting before
+    it means porting the substrate twice. The migration's spec anchor is
+    the **golden-file conformance harness** (delivered 2026-06-12,
+    `tests/test_conformance.py` + `tests/golden/conformance.json`): one
+    deterministic call per MCP tool, full-JSON comparison with float
+    tolerances (rel 1e-9), language-neutral by construction — a C++ engine
+    reproducing the goldens is conformant. The harness doubles today as
+    regression armor: any output change fails it; intended changes
+    regenerate goldens in the same PR, making output drift reviewable.
+    Versioned priors and catalogs are JSON and ship to both
+    implementations verbatim. See Phase 8.
 
 ## Build sequence
 
@@ -945,6 +966,63 @@ frame, recorded here so A2/A3 decompose onto named work):**
   range, polyphony, idiomatic spacing per class: bass/pad/lead/counter-melody),
   shipped as versioned priors (Phase 3.5 pattern) so generation under a profile
   stays reproducible.
+
+### Phase 8 (future) — C++ core migration (Decision 10)
+Port once, bind back: a single C++ core with Python bindings replaces the
+Python implementation; every existing consumer keeps working through the
+bindings. **Sequencing fence: after the 12-TET surface is frozen** (Phase 6
+renegotiates the substrate — porting first means porting twice). Driver:
+A4's plugin/device frame; side effects: WASM falls out nearly free.
+
+- [x] **Step 0 — conformance harness** (delivered 2026-06-12, with the
+      decision): `tests/test_conformance.py` + `tests/golden/conformance.json`
+      — one deterministic call per MCP tool (24 cases; `midi_file_analysis`
+      excluded for path-bearing provenance, its components covered by the
+      event-based tools), full-JSON golden comparison with float tolerance
+      (rel 1e-9 / abs 1e-12), plus a coverage ratchet (a new tool without a
+      conformance case fails the suite). Doubles as regression armor today;
+      intended output changes regenerate goldens in the same PR.
+- [ ] Core identity layer (bitmask/set-class/symmetry/DFT) — `constexpr`
+      tables over the 4096 universe; the cleanest layer, C++-native.
+- [ ] Analysis layer (parsers, naming + evidence, induction, VL, containment)
+      — the bulk; the ~35 typed results become hand-written or generated
+      struct + JSON serialization (the single biggest line-item).
+- [ ] Temporal layer (sequence, segmentation, tracking, atoms, swing).
+- [ ] MIDI I/O (SMF lib or ~500-line hand-rolled reader/writer; mido retired).
+- [ ] Python bindings (pybind11-class); the Python package becomes a shim.
+- [ ] Tool surfaces: stdio MCP + HTTP bridge with hand-maintained (or
+      generated) schemas — the introspect-live-signatures property is the
+      one Python nicety that does not survive.
+- Sizing on record: full parity ≈ 3–5 focused person-months, ~1.5–2× the
+  Python line count; core-only subset ≈ 3–5 weeks.
+
+**Embedded profile (Teensy-class) — exploration, scoped 2026-06-12.**
+A stripped C++ subset for microcontrollers (reference target: Teensy 4.1 —
+Cortex-M7 @ 600 MHz, 1 MB RAM, 8 MB flash, native USB/serial MIDI). This is
+plausibly **A4's device frame**: the embedded profile and the live-companion
+hardware are the same artifact. What the scoping says so far:
+
+- *Fits comfortably:* the entire identity layer — the full 4096-set-class
+  table (prime form, interval vector, DFT magnitudes, symmetry) is
+  ~200–300 KB as flash-resident constants, or computed on demand (an M7
+  does the DFT in microseconds); catalogs and priors compile to constants
+  (version strings still cited — the reproducibility contract survives);
+  key induction (24 Pearson correlations) and the atoms are trivial; a
+  compact Event (~12 bytes) puts a 10k-event window at ~120 KB of RAM.
+- *Stripped:* JSON serialization and `to_dict` (results are structs consumed
+  in-process), MCP/HTTP surfaces (replaced by a direct C API and/or a small
+  serial protocol), file-based MIDI I/O (live MIDI input replaces it —
+  finally retiring `events_from_live_midi`'s `NotImplementedError`, on
+  hardware), dataset records, session catalogs (static).
+- *Changes shape:* heap-averse fixed-capacity containers in place of
+  evidence lists; error codes/optionals in place of exceptions
+  (error-don't-guess survives as a calling convention); and the analyses
+  must be the **online/incremental forms — gap 5 and the embedded profile
+  are the same API work** (whole-sequence batch calls don't fit a device
+  loop anyway).
+- Rough size: a 3–5k-LOC subset of the core+atoms+induction. Scoping
+  continues when A4 scheduling starts; the conformance harness applies to
+  whatever subset ships (subset goldens = subset spec).
 
 ## Standing review — theory grounding (scheduled 2026-06-12)
 
