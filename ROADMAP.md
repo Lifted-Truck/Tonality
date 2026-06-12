@@ -241,6 +241,19 @@ A4 raises the requirement from windowed to *online*.
    engine can only express, check, and induce what its analytical vocabulary
    can say — vocabulary expansion (voice, melody, rhythm) is therefore a
    first-class investment, not a side effect.
+9. **Audio stays outside — permanently.** (Decided 2026-06-11 after evaluating
+   Magenta DDSP for inclusion.) Audio synthesis and audio-domain DSP — neural
+   (DDSP/RAVE-class) or otherwise — are consumer-side, full stop. Reasons on
+   record: the division of labor *is* the product (exact combinatorics here;
+   a learned controls→audio mapping is the opposite kind of object, and
+   Decision 8 just barred in-engine learned components); three consumer
+   briefs (A5–A7) signed contracts that depend on the symbolic-only boundary;
+   neural synthesis is not byte-reproducible in the versioned-priors sense;
+   and the dependency footprint is incompatible with a `mido`-sized engine.
+   The engine's audio-facing contribution is **descriptor tracks** (typed
+   continuous harmonic control signals — see Phase 5), never sound. Which
+   synthesis stack a consumer uses (DDSP, RAVE, analog modeling, …) is a
+   per-project choice made in *their* repo.
 
 ## Build sequence
 
@@ -659,13 +672,15 @@ provenance).
   use case, compatible with its core-determinism requirement by
   construction (rulesets are deterministic + versioned).
 
-### Phase 5 — Representation / projection layer (visuals as data)
+### Phase 5 — Representation / projection layer (projections as data)
 A render-agnostic layer: the engine emits **typed, structured descriptions** of a
 musical object in its canonical representations — and *rendering to pixels/files
 is a thin edge consumer, not part of core* (same relationship MCP has to analysis).
 Decision: **library-first, no in-repo GUI** (the deferred Qt GUI stays demoted).
 This is the "visual analysis suite" expressed as data an agent or a renderer can
-consume.
+consume. *(Charter widened 2026-06-11, from "visuals as data" to "projections as
+data": rendering targets include sound engines, not just screens — see the
+descriptor-track item below and Decision 9.)*
 
 - [ ] Each representation **declares the specification level it requires** and
       errors when under-specified — lattice-governed, "reduce never invent":
@@ -682,6 +697,19 @@ consume.
 - [ ] Reuse existing seeds: `TonnetzAnalysis`, interval vector, reflection
       axes / symmetry (the clock/bracelet math), and re-home `layouts/` out of the
       demoted GUI frame.
+- [ ] **Descriptor tracks — control signals as data** *(added 2026-06-11; the
+      audio-facing projection family, per Decision 9)*. Given a `Sequence`
+      (later: a streaming session, gap 5), emit a typed, time-aligned series
+      of the numeric harmonic descriptors the engine already computes — DFT
+      embedding, evenness, key-margin, VL effort between adjacent segments —
+      per segment or per window, at a declared rate. Entirely symbolic,
+      exact, versioned-prior-compatible; the consumer maps tracks onto synth
+      parameters / CC streams / lighting. *Demand evidence (ad hoc today):*
+      TERRANE's margin→terrain-ruggedness and Solve et Coagula's DFT→CC
+      mappings — each privately re-deriving "harmonic state as a control
+      signal"; this item is their shared formalization. A DDSP/RAVE-class
+      instrument *conditioned on descriptor tracks* is the sanctioned shape
+      for "Tonality-aware timbre" (in consumer repos, never here).
 - Canonical model for the representation set: **Ian Ring's "A Study of Scales"**
   (see References) — its per-set page enumerates the representations to mirror, and
   it keys every set by our same identity bitmask.
