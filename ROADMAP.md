@@ -105,7 +105,15 @@ list as new applications come into view.
   streaming session API — gap 5; TERRANE joins A4 as a named customer while
   explicitly *not* requiring it for Phase 1.
 - **A6 — AUDIOLOGY** *(added 2026-06-11 from its brief —
-  `integrations/audiology/`)*. A browser SPA (TypeScript/React, local-first,
+  `integrations/audiology/`; role widened 2026-06-12: Julian is preparing
+  Audiology to become **explicitly Tonality's GUI** — the de-facto
+  visual front end, while remaining an edge consumer in its own repo per
+  the no-in-repo-GUI decision. Consequences on record: A6 is the primary
+  customer of the **Phase 5 representation layer**, which rises in
+  priority accordingly, and its surfaces define Phase 5's first slices —
+  keyboard, piano-roll, clock/bracelet; the HTTP bridge is its lifeline
+  door and bridge stability becomes a GUI-availability concern).* A
+  browser SPA (TypeScript/React, local-first,
   no backend): a Push-3-style scale/chord **explorer** (8×8 grid + keyboard,
   scale-membership coloring), a MIDI-file **player/analyzer** (WebAudio
   transport, canvas piano-roll), and a **live-play** surface (Web MIDI /
@@ -933,7 +941,12 @@ Open question: which rendering targets to support as *reference* edge consumers
 canvas piano-roll all map through one pitch axis and are ready render targets
 for these descriptors; keyboard + piano-roll view types are confirmed
 in-scope. Delivery for the web-visualizer class runs through **gap 9** (the
-HTTP door).
+HTTP door, since shipped). *(2026-06-12: A6 is being prepared as
+Tonality's explicit GUI — see its entry. That makes A6 this phase's
+primary customer and raises the phase's priority; the first slices
+should be A6's surfaces in order of its demand: keyboard membership/
+coloring descriptors, piano-roll overlay descriptors, then the clock/
+bracelet identity views.)*
 
 ### Phase 6 (future) — Beyond 12-TET: generalized identity
 - The current substrate is **hard 12-TET** (12-bit bitmask, mod-12 everywhere).
