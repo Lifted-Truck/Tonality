@@ -231,6 +231,17 @@ def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict
     return voice_leading(source_pcs, target_pcs).to_dict()
 
 
+def realized_voice_leading(source_midi: list[int], target_midi: list[int]) -> dict:
+    """Register-aware minimal voice leading between two voiced chords (actual
+    MIDI notes; octaves cost 12, doublings are voices), with the optimal
+    [from_midi, to_midi] mapping as evidence."""
+    from ..analysis import voice_leading_realized
+
+    return voice_leading_realized(
+        _realization(source_midi), _realization(target_midi)
+    ).to_dict()
+
+
 # --- register-aware & generative ------------------------------------------------------------
 
 def voicing_analysis(midi_notes: list[int], root: int | str | None = None) -> dict:
@@ -298,6 +309,7 @@ TOOLS = (
     key_induction,
     name_pcs_in_inferred_keys,
     voice_leading_distance,
+    realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,
     quality_comparison,

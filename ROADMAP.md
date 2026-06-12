@@ -170,7 +170,14 @@ list as new applications come into view.
    nearest-octave voicing engine — which has offered a concrete test corpus
    (5 voices, permitted doublings, range clamps root+3..root+40) to seed
    this gap's test suite; Phase 7 wants the same metric for scoring realized
-   voice leading. Most-demanded unbuilt item.
+   voice leading. **Delivered (2026-06-11):** `voice_leading_realized`
+   (analysis + MCP tool #18) — actual-semitone motion over sorted MIDI
+   multisets (octaves cost 12; doublings are voices), optimal pairing exact
+   via linear non-crossing (sorted index-wise for equal voices; contiguous
+   blocks for unequal), brute-force-verified including 5-voice
+   doubled/clamped cases shaped like the offered corpus. Register required —
+   raises on `None` per the cardinal rule. The S&C corpus remains welcome to
+   *extend* the suite when it arrives.
 7. **Cadence detection as evidenced events** (A5, A1, A4) — V–I and related
    root-motion patterns emitted as discrete events with per-signal evidence
    (Decision 7 shape). Kin to the Slice 5 tier-(c) sequential signals —

@@ -15,7 +15,7 @@ from .equivalence import interpret_chord
 from .analytical_context import AnalyticalContext, ChordInKey, contextualize_chord
 from .key_induction import candidate_context, infer_key
 from .naming import name_chord, name_chord_across_keys
-from .voice_leading import POLICY_DOUBLING_V1, voice_leading
+from .voice_leading import POLICY_DOUBLING_V1, voice_leading, voice_leading_realized
 from .errors import SpecificationError, require_realization
 from ..core.realization import Realization
 from ..core.spec_level import Registral, SpecLevel, Transpositional
@@ -69,6 +69,7 @@ from .results import (
     SymmetryData,
     TonnetzAnalysis,
     TonicContext,
+    RealizedVoiceLeading,
     VoiceLeadingResult,
     VoicingAnalysis,
     VoicingEntry,
@@ -112,8 +113,10 @@ __all__ = [
     "KeyCandidate",
     "KeyInductionResult",
     "voice_leading",
+    "voice_leading_realized",
     "POLICY_DOUBLING_V1",
     "VoiceLeadingResult",
+    "RealizedVoiceLeading",
     "name_chord",
     "name_chord_across_keys",
     "AnalyticalContextSnapshot",
