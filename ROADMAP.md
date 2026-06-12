@@ -672,9 +672,23 @@ provenance).
             parallel fifths") stay in the DSL — they are one-line filters
             over these transitions (demonstrated in tests). MCP:
             `voice_pair_motion` (#21).
-      - [ ] **Melodic atoms** — contour, step/leap classification,
+      - [x] **Melodic atoms** — contour, step/leap classification,
             approach/departure intervals, NHT typing (shared with the parked
-            harmonic-segmentation work).
+            harmonic-segmentation work). **Delivered (2026-06-12):**
+            `temporal/melodic.py` `analyze_melody(sequence, voice=, harmony=)`
+            — per-note signed approach/departure intervals with the
+            species-counterpoint class vocabulary (unison 0 · step 1–2 ·
+            skip 3–4 · leap ≥5; definitional, not an empirical knob),
+            Parsons-code contour, ambitus. A line is one voice, monophonic —
+            multi-voice without `voice=` errors, overlaps error. **NHT typing
+            is harmony-relative and never guessed:** runs only when the
+            caller provides `(start, end, pcs)` spans (dataset records, a
+            chord track, any external analysis); chord tones are not NHTs;
+            non-chord tones classify by approach/departure pattern (pedal /
+            suspension / anticipation / passing / neighbor / appoggiatura /
+            escape / free, documented precedence); notes outside every span
+            get no claim. The sequential vocabulary gap 7 (cadences) and
+            harmonic segmentation will reuse. MCP: `melodic_analysis` (#22).
       - [ ] **Rhythmic atoms** — duration patterns, syncopation, metric
             placement classes (meter maps exist; the pattern vocabulary
             doesn't).
