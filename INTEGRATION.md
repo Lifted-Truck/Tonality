@@ -45,6 +45,7 @@ each level unlocks more analysis.
 | **Set-class identity** | normal order, Rahn prime form, Z-partners, **DFT magnitudes** (a 6-D "harmonic color" embedding: \|f₅\|≈diatonicity, \|f₆\|≈whole-tone-ness) |
 | **Exhaustive naming** | every valid (root, quality) reading of a pc set — symmetric/ambiguous sets yield several (C6 = Am7; dim7 names at 4 roots) |
 | **Key induction** | ranked key candidates with scores + top-two margin from **any non-negative pc-weight 12-vector** (summed durations, exponentially-decaying histograms, velocity-weighted counts — your weighting policy, our ranking) |
+| **Local key tracking** | windowed key induction over a sequence → **key regions** (beats + seconds extents, per-region mean score/margin, per-window evidence) — modulation-aware splitting and renderable overlays; window geometry caller-set and cited; no smoothing (gate on `mean_margin`) |
 | **Contextual disambiguation** | *the* chosen reading in a key, with ranked alternatives and per-signal evidence; flags aug-6ths, secondary dominants, Neapolitans; honest `is_ambiguous` |
 | **Voice-leading distance** | exact minimal motion between two chord identities + the optimal voice mapping; **register-aware form** for voiced chords (actual MIDI notes — octaves cost 12, doublings are voices) via `voice_leading_realized` |
 | **Voicing analysis / suggestions** | recognition of real voicings (inversion, spread, named type); generative suggestions (closed, drop-2/3, rootless, shell) |
@@ -97,7 +98,7 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
    infer_key, name_chord, voice_leading, ...` — typed frozen dataclasses, each
    with `to_dict()`. Best for Python-native projects and lowest latency.
 2. **MCP endpoint** (cross-language / agent-facing): `pip install 'mts[mcp]'`,
-   then `python -m mts.mcp` (stdio). 19 tools mirroring the library surface,
+   then `python -m mts.mcp` (stdio). 20 tools mirroring the library surface,
    including `midi_file_analysis` (file → key-aware dataset in one call) and
    catalog discovery (`list_scales`, `list_chord_qualities`). Inputs accept
    note names (`"C"`, `"F#"`, `"Bb"`) or pc ints; MIDI numbers for register.
@@ -137,7 +138,6 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
 
 ## Coming (prepare for, don't depend on yet — phases in ROADMAP.md)
 
-- **Local key tracking** (modulation-aware splitting; Phase 3.5b extension).
 - **Cadence detection as evidenced events** (gap 7) — V–I and related
   root-motion patterns as discrete, evidence-carrying events. Consumers:
   TERRANE home-center impulses, A1, A4.

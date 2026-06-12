@@ -233,6 +233,33 @@ def name_pcs_in_inferred_keys(
     ).to_dict()
 
 
+def key_tracking(
+    events: list[list[float]],
+    window_beats: float = 8.0,
+    hop_beats: float = 2.0,
+    bpm: float = 120.0,
+) -> dict:
+    """Local key tracking: key regions through time for a list of events, each
+    [onset_beats, duration_beats, midi_note]. Windowed key induction (same
+    versioned profiles); regions carry beats+seconds extents, mean score/margin,
+    and the per-window evidence. Boundary resolution is the window grid."""
+    from ..temporal import Event, Sequence, track_keys
+
+    try:
+        parsed = tuple(
+            Event(float(onset), float(duration), Pitch.from_midi(int(midi)))
+            for onset, duration, midi in events
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"Each event must be [onset_beats, duration_beats, midi_note]: {exc}"
+        ) from exc
+    sequence = Sequence.from_events(parsed, bpm=float(bpm))
+    return track_keys(
+        sequence, window_beats=window_beats, hop_beats=hop_beats
+    ).to_dict()
+
+
 def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict:
     """Minimal voice-leading distance between two pc sets, with the optimal
     voice mapping as evidence."""
@@ -286,22 +313,33 @@ def quality_brief(quality: str) -> dict:
 
 # --- the A1 pipeline ------------------------------------------------------------------------------
 
-def midi_file_analysis(path: str, infer_context: bool = True) -> dict:
+def midi_file_analysis(
+    path: str, infer_context: bool = True, include_key_regions: bool = True
+) -> dict:
     """Analyze a Standard MIDI File end-to-end: segment it, infer the global key,
     and emit the enriched dataset (per-segment identity, namings, placement).
 
     When infer_context is true, the best inferred key becomes the analytical
     context every segment's naming is conditional on; the full ranked key
-    result is returned alongside either way.
+    result is returned alongside either way. When include_key_regions is true,
+    local key tracking adds "key_regions" (windowed; null if no window carries
+    tonal information).
     """
     from ..analysis import candidate_context
     from ..io.midi import sequence_from_midi_file
+    from ..temporal import track_keys
 
     sequence = sequence_from_midi_file(path)
     keys = infer_key(sequence)
     context = candidate_context(keys.best) if infer_context else None
     dataset = dataset_from_sequence(sequence, analytical_context=context)
-    return {"key": keys.to_dict(), "dataset": dataset.to_dict()}
+    result = {"key": keys.to_dict(), "dataset": dataset.to_dict()}
+    if include_key_regions:
+        try:
+            result["key_regions"] = track_keys(sequence).to_dict()
+        except ValueError:
+            result["key_regions"] = None  # no window carried tonal information
+    return result
 
 
 TOOLS = (
@@ -316,6 +354,7 @@ TOOLS = (
     chord_in_key,
     name_pcs,
     key_induction,
+    key_tracking,
     name_pcs_in_inferred_keys,
     voice_leading_distance,
     realized_voice_leading,
