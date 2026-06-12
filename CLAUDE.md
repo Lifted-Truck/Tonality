@@ -57,7 +57,7 @@ core/        Identity layer: bitmask, pitch, scale, chord, quality, enharmonics,
 analysis/    Enrichment engine: specs (parser), *_analysis, comparisons, summaries, results
   ↓
 temporal/    Time layer (Phase 2): Event/Sequence + tempo/meter; window → realization → key.
-             Segmentation + harmonic rhythm PLANNED. (analysis/timeline.py is a DEPRECATED stub.)
+             Segmentation, harmonic rhythm, local key tracking. (analysis/timeline.py is a DEPRECATED stub.)
   ↓
 mcp/         Thin adapter (Phase 4): one tool per analysis entry point. tools.py is
              pure + SDK-free (fully testable); server.py needs the optional `mcp`

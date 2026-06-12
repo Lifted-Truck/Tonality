@@ -99,6 +99,22 @@ def test_key_induction_and_combined_naming():
     assert combined["per_key"][0]["naming"]["context"]["tonic_pc"] == 0
 
 
+def test_key_tracking_over_event_triples():
+    events = []
+    for base, tonic in ((0, 60), (16, 66)):  # C major, then F# major
+        for cycle in (0, 8):
+            for offset, chord_root in ((0, 0), (2, 5), (4, 7), (6, 0)):
+                onset = base + cycle + offset
+                events += [[onset, 2, tonic + chord_root + iv] for iv in (0, 4, 7)]
+    result = _json_safe(tools.key_tracking(events))
+    regions = result["regions"]
+    assert (regions[0]["tonic_pc"], regions[0]["mode"]) == (0, "major")
+    assert (regions[-1]["tonic_pc"], regions[-1]["mode"]) == (6, "major")
+    assert result["profile_version"]
+    with pytest.raises(ValueError, match="onset_beats"):
+        tools.key_tracking([[0, 1]])  # malformed triple
+
+
 def test_chord_in_key_and_voice_leading():
     placed = _json_safe(tools.chord_in_key("D", "min7", tonic="C", key_name="Ionian"))
     assert placed["root_degree"] == 1
@@ -152,6 +168,11 @@ def test_midi_file_analysis_end_to_end(tmp_path):
     assert all(r["analysis"]["naming"]["context"]["tonic_pc"] == 0 for r in records)
     first = records[0]["analysis"]["naming"]["chosen"]["interpretation"]
     assert (first["root_pc"], first["quality"]) == (0, "maj")
+    # local key tracking ships with the pipeline (additive field)
+    regions = result["key_regions"]["regions"]
+    assert (regions[0]["tonic_pc"], regions[0]["mode"]) == (0, "major")
+    without = tools.midi_file_analysis(str(path), include_key_regions=False)
+    assert "key_regions" not in without
 
 
 # --- server wiring (only when the optional SDK is installed) ------------------------------------

@@ -41,10 +41,10 @@ list as new applications come into view.
   is in, split it at key changes, and emit per-section analysis (scale, chords,
   functional roles) as an enriched dataset.
   *Capabilities:* MIDI ingestion ✅ (Phase 2) · segmentation ✅ (Phase 2, literal;
-  harmonic refinement parked) · global key induction → **Phase 3.5b** ·
-  **key-change splitting = local key tracking** — currently a parked 3.5b
-  extension; A1 is its concrete demand driver (still sequenced after the global
-  v1) · per-section enrichment ✅ (Phase 3 dataset records).
+  harmonic refinement parked) · global key induction ✅ (Phase 3.5b) ·
+  key-change splitting = local key tracking ✅ shipped (3.5b extension,
+  2026-06-11: `track_keys` key regions; `midi_file_analysis` carries them) ·
+  per-section enrichment ✅ (Phase 3 dataset records).
 - **A2 — Smart MIDI transformer.** Apply musically-aware transformations to an
   existing MIDI file: re-voice chord progressions; add or alter voices; change
   scale intelligently (preserve contour and degree-function, not literal
@@ -116,7 +116,9 @@ list as new applications come into view.
   *Capabilities:* bass-aware chord naming + inversion recognition ✅ shipped
   (`name_pcs` + `voicing_analysis`) · file-level key induction + per-segment
   dataset with placements ✅ shipped (`midi_file_analysis`) · per-segment keys
-  → **local key tracking** (A6 joins A1 as customer) · catalog of record ✅
+  ✅ shipped (local key tracking, 2026-06-11 — key regions in beats+seconds,
+  renderable as overlays; `key_tracking` tool + `midi_file_analysis`) ·
+  catalog of record ✅
   shipped (`list_scales` / `list_chord_qualities`) · pc-set containment
   query ✅ shipped (gap 8 below; `catalog_containment` — retires its naive
   `scalesContaining`) · voicing recognition/suggestions ✅ shipped ·
@@ -160,8 +162,10 @@ list as new applications come into view.
    tracking, segmentation, and naming that update state instead of
    recomputing; a stateful session object (decaying histograms, last-chord
    memory, event emission) is the natural shape (per the TERRANE brief).
-   Subsumes and extends the parked local-key-tracking item. Not required for
-   TERRANE Phase 1 — per-event batch calls over snapshots suffice.
+   The *online* sibling of the now-shipped batch local key tracking (the
+   stateful form would update windows incrementally instead of re-sliding).
+   Not required for TERRANE Phase 1 — per-event batch calls over snapshots
+   suffice.
 6. **Realization-level voice-leading distance** (A5, A7; also Phase 7) — the
    shipped `voice_leading` is identity-level (mod-12 circular). The
    register-aware sibling measures actual semitone motion between two voiced
@@ -210,9 +214,9 @@ list as new applications come into view.
    because the boundary is loopback, not origin. The tool signatures and
    `to_dict()` shapes remain the only contract — consumers who stood up
    interim bridges swap by changing a URL.
-Local key tracking was already parked (Phase 3.5b extension); A1 names its
-customer, A6 adds per-segment key regions as a second concrete demand, and
-A4 raises the requirement from windowed to *online*.
+Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
+A1's key-change splitting and A6's renderable key regions are served by the
+windowed batch form; A4's *online* requirement remains with gap 5.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
@@ -548,8 +552,19 @@ placeholder contexts. Momentum was the only argument for consumer-first.
       as the first versioned prior (`data/key_profiles.json`, `kk-1982.1`);
       every result carries all 24 candidates, the top-two margin, the input
       weights, and the profile version. Degenerate input (silence / uniform)
-      errors rather than guesses. *Parked extension (not this phase):*
-      windowed/local key tracking and modulation detection.
+      errors rather than guesses. *Extension delivered (2026-06-11):*
+      **local key tracking** — `temporal/key_tracking.py` `track_keys`
+      (windowed `infer_key` over `Sequence.pc_weights(start, end)`, same
+      versioned profiles) merges same-best-key windows into `KeyRegion`s
+      with beats+seconds extents, per-region mean score/margin, and the
+      per-window evidence. Full-size windows only (a truncated tail is a
+      different evidence basis); uninformative windows make no claim and
+      never split a region (no evidence ≠ a key change); no smoothing in
+      v1 — thin-evidence blips are surfaced per Decision 7, `mean_margin`
+      is the gate, and any future hysteresis ships as a versioned prior.
+      Window geometry is caller-set, cited in the result. MCP: new
+      `key_tracking` tool (#20, event triples) + additive `key_regions`
+      field on `midi_file_analysis`. The *online* form (A4) remains gap 5.
 - [x] **Voice-leading distance** (parallel track; leaf primitive with no
       dependencies). Exact minimal voice-leading distance between two identities:
       min-cost bipartite matching for equal cardinality; the unequal-cardinality
@@ -585,7 +600,8 @@ they used. Same input + same prior version → same output.
       interpretations), context (in-key, naming, key induction,
       naming-across-keys, VL distance), register/generative (voicing analysis
       + suggestions), comparison/brief, catalog discovery, and the end-to-end
-      `midi_file_analysis` (the A1 pipeline minus local keys). Stateless-only;
+      `midi_file_analysis` (the A1 pipeline; local key regions added
+      2026-06-11). Stateless-only;
       the session-backed variant is deferred until a multi-turn consumer
       exists.
 - [x] Error/validation surface suitable for blind agent use.
