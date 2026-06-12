@@ -168,6 +168,33 @@ def test_swing_analysis_estimates_feel():
         tools.swing_analysis([[0, 1, 60], [1, 1, 62]])  # no divisions at all
 
 
+def test_ruleset_validation_and_evaluation():
+    ruleset = {
+        "name": "counterpoint-smoke", "version": "t.1",
+        "rules": [{
+            "id": "no-parallel-perfects", "family": "voice_motion",
+            "where": {"motion": "parallel"},
+            "forbid": {"interval_class_to": {"in": [0, 7]}},
+            "polarity": "hard",
+        }],
+    }
+    check = _json_safe(tools.validate_ruleset(ruleset))
+    assert check == {"valid": True, "errors": []}
+    bad = _json_safe(tools.validate_ruleset({"name": "x", "version": "1",
+                                             "rules": [{"id": "r", "family": "nope"}]}))
+    assert bad["valid"] is False and bad["errors"]
+
+    events = [
+        [0, 2, 48, "bass"], [2, 2, 50, "bass"],
+        [0, 2, 55, "tenor"], [2, 2, 57, "tenor"],
+    ]
+    report = _json_safe(tools.evaluate_ruleset(ruleset, events))
+    assert report["hard_rules_hold"] is False
+    assert report["results"][0]["violations"][0]["location"]["voices"] == ["bass", "tenor"]
+    with pytest.raises(ValueError, match="onset_beats"):
+        tools.evaluate_ruleset(ruleset, [[0, 1]])
+
+
 def test_chord_in_key_and_voice_leading():
     placed = _json_safe(tools.chord_in_key("D", "min7", tonic="C", key_name="Ionian"))
     assert placed["root_degree"] == 1

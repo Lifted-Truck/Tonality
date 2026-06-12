@@ -808,22 +808,39 @@ provenance).
             tool. MCP: `swing_analysis` (#24). Generalizes to **groove
             templates — gap 10** (per-slot offsets + velocity, the
             Ableton Extract Groove model).
-- [ ] **The DSL (v1).** Declarative, JSON-serializable, no code execution.
-      Each rule: an *atom* (a path into the typed-results vocabulary), a
-      *scope* (per-event / per-segment / adjacent-pair / phrase / global), a
-      *predicate* (equals / in-set / threshold / forbidden-pattern), a
-      *polarity* (hard, or soft with weight), and the *specification level it
-      requires* (error-don't-guess). Rulesets: named, versioned, composable
-      (combine / specialize / diff). Schema validation strict enough that a
-      blind LLM's translation is mechanically checkable.
-- [ ] **The evaluator** (analysis side; build first — deterministic, no new
-      theory). `evaluate(ruleset, dataset) → ConformanceReport`: which rules
-      hold, violation locations with evidence (Decision 7), per-rule
-      conformance frequency. Operates on dataset records — they already carry
-      every fact the atoms reference. Ruleset *comparison* falls out: shared
-      rules, direct conflicts, implication checks where decidable by
-      enumeration over the small spaces, empirical conformance profiles on a
-      shared corpus.
+- [x] **The DSL (v1, slice 1 — schema + validation). Delivered
+      (2026-06-12):** `mts/rules/schema.py`. Each rule: an atom **family**
+      (`voice_motion` / `melody` / `rhythm` — the scope is the family's
+      natural item, a v1 simplification of the free scope axis), an
+      optional `where` AND-filter, exactly one of `forbid`/`require`
+      (conditions: literal equals, `in`, `gte`, `lte`), and a polarity
+      (hard, or soft with weight). Field/enum registries mirror the WS0
+      dataclasses exactly. **Validation is strict and total** — unknown
+      keys/families/fields/operators/enum values each get an actionable
+      message and *all* errors are collected, so a blind LLM repairs a
+      translation in one round trip (the design requirement, made real as
+      the `validate_ruleset` tool #25). Spec-level honesty is in the
+      semantics: a `None` atom value (line edge, no harmony coverage)
+      never matches, and an item whose check references a `None` field is
+      excluded from consideration — absence of evidence is not a
+      violation. *Remaining for later slices:* free scope axis (phrase /
+      global / aggregate predicates), composition ops (combine /
+      specialize / diff).
+- [x] **The evaluator (slice 1). Delivered (2026-06-12):**
+      `mts/rules/evaluator.py` — `evaluate(ruleset, sequence) →
+      ConformanceReport`: per-rule violation lists with locations and the
+      referenced atom values as evidence (Decision 7), per-rule
+      conformance frequency, hard/soft rollups (weight-averaged soft
+      score). Nothing is silently skipped: rules whose stream the material
+      cannot supply (pair motion on <2 voices; `nht_type` without harmony
+      spans) return `applicable=false` with the reason, and unanalyzable
+      voices are listed per-rule. MCP: `evaluate_ruleset` (#26). *Substrate
+      note (recorded decision):* v1 evaluates a temporal `Sequence` — the
+      atom streams derive from one; the originally-sketched evaluation
+      over dataset *records* arrives when atoms join the record schema.
+      Ruleset *comparison* (shared rules, conflicts, implication by
+      enumeration, conformance profiles on a shared corpus) remains with
+      the composition slice.
 - [ ] **Induction** (the rule-space). Version-space mining, not learning:
       enumerate which instantiations of the template vocabulary a corpus
       satisfies (or satisfies at frequency ≥ θ). Output is a *rule-space* —

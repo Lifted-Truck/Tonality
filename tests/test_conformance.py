@@ -101,6 +101,30 @@ CASES: list[tuple[str, dict]] = [
     ("rhythmic_analysis", {"events": [[1.5, 0.5, 60], [3.0, 1.5, 62], [4.5, 0.75, 64]],
                            "numerator": 6, "denominator": 8}),
     ("swing_analysis", {"events": _swung_events()}),
+    (
+        "validate_ruleset",
+        {"ruleset": {"name": "x", "version": "1",
+                     "rules": [{"id": "r", "family": "nope", "forbid": {"x": 1}}]}},
+    ),
+    (
+        "evaluate_ruleset",
+        {
+            "ruleset": {
+                "name": "counterpoint-smoke", "version": "t.1",
+                "rules": [
+                    {"id": "no-parallel-perfects", "family": "voice_motion",
+                     "where": {"motion": "parallel"},
+                     "forbid": {"interval_class_to": {"in": [0, 7]}},
+                     "polarity": "hard"},
+                    {"id": "leaps-resolve-by-step", "family": "melody",
+                     "where": {"approach_class": "leap"},
+                     "require": {"departure_class": {"in": ["step", "unison"]}},
+                     "polarity": "soft", "weight": 2.0},
+                ],
+            },
+            "events": _satb_events(),
+        },
+    ),
     ("voicing_analysis", {"midi_notes": [48, 64, 67, 72], "root": "C"}),
     ("voicing_suggestions", {"root": "C", "quality": "maj7"}),
     ("quality_comparison", {"quality_a": "maj7", "quality_b": "min7"}),

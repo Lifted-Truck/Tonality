@@ -376,6 +376,70 @@ def swing_analysis(
     return analyze_swing(sequence).to_dict()
 
 
+# --- rulesets (Phase 4.6) -----------------------------------------------------------
+
+def _ruleset_events(events: list[list]) -> "Sequence":
+    """Events as [onset, duration, midi] or [onset, duration, midi, voice]."""
+    from ..temporal import Event, Sequence
+
+    try:
+        parsed = tuple(
+            Event(
+                float(entry[0]),
+                float(entry[1]),
+                Pitch.from_midi(int(entry[2])),
+                voice=str(entry[3]) if len(entry) > 3 else None,
+            )
+            for entry in events
+        )
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            "Each event must be [onset_beats, duration_beats, midi_note] or "
+            f"[onset_beats, duration_beats, midi_note, voice_label]: {exc}"
+        ) from exc
+    return Sequence.from_events(parsed)
+
+
+def validate_ruleset(ruleset: dict) -> dict:
+    """Strictly validate a ruleset document (the Phase 4.6 DSL) WITHOUT
+    evaluating it. Returns {"valid": bool, "errors": [...]} with every
+    problem listed (unknown keys/families/fields/operators/enum values) —
+    built so a blind agent can repair a translation in one round trip.
+    Vocabulary: families voice_motion / melody / rhythm; each rule has id,
+    family, optional where, exactly one of forbid/require, polarity
+    hard|soft (+weight)."""
+    from ..rules import validation_errors
+
+    errors = validation_errors(ruleset)
+    return {"valid": not errors, "errors": errors}
+
+
+def evaluate_ruleset(
+    ruleset: dict,
+    events: list[list],
+    harmony: list[list] | None = None,
+) -> dict:
+    """Evaluate a ruleset (Phase 4.6 DSL) against events — each [onset_beats,
+    duration_beats, midi_note] or [..., voice_label] — returning a
+    ConformanceReport: per-rule violations with locations and atom evidence,
+    conformance frequencies, hard/soft rollups. Rules referencing
+    harmony-dependent fields (nht_type, is_chord_tone) need harmony spans
+    [start_beat, end_beat, [pcs]] and are reported not-applicable without
+    them. Invalid rulesets raise with the full error list (use
+    validate_ruleset first)."""
+    from ..rules import evaluate
+
+    spans = None
+    if harmony is not None:
+        try:
+            spans = [(float(s), float(e), [int(pc) for pc in pcs]) for s, e, pcs in harmony]
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Each harmony span must be [start_beat, end_beat, [pcs]]: {exc}"
+            ) from exc
+    return evaluate(ruleset, _ruleset_events(events), harmony=spans).to_dict()
+
+
 def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict:
     """Minimal voice-leading distance between two pc sets, with the optimal
     voice mapping as evidence."""
@@ -477,6 +541,8 @@ TOOLS = (
     melodic_analysis,
     rhythmic_analysis,
     swing_analysis,
+    validate_ruleset,
+    evaluate_ruleset,
     realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,

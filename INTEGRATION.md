@@ -52,6 +52,7 @@ each level unlocks more analysis.
 | **Melodic atoms** | per-note approach/departure intervals with step/skip/leap classes, Parsons contour, ambitus (`analyze_melody`); **NHT typing** (passing, neighbor, appoggiatura, escape, suspension, anticipation, pedal) against caller-provided harmony spans — no harmony, no claim |
 | **Rhythmic atoms** | per-note metric placement (downbeat / beat / offbeat / subdivision) against the felt beat (compound meters beat in threes), a precise **syncopation** predicate (weak onset sounding through the next stronger grid line), durations + inter-onset intervals (`analyze_rhythm`) |
 | **Swing feel** | straight / swung / reversed / mixed from two-way beat divisions, with the division-fraction evidence and ratio (2/3 → 2:1 triplet swing, 0.75 → 3:1 shuffle); thresholds are a **versioned prior** (`swing-feel.1`, cited). Only reads swing encoded in the onsets — quantized-straight MIDI carries none (`analyze_swing`) |
+| **Rulesets (DSL) + conformance evaluator** | declarative JSON rules over the atom vocabulary (voice motion / melody / rhythm): `where`-filtered `forbid`/`require`, hard or soft-weighted. Strict total validation (`validate_ruleset` returns *every* error — built for LLM-translated rulesets); `evaluate_ruleset` → per-rule violations with locations + atom evidence, conformance frequencies, hard/soft rollups. Rules the material can't ground come back `applicable: false` with the reason — never silently skipped |
 | **Voicing analysis / suggestions** | recognition of real voicings (inversion, spread, named type); generative suggestions (closed, drop-2/3, rootless, shell) |
 | **MIDI file pipeline** | SMF → events → stable-harmony segments → inferred key → enriched per-segment dataset records (JSON-ready) |
 | **MIDI export** | `Sequence` → SMF (single track; tempo/meter, velocity, channel preserved) — the write-back loop for transformers/generators |
@@ -102,7 +103,7 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
    infer_key, name_chord, voice_leading, ...` — typed frozen dataclasses, each
    with `to_dict()`. Best for Python-native projects and lowest latency.
 2. **MCP endpoint** (cross-language / agent-facing): `pip install 'mts[mcp]'`,
-   then `python -m mts.mcp` (stdio). 24 tools mirroring the library surface,
+   then `python -m mts.mcp` (stdio). 26 tools mirroring the library surface,
    including `midi_file_analysis` (file → key-aware dataset in one call) and
    catalog discovery (`list_scales`, `list_chord_qualities`). Inputs accept
    note names (`"C"`, `"F#"`, `"Bb"`) or pc ints; MIDI numbers for register.
