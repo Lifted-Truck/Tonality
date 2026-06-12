@@ -119,8 +119,8 @@ list as new applications come into view.
   → **local key tracking** (A6 joins A1 as customer) · catalog of record ✅
   shipped (`list_scales` / `list_chord_qualities`) · **pc-set containment
   query — gap 8 below** · voicing recognition/suggestions ✅ shipped ·
-  **browser door — gap 9 below** (the blocking question; ruled: local HTTP
-  bridge is the sanctioned shape) · named consumer of the **Phase 5
+  browser door ✅ shipped (gap 9 below; `mts.mcp.bridge`, the local HTTP
+  bridge — was the blocking question) · named consumer of the **Phase 5
   representation layer** (keyboard + piano-roll descriptors; its three
   surfaces are ready render targets).
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
@@ -192,8 +192,15 @@ list as new applications come into view.
    local HTTP bridge over the existing pure `mts.mcp.tools` functions
    (Decision 5-compliant glue; tools already return JSON-ready dicts).
    Hosted endpoint declined (local-first); WASM noted as an explicit
-   non-commitment. Until this ships, web consumers may stand up their own
-   bridge against `mts.mcp.tools` — the tool signatures are the contract.
+   non-commitment. **Delivered (2026-06-11):** `mts.mcp.bridge` — stdlib-only
+   (`http.server`, zero new dependencies), `python -m mts.mcp.bridge`,
+   loopback-bound at `127.0.0.1:8012` by default. `GET /tools` introspects
+   every tool (name, doc, params from the live signatures — new tools appear
+   automatically); `POST /call/<name>` invokes with JSON kwargs; engine
+   `ValueError`s surface as 400s with their actionable messages; CORS open
+   because the boundary is loopback, not origin. The tool signatures and
+   `to_dict()` shapes remain the only contract — consumers who stood up
+   interim bridges swap by changing a URL.
 Local key tracking was already parked (Phase 3.5b extension); A1 names its
 customer, A6 adds per-segment key regions as a second concrete demand, and
 A4 raises the requirement from windowed to *online*.

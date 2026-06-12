@@ -90,30 +90,30 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
   timeline overlays. Shape: `DatasetRecord.to_dict()` with `SCHEMA_VERSION`
   for pinning (`mts/dataset/record.py` is the schema of record).
 
-## Three doors in
+## Four doors in
 
 1. **Python import** (in-process): `from mts.analysis import analyze_chord,
    infer_key, name_chord, voice_leading, ...` — typed frozen dataclasses, each
    with `to_dict()`. Best for Python-native projects and lowest latency.
 2. **MCP endpoint** (cross-language / agent-facing): `pip install 'mts[mcp]'`,
-   then `python -m mts.mcp` (stdio). 17 tools mirroring the library surface,
+   then `python -m mts.mcp` (stdio). 18 tools mirroring the library surface,
    including `midi_file_analysis` (file → key-aware dataset in one call) and
    catalog discovery (`list_scales`, `list_chord_qualities`). Inputs accept
    note names (`"C"`, `"F#"`, `"Bb"`) or pc ints; MIDI numbers for register.
 3. **Dataset artifacts** (offline/pipeline): JSON `DatasetRecord`s with an
    explicit `SCHEMA_VERSION`, a numeric canonical core, provenance, and
    context snapshots — built for reproducible interchange between projects.
-
-**Browser consumers (no door fits yet — interim guidance):** a browser SPA
-can't import Python or spawn the stdio MCP server. The sanctioned pattern
-(ruled 2026-06-11; recorded as ROADMAP gap 9) is a **thin local HTTP bridge**
-over the pure functions in `mts.mcp.tools` — they are SDK-free and return
-JSON-ready dicts, so a bridge is a page of glue. An official bridge is an
-engine-side deliverable; until it ships, stand up your own against
-`mts.mcp.tools` (the tool signatures and `to_dict()` shapes are the
-contract — swapping to the official bridge later should be a URL change).
-Hosted endpoints are declined (local-first); a WASM core is an explicit
-non-commitment. Offline file analysis via dataset artifacts works today.
+4. **Local HTTP bridge** (browser / non-Python consumers): `python -m
+   mts.mcp.bridge` (stdlib only — no extra install) serves every MCP tool
+   over loopback HTTP, default `http://127.0.0.1:8012`. Discover with
+   `GET /tools` (name, doc, params per tool); invoke with
+   `POST /call/<tool_name>` and a JSON object of keyword arguments →
+   `{"ok": true, "result": ...}`. Bad input is a 400 carrying the engine's
+   actionable message; CORS is open (the boundary is loopback, not origin).
+   Same signatures and `to_dict()` shapes as the MCP endpoint — the bridge
+   is glue, not a second API (ruled 2026-06-11; shipped as ROADMAP gap 9).
+   Hosted endpoints remain declined (local-first); a WASM core remains an
+   explicit non-commitment.
 
 ## Contracts to design around (important)
 
