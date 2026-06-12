@@ -132,6 +132,18 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
 - **Versioned priors.** Anything empirical (key profiles, naming weights,
   VL cardinality policy) is a versioned asset cited in results. Pin versions
   if you need byte-stable outputs across engine upgrades.
+- **Send grid-exact events (for now).** The temporal analyses (segmentation,
+  metric placement, voice motion) treat onsets as exact: humanized/performed
+  timing fragments segmentation into micro-segments and reads on-the-beat
+  notes as off-grid subdivisions. Until the engine-side tolerance layer
+  lands (ROADMAP gap 12), quantize or coalesce near-simultaneous onsets
+  before sending (Audiology's ~60 ms client-side coalescing is the working
+  precedent). Swing/groove material is the exception that *should* keep its
+  encoded offsets — see the swing row's caveat.
+- **Key candidates span the loaded profile modes** — major and minor under
+  `kk-1982.1`. Modal material (a dorian vamp) will rank as its relative
+  major/minor rather than its modal tonic; modal profile rows join the
+  standing Temperley/Aarden invitation if you need modal centers ranked.
 - **Numeric core, spelling at the edge.** Analysis results are pitch-class
   numbers; note *spelling* (F# vs Gb) and label style are rendered separately
   from a display context. Visualizers: consume the numeric core and either

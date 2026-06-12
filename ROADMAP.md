@@ -253,6 +253,32 @@ list as new applications come into view.
     claim — it evidences against it). Empirical templates ship as
     versioned priors. The *online* form joins gap 5's session, as with
     key tracking.
+12. **Performed-input tolerance** (added 2026-06-12; theory-grounding
+    review pass #1's headline finding — A1/A6 feed real MIDI to exactly
+    these paths). The temporal analysis layer silently assumes
+    **grid-exact onsets**: humanized/performed input is *misread, not
+    refused*. Verified: two chords with ~5 ms onset jitter segment into
+    **ten** micro-segments including garbage transitional pc sets (each of
+    which the A1 pipeline would name as a chord); an on-the-beat melody
+    with the same jitter classifies as all-`subdivision` in the rhythmic
+    atoms; voice-pair motion fragments across micro-moments. (The melodic
+    line extractor at least *refuses* — humanized legato overlaps raise
+    "not monophonic".) Wanted: an explicit tolerance layer — an onset
+    coalescing window (and optional grid snap) applied at `Sequence`
+    construction or as a preprocessing pass, **caller-set and cited in
+    results** like window geometry, default off so exactness stays exact.
+    Audiology already coalesces at ~60 ms client-side — existing demand
+    and a working precedent. Until this ships: consumers must quantize or
+    coalesce before sending events (interim guidance in INTEGRATION.md).
+13. **Per-region analytical context in the A1 pipeline** (added 2026-06-12;
+    review pass #1). `midi_file_analysis` now computes local key regions
+    *and* still conditions every segment's naming on the single global
+    best key — in a modulating file the foreign-key regions get namings
+    under the wrong context (a misread the shipped key tracking already
+    knows how to avoid). Wanted: per-segment context selection from the
+    key region containing the segment's onset, with the global form kept
+    as an option; the region's `mean_margin` rides along as the context's
+    confidence evidence.
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.
@@ -952,6 +978,48 @@ melodic step/skip/leap mapping's fit for non-Western melody · meter
 inference absent (we trust the file's time signature) — *promoted to
 gap 11 (2026-06-12), the review's first graduate; groove extract/apply
 (gap 10) was recorded the same day from the same conversation.*
+
+**Pass #1 — run 2026-06-12 (before the 4.6 DSL, as scheduled).** Walked
+the INTEGRATION.md capability table against the three questions. Findings
+and disposals:
+
+1. **Grid-exactness assumption on performed input** — *invisible →
+   misreads; the headline.* Segmentation, rhythmic placement, and voice
+   motion all treat onsets as exact: verified that ~5 ms humanization
+   turns two chords into ten micro-segments (with garbage transitional
+   sets the A1 pipeline would name) and an on-the-beat melody into
+   all-`subdivision`. → **gap 12** (tolerance layer); interim consumer
+   guidance added to INTEGRATION.md contracts.
+2. **Global-key naming in a modulating file** — *invisible → misread.*
+   `midi_file_analysis` computes key regions yet names every segment
+   under the one global key. → **gap 13** (per-region context).
+3. **Key-induction candidate space is the profile modes — today
+   major/minor only.** Modal centers (a dorian vamp) rank as relative
+   major/minor — a misattribution, not an error. Extension is nearly
+   data-only: add modal rows to `key_profiles.json` and entries to
+   `candidate_context`'s mode→scale map. → *accepted limitation,
+   documented in `key_induction.py` + INTEGRATION.md; modal profiles
+   join the standing Temperley/Aarden invitation.*
+4. **Functional vocabulary exists only for major/minor keys**
+   (`TEMPLATES_MAJOR/MINOR`; `load_function_mappings` errors on other
+   modes; naming's `functional_fit` silently doesn't fire for modal
+   keys). Honest *absence*, not a misread — the engine doesn't claim
+   T/PD/D roles it can't ground. → *accepted limitation; modal function
+   templates are future vocabulary (the `TAG_MODAL` seeds in
+   `theory/functions.py` are the start), demand-driven.*
+5. **NHT typing is onset-based** — a held note is judged in the span
+   containing its onset only, so the *tied suspension* (the most common
+   suspension!) is invisible: the sustained portion reads chord-tone
+   even where the harmony has moved under it. → *consequence documented
+   in `melodic.py`; tie-aware typing recorded there as the refinement.*
+6. Confirmed already-priced: swing/groove (gaps 10/11), KK profile bias
+   (versioned + variants invited), step/skip/leap and felt-beat mappings
+   (definitional, documented), literal segmentation (documented
+   baseline), 12-TET footprint (Phase 6). One verified non-finding:
+   uniform articulation cannot bias key induction — Pearson correlation
+   is scale-invariant, so staccato vs legato encoding washes out.
+
+Next pass: at the next phase boundary (post-DSL v1).
 
 ## Demoted / deferred (built for the old "app" frame)
 
