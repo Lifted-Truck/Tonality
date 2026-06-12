@@ -146,38 +146,49 @@ def midi_file_from_sequence(
 
 
 def _sequence_from_mido(midi: "mido.MidiFile") -> Sequence:
+    """Walk tracks individually (not ``merge_tracks``) so track identity
+    survives: each (track, channel) pair becomes a voice label ``t{n}c{n}``
+    (Phase 4.6 Workstream 0 — voice identity; SMF type 1 keeps one part per
+    track by convention, channels split parts within a track). Per-track
+    walking also pairs note_on/note_off within their own track — a stray
+    note_off in another track can no longer close a note it didn't open.
+    Tempo/meter meta is collected from every track.
+    """
+
     ticks_per_beat = midi.ticks_per_beat or 480
     events: list[Event] = []
     tempo_changes: list[tuple[float, float]] = []
     time_signatures: list[tuple[float, int, int]] = []
-    open_notes: dict[tuple[int, int], tuple[float, int]] = {}
 
-    abs_tick = 0
-    for msg in mido.merge_tracks(midi.tracks):
-        abs_tick += msg.time
-        beat = abs_tick / ticks_per_beat
+    for track_index, track in enumerate(midi.tracks):
+        open_notes: dict[tuple[int, int], tuple[float, int]] = {}
+        abs_tick = 0
+        for msg in track:
+            abs_tick += msg.time
+            beat = abs_tick / ticks_per_beat
 
-        if msg.type == "note_on" and msg.velocity > 0:
-            open_notes[(msg.channel, msg.note)] = (beat, msg.velocity)
-        elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
-            started = open_notes.pop((msg.channel, msg.note), None)
-            if started is not None:
-                onset, velocity = started
-                duration = beat - onset
-                if duration > _EPS:
-                    events.append(
-                        Event(
-                            onset=onset,
-                            duration=duration,
-                            pitch=Pitch.from_midi(
-                                msg.note, velocity=velocity, channel=msg.channel
-                            ),
+            if msg.type == "note_on" and msg.velocity > 0:
+                open_notes[(msg.channel, msg.note)] = (beat, msg.velocity)
+            elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
+                started = open_notes.pop((msg.channel, msg.note), None)
+                if started is not None:
+                    onset, velocity = started
+                    duration = beat - onset
+                    if duration > _EPS:
+                        events.append(
+                            Event(
+                                onset=onset,
+                                duration=duration,
+                                pitch=Pitch.from_midi(
+                                    msg.note, velocity=velocity, channel=msg.channel
+                                ),
+                                voice=f"t{track_index}c{msg.channel}",
+                            )
                         )
-                    )
-        elif msg.type == "set_tempo":
-            tempo_changes.append((beat, mido.tempo2bpm(msg.tempo)))
-        elif msg.type == "time_signature":
-            time_signatures.append((beat, msg.numerator, msg.denominator))
+            elif msg.type == "set_tempo":
+                tempo_changes.append((beat, mido.tempo2bpm(msg.tempo)))
+            elif msg.type == "time_signature":
+                time_signatures.append((beat, msg.numerator, msg.denominator))
 
     return Sequence.from_events(
         events,

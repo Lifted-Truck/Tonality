@@ -115,6 +115,19 @@ def test_key_tracking_over_event_triples():
         tools.key_tracking([[0, 1]])  # malformed triple
 
 
+def test_voice_pair_motion_over_event_quadruples():
+    events = [
+        [0, 1, 60, "bass"], [1, 1, 62, "bass"],
+        [0, 1, 67, "tenor"], [1, 1, 69, "tenor"],
+    ]
+    result = _json_safe(tools.voice_pair_motion(events))
+    assert result["voices"] == ["bass", "tenor"]
+    transition = result["transitions"][0]
+    assert (transition["motion"], transition["interval_class_to"]) == ("parallel", 7)
+    with pytest.raises(ValueError, match="voice_label"):
+        tools.voice_pair_motion([[0, 1, 60]])  # missing the voice
+
+
 def test_chord_in_key_and_voice_leading():
     placed = _json_safe(tools.chord_in_key("D", "min7", tonic="C", key_name="Ionian"))
     assert placed["root_degree"] == 1

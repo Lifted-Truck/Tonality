@@ -13,6 +13,7 @@ from .meter import TimeSignature, MetricPosition, MeterChange, MeterMap
 from .sequence import Event, Sequence
 from .segmentation import Segment, HarmonicRhythm, segment, harmonic_rhythm
 from .key_tracking import KeyRegion, KeyTrackingResult, KeyWindow, track_keys
+from .voice_motion import VoiceMotionResult, VoicePairMotion, voice_motion
 
 __all__ = [
     "TempoChange",
@@ -31,4 +32,7 @@ __all__ = [
     "KeyTrackingResult",
     "KeyWindow",
     "track_keys",
+    "VoiceMotionResult",
+    "VoicePairMotion",
+    "voice_motion",
 ]

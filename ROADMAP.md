@@ -656,10 +656,22 @@ provenance).
 - [ ] **Workstream 0 — vocabulary prerequisites** (per the Decision 8
       corollary, these are first-class engine capabilities in their own right,
       wanted independent of rulesets):
-      - [ ] **Voice identity** — counterpoint rules (parallel fifths, voice
-            crossing) need to know *which voice moved*; `Event` has no
-            voice/part concept yet (MIDI tracks/channels seed it; explicit
-            voice-separation for merged material is a later refinement).
+      - [x] **Voice identity** — counterpoint rules (parallel fifths, voice
+            crossing) need to know *which voice moved*. **Delivered
+            (2026-06-11):** `Event.voice` (optional label; `None` = unvoiced —
+            the engine never invents an assignment; explicit voice-separation
+            of merged material stays a later refinement) · MIDI seeds one
+            voice per (track, channel) as `t{n}c{n}` via a per-track parse
+            (which also fixed cross-track note_on/note_off mispairing) ·
+            `Sequence.voices()` / `filter_voice()` · first consumer:
+            `temporal/voice_motion.py` `voice_motion` classifies every
+            voice-pair transition (parallel / similar / contrary / oblique,
+            mod-12 interval classes as evidence — compound fifths count) over
+            adjacent onset moments; held notes yield oblique, double-stops
+            make no claim, static pairs emit nothing. The *rules* (e.g. "no
+            parallel fifths") stay in the DSL — they are one-line filters
+            over these transitions (demonstrated in tests). MCP:
+            `voice_pair_motion` (#21).
       - [ ] **Melodic atoms** — contour, step/leap classification,
             approach/departure intervals, NHT typing (shared with the parked
             harmonic-segmentation work).
