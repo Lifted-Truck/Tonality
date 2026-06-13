@@ -5592,6 +5592,135 @@
   },
   {
    "kwargs": {
+    "chords": [
+     [
+      "C",
+      "maj"
+     ],
+     [
+      "C",
+      "aug"
+     ],
+     [
+      "C",
+      "min"
+     ],
+     [
+      "E",
+      "min"
+     ],
+     [
+      "A",
+      "min"
+     ]
+    ],
+    "max_distance": 1
+   },
+   "result": {
+    "edges": [
+     {
+      "common_tones": 2,
+      "distance": 1,
+      "root_interval": 0,
+      "source": 0,
+      "target": 1
+     },
+     {
+      "common_tones": 2,
+      "distance": 1,
+      "root_interval": 0,
+      "source": 0,
+      "target": 2
+     },
+     {
+      "common_tones": 2,
+      "distance": 1,
+      "root_interval": 4,
+      "source": 0,
+      "target": 3
+     },
+     {
+      "common_tones": 2,
+      "distance": 1,
+      "root_interval": 9,
+      "source": 1,
+      "target": 4
+     }
+    ],
+    "max_distance": 1,
+    "nodes": [
+     {
+      "cardinality": 3,
+      "index": 0,
+      "mask": 145,
+      "pcs": [
+       0,
+       4,
+       7
+      ],
+      "quality": "maj",
+      "root_pc": 0,
+      "symmetry_order": 12
+     },
+     {
+      "cardinality": 3,
+      "index": 1,
+      "mask": 273,
+      "pcs": [
+       0,
+       4,
+       8
+      ],
+      "quality": "aug",
+      "root_pc": 0,
+      "symmetry_order": 4
+     },
+     {
+      "cardinality": 3,
+      "index": 2,
+      "mask": 137,
+      "pcs": [
+       0,
+       3,
+       7
+      ],
+      "quality": "min",
+      "root_pc": 0,
+      "symmetry_order": 12
+     },
+     {
+      "cardinality": 3,
+      "index": 3,
+      "mask": 2192,
+      "pcs": [
+       4,
+       7,
+       11
+      ],
+      "quality": "min",
+      "root_pc": 4,
+      "symmetry_order": 12
+     },
+     {
+      "cardinality": 3,
+      "index": 4,
+      "mask": 529,
+      "pcs": [
+       9,
+       0,
+       4
+      ],
+      "quality": "min",
+      "root_pc": 9,
+      "symmetry_order": 12
+     }
+    ],
+    "spec_level": "identity_only"
+   },
+   "tool": "chord_network"
+  },
+  {
+   "kwargs": {
     "midi_notes": [
      48,
      64,

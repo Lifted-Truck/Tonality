@@ -32,6 +32,12 @@ from .tonnetz import (
     TonnetzNode,
     tonnetz_descriptor,
 )
+from .chord_network import (
+    ChordNetwork,
+    ChordNetworkEdge,
+    ChordNetworkNode,
+    chord_network_descriptor,
+)
 
 __all__ = [
     "KeyboardDescriptor",
@@ -50,4 +56,8 @@ __all__ = [
     "TonnetzEdge",
     "TonnetzNode",
     "tonnetz_descriptor",
+    "ChordNetwork",
+    "ChordNetworkEdge",
+    "ChordNetworkNode",
+    "chord_network_descriptor",
 ]

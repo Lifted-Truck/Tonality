@@ -304,6 +304,19 @@ def test_tonnetz_view_descriptor():
         tools.tonnetz_view([])
 
 
+def test_chord_network_voice_leading_graph():
+    result = _json_safe(tools.chord_network(
+        [["C", "maj"], ["C", "aug"], ["E", "min"]], max_distance=1))
+    assert result["spec_level"] == "identity_only"
+    aug = next(n for n in result["nodes"] if n["quality"] == "aug")
+    assert aug["symmetry_order"] == 4  # the hub signal
+    # C major connects to both at distance 1
+    assert len(result["edges"]) == 2
+    assert all(e["distance"] == 1 for e in result["edges"])
+    with pytest.raises(ValueError, match="root, quality"):
+        tools.chord_network([["C"]])
+
+
 # --- the A1 pipeline tool ----------------------------------------------------------------------
 
 def test_midi_file_analysis_end_to_end(tmp_path):

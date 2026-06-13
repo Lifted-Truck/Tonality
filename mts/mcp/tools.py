@@ -654,6 +654,29 @@ def tonnetz_view(pcs: list[int]) -> dict:
     return tonnetz_descriptor([int(pc) for pc in pcs]).to_dict()
 
 
+def chord_network(chords: list[list], max_distance: int = 2) -> dict:
+    """Voice-leading network over a chord vocabulary (Phase 5): nodes (each
+    chord + pcs + rotational symmetry — augmented/dim hubs stand out by their
+    symmetry order) and undirected edges between chords whose voice-leading
+    distance is <= max_distance, each edge carrying distance, common-tone
+    count, and root interval. The render-agnostic form of the Cube-Dance
+    parsimony mandala; every edge is the engine's exact voice_leading
+    relation. chords: ordered [root, quality] pairs (root = note name or pc;
+    quality = a catalog name). Register-less; numeric only. (The functional
+    V7->I resolution arrows are a separate directed/key-relative layer, not
+    this voice-leading graph.)"""
+    from ..representation import chord_network_descriptor
+
+    try:
+        parsed = [(_pc(entry[0]), _quality(str(entry[1]))) for entry in chords]
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            f"Each chord must be [root, quality] (root = note name or pc; "
+            f"quality = a catalog name): {exc}"
+        ) from exc
+    return chord_network_descriptor(parsed, max_distance=int(max_distance)).to_dict()
+
+
 # --- the A1 pipeline ------------------------------------------------------------------------------
 
 def midi_file_analysis(
@@ -784,6 +807,7 @@ TOOLS = (
     keyboard_view,
     bracelet_view,
     tonnetz_view,
+    chord_network,
     realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,
