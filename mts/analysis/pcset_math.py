@@ -9,6 +9,7 @@ identity rather than recomputed per call.
 
 from __future__ import annotations
 
+from collections import deque
 from collections.abc import Iterable
 from functools import lru_cache
 
@@ -103,6 +104,37 @@ def containing_roots(container_mask: int, query_mask: int) -> tuple[int, ...]:
     """
 
     return _containing_roots_for_masks(container_mask, query_mask)
+
+
+# The neo-Riemannian Tonnetz lattice: each pc placed by P5/M3/m3 axes from C.
+# Shared by chord analysis (per-chord coordinates) and the Tonnetz descriptor
+# (the full lattice + edge derivation) — one source of truth for the layout.
+_TONNETZ_AXES = (
+    (7, (1, 0, 0)),  # perfect fifth
+    (4, (0, 1, 0)),  # major third
+    (3, (0, 0, 1)),  # minor third
+)
+
+
+@lru_cache(maxsize=1)
+def tonnetz_coordinates() -> dict[int, tuple[int, int, int]]:
+    """Integer Tonnetz lattice coordinate of each pitch class (C at origin).
+
+    Axes: x = perfect fifth (+7), y = major third (+4), z = minor third (+3).
+    A spanning-tree assignment by BFS from C — fixed and deterministic.
+    """
+
+    coords: dict[int, tuple[int, int, int]] = {0: (0, 0, 0)}
+    queue = deque([0])
+    while queue and len(coords) < 12:
+        pc = queue.popleft()
+        base = coords[pc]
+        for interval, delta in _TONNETZ_AXES:
+            target = (pc + interval) % 12
+            if target not in coords:
+                coords[target] = tuple(base[i] + delta[i] for i in range(3))
+                queue.append(target)
+    return coords
 
 
 def set_class_data(mask: int) -> SetClassData:

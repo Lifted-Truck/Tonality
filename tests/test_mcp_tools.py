@@ -249,6 +249,26 @@ def test_keyboard_view_descriptor():
         tools.keyboard_view(60, 72, tonic="D")
 
 
+def test_bracelet_view_descriptor():
+    result = _json_safe(tools.bracelet_view([0, 4, 7], tonic="C", scale_name="Ionian"))
+    assert result["spec_level"] == "identity_only"
+    assert result["active_pcs"] == [0, 4, 7]
+    assert result["interval_vector"] == [0, 0, 1, 1, 1, 0]
+    by_pc = {p["pc"]: p for p in result["positions"]}
+    assert by_pc[2]["in_scale"] and not by_pc[2]["is_active"]
+    with pytest.raises(ValueError, match="both or neither"):
+        tools.bracelet_view([0, 4, 7], tonic="C")
+
+
+def test_tonnetz_view_descriptor():
+    result = _json_safe(tools.tonnetz_view([0, 4, 7]))
+    assert len(result["nodes"]) == 12
+    edges = {(e["pc_a"], e["pc_b"], e["axis"]) for e in result["edges"]}
+    assert edges == {(0, 7, "P5"), (0, 4, "M3"), (4, 7, "m3")}
+    with pytest.raises(ValueError, match="at least one"):
+        tools.tonnetz_view([])
+
+
 # --- the A1 pipeline tool ----------------------------------------------------------------------
 
 def test_midi_file_analysis_end_to_end(tmp_path):

@@ -20,6 +20,18 @@ from .piano_roll import (
     PianoRollDescriptor,
     piano_roll_descriptor,
 )
+from .bracelet import (
+    BraceletAxis,
+    BraceletDescriptor,
+    BraceletPosition,
+    bracelet_descriptor,
+)
+from .tonnetz import (
+    TonnetzDescriptor,
+    TonnetzEdge,
+    TonnetzNode,
+    tonnetz_descriptor,
+)
 
 __all__ = [
     "KeyboardDescriptor",
@@ -30,4 +42,12 @@ __all__ = [
     "NoteRect",
     "PianoRollDescriptor",
     "piano_roll_descriptor",
+    "BraceletAxis",
+    "BraceletDescriptor",
+    "BraceletPosition",
+    "bracelet_descriptor",
+    "TonnetzDescriptor",
+    "TonnetzEdge",
+    "TonnetzNode",
+    "tonnetz_descriptor",
 ]

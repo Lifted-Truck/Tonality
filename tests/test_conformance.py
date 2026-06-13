@@ -138,6 +138,11 @@ CASES: list[tuple[str, dict]] = [
         {"low_midi": 60, "high_midi": 72, "tonic": "D", "scale_name": "Dorian",
          "active_midi": [62, 65, 69]},
     ),
+    (
+        "bracelet_view",
+        {"pcs": [0, 4, 7], "tonic": "C", "scale_name": "Ionian"},
+    ),
+    ("tonnetz_view", {"pcs": [0, 3, 6, 9]}),  # dim7 — symmetric, many edges
     ("voicing_analysis", {"midi_notes": [48, 64, 67, 72], "root": "C"}),
     ("voicing_suggestions", {"root": "C", "quality": "maj7"}),
     ("quality_comparison", {"quality_a": "maj7", "quality_b": "min7"}),

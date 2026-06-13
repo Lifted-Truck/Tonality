@@ -924,14 +924,22 @@ descriptor-track item below and Decision 9.)*
   - *register-less (identity key):* pitch-class **clock / bracelet diagram**,
     **interval-vector / IC spectrum**, **Tonnetz** (coordinates already exist),
     **circle of fifths** projection, set-class / normal-form views.
-    *(Contents specified by A6 brief-2, 2026-06-12 — Audiology ships both
-    views client-side today and wants engine descriptors so diagram and
-    analysis cannot disagree: **bracelet** = pc set + active subset +
-    reflection/rotational **symmetry axes** + **interval vector** in one
-    ring-geometry document; **Tonnetz** = the shipped per-pc coordinates
-    plus **edge data** — which pc pairs are P5/M3/m3 chord edges — which
-    the shipped `TonnetzAnalysis` does not yet derive. Slice order behind
-    keyboard + piano-roll unless A6 reorders by brief.)*
+    **Bracelet + Tonnetz delivered (2026-06-12, slice 3 — closes A6 brief-2's
+    descriptor needs):** both register-less (`spec_level="identity_only"`).
+    **Bracelet** (`representation/bracelet.py`) — the 12 clock positions with
+    the active set flagged + optional scale-backdrop membership, the active
+    set's reflection axes (pc-unit centers) and rotational order, and its
+    interval vector: one ring-geometry document, mostly assembly of shipped
+    set-class math. **Tonnetz** (`representation/tonnetz.py`) — all 12 pcs at
+    their canonical lattice coordinates (the Tonnetz layout was promoted from
+    a private `chord_analysis` helper to `pcset_math.tonnetz_coordinates`, so
+    descriptor and analysis share one source of truth — verified output-
+    identical) with the active subset flagged, **plus the genuinely new edge
+    derivation**: which active pc pairs are P5/M3/m3 edges (by pc-interval —
+    5/7, 4/8, 3/9 — the lit triangles a Tonnetz reads as triads), and the
+    active centroid. MCP: `bracelet_view` (#30), `tonnetz_view` (#31). The
+    representation layer's four planned views (keyboard, piano-roll,
+    bracelet, Tonnetz) are now all shipped.
   - *register-required (`Realization`):* **keyboard / piano diagram** of a chosen
     voicing, fretboard. **Keyboard delivered (2026-06-12, slice 1 — the
     layer's first inhabitant, `mts/representation/keyboard.py`):** one

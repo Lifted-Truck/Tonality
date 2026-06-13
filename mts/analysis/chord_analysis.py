@@ -10,7 +10,7 @@ edge").
 from __future__ import annotations
 
 import itertools
-from collections import Counter, deque
+from collections import Counter
 from dataclasses import dataclass
 
 from ..core.chord import Chord
@@ -19,7 +19,7 @@ from ..core.symmetry import mask_symmetry_order, rotational_steps
 from .errors import require_realization
 from .pcset_math import interval_vector as _interval_vector
 from .pcset_math import reflection_axes as _reflection_axes
-from .pcset_math import set_class_data
+from .pcset_math import set_class_data, tonnetz_coordinates
 from .voicings import voicing_shapes
 from .results import (
     ChordAnalysisResult,
@@ -125,7 +125,7 @@ def _interval_summary(pcs: list[int]) -> ChordIntervalSummary:
 
 
 def _tonnetz_analysis(chord: Chord) -> TonnetzAnalysis:
-    coords = _tonnetz_coordinates()
+    coords = tonnetz_coordinates()
     chord_coords = {pc: coords[pc] for pc in chord.pcs if pc in coords}
     if not chord_coords:
         return TonnetzAnalysis(coordinates={}, centroid=None)
@@ -144,25 +144,6 @@ def _relative_tonic_analysis(chord: Chord, tonic_pc: int) -> TonicContext:
         root_interval_from_tonic=(chord.root_pc - tonic_pc) % 12,
         relative_pcs=[(pc - tonic_pc) % 12 for pc in chord.pcs],
     )
-
-
-def _tonnetz_coordinates() -> dict[int, tuple[int, int, int]]:
-    operations = [
-        (7, (1, 0, 0)),  # perfect fifth
-        (4, (0, 1, 0)),  # major third
-        (3, (0, 0, 1)),  # minor third
-    ]
-    coords: dict[int, tuple[int, int, int]] = {0: (0, 0, 0)}
-    queue = deque([0])
-    while queue and len(coords) < 12:
-        pc = queue.popleft()
-        base = coords[pc]
-        for interval, delta in operations:
-            target = (pc + interval) % 12
-            if target not in coords:
-                coords[target] = tuple(base[i] + delta[i] for i in range(3))
-                queue.append(target)
-    return coords
 
 
 def _invert_matrix(matrix: list[list[int]]) -> list[list[int]]:
