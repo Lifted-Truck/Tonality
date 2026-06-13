@@ -945,7 +945,19 @@ descriptor-track item below and Decision 9.)*
     Numeric only (labels/colors are the renderer's). MCP: `keyboard_view`
     (#28). Sets the layer's conventions for piano-roll / bracelet / Tonnetz.
   - *register + time (depends on Phase 2):* **piano roll**, **staff / sheet-music**
-    engraving model.
+    engraving model. **Piano-roll delivered (2026-06-12, slice 2 —
+    `mts/representation/piano_roll.py`):** the register+time projection (the
+    highest spec level; reads a `Sequence`, declares
+    `spec_level="registered_time"`). Three render layers on one time axis —
+    **note rectangles** (midi/pc/voice/velocity, onset+duration in *both*
+    beats and seconds via the tempo map — the genuinely new geometry),
+    **chord-region overlays** (segmented harmony with the contextually-chosen
+    name, conditioned on the local key per onset — built by
+    `dataset_from_sequence`, so overlay names equal the dataset's byte-for-
+    byte; no divergence), and **key-band backdrop** (from `track_keys`, with
+    confidence margins). MCP: `piano_roll_view` (#29, MIDI-file path — carries
+    velocity/voice; coalescing + local-key tracking options mirror
+    `midi_file_analysis`). A6's player overlay feed.
 - [ ] Stable output schemas (coordinates, encodings, an engraving model) with
       parity to `results.py` / the dataset record, so rendering libraries consume
       them at the edge.

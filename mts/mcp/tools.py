@@ -610,6 +610,52 @@ def midi_file_analysis(
     return result
 
 
+def piano_roll_view(
+    path: str,
+    chord_overlays: bool = True,
+    track_local_keys: bool = True,
+    coalesce_window_beats: float | None = None,
+) -> dict:
+    """Render-ready piano-roll descriptor for a Standard MIDI File (Phase 5):
+    per-note rectangles (midi/pc/voice/velocity, onset+duration in BOTH beats
+    and seconds), segmented chord-region overlays with the contextually-chosen
+    chord name (conditioned on the local key per onset when track_local_keys),
+    and local-key backdrop bands. Chord-overlay names match midi_file_analysis
+    byte-for-byte (same builder). Set coalesce_window_beats (e.g. 0.05) to
+    repair performed timing first. Numeric only — labels/colors are the
+    renderer's business."""
+    from ..analysis import candidate_context
+    from ..io.midi import sequence_from_midi_file
+    from ..representation import piano_roll_descriptor
+    from ..temporal import coalesce, track_keys
+
+    sequence = sequence_from_midi_file(path)
+    if coalesce_window_beats is not None:
+        sequence = coalesce(
+            sequence, onset_window_beats=float(coalesce_window_beats)
+        ).sequence
+
+    regions = None
+    context = None
+    if track_local_keys:
+        try:
+            regions = track_keys(sequence)
+        except ValueError:
+            regions = None  # no window carried tonal information
+    if regions is None and chord_overlays:
+        try:
+            context = candidate_context(infer_key(sequence).best)
+        except ValueError:
+            context = None  # no tonal information — intrinsic naming only
+
+    return piano_roll_descriptor(
+        sequence,
+        analytical_context=context,
+        key_regions=regions,
+        chord_overlays=chord_overlays,
+    ).to_dict()
+
+
 TOOLS = (
     list_scales,
     list_chord_qualities,
@@ -639,6 +685,7 @@ TOOLS = (
     quality_comparison,
     quality_brief,
     midi_file_analysis,
+    piano_roll_view,
 )
 
 __all__ = [fn.__name__ for fn in TOOLS] + ["TOOLS"]

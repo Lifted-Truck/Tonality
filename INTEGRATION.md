@@ -55,6 +55,7 @@ each level unlocks more analysis.
 | **Rulesets (DSL) + conformance evaluator** | declarative JSON rules over the atom vocabulary (voice motion / melody / rhythm): `where`-filtered `forbid`/`require`, hard or soft-weighted. Strict total validation (`validate_ruleset` returns *every* error — built for LLM-translated rulesets); `evaluate_ruleset` → per-rule violations with locations + atom evidence, conformance frequencies, hard/soft rollups. Rules the material can't ground come back `applicable: false` with the reason — never silently skipped |
 | **Performed-input tolerance** | opt-in coalescing of humanized timing before analysis (`coalesce_events`): clusters near-simultaneous onsets *and* offsets, optional grid snap; result cites the window and itemizes moves/drops. Repairs the micro-segment + all-`subdivision` misreads on real performances; never applied implicitly |
 | **Keyboard descriptor** (Phase 5) | render-agnostic piano-key data (`keyboard_view`): per key — midi/pc/octave, black-white topology, scale membership + degree index + tonic flag under a tonal context, activation at a **declared spec level** (`active_midi` = exact keys; `active_pcs` = every octave, explicit projection). Numeric only — labels, spelling, colors stay renderer-side |
+| **Piano-roll descriptor** (Phase 5) | render-ready overlay for a MIDI file (`piano_roll_view`): note rectangles (midi/pc/voice/velocity, onset+duration in **beats and seconds**) + segmented chord-region overlays with the contextually-chosen chord name (conditioned on the local key per onset) + local-key backdrop bands with confidence. Overlay names match `midi_file_analysis` byte-for-byte. Numeric only |
 | **Voicing analysis / suggestions** | recognition of real voicings (inversion, spread, named type); generative suggestions (closed, drop-2/3, rootless, shell) |
 | **MIDI file pipeline** | SMF → events → stable-harmony segments → inferred key → enriched per-segment dataset records (JSON-ready) |
 | **MIDI export** | `Sequence` → SMF (single track; tempo/meter, velocity, channel preserved) — the write-back loop for transformers/generators |
@@ -105,7 +106,7 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
    infer_key, name_chord, voice_leading, ...` — typed frozen dataclasses, each
    with `to_dict()`. Best for Python-native projects and lowest latency.
 2. **MCP endpoint** (cross-language / agent-facing): `pip install 'mts[mcp]'`,
-   then `python -m mts.mcp` (stdio). 28 tools mirroring the library surface,
+   then `python -m mts.mcp` (stdio). 29 tools mirroring the library surface,
    including `midi_file_analysis` (file → key-aware dataset in one call) and
    catalog discovery (`list_scales`, `list_chord_qualities`). Inputs accept
    note names (`"C"`, `"F#"`, `"Bb"`) or pc ints; MIDI numbers for register.

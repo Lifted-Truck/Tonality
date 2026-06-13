@@ -340,6 +340,33 @@ def test_midi_file_analysis_per_region_context(tmp_path):
     assert len(tonics) == 1  # the old single-global-key conditioning
 
 
+def test_piano_roll_view_end_to_end(tmp_path):
+    import mido
+
+    mid = mido.MidiFile(ticks_per_beat=480)
+    track = mido.MidiTrack()
+    mid.tracks.append(track)
+    track.append(mido.MetaMessage("set_tempo", tempo=500000, time=0))  # 120 bpm
+    for chord in ([60, 64, 67], [65, 69, 72], [67, 71, 74], [60, 64, 67]):
+        for note in chord:
+            track.append(mido.Message("note_on", note=note, velocity=80, time=0))
+        for i, note in enumerate(chord):
+            track.append(mido.Message("note_off", note=note, velocity=0, time=480 if i == 0 else 0))
+    path = tmp_path / "progression.mid"
+    mid.save(path)
+
+    result = _json_safe(tools.piano_roll_view(str(path)))
+    assert result["spec_level"] == "registered_time"
+    assert len(result["notes"]) == 12  # 4 triads
+    note = result["notes"][0]
+    assert note["velocity"] == 80 and note["onset_seconds"] is not None
+    assert len(result["chord_regions"]) == 4
+    assert result["chord_regions"][0]["root_pc"] == 0  # C major
+    assert result["key_bands"]  # local key tracking on by default
+    bare = tools.piano_roll_view(str(path), chord_overlays=False, track_local_keys=False)
+    assert bare["chord_regions"] == [] and bare["key_bands"] == []
+
+
 # --- server wiring (only when the optional SDK is installed) ------------------------------------
 
 def test_build_server_registers_all_tools():

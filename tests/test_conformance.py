@@ -32,7 +32,9 @@ from mts.mcp import tools
 
 GOLDEN_PATH = Path(__file__).parent / "golden" / "conformance.json"
 
-EXCLUDED_TOOLS = {"midi_file_analysis"}  # path-bearing provenance; see module doc
+# Path-bearing tools: their input is a MIDI file path (run-dependent), so they
+# have no fixed-input golden; every component they compose is covered elsewhere.
+EXCLUDED_TOOLS = {"midi_file_analysis", "piano_roll_view"}
 
 REL_TOL = 1e-9
 ABS_TOL = 1e-12
