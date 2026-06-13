@@ -134,6 +134,37 @@ CASES: list[tuple[str, dict]] = [
         },
     ),
     (
+        "combine_rulesets",
+        {"rulesets": [
+            {"name": "a", "version": "1", "rules": [
+                {"id": "no-parallel", "family": "voice_motion",
+                 "forbid": {"motion": "parallel"}, "polarity": "hard"}]},
+            {"name": "b", "version": "1", "rules": [
+                {"id": "no-syncopation", "family": "rhythm",
+                 "forbid": {"is_syncopated": True}, "polarity": "hard"}]},
+        ], "name": "cp", "version": "1"},
+    ),
+    (
+        "specialize_ruleset",
+        {"base": {"name": "a", "version": "1", "rules": [
+            {"id": "prefer-steps", "family": "melody",
+             "require": {"departure_class": {"in": ["step", "unison"]}},
+             "polarity": "soft", "weight": 2.0}]},
+         "overlay": {"name": "b", "version": "1", "rules": [
+            {"id": "no-syncopation", "family": "rhythm",
+             "forbid": {"is_syncopated": True}, "polarity": "hard"}]},
+         "name": "strict", "version": "1"},
+    ),
+    (
+        "compare_rulesets",
+        {"ruleset_a": {"name": "a", "version": "1", "rules": [
+            {"id": "no-parallel", "family": "voice_motion",
+             "forbid": {"motion": "parallel"}, "polarity": "hard"}]},
+         "ruleset_b": {"name": "b", "version": "1", "rules": [
+            {"id": "must-parallel", "family": "voice_motion",
+             "require": {"motion": "parallel"}, "polarity": "hard"}]}},
+    ),
+    (
         "keyboard_view",
         {"low_midi": 60, "high_midi": 72, "tonic": "D", "scale_name": "Dorian",
          "active_midi": [62, 65, 69]},

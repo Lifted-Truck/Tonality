@@ -863,8 +863,24 @@ provenance).
       never matches, and an item whose check references a `None` field is
       excluded from consideration — absence of evidence is not a
       violation. *Remaining for later slices:* free scope axis (phrase /
-      global / aggregate predicates), composition ops (combine /
-      specialize / diff).
+      global / aggregate predicates).
+- [x] **Composition + comparison (slice 2). Delivered (2026-06-13):**
+      `mts/rules/composition.py` + a serializer round-trip
+      (`ruleset_to_payload`, the inverse of `parse_ruleset` — rulesets are
+      now data both directions). `combine` unions rulesets (identical
+      same-id rules dedup; conflicting same-id rules raise, pointing at
+      specialize); `specialize` overlays one onto a base (same-id overlay
+      rules replace, new ids append; reports overridden/added — "a style =
+      common-practice + these overrides"); `compare` is the structural diff
+      — shared / conflicting / unique ids, plus **directly-contradictory
+      rule pairs** (same family+filter+check, one `forbid` vs one `require`
+      — provably unsatisfiable together on any considered item). Structural
+      identity compares condition *sets* (order within an AND is
+      irrelevant). MCP: `combine_rulesets` (#32), `specialize_ruleset`
+      (#33), `compare_rulesets` (#34). *Empirical* comparison ("which
+      conforms more on this corpus") is two `evaluate` calls, not a new
+      primitive. Implication-by-enumeration is deferred (the item stream
+      isn't a closed finite space — honest scoping, not built).
 - [x] **The evaluator (slice 1). Delivered (2026-06-12):**
       `mts/rules/evaluator.py` — `evaluate(ruleset, sequence) →
       ConformanceReport`: per-rule violation lists with locations and the
@@ -877,9 +893,9 @@ provenance).
       note (recorded decision):* v1 evaluates a temporal `Sequence` — the
       atom streams derive from one; the originally-sketched evaluation
       over dataset *records* arrives when atoms join the record schema.
-      Ruleset *comparison* (shared rules, conflicts, implication by
-      enumeration, conformance profiles on a shared corpus) remains with
-      the composition slice.
+      Ruleset *comparison* (shared rules, conflicts, contradictions) ships
+      with slice 2 above; implication-by-enumeration and corpus-conformance
+      profiles are recorded there as deferred/derivable.
 - [ ] **Induction** (the rule-space). Version-space mining, not learning:
       enumerate which instantiations of the template vocabulary a corpus
       satisfies (or satisfies at frequency ≥ θ). Output is a *rule-space* —

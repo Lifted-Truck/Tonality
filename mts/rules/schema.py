@@ -306,6 +306,44 @@ def parse_ruleset(payload: object) -> Ruleset:
     )
 
 
+def _condition_to_payload(condition: Condition) -> object:
+    """The JSON form of one condition's value (inverse of ``_parse_conditions``)."""
+
+    if condition.op == "eq":
+        return condition.value
+    if condition.op == "in":
+        return {"in": list(condition.value)}  # type: ignore[arg-type]
+    return {condition.op: condition.value}  # "gte" | "lte"
+
+
+def rule_to_payload(rule: Rule) -> dict:
+    """Serialize a :class:`Rule` back to its JSON DSL form.
+
+    Round-trips with the parser: ``parse_ruleset`` of a serialized ruleset
+    yields an equal ruleset. Soft rules carry their weight explicitly.
+    """
+
+    payload: dict = {"id": rule.id, "family": rule.family}
+    if rule.where:
+        payload["where"] = {c.field: _condition_to_payload(c) for c in rule.where}
+    payload[rule.check_kind] = {c.field: _condition_to_payload(c) for c in rule.check}
+    payload["polarity"] = rule.polarity
+    if rule.polarity == "soft":
+        payload["weight"] = rule.weight
+    return payload
+
+
+def ruleset_to_payload(ruleset: Ruleset) -> dict:
+    """Serialize a :class:`Ruleset` back to its JSON DSL document form."""
+
+    return {
+        "name": ruleset.name,
+        "version": ruleset.version,
+        "description": ruleset.description,
+        "rules": [rule_to_payload(rule) for rule in ruleset.rules],
+    }
+
+
 __all__ = [
     "FAMILIES",
     "HARMONY_DEPENDENT_FIELDS",
@@ -316,4 +354,6 @@ __all__ = [
     "RulesetValidationError",
     "parse_ruleset",
     "validation_errors",
+    "rule_to_payload",
+    "ruleset_to_payload",
 ]

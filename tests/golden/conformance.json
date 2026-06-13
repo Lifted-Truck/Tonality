@@ -4899,6 +4899,193 @@
   },
   {
    "kwargs": {
+    "name": "cp",
+    "rulesets": [
+     {
+      "name": "a",
+      "rules": [
+       {
+        "family": "voice_motion",
+        "forbid": {
+         "motion": "parallel"
+        },
+        "id": "no-parallel",
+        "polarity": "hard"
+       }
+      ],
+      "version": "1"
+     },
+     {
+      "name": "b",
+      "rules": [
+       {
+        "family": "rhythm",
+        "forbid": {
+         "is_syncopated": true
+        },
+        "id": "no-syncopation",
+        "polarity": "hard"
+       }
+      ],
+      "version": "1"
+     }
+    ],
+    "version": "1"
+   },
+   "result": {
+    "description": "",
+    "name": "cp",
+    "rules": [
+     {
+      "family": "voice_motion",
+      "forbid": {
+       "motion": "parallel"
+      },
+      "id": "no-parallel",
+      "polarity": "hard"
+     },
+     {
+      "family": "rhythm",
+      "forbid": {
+       "is_syncopated": true
+      },
+      "id": "no-syncopation",
+      "polarity": "hard"
+     }
+    ],
+    "version": "1"
+   },
+   "tool": "combine_rulesets"
+  },
+  {
+   "kwargs": {
+    "base": {
+     "name": "a",
+     "rules": [
+      {
+       "family": "melody",
+       "id": "prefer-steps",
+       "polarity": "soft",
+       "require": {
+        "departure_class": {
+         "in": [
+          "step",
+          "unison"
+         ]
+        }
+       },
+       "weight": 2.0
+      }
+     ],
+     "version": "1"
+    },
+    "name": "strict",
+    "overlay": {
+     "name": "b",
+     "rules": [
+      {
+       "family": "rhythm",
+       "forbid": {
+        "is_syncopated": true
+       },
+       "id": "no-syncopation",
+       "polarity": "hard"
+      }
+     ],
+     "version": "1"
+    },
+    "version": "1"
+   },
+   "result": {
+    "added": [
+     "no-syncopation"
+    ],
+    "overridden": [],
+    "ruleset_payload": {
+     "description": "",
+     "name": "strict",
+     "rules": [
+      {
+       "family": "melody",
+       "id": "prefer-steps",
+       "polarity": "soft",
+       "require": {
+        "departure_class": {
+         "in": [
+          "step",
+          "unison"
+         ]
+        }
+       },
+       "weight": 2.0
+      },
+      {
+       "family": "rhythm",
+       "forbid": {
+        "is_syncopated": true
+       },
+       "id": "no-syncopation",
+       "polarity": "hard"
+      }
+     ],
+     "version": "1"
+    }
+   },
+   "tool": "specialize_ruleset"
+  },
+  {
+   "kwargs": {
+    "ruleset_a": {
+     "name": "a",
+     "rules": [
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "motion": "parallel"
+       },
+       "id": "no-parallel",
+       "polarity": "hard"
+      }
+     ],
+     "version": "1"
+    },
+    "ruleset_b": {
+     "name": "b",
+     "rules": [
+      {
+       "family": "voice_motion",
+       "id": "must-parallel",
+       "polarity": "hard",
+       "require": {
+        "motion": "parallel"
+       }
+      }
+     ],
+     "version": "1"
+    }
+   },
+   "result": {
+    "conflicting_ids": [],
+    "contradictions": [
+     {
+      "a_id": "no-parallel",
+      "b_id": "must-parallel",
+      "detail": "'no-parallel' forbids what 'must-parallel' requires (same filter+check)",
+      "family": "voice_motion"
+     }
+    ],
+    "only_in_a": [
+     "no-parallel"
+    ],
+    "only_in_b": [
+     "must-parallel"
+    ],
+    "shared_ids": []
+   },
+   "tool": "compare_rulesets"
+  },
+  {
+   "kwargs": {
     "active_midi": [
      62,
      65,

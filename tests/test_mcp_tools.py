@@ -209,6 +209,27 @@ def test_ruleset_validation_and_evaluation():
         tools.evaluate_ruleset(ruleset, [[0, 1]])
 
 
+def test_ruleset_composition_tools():
+    rule_a = {"id": "no-parallel", "family": "voice_motion",
+              "forbid": {"motion": "parallel"}, "polarity": "hard"}
+    rule_b = {"id": "no-syncopation", "family": "rhythm",
+              "forbid": {"is_syncopated": True}, "polarity": "hard"}
+    a = {"name": "a", "version": "1", "rules": [rule_a]}
+    b = {"name": "b", "version": "1", "rules": [rule_b]}
+
+    combined = _json_safe(tools.combine_rulesets([a, b], name="cp", version="1"))
+    assert {r["id"] for r in combined["rules"]} == {"no-parallel", "no-syncopation"}
+
+    spec = _json_safe(tools.specialize_ruleset(a, b, name="strict", version="1"))
+    assert spec["added"] == ["no-syncopation"]
+
+    requires = {"id": "must-parallel", "family": "voice_motion",
+                "require": {"motion": "parallel"}, "polarity": "hard"}
+    cmp = _json_safe(tools.compare_rulesets(a, {"name": "c", "version": "1",
+                                                "rules": [requires]}))
+    assert len(cmp["contradictions"]) == 1
+
+
 def test_chord_in_key_and_voice_leading():
     placed = _json_safe(tools.chord_in_key("D", "min7", tonic="C", key_name="Ionian"))
     assert placed["root_degree"] == 1
