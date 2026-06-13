@@ -427,6 +427,113 @@ def coalesce_events(
     return {"events": cleaned, **result.to_dict()}
 
 
+# --- groove extract / apply (gap 10) -------------------------------------------------
+
+def _vel_events(events: list[list]) -> "Sequence":
+    """Events as [onset, duration, midi, velocity?] or [..., velocity, voice].
+
+    Distinct from ``_flex_events``: velocity is at index 3 (``None``/omitted =
+    no velocity) and voice is promoted to index 4 — the groove tools need
+    per-note velocity, which the [.., voice]-at-index-3 convention can't carry.
+    """
+    from ..temporal import Event, Sequence
+
+    try:
+        parsed = tuple(
+            Event(
+                float(entry[0]),
+                float(entry[1]),
+                Pitch.from_midi(
+                    int(entry[2]),
+                    velocity=(
+                        int(entry[3]) if len(entry) > 3 and entry[3] is not None else None
+                    ),
+                ),
+                voice=str(entry[4]) if len(entry) > 4 and entry[4] is not None else None,
+            )
+            for entry in events
+        )
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            "Each event must be [onset_beats, duration_beats, midi_note] with "
+            f"optional velocity (index 3) and voice (index 4): {exc}"
+        ) from exc
+    return Sequence.from_events(parsed)
+
+
+def extract_groove(
+    events: list[list],
+    base_unit_beats: float,
+    loop_length_beats: float | None = None,
+    voice: str | None = None,
+) -> dict:
+    """Distil a GrooveTemplate from a played loop's onset timing and velocity:
+    per grid slot (at base_unit_beats, e.g. 0.25 = 1/16), the signed onset
+    offset (fraction of the grid unit) and velocity accent (deviation from the
+    loop mean), cycled over loop_length_beats. ANALYSIS — quantized input
+    yields a NULL groove (all offsets 0.0); the feel must be in the onsets to
+    be measured. Polyphony is fine (simultaneous onsets share a slot).
+    loop_length_beats defaults to the sequence duration rounded to whole slots
+    — pass it explicitly for a clean loop. events: each [onset_beats,
+    duration_beats, midi_note] with optional velocity (index 3) and voice
+    (index 4)."""
+    from ..temporal import extract_groove as _extract
+
+    template = _extract(
+        _vel_events(events),
+        base_unit_beats=float(base_unit_beats),
+        loop_length_beats=(
+            float(loop_length_beats) if loop_length_beats is not None else None
+        ),
+        voice=voice,
+    )
+    return template.to_dict()
+
+
+def apply_groove(
+    events: list[list],
+    template: dict,
+    quantize: float = 1.0,
+    timing: float = 1.0,
+    random: float = 0.0,
+    velocity: float = 1.0,
+    amount: float = 1.0,
+    seed: int | None = None,
+    voice: str | None = None,
+) -> dict:
+    """Apply a GrooveTemplate to events, returning new onset+velocity timing.
+    GENERATIVE (A2's first transformation). Live Groove Pool parameters:
+    quantize [0,1] pre-pulls onsets toward the grid; timing scales the
+    template offsets (may exceed 1.0); random [0,1] adds deterministic jitter
+    (REQUIRES seed when > 0 — same input + same seed → same output); velocity
+    is a signed scale on the accent contour (negative reverses); amount [0,1]
+    is a global multiplier on all feel. Onsets shift, durations are preserved.
+    template is the dict returned by extract_groove. events: each [onset_beats,
+    duration_beats, midi_note] with optional velocity (index 3) and voice
+    (index 4); the result echoes velocity at index 3 (and voice at index 4 if
+    present) plus the cited parameters and what changed."""
+    from ..temporal import GrooveTemplate, apply_groove as _apply
+
+    result = _apply(
+        _vel_events(events),
+        GrooveTemplate.from_dict(template),
+        quantize=float(quantize),
+        timing=float(timing),
+        random=float(random),
+        velocity=float(velocity),
+        amount=float(amount),
+        seed=int(seed) if seed is not None else None,
+        voice=voice,
+    )
+    voiced = any(e.voice is not None for e in result.sequence.events)
+    out = [
+        [e.onset, e.duration, e.pitch.midi, e.pitch.velocity]
+        + ([e.voice] if voiced else [])
+        for e in result.sequence.events
+    ]
+    return {"events": out, **result.to_dict()}
+
+
 # --- rulesets (Phase 4.6) -----------------------------------------------------------
 
 def _flex_events(events: list[list]) -> "Sequence":
@@ -799,6 +906,8 @@ TOOLS = (
     rhythmic_analysis,
     swing_analysis,
     coalesce_events,
+    extract_groove,
+    apply_groove,
     validate_ruleset,
     evaluate_ruleset,
     combine_rulesets,

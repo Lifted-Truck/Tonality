@@ -53,7 +53,8 @@ list as new applications come into view.
   *Capabilities:* analysis side ✅/planned as above · re-voicing + added voices →
   **Phase 7** (voice-leading realization) · scale re-mapping, meter re-mapping,
   modulation path planning → **Phase 7 extensions** (recorded there) ·
-  **groove apply — gap 10** (its first concrete transformation) · writing
+  **groove apply ✅ shipped (gap 10, 2026-06-13)** — A2's first concrete
+  transformation (`apply_groove`) · writing
   the result → MIDI export ✅ shipped (Phase 2 addendum).
 - **A3 — Complementary part generator.** Given a MIDI file, generate companion
   MIDI for different instrument classes (bass line, pad, lead, counter-melody)
@@ -273,6 +274,29 @@ list as new applications come into view.
     versioned priors. Depends on gap 11 only for *trustworthiness*: a wrong
     declared grid poisons offsets, but extraction against a correct
     declared grid works today.
+    **Delivered (2026-06-13):** `temporal/groove.py` — `extract_groove`
+    (analysis) + `apply_groove` (generative) + `GrooveTemplate`/`GrooveSlot`
+    (JSON round-trip via `to_dict`/`from_dict`); MCP tools `extract_groove`
+    (#37) + `apply_groove` (#38) with a velocity-carrying event format
+    (`[onset, dur, midi, velocity?, voice?]`, parsed by `_vel_events` so the
+    existing voice-at-index-3 convention is untouched). Offsets stored as
+    signed fractions of the base unit; velocity as a signed **deviation from
+    the loop mean** (flat dynamics → null velocity groove, mirroring swing's
+    `mean − 0.5`); empty slots are `None`, distinct from on-grid `0.0`. Base
+    resolution + loop length are **caller geometry, cited not prior** (no
+    `data/*.json`: extraction is pure arithmetic). The timing **round-trip**
+    (extract a loop, re-apply onto its quantized form at quantize=timing=1 →
+    onsets reconstruct to 1e-9) is the central pinned invariant; `Random` is
+    deterministic per `seed` via blake2b keyed on the onset tick (order-
+    independent, byte-reproducible). Two design points settled in build that
+    refine the spec text: (a) **extract is polyphony-tolerant** — a groove is
+    read from possibly-chordal material (simultaneous onsets share a slot and
+    average), so it does *not* use the monophonic `_line_events` contract; and
+    (b) velocity apply is **additive accent transfer** (`v + amount·velocity·
+    delta`, negative reverses), the literal reading of "scaled by a signed
+    velocity %" — so the *timing* round-trip is the clean reconstruction (its
+    inverse is quantize), while velocity has no inverse and instead *transfers*
+    the accent contour. Conformance goldens added for both tools (38 cases).
 11. **Meter estimation** (added 2026-06-12; promoted from the theory-
     grounding review agenda's "we trust the file's time signature"). The
     time system is declarative: `MeterMap` answers every bar/downbeat
