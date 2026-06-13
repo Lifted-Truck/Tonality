@@ -1006,6 +1006,49 @@ provenance).
       *compress*), reusing Phase 4.5's statistical machinery. Honest bound:
       induction can only discover what the vocabulary expresses (Decision 8
       corollary) — interpretable by design, and the reason Workstream 0 leads.
+      *Research findings (2026-06-13, two background agents — the recommended
+      build shape):*
+      - **Mining = Apriori-style frequent-pattern mining over the conjunctive
+        `where`-condition lattice**, NOT candidate-elimination (Mitchell's
+        version spaces are noise-brittle — one inconsistent piece collapses
+        them, fatal on real corpora) and NOT full ILP (no relational
+        structure to justify it; our atoms are flat propositional records).
+        Treat each atom item as a "transaction" of `field=value` literals;
+        BFS the `where`-lattice adding one condition at a time (the ILP
+        refinement operator as traversal order), using **anti-monotonic
+        pruning** (a conjunction infrequent at θ can't be extended into a
+        frequent one) + an **arity cap (~3)** to tame the blow-up. Emit only
+        **closed/maximal** rules — the single most important step for an
+        interpretable, non-redundant rule-space. Borrow Mitchell's S/G-
+        boundary *vocabulary* to label the result's generality structure
+        (most-general constraints vs tight idioms). Candidate space is huge
+        syntactically (~tens of billions naïvely) but the *frequent*
+        sub-lattice is tiny on real music. Closest precedent: **MUS-ROVER**
+        (interpretable rule discovery from Bach chorales) and **Conklin's**
+        maximally-general significant-pattern mining.
+      - **Interestingness = Fisher's exact test vs an independence-given-
+        marginals null, BH-FDR-corrected (q=0.05), behind a minimum-support
+        floor, with leverage as the effect-size tie-break.** Fisher is exact
+        integer/rational arithmetic (no stats lib needed) and *defuses the
+        spurious-forbid pathology by construction* — a "forbid X" where X is
+        merely rare has unsurprising marginals → large p-value → correctly
+        demoted. **Avoid lift** (documented instability just above min-
+        support). Multiple-testing correction is mandatory (mining many
+        candidates inflates false positives); BH-FDR is cheap and the
+        correction factor = the realized search-space size. **MDL** (KRIMP
+        two-part code) scores whole rule-*sets* (compression), so it's a
+        rule-set composition objective, not the per-rule filter. Honest
+        floor: **below ~30–50 pieces, induced rules are exploratory, not
+        confirmed** — Fisher has little power on a handful. Ship a versioned
+        `scoring_prior` (measure, null model, `min_support`, `fdr_q`).
+      - **Recorded caveats:** the AND-only `where` can't express
+        "forbidden-*except*" disjunctions, so mining fragments one human
+        rule into many context-specialized conjunctions (closed-itemset
+        condensation mitigates; a disjunction/exception **merge pass** is the
+        real fix — a recorded sub-item). High-cardinality int fields
+        (`interval_class∈0..11`) and the `where`×consequent cross-product are
+        the explosion vectors (bucket / mine consequents only inside
+        surviving contexts).
 - [ ] **Generation coupling** (lands with Phase 7): rulesets are the
       constraint/cost input to generative search — hard rules prune, soft
       rules score. This *is* Phase 7's "qualitative characteristics"
