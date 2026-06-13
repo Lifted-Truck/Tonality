@@ -5061,6 +5061,269 @@
   },
   {
    "kwargs": {
+    "pcs": [
+     0,
+     4,
+     7
+    ],
+    "scale_name": "Ionian",
+    "tonic": "C"
+   },
+   "result": {
+    "active_pcs": [
+     0,
+     4,
+     7
+    ],
+    "cardinality": 3,
+    "interval_vector": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0
+    ],
+    "mask": 145,
+    "positions": [
+     {
+      "in_scale": true,
+      "is_active": true,
+      "pc": 0
+     },
+     {
+      "in_scale": false,
+      "is_active": false,
+      "pc": 1
+     },
+     {
+      "in_scale": true,
+      "is_active": false,
+      "pc": 2
+     },
+     {
+      "in_scale": false,
+      "is_active": false,
+      "pc": 3
+     },
+     {
+      "in_scale": true,
+      "is_active": true,
+      "pc": 4
+     },
+     {
+      "in_scale": true,
+      "is_active": false,
+      "pc": 5
+     },
+     {
+      "in_scale": false,
+      "is_active": false,
+      "pc": 6
+     },
+     {
+      "in_scale": true,
+      "is_active": true,
+      "pc": 7
+     },
+     {
+      "in_scale": false,
+      "is_active": false,
+      "pc": 8
+     },
+     {
+      "in_scale": true,
+      "is_active": false,
+      "pc": 9
+     },
+     {
+      "in_scale": false,
+      "is_active": false,
+      "pc": 10
+     },
+     {
+      "in_scale": true,
+      "is_active": false,
+      "pc": 11
+     }
+    ],
+    "reflection_axes": [],
+    "rotational_order": 12,
+    "scale_degrees": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9,
+     11
+    ],
+    "scale_name": "Ionian",
+    "spec_level": "identity_only",
+    "tonic_pc": 0
+   },
+   "tool": "bracelet_view"
+  },
+  {
+   "kwargs": {
+    "pcs": [
+     0,
+     3,
+     6,
+     9
+    ]
+   },
+   "result": {
+    "active_pcs": [
+     0,
+     3,
+     6,
+     9
+    ],
+    "centroid": [
+     0.75,
+     0.0,
+     0.75
+    ],
+    "edges": [
+     {
+      "axis": "m3",
+      "pc_a": 0,
+      "pc_b": 3
+     },
+     {
+      "axis": "m3",
+      "pc_a": 0,
+      "pc_b": 9
+     },
+     {
+      "axis": "m3",
+      "pc_a": 3,
+      "pc_b": 6
+     },
+     {
+      "axis": "m3",
+      "pc_a": 6,
+      "pc_b": 9
+     }
+    ],
+    "mask": 585,
+    "nodes": [
+     {
+      "coordinate": [
+       0,
+       0,
+       0
+      ],
+      "is_active": true,
+      "pc": 0
+     },
+     {
+      "coordinate": [
+       1,
+       0,
+       2
+      ],
+      "is_active": false,
+      "pc": 1
+     },
+     {
+      "coordinate": [
+       2,
+       0,
+       0
+      ],
+      "is_active": false,
+      "pc": 2
+     },
+     {
+      "coordinate": [
+       0,
+       0,
+       1
+      ],
+      "is_active": true,
+      "pc": 3
+     },
+     {
+      "coordinate": [
+       0,
+       1,
+       0
+      ],
+      "is_active": false,
+      "pc": 4
+     },
+     {
+      "coordinate": [
+       2,
+       0,
+       1
+      ],
+      "is_active": false,
+      "pc": 5
+     },
+     {
+      "coordinate": [
+       0,
+       0,
+       2
+      ],
+      "is_active": true,
+      "pc": 6
+     },
+     {
+      "coordinate": [
+       1,
+       0,
+       0
+      ],
+      "is_active": false,
+      "pc": 7
+     },
+     {
+      "coordinate": [
+       0,
+       2,
+       0
+      ],
+      "is_active": false,
+      "pc": 8
+     },
+     {
+      "coordinate": [
+       3,
+       0,
+       0
+      ],
+      "is_active": true,
+      "pc": 9
+     },
+     {
+      "coordinate": [
+       1,
+       0,
+       1
+      ],
+      "is_active": false,
+      "pc": 10
+     },
+     {
+      "coordinate": [
+       1,
+       1,
+       0
+      ],
+      "is_active": false,
+      "pc": 11
+     }
+    ],
+    "spec_level": "identity_only"
+   },
+   "tool": "tonnetz_view"
+  },
+  {
+   "kwargs": {
     "midi_notes": [
      48,
      64,

@@ -64,10 +64,10 @@ rules/       Rulesets (Phase 4.6): declarative JSON rules over the atom vocabula
              strict total validation + deterministic conformance evaluator. No code
              execution; rules are data.
   ↓
-representation/ Projections as data (Phase 5): render-agnostic descriptors (keyboard +
-             piano-roll shipped; clock-bracelet/Tonnetz planned). Library emits
-             descriptions; pixel/file rendering is an edge consumer, NOT core (no
-             in-repo GUI). Each view declares its required spec level; numeric only.
+representation/ Projections as data (Phase 5): render-agnostic descriptors
+             (keyboard, piano-roll, bracelet, Tonnetz). Library emits descriptions;
+             pixel/file rendering is an edge consumer, NOT core (no in-repo GUI).
+             Each view declares its required spec level; numeric only.
   ↓
 mcp/         Thin adapter (Phase 4): one tool per analysis entry point. tools.py is
              pure + SDK-free (fully testable); server.py needs the optional `mcp`

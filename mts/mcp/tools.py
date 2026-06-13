@@ -555,6 +555,42 @@ def keyboard_view(
     ).to_dict()
 
 
+def bracelet_view(
+    pcs: list[int],
+    tonic: int | str | None = None,
+    scale_name: str | None = None,
+) -> dict:
+    """Render-agnostic pitch-class clock (bracelet) descriptor: the 12 ring
+    positions with the active set flagged (and scale-backdrop membership when
+    tonic+scale_name give a context), plus the active set's symmetry — its
+    reflection axes (pc-unit centers) and rotational order — and its interval
+    vector. Register-less (spec_level "identity_only"); numeric only."""
+    from ..representation import bracelet_descriptor
+
+    if (scale_name is None) != (tonic is None):
+        raise ValueError(
+            "A backdrop scale needs both tonic and scale_name; supply both or neither."
+        )
+    scale = _scale(scale_name) if scale_name is not None else None
+    return bracelet_descriptor(
+        [int(pc) for pc in pcs],
+        tonic_pc=_pc(tonic) if tonic is not None else None,
+        scale=scale,
+    ).to_dict()
+
+
+def tonnetz_view(pcs: list[int]) -> dict:
+    """Render-agnostic Tonnetz descriptor: all 12 pitch classes at their
+    canonical lattice coordinates (fifths/major-thirds/minor-thirds from C)
+    with the active set flagged, the P5/M3/m3 EDGES among active pcs (the lit
+    triangles a Tonnetz reads as triads), and the active centroid. Edges come
+    from pitch-class interval (P5=5/7, M3=4/8, m3=3/9). Register-less; numeric
+    only — the renderer projects the integer coordinates to its own plane."""
+    from ..representation import tonnetz_descriptor
+
+    return tonnetz_descriptor([int(pc) for pc in pcs]).to_dict()
+
+
 # --- the A1 pipeline ------------------------------------------------------------------------------
 
 def midi_file_analysis(
@@ -679,6 +715,8 @@ TOOLS = (
     validate_ruleset,
     evaluate_ruleset,
     keyboard_view,
+    bracelet_view,
+    tonnetz_view,
     realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,
