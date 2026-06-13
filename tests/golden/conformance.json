@@ -4814,6 +4814,186 @@
   },
   {
    "kwargs": {
+    "base_unit_beats": 0.5,
+    "events": [
+     [
+      0,
+      0.5,
+      60,
+      100
+     ],
+     [
+      0.58,
+      0.5,
+      62,
+      64
+     ],
+     [
+      1,
+      0.5,
+      60,
+      100
+     ],
+     [
+      1.58,
+      0.5,
+      62,
+      64
+     ]
+    ],
+    "loop_length_beats": 2.0
+   },
+   "result": {
+    "base_unit_beats": 0.5,
+    "filled_slots": 4,
+    "is_null": false,
+    "loop_length_beats": 2.0,
+    "max_abs_offset": 0.16000000000000014,
+    "max_abs_velocity_delta": 18.0,
+    "mean_velocity": 82.0,
+    "n_slots": 4,
+    "slots": [
+     {
+      "index": 0,
+      "offset": 0.0,
+      "onset_count": 1,
+      "velocity_delta": 18.0
+     },
+     {
+      "index": 1,
+      "offset": 0.15999999999999992,
+      "onset_count": 1,
+      "velocity_delta": -18.0
+     },
+     {
+      "index": 2,
+      "offset": 0.0,
+      "onset_count": 1,
+      "velocity_delta": 18.0
+     },
+     {
+      "index": 3,
+      "offset": 0.16000000000000014,
+      "onset_count": 1,
+      "velocity_delta": -18.0
+     }
+    ],
+    "source_voice": null
+   },
+   "tool": "extract_groove"
+  },
+  {
+   "kwargs": {
+    "amount": 1.0,
+    "events": [
+     [
+      0.0,
+      0.5,
+      60,
+      80
+     ],
+     [
+      0.5,
+      0.5,
+      62,
+      80
+     ],
+     [
+      1.0,
+      0.5,
+      60,
+      80
+     ],
+     [
+      1.5,
+      0.5,
+      62,
+      80
+     ]
+    ],
+    "quantize": 1.0,
+    "random": 0.0,
+    "template": {
+     "base_unit_beats": 0.5,
+     "filled_slots": 4,
+     "is_null": false,
+     "loop_length_beats": 2.0,
+     "max_abs_offset": 0.16000000000000014,
+     "max_abs_velocity_delta": 18.0,
+     "mean_velocity": 82.0,
+     "n_slots": 4,
+     "slots": [
+      {
+       "index": 0,
+       "offset": 0.0,
+       "onset_count": 1,
+       "velocity_delta": 18.0
+      },
+      {
+       "index": 1,
+       "offset": 0.15999999999999992,
+       "onset_count": 1,
+       "velocity_delta": -18.0
+      },
+      {
+       "index": 2,
+       "offset": 0.0,
+       "onset_count": 1,
+       "velocity_delta": 18.0
+      },
+      {
+       "index": 3,
+       "offset": 0.16000000000000014,
+       "onset_count": 1,
+       "velocity_delta": -18.0
+      }
+     ],
+     "source_voice": null
+    },
+    "timing": 1.0,
+    "velocity": 1.0
+   },
+   "result": {
+    "amount": 1.0,
+    "base_unit_beats": 0.5,
+    "events": [
+     [
+      0.0,
+      0.5,
+      60,
+      98
+     ],
+     [
+      0.58,
+      0.5,
+      62,
+      62
+     ],
+     [
+      1.0,
+      0.5,
+      60,
+      98
+     ],
+     [
+      1.58,
+      0.5,
+      62,
+      62
+     ]
+    ],
+    "max_onset_shift_beats": 0.08000000000000007,
+    "moved_events": 4,
+    "quantize": 1.0,
+    "random": 0.0,
+    "seed": null,
+    "timing": 1.0,
+    "velocity": 1.0
+   },
+   "tool": "apply_groove"
+  },
+  {
+   "kwargs": {
     "ruleset": {
      "name": "x",
      "rules": [

@@ -67,6 +67,22 @@ def _swung_events():
     return events
 
 
+def _groove_loop():
+    # Swung, accented loop: [onset, dur, midi, velocity] (groove event format).
+    events = []
+    for b in range(2):
+        events += [[b, 0.5, 60, 100], [b + 0.58, 0.5, 62, 64]]
+    return events
+
+
+def _groove_template():
+    return tools.extract_groove(_groove_loop(), base_unit_beats=0.5, loop_length_beats=2.0)
+
+
+def _quantized_groove_loop():
+    return [[i * 0.5, 0.5, 60 + (i % 2) * 2, 80] for i in range(4)]
+
+
 # One deterministic call per tool (a tool may have several). Inputs chosen to
 # exercise rich output paths: ambiguity, evidence lists, compound meters, etc.
 CASES: list[tuple[str, dict]] = [
@@ -112,6 +128,14 @@ CASES: list[tuple[str, dict]] = [
         {"events": [[0, 2, 60], [0.013, 1.99, 64], [0.021, 1.98, 67],
                     [2, 2, 65], [2.008, 1.99, 69], [2.017, 1.98, 72]],
          "onset_window_beats": 0.05},
+    ),
+    ("extract_groove", {"events": _groove_loop(), "base_unit_beats": 0.5,
+                        "loop_length_beats": 2.0}),
+    (
+        "apply_groove",
+        {"events": _quantized_groove_loop(), "template": _groove_template(),
+         "quantize": 1.0, "timing": 1.0, "random": 0.0, "velocity": 1.0,
+         "amount": 1.0},
     ),
     (
         "validate_ruleset",

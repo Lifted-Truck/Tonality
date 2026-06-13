@@ -16,6 +16,13 @@ from .key_tracking import KeyRegion, KeyTrackingResult, KeyWindow, track_keys
 from .voice_motion import VoiceMotionResult, VoicePairMotion, voice_motion
 from .melodic import MelodicAnalysis, MelodicNoteAtoms, analyze_melody
 from .tolerance import CoalesceResult, DroppedEvent, coalesce
+from .groove import (
+    GrooveApplyResult,
+    GrooveSlot,
+    GrooveTemplate,
+    apply_groove,
+    extract_groove,
+)
 from .rhythmic import (
     RhythmicAnalysis,
     RhythmicNoteAtoms,
@@ -57,4 +64,9 @@ __all__ = [
     "CoalesceResult",
     "DroppedEvent",
     "coalesce",
+    "GrooveApplyResult",
+    "GrooveSlot",
+    "GrooveTemplate",
+    "apply_groove",
+    "extract_groove",
 ]
