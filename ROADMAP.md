@@ -539,6 +539,24 @@ Workstream B — **enharmonic & naming equivalence (structural, beyond PC spelli
       key induction (Phase 3.5) as inputs — sequenced after both. This is the
       demo-vs-tool gap for real performed MIDI: literal PC-set stability
       over-segments badly on passing tones and arpeggiation.
+      *Consumer-surfacing note (2026-06-13, Julian — for Audiology/A6):*
+      **per-note passing/approach-tone typing already ships** —
+      `analyze_melody` / `melodic_analysis` returns `approach_class` &
+      `departure_class` (step/skip/leap) and `nht_type` (passing / neighbor /
+      appoggiatura / escape / suspension / anticipation / pedal). The catch is
+      that it is **harmony-relative and never guessed** (no `(start,end,pcs)`
+      spans → no claim), and our *literal* PC-set segmentation folds the NHTs
+      *into* the sounding set, so harmony spans auto-derived from
+      `midi_file_analysis` are not NHT-clean (the circularity this refinement
+      resolves). Two ways to surface NHTs for a consumer, recorded:
+      (a) **convenience wiring** — given a sequence with a designated melody
+      voice (or a chord track), run voice-separation + `analyze_melody` and
+      return the melody NHT-annotated; works *today* when harmony is
+      separable (voices exist via `Event.voice`), small build; and
+      (b) **this harmonic-segmentation refinement** — NHT-filtered chord spans
+      make the *whole* file→passing-tones path turnkey, the principled closer.
+      Known limitation to carry: NHT typing is onset-based, so tied
+      suspensions are missed (review pass #1, finding 5).
 - [x] **Addendum (2026-06-10, application-driven): MIDI export** — the write-side
       mirror of ingestion: `Sequence` (+ `TempoMap`/`MeterMap`) → Standard MIDI
       File via the same thin mido adapter. Surfaced by the Target-applications
