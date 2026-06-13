@@ -230,6 +230,20 @@ def test_ruleset_composition_tools():
     assert len(cmp["contradictions"]) == 1
 
 
+def test_cadences_detects_formulas():
+    # ii - V - I in C major
+    result = _json_safe(tools.cadences([["D", "min"], ["G", "maj"], ["C", "maj"]],
+                                       tonic="C", mode="major"))
+    assert result["mode_supported"] is True
+    cad = next(c for c in result["cadences"] if c["type"] == "authentic")
+    assert (cad["approach"]["roman"], cad["arrival"]["roman"]) == ("V", "I")
+    assert cad["is_final"] is True and cad["evidence"]
+    modal = tools.cadences([["G", "maj"], ["C", "maj"]], tonic="C", mode="dorian")
+    assert modal["mode_supported"] is False and modal["cadences"] == []
+    with pytest.raises(ValueError, match="root, quality"):
+        tools.cadences([["C"]], tonic="C")
+
+
 def test_chord_in_key_and_voice_leading():
     placed = _json_safe(tools.chord_in_key("D", "min7", tonic="C", key_name="Ionian"))
     assert placed["root_degree"] == 1

@@ -91,6 +91,10 @@ CASES: list[tuple[str, dict]] = [
          "pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0]},
     ),
     ("key_tracking", {"events": _modulating_events()}),
+    (
+        "cadences",
+        {"chords": [[2, "min"], [7, "maj"], [0, "maj"]], "tonic": "C", "mode": "major"},
+    ),
     ("voice_leading_distance", {"source_pcs": [0, 4, 7], "target_pcs": [5, 9, 0]}),
     ("realized_voice_leading", {"source_midi": [60, 64, 67], "target_midi": [59, 62, 67]}),
     ("voice_pair_motion", {"events": _satb_events()}),

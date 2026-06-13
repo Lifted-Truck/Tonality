@@ -209,7 +209,20 @@ list as new applications come into view.
 7. **Cadence detection as evidenced events** (A5, A1, A4) — V–I and related
    root-motion patterns emitted as discrete events with per-signal evidence
    (Decision 7 shape). Kin to the Slice 5 tier-(c) sequential signals —
-   build the sequential vocabulary once, serve both.
+   build the sequential vocabulary once, serve both. **Delivered
+   (2026-06-13):** `analysis/cadence.py` `detect_cadences(chords, tonic_pc,
+   mode)` over a named progression — authentic (V/leading-tone→I), plagal
+   (IV→I), deceptive (V→vi), half (final arrival on V); each event carries
+   the approach/arrival chords (roman + role + degree), root motion, and a
+   per-signal evidence list. Honest scope: these are *formulas*, not
+   phrase-confirmed cadences (no timing → `is_final` is the strongest
+   evidence; a half cadence is flagged only at a *final* V — a
+   mid-progression V is just a dominant). A faithful consumer of the
+   functional vocabulary (`theory/functions.py`), so major/minor only
+   (`mode_supported=false` otherwise, no guessing) and it inherits that
+   vocabulary's coverage — the minor templates' missing bare-major-V-triad
+   is pinned as inherited behavior (flagged for a `theory/functions.py`
+   fix). MCP: `cadences` (#35). Feeds gap 14's cadential candidates.
 8. **Catalog containment query** (A6) — "which catalog scales/qualities
    contain this pc-set, at which roots." Ruled **engine-side** (exact
    combinatorics); the first concrete slice of the parked constraint-search
