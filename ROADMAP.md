@@ -150,9 +150,10 @@ list as new applications come into view.
   the named catalog) ✅ shipped, verified — with the **root-relative →
   absolute mask rotation contract** documented in INTEGRATION.md · DFT
   magnitudes / evenness as CC signals ✅ shipped · velocity-weighted decaying
-  key induction ✅ shipped (margin as confidence CC) · VL distance ✅
-  identity-level; joins **gap 6** with a **test-corpus offer** (recorded
-  there) · MIDI export + dataset enrichment ✅ shipped · prospective **Phase
+  key induction ✅ shipped (margin as confidence CC) · VL distance ✅ both
+  levels; its offered test corpus ✅ delivered + adopted (brief-2 — 285/285
+  verified, `tests/test_vl_corpus.py`; gap 6 entry has the record) ·
+  MIDI export + dataset enrichment ✅ shipped · prospective **Phase
   4.6 induction consumer** ("derive the idiom from the affinity matrix");
   a sibling instrument is noted as a likely second consumer of the same
   doors.
@@ -190,8 +191,13 @@ list as new applications come into view.
    via linear non-crossing (sorted index-wise for equal voices; contiguous
    blocks for unequal), brute-force-verified including 5-voice
    doubled/clamped cases shaped like the offered corpus. Register required —
-   raises on `None` per the cardinal rule. The S&C corpus remains welcome to
-   *extend* the suite when it arrives.
+   raises on `None` per the cardinal rule. **Corpus arrived (brief-2,
+   2026-06-12): 286 five-voice cases (`solve-coagula.vl-corpus/1`),
+   independently re-verified — 285/285 transitions agree exactly with
+   `voice_leading_realized` — and adopted as `tests/test_vl_corpus.py`,
+   which also pins the artifact (schema, counts, flag coverage) and the
+   `doubling.1` policy citation. The validation oracle is bidirectional:
+   their corpus pins our metric, our metric validated their `realize()`.**
 7. **Cadence detection as evidenced events** (A5, A1, A4) — V–I and related
    root-motion patterns emitted as discrete events with per-signal evidence
    (Decision 7 shape). Kin to the Slice 5 tier-(c) sequential signals —
@@ -918,6 +924,14 @@ descriptor-track item below and Decision 9.)*
   - *register-less (identity key):* pitch-class **clock / bracelet diagram**,
     **interval-vector / IC spectrum**, **Tonnetz** (coordinates already exist),
     **circle of fifths** projection, set-class / normal-form views.
+    *(Contents specified by A6 brief-2, 2026-06-12 — Audiology ships both
+    views client-side today and wants engine descriptors so diagram and
+    analysis cannot disagree: **bracelet** = pc set + active subset +
+    reflection/rotational **symmetry axes** + **interval vector** in one
+    ring-geometry document; **Tonnetz** = the shipped per-pc coordinates
+    plus **edge data** — which pc pairs are P5/M3/m3 chord edges — which
+    the shipped `TonnetzAnalysis` does not yet derive. Slice order behind
+    keyboard + piano-roll unless A6 reorders by brief.)*
   - *register-required (`Realization`):* **keyboard / piano diagram** of a chosen
     voicing, fretboard.
   - *register + time (depends on Phase 2):* **piano roll**, **staff / sheet-music**
