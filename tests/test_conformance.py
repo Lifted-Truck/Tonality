@@ -174,6 +174,11 @@ CASES: list[tuple[str, dict]] = [
         {"pcs": [0, 4, 7], "tonic": "C", "scale_name": "Ionian"},
     ),
     ("tonnetz_view", {"pcs": [0, 3, 6, 9]}),  # dim7 — symmetric, many edges
+    (
+        "chord_network",
+        {"chords": [["C", "maj"], ["C", "aug"], ["C", "min"], ["E", "min"], ["A", "min"]],
+         "max_distance": 1},
+    ),
     ("voicing_analysis", {"midi_notes": [48, 64, 67, 72], "root": "C"}),
     ("voicing_suggestions", {"root": "C", "quality": "maj7"}),
     ("quality_comparison", {"quality_a": "maj7", "quality_b": "min7"}),

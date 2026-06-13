@@ -987,6 +987,26 @@ descriptor-track item below and Decision 9.)*
     active centroid. MCP: `bracelet_view` (#30), `tonnetz_view` (#31). The
     representation layer's four planned views (keyboard, piano-roll,
     bracelet, Tonnetz) are now all shipped.
+  - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
+    reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
+    dominant-7 nodes with parsimonious voice-leading edges, augmented
+    triads as connective hubs). **Delivered (2026-06-13):**
+    `representation/chord_network.py` `chord_network_descriptor(chords,
+    max_distance=)` — nodes (chord + pcs + rotational `symmetry_order`, the
+    hub signal) and undirected edges between chords within a voice-leading
+    distance, each carrying distance + common-tone count + root interval.
+    Every edge *is* the engine's `voice_leading.distance` relation (the
+    Tonnetz "diagram-can't-disagree-with-analysis" guarantee), so it
+    *generates* graphs like the reference; the augmented hub property falls
+    out of symmetry (verified: C+ order 4, degree 6 vs median triad degree
+    2 over the 12+12 triads). Register-less; MCP `chord_network` (#32 on
+    this branch — reconcile tool numbering on merge). **The reference is
+    recorded here as the motivating artifact.** Scope: the *voice-leading*
+    (parsimony) layer only — the diagram's *functional* V7→I resolution
+    arrows are a different directed/key-relative relation (G7→C is far in
+    VL terms), recorded as a **gap-14 extension** (the chord-network is
+    also the structural substrate for next-chord recommendation: a chord's
+    out-edges *are* its candidate set, edge type *is* a tag).
   - *register-required (`Realization`):* **keyboard / piano diagram** of a chosen
     voicing, fretboard. **Keyboard delivered (2026-06-12, slice 1 — the
     layer's first inhabitant, `mts/representation/keyboard.py`):** one
