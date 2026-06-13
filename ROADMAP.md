@@ -326,6 +326,62 @@ list as new applications come into view.
     local readings. Conformance goldens regenerated (additive field —
     a 4-line reviewable diff, the harness working as designed). Directly
     serves A6's player overlays now that A6 is the explicit GUI.
+14. **Next-chord recommendation** (added 2026-06-13, Julian's idea —
+    flagged by him as "a big build," recorded so it's decided). Given an
+    established context (a key, and a current chord or short progression
+    history), return **multiple ranked candidate next chords, each tagged**
+    with music-theoretic / qualitative / historical context — the engine's
+    plural-and-evidenced contract applied to *succession*, not just
+    identity. Decomposes onto existing + planned pieces (so it is a
+    *synthesis* target, not greenfield): the **functional-harmony generator**
+    (`theory/functions.py`) already enumerates per-degree candidate chords
+    with roles (T/PD/D) and tags (borrowed / modal-mix / secondary-dominant)
+    — the candidate *set*; **voice-leading distance** ranks/tags smoothness
+    and common-tone retention; **set-class/DFT** color gives a
+    tension/evenness axis; **cadence detection — gap 7** supplies cadential
+    candidates and the sequential vocabulary; **corpus transition statistics
+    — Phase 4.5** supply the *historical* tags as a versioned prior (the
+    one genuinely new data asset; the engine stays exact + no in-engine ML
+    per Decision 8, so this is a shipped transition table, not a model).
+    The hard/honest parts: a **tag taxonomy** (which annotations are
+    computable today vs corpus-dependent vs subjective) and whether
+    transition stats are one table or **per-style** priors. Natural home: a
+    Phase 4.5/7 capability built atop gap 7 — sequence it after the cadence
+    + statistical-interpretation groundwork it leans on.
+    *Research findings (2026-06-13, two background agents):*
+    - **Tag taxonomy — a "ship-first" slice needs no new data.** Computable
+      today from existing modules: functional-succession tags
+      (resolves-cycle, retrogression, prolongation, descending-fifth,
+      deceptive, applied-dominant, borrowed — from the role/tag generator),
+      voice-leading tags (common-tones=N, vl-smooth, PLR-transform,
+      chromatic-mediant — from `voice_leading` + mask intersection), and
+      **color-shift** (DFT-magnitude delta — a distinct axis, nearly free).
+      Cheap *data* wins next: a **rule-of-octave** table and a small
+      **diatonic transition-tendency** table (both fixed, citable, versioned
+      JSON). **Defer** the corpus/subjective tags — schema-fragment
+      (Gjerdingen), implication-realized/denied (Narmour), and the style
+      `idiom=*` *labels* (ship the pattern *detection*; mark the style claim
+      low-confidence) — they'd smuggle subjective judgment the architecture
+      pushes to the caller. Frameworks: Piston/Kostka-Payne, Schoenberg/
+      Meeùs (root-motion strength), Cohn/Tymoczko (parsimony), Lerdahl
+      (tonal distance), Amiot (DFT color).
+    - **Corpus prior — per-style, not one table.** A style-agnostic matrix
+      describes no real style (rock IV→I/♭VII vs classical V→I vs jazz
+      ii-V-I genuinely diverge). Ship **per-style first-order, degree-keyed,
+      row-normalized transition matrices** (~12–14 states, **2–6 KB JSON**
+      each, with `source`/`license`/`version`/`n_transitions` provenance —
+      the KK-profile pattern). License-safe sources: **McGill Billboard
+      (CC0)** + **RS200 / Rock Corpus (CC BY 4.0)** for pop; **iRealPro
+      Zenodo corpus (CC BY 4.0)** for jazz; **classical DEFERRED** — the
+      DCML annotated corpora are **CC BY-NC-SA** (NC kills commercial use,
+      SA can copyleft-contaminate an MIT library). **Off-limits:** Hooktheory
+      (proprietary ToS, no redistribution — despite publishing exactly this
+      data). `music21` (BSD) is an *offline derivation tool only*, not a
+      runtime dep; its bundled scores carry per-file licenses. Ship the
+      aggregate statistic (defensible), never the source chord sequences.
+      *Caveat to verify at build time:* McGill Billboard's CC0 is
+      well-attested but its canonical DDMAL page moved domains — eyeball the
+      live page before pinning it in a prior's metadata.
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.
