@@ -3070,6 +3070,7 @@
       10
      ],
      "key_name": "Aeolian",
+     "margin": null,
      "tonic_pc": 9
     },
     "is_ambiguous": false,
@@ -3419,6 +3420,7 @@
          11
         ],
         "key_name": "Ionian",
+        "margin": null,
         "tonic_pc": 0
        },
        "is_ambiguous": true,
@@ -3518,6 +3520,7 @@
          11
         ],
         "key_name": "Ionian",
+        "margin": null,
         "tonic_pc": 7
        },
        "is_ambiguous": true,
@@ -3612,6 +3615,7 @@
          10
         ],
         "key_name": "Aeolian",
+        "margin": null,
         "tonic_pc": 4
        },
        "is_ambiguous": false,

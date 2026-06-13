@@ -295,6 +295,39 @@ def test_midi_file_analysis_with_coalescing(tmp_path):
     assert "coalesce" not in raw
 
 
+def test_midi_file_analysis_per_region_context(tmp_path):
+    import mido
+
+    mid = mido.MidiFile(ticks_per_beat=480)
+    track = mido.MidiTrack()
+    mid.tracks.append(track)
+    # 16 beats of C major (tonic pedal + I-IV-V-I twice), then the same in F#
+    for tonic in (60, 66):
+        for _cycle in range(2):
+            for root in (0, 5, 7, 0):
+                for i, iv in enumerate((0, 4, 7)):
+                    track.append(mido.Message("note_on", note=tonic + root + iv,
+                                              velocity=80, time=0))
+                for i, iv in enumerate((0, 4, 7)):
+                    track.append(mido.Message("note_off", note=tonic + root + iv,
+                                              velocity=0, time=960 if i == 0 else 0))
+    path = tmp_path / "modulating.mid"
+    mid.save(path)
+
+    result = _json_safe(tools.midi_file_analysis(str(path)))
+    records = result["dataset"]["records"]
+    early = [r for r in records if r["placement"]["onset_beats"] < 12]
+    late = [r for r in records if r["placement"]["onset_beats"] >= 20]
+    assert {r["analytical_context"]["tonic_pc"] for r in early} == {0}
+    assert {r["analytical_context"]["tonic_pc"] for r in late} == {6}
+    assert all(r["analytical_context"]["margin"] is not None for r in early + late)
+
+    global_only = tools.midi_file_analysis(str(path), per_region_context=False)
+    tonics = {r["analytical_context"]["tonic_pc"]
+              for r in global_only["dataset"]["records"]}
+    assert len(tonics) == 1  # the old single-global-key conditioning
+
+
 # --- server wiring (only when the optional SDK is installed) ------------------------------------
 
 def test_build_server_registers_all_tools():

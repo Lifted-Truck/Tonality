@@ -528,18 +528,21 @@ def midi_file_analysis(
     infer_context: bool = True,
     include_key_regions: bool = True,
     coalesce_window_beats: float | None = None,
+    per_region_context: bool = True,
 ) -> dict:
     """Analyze a Standard MIDI File end-to-end: segment it, infer the global key,
     and emit the enriched dataset (per-segment identity, namings, placement).
 
-    When infer_context is true, the best inferred key becomes the analytical
-    context every segment's naming is conditional on; the full ranked key
-    result is returned alongside either way. When include_key_regions is true,
-    local key tracking adds "key_regions" (windowed; null if no window carries
-    tonal information). For performed/humanized files, set
-    coalesce_window_beats (e.g. 0.05) to coalesce near-simultaneous timing
-    before analysis — off by default, and cited in the result under
-    "coalesce" when used (losses itemized)."""
+    When infer_context is true, segment namings are conditional on the local
+    key region containing each segment's onset (the region's mean_margin
+    rides on the record's context snapshot as confidence); set
+    per_region_context=false for the old single-global-key conditioning.
+    The full ranked global key result is returned alongside either way.
+    When include_key_regions is true, "key_regions" carries the windowed
+    tracking result (null if no window carries tonal information). For
+    performed/humanized files, set coalesce_window_beats (e.g. 0.05) to
+    coalesce near-simultaneous timing before analysis — off by default, and
+    cited in the result under "coalesce" when used (losses itemized)."""
     from ..analysis import candidate_context
     from ..io.midi import sequence_from_midi_file
     from ..temporal import coalesce, track_keys
@@ -552,15 +555,24 @@ def midi_file_analysis(
         coalesce_meta = cleaned.to_dict()
     keys = infer_key(sequence)
     context = candidate_context(keys.best) if infer_context else None
-    dataset = dataset_from_sequence(sequence, analytical_context=context)
+
+    regions = None
+    if include_key_regions or (per_region_context and infer_context):
+        try:
+            regions = track_keys(sequence)
+        except ValueError:
+            regions = None  # no window carried tonal information
+
+    dataset = dataset_from_sequence(
+        sequence,
+        analytical_context=context,
+        key_regions=regions if (per_region_context and infer_context) else None,
+    )
     result = {"key": keys.to_dict(), "dataset": dataset.to_dict()}
     if coalesce_meta is not None:
         result["coalesce"] = coalesce_meta
     if include_key_regions:
-        try:
-            result["key_regions"] = track_keys(sequence).to_dict()
-        except ValueError:
-            result["key_regions"] = None  # no window carried tonal information
+        result["key_regions"] = regions.to_dict() if regions is not None else None
     return result
 
 
