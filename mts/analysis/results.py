@@ -350,6 +350,62 @@ class CatalogContainment:
 
 
 # ---------------------------------------------------------------------------
+# Cadence detection (gap 7)
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class CadenceChord:
+    """A progression chord placed in its key (functional view)."""
+
+    index: int
+    root_pc: int
+    quality: str
+    relative_root: int        # (root_pc - tonic_pc) % 12
+    role: str | None          # "tonic" | "predominant" | "dominant"; None = non-functional
+    roman: str | None         # the functional roman label, when it has a role
+
+
+@dataclass(frozen=True)
+class CadenceEvent:
+    """One detected cadential formula, with its per-signal evidence (Decision 7).
+
+    A *formula*, not a confirmed phrase cadence: metric/phrase confirmation
+    is absent without timing, so ``is_final`` (arrival is the last chord) is
+    surfaced as the strongest evidence and half cadences are emitted only at
+    a final arrival on the dominant. ``root_motion`` is ascending semitones
+    approach→arrival (0–11).
+    """
+
+    type: str                 # "authentic" | "plagal" | "half" | "deceptive"
+    arrival_index: int
+    approach: CadenceChord
+    arrival: CadenceChord
+    root_motion: int
+    is_final: bool
+    evidence: list[str]
+
+
+@dataclass(frozen=True)
+class CadenceResult:
+    """Cadence formulas across a progression in a key (gap 7).
+
+    ``mode_supported`` is False for modes outside the functional vocabulary
+    (major/minor only — an accepted limitation): roles are then all ``None``
+    and no cadences are claimed, rather than guessed.
+    """
+
+    tonic_pc: int
+    mode: str
+    mode_supported: bool
+    chords: list[CadenceChord]
+    cadences: list[CadenceEvent]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
+# ---------------------------------------------------------------------------
 # Context-sensitive naming (Phase 3 disambiguation slice)
 # ---------------------------------------------------------------------------
 

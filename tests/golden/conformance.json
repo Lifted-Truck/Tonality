@@ -4044,6 +4044,87 @@
   },
   {
    "kwargs": {
+    "chords": [
+     [
+      2,
+      "min"
+     ],
+     [
+      7,
+      "maj"
+     ],
+     [
+      0,
+      "maj"
+     ]
+    ],
+    "mode": "major",
+    "tonic": "C"
+   },
+   "result": {
+    "cadences": [
+     {
+      "approach": {
+       "index": 1,
+       "quality": "maj",
+       "relative_root": 7,
+       "role": "dominant",
+       "roman": "V",
+       "root_pc": 7
+      },
+      "arrival": {
+       "index": 2,
+       "quality": "maj",
+       "relative_root": 0,
+       "role": "tonic",
+       "roman": "I",
+       "root_pc": 0
+      },
+      "arrival_index": 2,
+      "evidence": [
+       "dominant (V) resolving to tonic",
+       "root up a fourth (down a fifth)",
+       "arrival is the progression's final chord"
+      ],
+      "is_final": true,
+      "root_motion": 5,
+      "type": "authentic"
+     }
+    ],
+    "chords": [
+     {
+      "index": 0,
+      "quality": "min",
+      "relative_root": 2,
+      "role": "predominant",
+      "roman": "ii",
+      "root_pc": 2
+     },
+     {
+      "index": 1,
+      "quality": "maj",
+      "relative_root": 7,
+      "role": "dominant",
+      "roman": "V",
+      "root_pc": 7
+     },
+     {
+      "index": 2,
+      "quality": "maj",
+      "relative_root": 0,
+      "role": "tonic",
+      "roman": "I",
+      "root_pc": 0
+     }
+    ],
+    "mode": "major",
+    "mode_supported": true,
+    "tonic_pc": 0
+   },
+   "tool": "cadences"
+  },
+  {
+   "kwargs": {
     "source_pcs": [
      0,
      4,

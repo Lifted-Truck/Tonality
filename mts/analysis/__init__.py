@@ -14,6 +14,7 @@ from .voicings import suggest_voicings
 from .equivalence import interpret_chord
 from .analytical_context import AnalyticalContext, ChordInKey, contextualize_chord
 from .containment import find_containers
+from .cadence import detect_cadences
 from .key_induction import candidate_context, infer_key
 from .naming import name_chord, name_chord_across_keys
 from .voice_leading import POLICY_DOUBLING_V1, voice_leading, voice_leading_realized
@@ -49,6 +50,9 @@ from .specs import (
     to_scope,
 )
 from .results import (
+    CadenceChord,
+    CadenceEvent,
+    CadenceResult,
     CatalogContainer,
     CatalogContainment,
     ChordAnalysisResult,
@@ -114,6 +118,10 @@ __all__ = [
     "find_containers",
     "CatalogContainer",
     "CatalogContainment",
+    "detect_cadences",
+    "CadenceChord",
+    "CadenceEvent",
+    "CadenceResult",
     "infer_key",
     "candidate_context",
     "KeyCandidate",

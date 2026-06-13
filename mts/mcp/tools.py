@@ -233,6 +233,27 @@ def name_pcs_in_inferred_keys(
     ).to_dict()
 
 
+def cadences(chords: list[list], tonic: int | str, mode: str = "major") -> dict:
+    """Detect cadential formulas (authentic / plagal / half / deceptive) in a
+    named chord progression within a key — each an evidenced event (Decision 7
+    shape). chords: ordered [root, quality] pairs (root = note name or pc 0-11,
+    quality = a catalog name like 'maj', '7', 'min'). mode: 'major' or 'minor'
+    (others return mode_supported=false — functional vocabulary is major/minor
+    only). These are formulas, not phrase-confirmed cadences: arrival-as-final
+    is the strongest evidence, and a half cadence is only flagged at a final
+    arrival on V."""
+    from ..analysis import detect_cadences
+
+    try:
+        parsed = [(_pc(entry[0]), str(entry[1])) for entry in chords]
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            f"Each chord must be [root, quality] (root = note name or pc; "
+            f"quality = a catalog name): {exc}"
+        ) from exc
+    return detect_cadences(parsed, tonic_pc=_pc(tonic), mode=str(mode)).to_dict()
+
+
 def key_tracking(
     events: list[list[float]],
     window_beats: float = 8.0,
@@ -747,6 +768,7 @@ TOOLS = (
     name_pcs,
     key_induction,
     key_tracking,
+    cadences,
     name_pcs_in_inferred_keys,
     voice_leading_distance,
     voice_pair_motion,
