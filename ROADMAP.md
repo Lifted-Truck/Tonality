@@ -144,6 +144,25 @@ list as new applications come into view.
   bridge — was the blocking question) · named consumer of the **Phase 5
   representation layer** (keyboard + piano-roll descriptors; its three
   surfaces are ready render targets).
+  *Validation milestone (brief-3, 2026-06-13 — `integrations/audiology/`):* A6
+  ran the **A1 pipeline on a hard real-world file** (a 16-track, ~7-min
+  performed *Bohemian Rhapsody* transcription) and confirmed it makes the
+  structural calls correctly — global key Bb major with the song's actual
+  related-key orbit as runners-up, and a local-key timeline that tracks the
+  documented sections (incl. the A-major opera pivot and the F-major coda out
+  of a Bb whole), cross-checked against raw `identity.pcs`. Both rough edges
+  hit were **documented contracts the consumer triggered itself** — strong
+  validation of INTEGRATION.md's accuracy. Two findings recorded as motivating
+  cases for already-deferred items (no build): the **Eb solo read as its
+  relative minor (Cm)** is a named adversarial case for the **DFT-based
+  key-finding refinement** + relative-key tie-breaker (3.5a; cadential evidence
+  via `cadences`/`next_chord` and bass emphasis are the candidate signals); and
+  **residual 1–2 s key-region micro-bands in stable passages** (the
+  local-key-tracking axis, untouched by coalescing) is the motivating case for
+  the **adaptive hysteresis** noted in 3.5b (ships as a versioned prior). The
+  triage also added a "Choosing a coalesce window" recipe to INTEGRATION.md and
+  affirmed migration to the official `mts.mcp.bridge` (identical `{ok, result}`
+  envelope). Net engine work: zero — see `response-3.md`.
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
