@@ -4125,6 +4125,638 @@
   },
   {
    "kwargs": {
+    "current": [
+     "G",
+     "7"
+    ],
+    "history": [
+     [
+      "D",
+      "min"
+     ]
+    ],
+    "mode": "major",
+    "tonic": "C"
+   },
+   "result": {
+    "candidates": [
+     {
+      "cadence": "authentic",
+      "color_shift": 3.04046,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root down a fifth",
+        "signal": "descending_fifth",
+        "weight": 2.0
+       },
+       {
+        "detail": "dominant \u2192 tonic function",
+        "signal": "dominant_resolution",
+        "weight": 3.0
+       },
+       {
+        "detail": "cadential formula on this transition",
+        "signal": "authentic",
+        "weight": 2.5
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": "Imaj7",
+      "quality": "maj7",
+      "rank": 1,
+      "role": "tonic",
+      "root_interval": 5,
+      "root_pc": 0,
+      "score": 7.5,
+      "tags": [
+       "authentic",
+       "common_tone",
+       "descending_fifth",
+       "dominant_resolution",
+       "vl_distance"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": "authentic",
+      "color_shift": 1.584391,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root down a fifth",
+        "signal": "descending_fifth",
+        "weight": 2.0
+       },
+       {
+        "detail": "dominant \u2192 tonic function",
+        "signal": "dominant_resolution",
+        "weight": 3.0
+       },
+       {
+        "detail": "cadential formula on this transition",
+        "signal": "authentic",
+        "weight": 2.5
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "4 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.8
+       }
+      ],
+      "modal_label": "I",
+      "quality": "maj",
+      "rank": 2,
+      "role": "tonic",
+      "root_interval": 5,
+      "root_pc": 0,
+      "score": 7.0,
+      "tags": [
+       "authentic",
+       "common_tone",
+       "descending_fifth",
+       "dominant_resolution",
+       "vl_distance"
+      ],
+      "vl_distance": 4
+     },
+     {
+      "cadence": null,
+      "color_shift": 2.538982,
+      "common_tones": 3,
+      "evidence": [
+       {
+        "detail": "dominant \u2192 tonic function",
+        "signal": "dominant_resolution",
+        "weight": 3.0
+       },
+       {
+        "detail": "voice-leading distance 1",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "3 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.8999999999999999
+       },
+       {
+        "detail": "1 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.2
+       }
+      ],
+      "modal_label": "iii7",
+      "quality": "min7",
+      "rank": 3,
+      "role": "tonic",
+      "root_interval": 9,
+      "root_pc": 4,
+      "score": 4.7,
+      "tags": [
+       "common_tone",
+       "dominant_resolution",
+       "smooth",
+       "vl_distance"
+      ],
+      "vl_distance": 1
+     },
+     {
+      "cadence": "deceptive",
+      "color_shift": 2.538982,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "dominant \u2192 tonic function",
+        "signal": "dominant_resolution",
+        "weight": 3.0
+       },
+       {
+        "detail": "cadential formula on this transition",
+        "signal": "deceptive",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "5 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -1.0
+       }
+      ],
+      "modal_label": "vi7",
+      "quality": "min7",
+      "rank": 4,
+      "role": "tonic",
+      "root_interval": 2,
+      "root_pc": 9,
+      "score": 3.8,
+      "tags": [
+       "common_tone",
+       "deceptive",
+       "dominant_resolution",
+       "step",
+       "vl_distance"
+      ],
+      "vl_distance": 5
+     },
+     {
+      "cadence": "deceptive",
+      "color_shift": 1.584391,
+      "common_tones": 0,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "dominant \u2192 tonic function",
+        "signal": "dominant_resolution",
+        "weight": 3.0
+       },
+       {
+        "detail": "cadential formula on this transition",
+        "signal": "deceptive",
+        "weight": 1.0
+       },
+       {
+        "detail": "6 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -1.2000000000000002
+       }
+      ],
+      "modal_label": "vi",
+      "quality": "min",
+      "rank": 5,
+      "role": "tonic",
+      "root_interval": 2,
+      "root_pc": 9,
+      "score": 3.3,
+      "tags": [
+       "deceptive",
+       "dominant_resolution",
+       "step",
+       "vl_distance"
+      ],
+      "vl_distance": 6
+     },
+     {
+      "cadence": "half",
+      "color_shift": 0.0,
+      "common_tones": 4,
+      "evidence": [
+       {
+        "detail": "both dominant",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "cadential formula on this transition",
+        "signal": "half",
+        "weight": 0.5
+       },
+       {
+        "detail": "voice-leading distance 0",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "4 common tone(s)",
+        "signal": "common_tone",
+        "weight": 1.2
+       }
+      ],
+      "modal_label": "V7",
+      "quality": "7",
+      "rank": 6,
+      "role": "dominant",
+      "root_interval": 0,
+      "root_pc": 7,
+      "score": 3.2,
+      "tags": [
+       "common_tone",
+       "half",
+       "prolongation",
+       "smooth"
+      ],
+      "vl_distance": 0
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "dominant \u2192 tonic function",
+        "signal": "dominant_resolution",
+        "weight": 3.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": "iii",
+      "quality": "min",
+      "rank": 7,
+      "role": "tonic",
+      "root_interval": 9,
+      "root_pc": 4,
+      "score": 3.0,
+      "tags": [
+       "common_tone",
+       "dominant_resolution",
+       "vl_distance"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": "half",
+      "color_shift": 1.584391,
+      "common_tones": 3,
+      "evidence": [
+       {
+        "detail": "both dominant",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "cadential formula on this transition",
+        "signal": "half",
+        "weight": 0.5
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "3 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.8999999999999999
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": "V",
+      "quality": "maj",
+      "rank": 8,
+      "role": "dominant",
+      "root_interval": 0,
+      "root_pc": 7,
+      "score": 2.5,
+      "tags": [
+       "common_tone",
+       "half",
+       "prolongation",
+       "smooth",
+       "vl_distance"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.548575,
+      "common_tones": 3,
+      "evidence": [
+       {
+        "detail": "both dominant",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "3 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.8999999999999999
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": "viidim",
+      "quality": "dim",
+      "rank": 9,
+      "role": "dominant",
+      "root_interval": 4,
+      "root_pc": 11,
+      "score": 2.0,
+      "tags": [
+       "common_tone",
+       "prolongation",
+       "smooth",
+       "vl_distance"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 3,
+      "evidence": [
+       {
+        "detail": "both dominant",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "3 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.8999999999999999
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": "vii\u00f87",
+      "quality": "min7b5",
+      "rank": 10,
+      "role": "dominant",
+      "root_interval": 4,
+      "root_pc": 11,
+      "score": 2.0,
+      "tags": [
+       "common_tone",
+       "prolongation",
+       "smooth",
+       "vl_distance"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 2.538982,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root up a fifth",
+        "signal": "ascending_fifth",
+        "weight": 0.5
+       },
+       {
+        "detail": "dominant \u2192 predominant",
+        "signal": "retrogression",
+        "weight": -1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": "ii7",
+      "quality": "min7",
+      "rank": 11,
+      "role": "predominant",
+      "root_interval": 7,
+      "root_pc": 2,
+      "score": -0.5,
+      "tags": [
+       "ascending_fifth",
+       "common_tone",
+       "retrogression",
+       "vl_distance"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root up a fifth",
+        "signal": "ascending_fifth",
+        "weight": 0.5
+       },
+       {
+        "detail": "dominant \u2192 predominant",
+        "signal": "retrogression",
+        "weight": -1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "4 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.8
+       }
+      ],
+      "modal_label": "ii",
+      "quality": "min",
+      "rank": 12,
+      "role": "predominant",
+      "root_interval": 7,
+      "root_pc": 2,
+      "score": -0.7,
+      "tags": [
+       "ascending_fifth",
+       "common_tone",
+       "retrogression",
+       "vl_distance"
+      ],
+      "vl_distance": 4
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "dominant \u2192 predominant",
+        "signal": "retrogression",
+        "weight": -1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "5 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -1.0
+       }
+      ],
+      "modal_label": "IV",
+      "quality": "maj",
+      "rank": 13,
+      "role": "predominant",
+      "root_interval": 10,
+      "root_pc": 5,
+      "score": -1.2,
+      "tags": [
+       "common_tone",
+       "retrogression",
+       "step",
+       "vl_distance"
+      ],
+      "vl_distance": 5
+     },
+     {
+      "cadence": null,
+      "color_shift": 3.04046,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "dominant \u2192 predominant",
+        "signal": "retrogression",
+        "weight": -1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "5 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -1.0
+       }
+      ],
+      "modal_label": "IVmaj7",
+      "quality": "maj7",
+      "rank": 14,
+      "role": "predominant",
+      "root_interval": 10,
+      "root_pc": 5,
+      "score": -1.2,
+      "tags": [
+       "common_tone",
+       "retrogression",
+       "step",
+       "vl_distance"
+      ],
+      "vl_distance": 5
+     }
+    ],
+    "context": {
+     "key_degrees": [
+      0,
+      2,
+      4,
+      5,
+      7,
+      9,
+      11
+     ],
+     "key_name": "major",
+     "margin": null,
+     "tonic_pc": 0
+    },
+    "current_quality": "7",
+    "current_role": "dominant",
+    "current_roman": "V7",
+    "current_root_pc": 7,
+    "weights_version": "succession.1"
+   },
+   "tool": "next_chord"
+  },
+  {
+   "kwargs": {
     "source_pcs": [
      0,
      4,

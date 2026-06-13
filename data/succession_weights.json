@@ -1,0 +1,27 @@
+[
+  {
+    "version": "succession.1",
+    "source": "Engineering defaults pending corpus calibration. Functional weights follow root-motion strength (Meeùs/Schoenberg: descending-fifth strongest) and the cadential hierarchy; voice-leading weights reward parsimony (Cohn/Tymoczko). color_shift is reported but unweighted (a neutral tension axis, not a preference). Per-style corpus transition priors are the planned follow-on (ROADMAP gap 14).",
+    "weights": {
+      "dominant_resolution": 3.0,
+      "authentic": 2.5,
+      "descending_fifth": 2.0,
+      "plagal": 1.5,
+      "applied_dominant": 1.0,
+      "deceptive": 1.0,
+      "half": 0.5,
+      "ascending_fifth": 0.5,
+      "step": 0.5,
+      "prolongation": 0.5,
+      "smooth": 1.0,
+      "parsimonious": 1.0,
+      "chromatic_mediant": 0.5,
+      "retrogression": -1.0,
+      "common_tone": 0.3,
+      "vl_distance": -0.2,
+      "color_shift": 0.0,
+      "borrowed": 0.0,
+      "modal_mix": 0.0
+    }
+  }
+]
