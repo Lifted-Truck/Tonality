@@ -4899,6 +4899,168 @@
   },
   {
    "kwargs": {
+    "active_midi": [
+     62,
+     65,
+     69
+    ],
+    "high_midi": 72,
+    "low_midi": 60,
+    "scale_name": "Dorian",
+    "tonic": "D"
+   },
+   "result": {
+    "high_midi": 72,
+    "keys": [
+     {
+      "active": null,
+      "degree_index": 6,
+      "in_scale": true,
+      "is_black": false,
+      "is_tonic": false,
+      "midi": 60,
+      "octave": 4,
+      "pc": 0
+     },
+     {
+      "active": null,
+      "degree_index": null,
+      "in_scale": false,
+      "is_black": true,
+      "is_tonic": false,
+      "midi": 61,
+      "octave": 4,
+      "pc": 1
+     },
+     {
+      "active": "exact",
+      "degree_index": 0,
+      "in_scale": true,
+      "is_black": false,
+      "is_tonic": true,
+      "midi": 62,
+      "octave": 4,
+      "pc": 2
+     },
+     {
+      "active": null,
+      "degree_index": null,
+      "in_scale": false,
+      "is_black": true,
+      "is_tonic": false,
+      "midi": 63,
+      "octave": 4,
+      "pc": 3
+     },
+     {
+      "active": null,
+      "degree_index": 1,
+      "in_scale": true,
+      "is_black": false,
+      "is_tonic": false,
+      "midi": 64,
+      "octave": 4,
+      "pc": 4
+     },
+     {
+      "active": "exact",
+      "degree_index": 2,
+      "in_scale": true,
+      "is_black": false,
+      "is_tonic": false,
+      "midi": 65,
+      "octave": 4,
+      "pc": 5
+     },
+     {
+      "active": null,
+      "degree_index": null,
+      "in_scale": false,
+      "is_black": true,
+      "is_tonic": false,
+      "midi": 66,
+      "octave": 4,
+      "pc": 6
+     },
+     {
+      "active": null,
+      "degree_index": 3,
+      "in_scale": true,
+      "is_black": false,
+      "is_tonic": false,
+      "midi": 67,
+      "octave": 4,
+      "pc": 7
+     },
+     {
+      "active": null,
+      "degree_index": null,
+      "in_scale": false,
+      "is_black": true,
+      "is_tonic": false,
+      "midi": 68,
+      "octave": 4,
+      "pc": 8
+     },
+     {
+      "active": "exact",
+      "degree_index": 4,
+      "in_scale": true,
+      "is_black": false,
+      "is_tonic": false,
+      "midi": 69,
+      "octave": 4,
+      "pc": 9
+     },
+     {
+      "active": null,
+      "degree_index": null,
+      "in_scale": false,
+      "is_black": true,
+      "is_tonic": false,
+      "midi": 70,
+      "octave": 4,
+      "pc": 10
+     },
+     {
+      "active": null,
+      "degree_index": 5,
+      "in_scale": true,
+      "is_black": false,
+      "is_tonic": false,
+      "midi": 71,
+      "octave": 4,
+      "pc": 11
+     },
+     {
+      "active": null,
+      "degree_index": 6,
+      "in_scale": true,
+      "is_black": false,
+      "is_tonic": false,
+      "midi": 72,
+      "octave": 5,
+      "pc": 0
+     }
+    ],
+    "low_midi": 60,
+    "scale_degrees": [
+     0,
+     2,
+     3,
+     5,
+     7,
+     9,
+     10
+    ],
+    "scale_name": "Dorian",
+    "spec_level": "registered",
+    "tonic_pc": 2
+   },
+   "tool": "keyboard_view"
+  },
+  {
+   "kwargs": {
     "midi_notes": [
      48,
      64,

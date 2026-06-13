@@ -131,6 +131,11 @@ CASES: list[tuple[str, dict]] = [
             "events": _satb_events(),
         },
     ),
+    (
+        "keyboard_view",
+        {"low_midi": 60, "high_midi": 72, "tonic": "D", "scale_name": "Dorian",
+         "active_midi": [62, 65, 69]},
+    ),
     ("voicing_analysis", {"midi_notes": [48, 64, 67, 72], "root": "C"}),
     ("voicing_suggestions", {"root": "C", "quality": "maj7"}),
     ("quality_comparison", {"quality_a": "maj7", "quality_b": "min7"}),

@@ -237,6 +237,18 @@ def test_quality_comparison_and_brief():
     assert brief["interval_fingerprint"]
 
 
+def test_keyboard_view_descriptor():
+    result = _json_safe(tools.keyboard_view(60, 72, tonic="D", scale_name="Dorian",
+                                            active_pcs=[2, 5, 9]))
+    assert result["spec_level"] == "pc_projection"
+    d_key = next(k for k in result["keys"] if k["midi"] == 62)
+    assert (d_key["is_tonic"], d_key["active"], d_key["degree_index"]) == (True, "pc", 0)
+    f_sharp = next(k for k in result["keys"] if k["midi"] == 66)
+    assert (f_sharp["in_scale"], f_sharp["is_black"]) == (False, True)
+    with pytest.raises(ValueError, match="both or neither"):
+        tools.keyboard_view(60, 72, tonic="D")
+
+
 # --- the A1 pipeline tool ----------------------------------------------------------------------
 
 def test_midi_file_analysis_end_to_end(tmp_path):

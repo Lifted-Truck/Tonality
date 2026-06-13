@@ -521,6 +521,40 @@ def quality_brief(quality: str) -> dict:
     return dataclasses.asdict(chord_brief(_quality(quality)))
 
 
+# --- representation (Phase 5: projections as data) -----------------------------------
+
+def keyboard_view(
+    low_midi: int = 48,
+    high_midi: int = 84,
+    tonic: int | str | None = None,
+    scale_name: str | None = None,
+    active_midi: list[int] | None = None,
+    active_pcs: list[int] | None = None,
+) -> dict:
+    """Render-agnostic keyboard/piano descriptor: per key — midi, pc, octave,
+    black/white topology, scale membership + degree index + tonic flag (when
+    tonic+scale_name give a context; no context, no claim), and activation.
+    active_midi lights exact keys (register); active_pcs lights every octave
+    of those pcs (a declared octave-invariant projection — the result's
+    spec_level says which was used); both together is an error. Numeric only:
+    labels, spelling, and colors are the renderer's business."""
+    from ..representation import keyboard_descriptor
+
+    if (scale_name is None) != (tonic is None):
+        raise ValueError(
+            "A tonal context needs both tonic and scale_name; supply both or neither."
+        )
+    scale = _scale(scale_name) if scale_name is not None else None
+    return keyboard_descriptor(
+        int(low_midi),
+        int(high_midi),
+        tonic_pc=_pc(tonic) if tonic is not None else None,
+        scale=scale,
+        active_midi=active_midi,
+        active_pcs=active_pcs,
+    ).to_dict()
+
+
 # --- the A1 pipeline ------------------------------------------------------------------------------
 
 def midi_file_analysis(
@@ -598,6 +632,7 @@ TOOLS = (
     coalesce_events,
     validate_ruleset,
     evaluate_ruleset,
+    keyboard_view,
     realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,
