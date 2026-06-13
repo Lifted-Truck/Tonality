@@ -254,6 +254,51 @@ def cadences(chords: list[list], tonic: int | str, mode: str = "major") -> dict:
     return detect_cadences(parsed, tonic_pc=_pc(tonic), mode=str(mode)).to_dict()
 
 
+def next_chord(
+    current: list,
+    tonic: int | str,
+    mode: str = "major",
+    history: list[list] | None = None,
+    qualities: list[str] | None = None,
+) -> dict:
+    """Recommend ranked candidate next chords from a current chord in a key,
+    each TAGGED with succession context (Decision 7 — plural + evidenced). Tags
+    span functional-succession (dominant_resolution, descending_fifth,
+    prolongation, retrogression, applied_dominant, borrowed + the cadential
+    formula authentic/plagal/deceptive/half), voice-leading (smooth,
+    parsimonious with P/L/R detail, chromatic_mediant, common_tone count), and a
+    reported-but-unscored color_shift (DFT delta). Scoring weights are a
+    versioned prior (succession.1, cited); every candidate exposes its raw axes
+    (vl_distance, common_tones, root_interval, color_shift) so you can re-rank.
+    current: [root, quality] (root = note name or pc 0-11; quality = a catalog
+    name like 'maj', '7', 'min'). mode: 'major' or 'minor' (others raise —
+    function is not guessed). history: optional preceding [[root, quality], ...]
+    for cadential context. qualities: optional candidate-vocabulary override
+    (default = core triads + sevenths). The historical/corpus tags are a planned
+    follow-on (ROADMAP gap 14)."""
+    from ..analysis import recommend_next_chord
+
+    try:
+        cur = (_pc(current[0]), str(current[1]))
+        hist = (
+            [(_pc(entry[0]), str(entry[1])) for entry in history]
+            if history is not None
+            else None
+        )
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            f"current and each history entry must be [root, quality] (root = "
+            f"note name or pc; quality = a catalog name): {exc}"
+        ) from exc
+    return recommend_next_chord(
+        cur,
+        tonic_pc=_pc(tonic),
+        mode=str(mode),
+        history=hist,
+        qualities=[str(q) for q in qualities] if qualities is not None else None,
+    ).to_dict()
+
+
 def key_tracking(
     events: list[list[float]],
     window_beats: float = 8.0,
@@ -899,6 +944,7 @@ TOOLS = (
     key_induction,
     key_tracking,
     cadences,
+    next_chord,
     name_pcs_in_inferred_keys,
     voice_leading_distance,
     voice_pair_motion,

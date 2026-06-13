@@ -419,6 +419,38 @@ list as new applications come into view.
       *Caveat to verify at build time:* McGill Billboard's CC0 is
       well-attested but its canonical DDMAL page moved domains — eyeball the
       live page before pinning it in a prior's metadata.
+    **Delivered — slice 1 (the no-new-data tagged recommender, 2026-06-13):**
+    `analysis/succession.py` — `recommend_next_chord` (ranked candidates) +
+    `tag_transition` (the single-transition primitive, usable on
+    out-of-vocabulary chords — the "tag each transition" unit a progression
+    annotator wants), MCP tool `next_chord` (#39). Candidate set + each chord's
+    (role, roman) come from `load_function_mappings` (the same vocabulary the
+    cadence detector consumes); default breadth is a legible core triad+seventh
+    vocabulary, caller-overridable via `qualities`. Tags computed today, each
+    precisely defined + unit-tested: functional (`prolongation`,
+    `descending_fifth`/`ascending_fifth`/`step`, `dominant_resolution`,
+    `retrogression`, `applied_dominant`, `borrowed`/`modal_mix`) + the cadential
+    formula read straight from `detect_cadences` on the pair; voice-leading
+    (`smooth`, `parsimonious` with P/L/R detail, `chromatic_mediant`, scaled
+    `common_tone`, `vl_distance` penalty) from `voice_leading`; and `color_shift`
+    (DFT-magnitude delta) **reported but unscored** (brightness is the caller's
+    call). Scoring is a versioned prior `data/succession_weights.json`
+    (`succession.1`, engineering defaults pending corpus calibration; cited in
+    results); plural + evidenced per Decision 7, raw axes exposed for re-ranking.
+    Major/minor only (modal raises). **Build notes refining the spec:** (a) the
+    candidate set is the *functional vocabulary*, which is mostly diatonic — so
+    rich `borrowed` candidates appear in **minor** (the harmonic-minor V7/vii°
+    family) and `chromatic_mediant` *candidates* don't arise from the default
+    set (the tag is implemented + tested via `tag_transition`, but surfacing such
+    candidates needs the deferred VL-neighbour source); (b) `applied_dominant` is
+    a detect-and-flag heuristic (dominant-type chord whose down-a-fifth target is
+    a diatonic non-tonic degree). **Deferred (remaining gap-14 work):** the
+    per-style corpus transition priors (the *historical* tags — the genuinely
+    new data asset, per the research above); the fixed rule-of-octave +
+    diatonic-tendency tables; subjective/corpus tags (Gjerdingen, Narmour, style
+    `idiom=*` labels); **VL-neighbour candidate generation** (chords reachable by
+    smooth voice-leading outside the functional vocabulary — unlocks chromatic
+    mediants as candidates); register-aware ranking.
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.

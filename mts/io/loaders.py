@@ -31,6 +31,7 @@ _BASE_QUALITIES_CACHE: tuple[Path, int, dict[str, ChordQuality]] | None = None
 _KEY_PROFILES_CACHE: tuple[Path, int, tuple["KeyProfileSet", ...]] | None = None
 _NAMING_WEIGHTS_CACHE: tuple[Path, int, tuple["NamingWeights", ...]] | None = None
 _SWING_FEEL_CACHE: tuple[Path, int, tuple["SwingFeelPriors", ...]] | None = None
+_SUCCESSION_WEIGHTS_CACHE: tuple[Path, int, tuple["SuccessionWeights", ...]] | None = None
 
 
 @dataclass(frozen=True)
@@ -77,6 +78,24 @@ class SwingFeelPriors:
     straight_tolerance: float
     consistency_tolerance: float
     min_divisions: int
+
+
+@dataclass(frozen=True)
+class SuccessionWeights:
+    """One versioned next-chord scoring table (a versioned empirical prior).
+
+    ``weights`` maps a succession signal name (functional + voice-leading) to
+    its score contribution; the two scaled signals are ``common_tone`` (per
+    shared pitch class) and ``vl_distance`` (per semitone of motion, a
+    penalty). ``color_shift`` carries a weight of 0 in ``succession.1`` —
+    reported, not preferred. Results cite ``version`` (ROADMAP
+    "versioned-priors pattern"; the per-style corpus transition prior is the
+    planned successor — gap 14).
+    """
+
+    version: str
+    source: str
+    weights: dict[str, float]
 
 
 @dataclass(frozen=True)
@@ -220,6 +239,47 @@ def load_swing_priors(version: str | None = None) -> SwingFeelPriors:
             return entry
     known = ", ".join(e.version for e in entries)
     raise ValueError(f"Unknown swing-feel version {version!r} (known: {known})")
+
+
+def load_succession_weights(version: str | None = None) -> SuccessionWeights:
+    """Load a versioned succession-weight table from ``data/succession_weights.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime.
+    """
+    global _SUCCESSION_WEIGHTS_CACHE
+    path = DATA_DIR / "succession_weights.json"
+    mtime = path.stat().st_mtime_ns
+    if (
+        _SUCCESSION_WEIGHTS_CACHE is not None
+        and _SUCCESSION_WEIGHTS_CACHE[:2] == (path, mtime)
+    ):
+        entries = _SUCCESSION_WEIGHTS_CACHE[2]
+    else:
+        parsed: list[SuccessionWeights] = []
+        for payload in _read_json("succession_weights.json"):
+            weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
+            if not weights:
+                raise ValueError(
+                    f"Succession weights {payload['version']!r} define no signals"
+                )
+            parsed.append(
+                SuccessionWeights(
+                    version=str(payload["version"]),
+                    source=str(payload.get("source", "")),
+                    weights=weights,
+                )
+            )
+        if not parsed:
+            raise ValueError("succession_weights.json contains no weight tables")
+        entries = tuple(parsed)
+        _SUCCESSION_WEIGHTS_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown succession-weights version {version!r} (known: {known})")
 
 
 def load_intervals() -> list[Interval]:

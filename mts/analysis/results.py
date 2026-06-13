@@ -570,6 +570,72 @@ class ChordAnalysisResult:
         return dataclasses.asdict(self)
 
 
+# ---------------------------------------------------------------------------
+# Next-chord recommendation (gap 14, slice 1)
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class SuccessionEvidence:
+    """One scored succession signal behind a candidate's rank (Decision 7).
+
+    ``weight`` is the contribution applied from the versioned table — already
+    scaled for the per-count signals (``common_tone``, ``vl_distance``)."""
+
+    signal: str
+    weight: float
+    detail: str | None = None
+
+
+@dataclass(frozen=True)
+class NextChordCandidate:
+    """One ranked candidate next chord with its transition tags + evidence.
+
+    The qualitative annotations live in ``tags`` (functional-succession +
+    voice-leading + cadential); the raw ranking axes are exposed directly
+    (``vl_distance``, ``common_tones``, ``root_interval``, ``color_shift``) so
+    a caller can re-rank by any of them. ``cadence`` is the cadential formula
+    this single transition forms (authentic/plagal/deceptive/half), or None.
+    """
+
+    root_pc: int
+    quality: str
+    modal_label: str | None   # roman label (functional, not spelling); None if out of vocabulary
+    role: str | None          # "tonic" | "predominant" | "dominant" | None
+    score: float
+    rank: int
+    tags: tuple[str, ...]
+    vl_distance: int
+    common_tones: int
+    root_interval: int        # (candidate_root - current_root) % 12
+    color_shift: float        # Euclidean delta of the 6-D DFT magnitude vector
+    cadence: str | None
+    evidence: list[SuccessionEvidence]
+
+
+@dataclass(frozen=True)
+class NextChordRecommendation:
+    """Ranked, tagged candidate next chords from a current chord in a key.
+
+    Per Decision 7: plural (every candidate kept, scored), explicit
+    (per-candidate ``evidence``; ``weights_version`` cites the prior), and
+    register-free (identity-level). Major/minor only — modal keys raise rather
+    than guess function. The per-style corpus transition prior that supplies
+    *historical* tags is the planned follow-on (ROADMAP gap 14).
+    """
+
+    context: AnalyticalContextSnapshot
+    current_root_pc: int
+    current_quality: str
+    current_role: str | None
+    current_roman: str | None
+    candidates: list[NextChordCandidate]
+    weights_version: str
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
 __all__ = [
     "AnalyticalContextSnapshot",
     "CatalogContainer",
@@ -582,7 +648,10 @@ __all__ = [
     "MultiKeyNaming",
     "NamingEvidence",
     "NamingUnderKey",
+    "NextChordCandidate",
+    "NextChordRecommendation",
     "RankedInterpretation",
+    "SuccessionEvidence",
     "ChordInterpretations",
     "ChordIntervalSummary",
     "Inversion",
