@@ -470,6 +470,48 @@ def evaluate_ruleset(
     return evaluate(ruleset, _flex_events(events), harmony=spans).to_dict()
 
 
+def combine_rulesets(
+    rulesets: list[dict], name: str, version: str, description: str = ""
+) -> dict:
+    """Union several ruleset documents (Phase 4.6 DSL) into one named, versioned
+    ruleset. Identical same-id rules are deduplicated; rules sharing an id but
+    differing in definition raise (use specialize_ruleset to let one override).
+    Returns the combined ruleset as a DSL document."""
+    from ..rules import combine, ruleset_to_payload
+
+    return ruleset_to_payload(
+        combine(rulesets, name=name, version=version, description=description)
+    )
+
+
+def specialize_ruleset(
+    base: dict,
+    overlay: dict,
+    name: str,
+    version: str,
+    description: str = "",
+) -> dict:
+    """Overlay one ruleset onto a base (Phase 4.6 DSL): same-id overlay rules
+    replace base rules (base order preserved), new overlay rules append — the
+    'a style = common-practice + these overrides' move. Returns
+    {ruleset_payload, overridden: [ids replaced], added: [new ids]}."""
+    from ..rules import specialize
+
+    return specialize(
+        base, overlay, name=name, version=version, description=description
+    ).to_dict()
+
+
+def compare_rulesets(ruleset_a: dict, ruleset_b: dict) -> dict:
+    """Structurally diff two ruleset documents (Phase 4.6 DSL): shared_ids (same
+    id + definition), conflicting_ids (same id, different definition),
+    only_in_a / only_in_b, and contradictions (rule pairs that cannot both hold
+    — same family+filter+check, one forbids what the other requires)."""
+    from ..rules import compare
+
+    return compare(ruleset_a, ruleset_b).to_dict()
+
+
 def voice_leading_distance(source_pcs: list[int], target_pcs: list[int]) -> dict:
     """Minimal voice-leading distance between two pc sets, with the optimal
     voice mapping as evidence."""
@@ -714,6 +756,9 @@ TOOLS = (
     coalesce_events,
     validate_ruleset,
     evaluate_ruleset,
+    combine_rulesets,
+    specialize_ruleset,
+    compare_rulesets,
     keyboard_view,
     bracelet_view,
     tonnetz_view,

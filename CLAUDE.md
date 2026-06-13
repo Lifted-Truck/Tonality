@@ -61,8 +61,9 @@ temporal/    Time layer (Phase 2): Event/Sequence + tempo/meter; window → real
              melodic + rhythmic atoms. (analysis/timeline.py is a DEPRECATED stub.)
   ↓
 rules/       Rulesets (Phase 4.6): declarative JSON rules over the atom vocabulary;
-             strict total validation + deterministic conformance evaluator. No code
-             execution; rules are data.
+             strict total validation + deterministic conformance evaluator +
+             composition/comparison (combine/specialize/diff). No code execution;
+             rules are data (and round-trip via ruleset_to_payload).
   ↓
 representation/ Projections as data (Phase 5): render-agnostic descriptors
              (keyboard, piano-roll, bracelet, Tonnetz). Library emits descriptions;
