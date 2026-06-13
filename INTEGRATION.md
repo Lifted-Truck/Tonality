@@ -106,6 +106,23 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
   `interpretations`, and key-conditional `naming` — directly renderable as
   timeline overlays. Shape: `DatasetRecord.to_dict()` with `SCHEMA_VERSION`
   for pinning (`mts/dataset/record.py` is the schema of record).
+- **Choosing a coalesce window** (performed/humanized MIDI): the engine never
+  coalesces implicitly — a *performed* file fed to `midi_file_analysis` with no
+  `coalesce_window_beats` fragments into micro-segments (the gap-12 contract,
+  working as specified). There is no universal default; the *principle* is **set
+  the window to the smallest rhythmic subdivision you intend to keep distinct**,
+  so it heals sub-grid jitter without merging real changes. For dense
+  multi-voice transcriptions, **0.25–0.5 beat** (a 16th to an 8th) is the sane
+  starting band — validated on a 16-track performed file where it collapses
+  sub-0.1 s segments from 68% to 4% (0.25) / 0% (0.5) without trivializing the
+  harmonic rhythm. Coalescing is **lossy and reported** (it can drop grace notes
+  shorter than the window; `moved`/`dropped` are itemized), so surface that
+  metadata and keep the window **overridable down to 0** (a quantized or
+  programmatic clip must stay byte-exact). A visualizer defaulting its own
+  file-analysis path to a small window is sound; the engine adopting one is not.
+  Note: this is the **chord-segmentation** axis — spurious **key-region** bands
+  are a separate axis (local key tracking), tuned by `window_beats`/`hop_beats`
+  + a margin (and optionally a minimum region-duration) gate, not by coalescing.
 
 ## Four doors in
 
