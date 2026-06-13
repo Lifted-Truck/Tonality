@@ -13,5 +13,21 @@ contract with consumers (A6 Audiology is this layer's primary customer).
 """
 
 from .keyboard import KeyboardDescriptor, KeyboardKey, keyboard_descriptor
+from .piano_roll import (
+    ChordRegionOverlay,
+    KeyBand,
+    NoteRect,
+    PianoRollDescriptor,
+    piano_roll_descriptor,
+)
 
-__all__ = ["KeyboardDescriptor", "KeyboardKey", "keyboard_descriptor"]
+__all__ = [
+    "KeyboardDescriptor",
+    "KeyboardKey",
+    "keyboard_descriptor",
+    "ChordRegionOverlay",
+    "KeyBand",
+    "NoteRect",
+    "PianoRollDescriptor",
+    "piano_roll_descriptor",
+]
