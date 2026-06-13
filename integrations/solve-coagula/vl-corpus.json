@@ -1,0 +1,11651 @@
+{
+ "schema": "solve-coagula.vl-corpus/1",
+ "source": "github.com/Lifted-Truck/Automata @ 73741d5",
+ "semantics": {
+  "engine": "realize(rootDegree, from): 5-voice generalized tertian stack. Voice i targets pc (rootMidi + degrees[(rootDegree + 2i) mod card]) mod 12. Each voice moves independently from from[i] (or baseVoicing[i] when from is null) to the nearest octave placement of its target pc within ±11 semitones (ties resolved downward: strict < comparison scanning upward), then clamps to [48, 85], then the voicing is sorted ascending. Doubling is permitted; voices are a multiset.",
+  "rootMidi": 45,
+  "range": [
+   48,
+   85
+  ],
+  "baseVoicing": [
+   55,
+   60,
+   64,
+   69,
+   74
+  ],
+  "maskConvention": "modeMaskRootRelative: bit n = root + n semitones (bit 0 always set). modeMaskAbsolute = rotate_mask(modeMaskRootRelative, 9) per the documented contract (root A).",
+  "greedyCost": "Sum over voices of pre-clamp |displacement| in from-voice order — the engine's internal scoring quantity. NOT a metric on the resulting voicing pair: clamping is applied after costing, so a clamped case's realized pair can disagree with this number.",
+  "sortedDisplacement": "Σ|from_sorted[i] − realized_sorted[i]| over the sorted 5-tuples (null for opening chords). For equal-cardinality voicings this is the optimal non-crossing pairing distance — the expected voice_leading_realized value."
+ },
+ "counts": {
+  "total": 286,
+  "golden": 258,
+  "synthetic": 28
+ },
+ "cases": [
+  {
+   "id": "synthetic-0",
+   "provenance": "synthetic: opening chord, no previous voicing (engine default base)",
+   "from": null,
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    7,
+    0,
+    4
+   ],
+   "realized": [
+    57,
+    62,
+    67,
+    72,
+    76
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": null,
+   "flags": []
+  },
+  {
+   "id": "synthetic-1",
+   "provenance": "synthetic: bottom-clamped voicing, pentatonic, degree 0",
+   "from": [
+    48,
+    48,
+    49,
+    50,
+    52
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    7,
+    0,
+    4
+   ],
+   "realized": [
+    48,
+    48,
+    48,
+    50,
+    52
+   ],
+   "greedyCost": 13,
+   "sortedDisplacement": 1,
+   "flags": [
+    "clampMin",
+    "midiDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-2",
+   "provenance": "synthetic: bottom-clamped voicing, pentatonic, degree 1",
+   "from": [
+    48,
+    48,
+    49,
+    50,
+    52
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    4,
+    9,
+    2,
+    7
+   ],
+   "realized": [
+    48,
+    48,
+    50,
+    52,
+    55
+   ],
+   "greedyCost": 11,
+   "sortedDisplacement": 6,
+   "flags": [
+    "clampMin",
+    "midiDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-3",
+   "provenance": "synthetic: bottom-clamped voicing, pentatonic, degree 2",
+   "from": [
+    48,
+    48,
+    49,
+    50,
+    52
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    2,
+    7,
+    0,
+    4,
+    9
+   ],
+   "realized": [
+    48,
+    48,
+    50,
+    52,
+    57
+   ],
+   "greedyCost": 15,
+   "sortedDisplacement": 8,
+   "flags": [
+    "clampMin",
+    "midiDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-4",
+   "provenance": "synthetic: bottom-clamped voicing, pentatonic, degree 3",
+   "from": [
+    48,
+    48,
+    49,
+    50,
+    52
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    4,
+    9,
+    2,
+    7,
+    0
+   ],
+   "realized": [
+    48,
+    48,
+    50,
+    52,
+    55
+   ],
+   "greedyCost": 17,
+   "sortedDisplacement": 6,
+   "flags": [
+    "clampMin",
+    "midiDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-5",
+   "provenance": "synthetic: bottom-clamped voicing, pentatonic, degree 4",
+   "from": [
+    48,
+    48,
+    49,
+    50,
+    52
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    7,
+    0,
+    4,
+    9,
+    2
+   ],
+   "realized": [
+    48,
+    48,
+    48,
+    50,
+    52
+   ],
+   "greedyCost": 15,
+   "sortedDisplacement": 1,
+   "flags": [
+    "clampMin",
+    "midiDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-6",
+   "provenance": "synthetic: top-clamped voicing, pentatonic, degree 0",
+   "from": [
+    81,
+    83,
+    84,
+    85,
+    85
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    7,
+    0,
+    4
+   ],
+   "realized": [
+    79,
+    81,
+    84,
+    85,
+    85
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 4,
+   "flags": [
+    "clampMax",
+    "midiDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-7",
+   "provenance": "synthetic: top-clamped voicing, pentatonic, degree 1",
+   "from": [
+    81,
+    83,
+    84,
+    85,
+    85
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    4,
+    9,
+    2,
+    7
+   ],
+   "realized": [
+    79,
+    81,
+    84,
+    85,
+    85
+   ],
+   "greedyCost": 18,
+   "sortedDisplacement": 4,
+   "flags": [
+    "clampMax",
+    "midiDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-8",
+   "provenance": "synthetic: top-clamped voicing, pentatonic, degree 2",
+   "from": [
+    81,
+    83,
+    84,
+    85,
+    85
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    2,
+    7,
+    0,
+    4,
+    9
+   ],
+   "realized": [
+    79,
+    81,
+    84,
+    85,
+    85
+   ],
+   "greedyCost": 16,
+   "sortedDisplacement": 4,
+   "flags": [
+    "clampMax",
+    "midiDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-9",
+   "provenance": "synthetic: top-clamped voicing, pentatonic, degree 3",
+   "from": [
+    81,
+    83,
+    84,
+    85,
+    85
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    4,
+    9,
+    2,
+    7,
+    0
+   ],
+   "realized": [
+    76,
+    79,
+    81,
+    84,
+    85
+   ],
+   "greedyCost": 16,
+   "sortedDisplacement": 13,
+   "flags": [
+    "clampMax"
+   ]
+  },
+  {
+   "id": "synthetic-10",
+   "provenance": "synthetic: top-clamped voicing, pentatonic, degree 4",
+   "from": [
+    81,
+    83,
+    84,
+    85,
+    85
+   ],
+   "modeMaskRootRelative": 1193,
+   "modeMaskAbsolute": 661,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    7,
+    0,
+    4,
+    9,
+    2
+   ],
+   "realized": [
+    79,
+    81,
+    84,
+    85,
+    85
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 4,
+   "flags": [
+    "clampMax",
+    "midiDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-11",
+   "provenance": "synthetic: whole-tone (card 6, pc doubling), degree 0",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1365,
+   "modeMaskAbsolute": 2730,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    5,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    65,
+    69,
+    73
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-12",
+   "provenance": "synthetic: whole-tone (card 6, pc doubling), degree 1",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1365,
+   "modeMaskAbsolute": 2730,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    11,
+    3,
+    7,
+    11,
+    3
+   ],
+   "realized": [
+    59,
+    63,
+    67,
+    71,
+    75
+   ],
+   "greedyCost": 13,
+   "sortedDisplacement": 13,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-13",
+   "provenance": "synthetic: whole-tone (card 6, pc doubling), degree 2",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1365,
+   "modeMaskAbsolute": 2730,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    1,
+    5,
+    9,
+    1,
+    5
+   ],
+   "realized": [
+    49,
+    65,
+    69,
+    73,
+    77
+   ],
+   "greedyCost": 23,
+   "sortedDisplacement": 23,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-14",
+   "provenance": "synthetic: whole-tone (card 6, pc doubling), degree 3",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1365,
+   "modeMaskAbsolute": 2730,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    3,
+    7,
+    11,
+    3,
+    7
+   ],
+   "realized": [
+    51,
+    55,
+    59,
+    63,
+    79
+   ],
+   "greedyCost": 25,
+   "sortedDisplacement": 25,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-15",
+   "provenance": "synthetic: whole-tone (card 6, pc doubling), degree 4",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1365,
+   "modeMaskAbsolute": 2730,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    5,
+    9,
+    1,
+    5,
+    9
+   ],
+   "realized": [
+    53,
+    57,
+    61,
+    65,
+    69
+   ],
+   "greedyCost": 17,
+   "sortedDisplacement": 17,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-16",
+   "provenance": "synthetic: whole-tone (card 6, pc doubling), degree 5",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1365,
+   "modeMaskAbsolute": 2730,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    11,
+    3,
+    7,
+    11
+   ],
+   "realized": [
+    55,
+    59,
+    63,
+    67,
+    71
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-17",
+   "provenance": "synthetic: octatonic (card 8, pc doubling), degree 0",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 2925,
+   "modeMaskAbsolute": 2925,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    5,
+    6,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    3,
+    6,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    63,
+    66,
+    69
+   ],
+   "greedyCost": 11,
+   "sortedDisplacement": 11,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-18",
+   "provenance": "synthetic: octatonic (card 8, pc doubling), degree 2",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 2925,
+   "modeMaskAbsolute": 2925,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    5,
+    6,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    0,
+    3,
+    6,
+    9,
+    0
+   ],
+   "realized": [
+    60,
+    63,
+    66,
+    69,
+    72
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-19",
+   "provenance": "synthetic: octatonic (card 8, pc doubling), degree 4",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 2925,
+   "modeMaskAbsolute": 2925,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    5,
+    6,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    3,
+    6,
+    9,
+    0,
+    3
+   ],
+   "realized": [
+    51,
+    54,
+    69,
+    72,
+    75
+   ],
+   "greedyCost": 19,
+   "sortedDisplacement": 19,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-20",
+   "provenance": "synthetic: octatonic (card 8, pc doubling), degree 6",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 2925,
+   "modeMaskAbsolute": 2925,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    5,
+    6,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    6,
+    9,
+    0,
+    3,
+    6
+   ],
+   "realized": [
+    54,
+    57,
+    60,
+    63,
+    78
+   ],
+   "greedyCost": 18,
+   "sortedDisplacement": 18,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-21",
+   "provenance": "synthetic: card-7 mode, degree 0",
+   "from": [
+    50,
+    57,
+    62,
+    66,
+    71
+   ],
+   "modeMaskRootRelative": 2477,
+   "modeMaskAbsolute": 2869,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    5,
+    7,
+    8,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    8,
+    11
+   ],
+   "realized": [
+    48,
+    60,
+    64,
+    68,
+    71
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 9,
+   "flags": [
+    "clampMin"
+   ]
+  },
+  {
+   "id": "synthetic-22",
+   "provenance": "synthetic: card-7 mode, degree 3",
+   "from": [
+    50,
+    57,
+    62,
+    66,
+    71
+   ],
+   "modeMaskRootRelative": 2477,
+   "modeMaskAbsolute": 2869,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    5,
+    7,
+    8,
+    11
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    2,
+    5,
+    9,
+    0,
+    4
+   ],
+   "realized": [
+    50,
+    53,
+    57,
+    60,
+    76
+   ],
+   "greedyCost": 20,
+   "sortedDisplacement": 20,
+   "flags": []
+  },
+  {
+   "id": "synthetic-23",
+   "provenance": "synthetic: card-7 mode, degree 6",
+   "from": [
+    50,
+    57,
+    62,
+    66,
+    71
+   ],
+   "modeMaskRootRelative": 2477,
+   "modeMaskAbsolute": 2869,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    5,
+    7,
+    8,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    8,
+    11,
+    2,
+    5,
+    9
+   ],
+   "realized": [
+    48,
+    59,
+    62,
+    65,
+    69
+   ],
+   "greedyCost": 11,
+   "sortedDisplacement": 7,
+   "flags": [
+    "clampMin"
+   ]
+  },
+  {
+   "id": "synthetic-24",
+   "provenance": "synthetic: chromatic cluster mode, max-displacement target",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 31,
+   "modeMaskAbsolute": 3587,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    10,
+    0
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    70,
+    72
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "synthetic-25",
+   "provenance": "synthetic: chromatic cluster from wide voicing",
+   "from": [
+    48,
+    57,
+    66,
+    76,
+    85
+   ],
+   "modeMaskRootRelative": 31,
+   "modeMaskAbsolute": 3587,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    11,
+    1,
+    10,
+    0,
+    9
+   ],
+   "realized": [
+    48,
+    61,
+    70,
+    72,
+    81
+   ],
+   "greedyCost": 17,
+   "sortedDisplacement": 16,
+   "flags": [
+    "clampMin"
+   ]
+  },
+  {
+   "id": "synthetic-26",
+   "provenance": "synthetic: quench re-realization: pentatonic voicing into mutated card-6 mode, degree 0",
+   "from": [
+    57,
+    60,
+    64,
+    69,
+    76
+   ],
+   "modeMaskRootRelative": 1195,
+   "modeMaskAbsolute": 1685,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "synthetic-27",
+   "provenance": "synthetic: quench re-realization: leading-tone swap, degree 0",
+   "from": [
+    57,
+    60,
+    64,
+    69,
+    76
+   ],
+   "modeMaskRootRelative": 2217,
+   "modeMaskAbsolute": 789,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    8,
+    0,
+    4
+   ],
+   "realized": [
+    57,
+    62,
+    68,
+    72,
+    76
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-1-0",
+   "provenance": "golden seed 1, event @tick 32 (quench)",
+   "from": [
+    57,
+    62,
+    67,
+    72,
+    76
+   ],
+   "modeMaskRootRelative": 1257,
+   "modeMaskAbsolute": 669,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    4,
+    9,
+    2
+   ],
+   "realized": [
+    57,
+    62,
+    64,
+    69,
+    74
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-1",
+   "provenance": "golden seed 1, event @tick 150 (selection)",
+   "from": [
+    57,
+    62,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1257,
+   "modeMaskAbsolute": 669,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    4,
+    9,
+    2
+   ],
+   "realized": [
+    57,
+    62,
+    64,
+    69,
+    74
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-3",
+   "provenance": "golden seed 1, event @tick 263 (selection)",
+   "from": [
+    57,
+    62,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1257,
+   "modeMaskAbsolute": 669,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    0,
+    3,
+    7,
+    0
+   ],
+   "realized": [
+    55,
+    60,
+    63,
+    67,
+    72
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-4",
+   "provenance": "golden seed 1, event @tick 300 (selection)",
+   "from": [
+    55,
+    60,
+    63,
+    67,
+    72
+   ],
+   "modeMaskRootRelative": 1257,
+   "modeMaskAbsolute": 669,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    4,
+    9,
+    2
+   ],
+   "realized": [
+    57,
+    62,
+    64,
+    69,
+    74
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-6",
+   "provenance": "golden seed 1, event @tick 352 (quench)",
+   "from": [
+    57,
+    62,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1273,
+   "modeMaskAbsolute": 671,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    7,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    67,
+    72
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": []
+  },
+  {
+   "id": "golden-1-7",
+   "provenance": "golden seed 1, event @tick 450 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    67,
+    72
+   ],
+   "modeMaskRootRelative": 1273,
+   "modeMaskAbsolute": 671,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    7,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    67,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-8",
+   "provenance": "golden seed 1, event @tick 600 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    67,
+    72
+   ],
+   "modeMaskRootRelative": 1273,
+   "modeMaskAbsolute": 671,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-1-9",
+   "provenance": "golden seed 1, event @tick 638 (selection)",
+   "from": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1273,
+   "modeMaskAbsolute": 671,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-10",
+   "provenance": "golden seed 1, event @tick 672 (quench)",
+   "from": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1241,
+   "modeMaskAbsolute": 667,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-11",
+   "provenance": "golden seed 1, event @tick 675 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1241,
+   "modeMaskAbsolute": 667,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    0,
+    3,
+    7,
+    0
+   ],
+   "realized": [
+    55,
+    60,
+    63,
+    67,
+    72
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-12",
+   "provenance": "golden seed 1, event @tick 750 (selection)",
+   "from": [
+    55,
+    60,
+    63,
+    67,
+    72
+   ],
+   "modeMaskRootRelative": 1241,
+   "modeMaskAbsolute": 667,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-13",
+   "provenance": "golden seed 1, event @tick 825 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1241,
+   "modeMaskAbsolute": 667,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-15",
+   "provenance": "golden seed 1, event @tick 975 (selection)",
+   "from": [
+    55,
+    60,
+    63,
+    67,
+    72
+   ],
+   "modeMaskRootRelative": 1241,
+   "modeMaskAbsolute": 667,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    0,
+    3,
+    7,
+    0
+   ],
+   "realized": [
+    55,
+    60,
+    63,
+    67,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-16",
+   "provenance": "golden seed 1, event @tick 992 (quench)",
+   "from": [
+    55,
+    60,
+    63,
+    67,
+    72
+   ],
+   "modeMaskRootRelative": 1245,
+   "modeMaskAbsolute": 2715,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    3,
+    7,
+    11
+   ],
+   "realized": [
+    57,
+    60,
+    63,
+    67,
+    71
+   ],
+   "greedyCost": 3,
+   "sortedDisplacement": 3,
+   "flags": []
+  },
+  {
+   "id": "golden-1-17",
+   "provenance": "golden seed 1, event @tick 1013 (selection)",
+   "from": [
+    57,
+    60,
+    63,
+    67,
+    71
+   ],
+   "modeMaskRootRelative": 1245,
+   "modeMaskAbsolute": 2715,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    3,
+    7,
+    11
+   ],
+   "realized": [
+    57,
+    60,
+    63,
+    67,
+    71
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-18",
+   "provenance": "golden seed 1, event @tick 1050 (selection)",
+   "from": [
+    57,
+    60,
+    63,
+    67,
+    71
+   ],
+   "modeMaskRootRelative": 1245,
+   "modeMaskAbsolute": 2715,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    11,
+    1,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    59,
+    61,
+    64,
+    69,
+    72
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-1-19",
+   "provenance": "golden seed 1, event @tick 1125 (selection)",
+   "from": [
+    59,
+    61,
+    64,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 1245,
+   "modeMaskAbsolute": 2715,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    3,
+    7,
+    11
+   ],
+   "realized": [
+    57,
+    60,
+    63,
+    67,
+    71
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-1-22",
+   "provenance": "golden seed 1, event @tick 1312 (quench)",
+   "from": [
+    59,
+    61,
+    64,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 1229,
+   "modeMaskAbsolute": 2713,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "greedyCost": 3,
+   "sortedDisplacement": 3,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-23",
+   "provenance": "golden seed 1, event @tick 1350 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 1229,
+   "modeMaskAbsolute": 2713,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-24",
+   "provenance": "golden seed 1, event @tick 1425 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 1229,
+   "modeMaskAbsolute": 2713,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    11,
+    3,
+    7,
+    11
+   ],
+   "realized": [
+    55,
+    59,
+    63,
+    67,
+    71
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-25",
+   "provenance": "golden seed 1, event @tick 1500 (selection)",
+   "from": [
+    55,
+    59,
+    63,
+    67,
+    71
+   ],
+   "modeMaskRootRelative": 1229,
+   "modeMaskAbsolute": 2713,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    11,
+    3,
+    7,
+    11
+   ],
+   "realized": [
+    55,
+    59,
+    63,
+    67,
+    71
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-26",
+   "provenance": "golden seed 1, event @tick 1575 (selection)",
+   "from": [
+    55,
+    59,
+    63,
+    67,
+    71
+   ],
+   "modeMaskRootRelative": 1229,
+   "modeMaskAbsolute": 2713,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-27",
+   "provenance": "golden seed 1, event @tick 1632 (quench)",
+   "from": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 1225,
+   "modeMaskAbsolute": 665,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    7,
+    0,
+    4
+   ],
+   "realized": [
+    57,
+    63,
+    67,
+    72,
+    76
+   ],
+   "greedyCost": 13,
+   "sortedDisplacement": 13,
+   "flags": []
+  },
+  {
+   "id": "golden-1-28",
+   "provenance": "golden seed 1, event @tick 1650 (selection)",
+   "from": [
+    57,
+    63,
+    67,
+    72,
+    76
+   ],
+   "modeMaskRootRelative": 1225,
+   "modeMaskAbsolute": 665,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    7,
+    0,
+    4
+   ],
+   "realized": [
+    57,
+    63,
+    67,
+    72,
+    76
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-31",
+   "provenance": "golden seed 1, event @tick 1838 (selection)",
+   "from": [
+    57,
+    63,
+    67,
+    72,
+    76
+   ],
+   "modeMaskRootRelative": 1225,
+   "modeMaskAbsolute": 665,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    7,
+    0,
+    4,
+    9,
+    3
+   ],
+   "realized": [
+    55,
+    60,
+    64,
+    69,
+    75
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": []
+  },
+  {
+   "id": "golden-1-32",
+   "provenance": "golden seed 1, event @tick 1950 (selection)",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    75
+   ],
+   "modeMaskRootRelative": 1225,
+   "modeMaskAbsolute": 665,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    7,
+    0,
+    4,
+    9,
+    3
+   ],
+   "realized": [
+    55,
+    60,
+    64,
+    69,
+    75
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-33",
+   "provenance": "golden seed 1, event @tick 1952 (quench)",
+   "from": [
+    55,
+    60,
+    64,
+    69,
+    75
+   ],
+   "modeMaskRootRelative": 1241,
+   "modeMaskAbsolute": 667,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-38",
+   "provenance": "golden seed 1, event @tick 2272 (quench)",
+   "from": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1243,
+   "modeMaskAbsolute": 1691,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    3,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    63,
+    67,
+    70
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-1-39",
+   "provenance": "golden seed 1, event @tick 2400 (selection)",
+   "from": [
+    57,
+    60,
+    63,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1243,
+   "modeMaskAbsolute": 1691,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    1,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    58,
+    61,
+    64,
+    69,
+    72
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-1-40",
+   "provenance": "golden seed 1, event @tick 2438 (selection)",
+   "from": [
+    58,
+    61,
+    64,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 1243,
+   "modeMaskAbsolute": 1691,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    3,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    63,
+    67,
+    70
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-1-41",
+   "provenance": "golden seed 1, event @tick 2475 (selection)",
+   "from": [
+    57,
+    60,
+    63,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1243,
+   "modeMaskAbsolute": 1691,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    3,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    63,
+    67,
+    70
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-43",
+   "provenance": "golden seed 1, event @tick 2625 (selection)",
+   "from": [
+    57,
+    60,
+    63,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1243,
+   "modeMaskAbsolute": 1691,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    0,
+    3,
+    7,
+    10,
+    1
+   ],
+   "realized": [
+    60,
+    63,
+    67,
+    70,
+    73
+   ],
+   "greedyCost": 16,
+   "sortedDisplacement": 16,
+   "flags": []
+  },
+  {
+   "id": "golden-1-44",
+   "provenance": "golden seed 1, event @tick 2700 (selection)",
+   "from": [
+    60,
+    63,
+    67,
+    70,
+    73
+   ],
+   "modeMaskRootRelative": 1243,
+   "modeMaskAbsolute": 1691,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    0,
+    3,
+    7,
+    10,
+    1
+   ],
+   "realized": [
+    60,
+    63,
+    67,
+    70,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-45",
+   "provenance": "golden seed 1, event @tick 2736 (quench)",
+   "from": [
+    60,
+    63,
+    67,
+    70,
+    73
+   ],
+   "modeMaskRootRelative": 1247,
+   "modeMaskAbsolute": 3739,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    4,
+    9
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    64,
+    69
+   ],
+   "greedyCost": 23,
+   "sortedDisplacement": 23,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-46",
+   "provenance": "golden seed 1, event @tick 2775 (selection)",
+   "from": [
+    57,
+    59,
+    61,
+    64,
+    69
+   ],
+   "modeMaskRootRelative": 1247,
+   "modeMaskAbsolute": 3739,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    4,
+    9
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    64,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-47",
+   "provenance": "golden seed 1, event @tick 2850 (selection)",
+   "from": [
+    57,
+    59,
+    61,
+    64,
+    69
+   ],
+   "modeMaskRootRelative": 1247,
+   "modeMaskAbsolute": 3739,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 7,
+   "targetPcs": [
+    7,
+    10,
+    0,
+    3,
+    7
+   ],
+   "realized": [
+    55,
+    58,
+    60,
+    63,
+    67
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-48",
+   "provenance": "golden seed 1, event @tick 2925 (selection)",
+   "from": [
+    55,
+    58,
+    60,
+    63,
+    67
+   ],
+   "modeMaskRootRelative": 1247,
+   "modeMaskAbsolute": 3739,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 7,
+   "targetPcs": [
+    7,
+    10,
+    0,
+    3,
+    7
+   ],
+   "realized": [
+    55,
+    58,
+    60,
+    63,
+    67
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-49",
+   "provenance": "golden seed 1, event @tick 3000 (selection)",
+   "from": [
+    55,
+    58,
+    60,
+    63,
+    67
+   ],
+   "modeMaskRootRelative": 1247,
+   "modeMaskAbsolute": 3739,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    4,
+    9
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    64,
+    69
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-50",
+   "provenance": "golden seed 1, event @tick 3056 (quench)",
+   "from": [
+    57,
+    59,
+    61,
+    64,
+    69
+   ],
+   "modeMaskRootRelative": 1183,
+   "modeMaskAbsolute": 3731,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    67,
+    70
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": []
+  },
+  {
+   "id": "golden-1-51",
+   "provenance": "golden seed 1, event @tick 3150 (selection)",
+   "from": [
+    57,
+    59,
+    61,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1183,
+   "modeMaskAbsolute": 3731,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    67,
+    70
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-54",
+   "provenance": "golden seed 1, event @tick 3300 (selection)",
+   "from": [
+    57,
+    59,
+    61,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1183,
+   "modeMaskAbsolute": 3731,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    0,
+    4,
+    9,
+    11
+   ],
+   "realized": [
+    58,
+    60,
+    64,
+    69,
+    71
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-1-55",
+   "provenance": "golden seed 1, event @tick 3338 (selection)",
+   "from": [
+    58,
+    60,
+    64,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 1183,
+   "modeMaskAbsolute": 3731,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    67,
+    70
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-1-56",
+   "provenance": "golden seed 1, event @tick 3376 (quench)",
+   "from": [
+    57,
+    59,
+    61,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1181,
+   "modeMaskAbsolute": 2707,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-57",
+   "provenance": "golden seed 1, event @tick 3450 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 1181,
+   "modeMaskAbsolute": 2707,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-59",
+   "provenance": "golden seed 1, event @tick 3600 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 1181,
+   "modeMaskAbsolute": 2707,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    11,
+    1,
+    7,
+    11
+   ],
+   "realized": [
+    55,
+    59,
+    61,
+    67,
+    71
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-60",
+   "provenance": "golden seed 1, event @tick 3675 (selection)",
+   "from": [
+    55,
+    59,
+    61,
+    67,
+    71
+   ],
+   "modeMaskRootRelative": 1181,
+   "modeMaskAbsolute": 2707,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    11,
+    1,
+    7,
+    11
+   ],
+   "realized": [
+    55,
+    59,
+    61,
+    67,
+    71
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-61",
+   "provenance": "golden seed 1, event @tick 3696 (quench)",
+   "from": [
+    55,
+    59,
+    61,
+    67,
+    71
+   ],
+   "modeMaskRootRelative": 157,
+   "modeMaskAbsolute": 2579,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    11,
+    1
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    71,
+    73
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": []
+  },
+  {
+   "id": "golden-1-62",
+   "provenance": "golden seed 1, event @tick 3750 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    71,
+    73
+   ],
+   "modeMaskRootRelative": 157,
+   "modeMaskAbsolute": 2579,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    11,
+    1
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    71,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-63",
+   "provenance": "golden seed 1, event @tick 3825 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    71,
+    73
+   ],
+   "modeMaskRootRelative": 157,
+   "modeMaskAbsolute": 2579,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    4,
+    11,
+    1,
+    9,
+    0
+   ],
+   "realized": [
+    52,
+    59,
+    61,
+    69,
+    72
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": []
+  },
+  {
+   "id": "golden-1-64",
+   "provenance": "golden seed 1, event @tick 3900 (selection)",
+   "from": [
+    52,
+    59,
+    61,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 157,
+   "modeMaskAbsolute": 2579,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    4,
+    11,
+    1,
+    9,
+    0
+   ],
+   "realized": [
+    52,
+    59,
+    61,
+    69,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-66",
+   "provenance": "golden seed 1, event @tick 4013 (selection)",
+   "from": [
+    52,
+    59,
+    61,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 157,
+   "modeMaskAbsolute": 2579,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    11,
+    1
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    71,
+    73
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": []
+  },
+  {
+   "id": "golden-1-67",
+   "provenance": "golden seed 1, event @tick 4016 (quench)",
+   "from": [
+    57,
+    60,
+    64,
+    71,
+    73
+   ],
+   "modeMaskRootRelative": 159,
+   "modeMaskAbsolute": 3603,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    9,
+    11
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    69,
+    71
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-68",
+   "provenance": "golden seed 1, event @tick 4050 (selection)",
+   "from": [
+    57,
+    59,
+    61,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 159,
+   "modeMaskAbsolute": 3603,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    9,
+    11
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    69,
+    71
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-70",
+   "provenance": "golden seed 1, event @tick 4200 (selection)",
+   "from": [
+    57,
+    59,
+    61,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 159,
+   "modeMaskAbsolute": 3603,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    0,
+    4,
+    10,
+    0
+   ],
+   "realized": [
+    58,
+    60,
+    64,
+    70,
+    72
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-71",
+   "provenance": "golden seed 1, event @tick 4275 (selection)",
+   "from": [
+    58,
+    60,
+    64,
+    70,
+    72
+   ],
+   "modeMaskRootRelative": 159,
+   "modeMaskAbsolute": 3603,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    9,
+    11
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    69,
+    71
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-1-72",
+   "provenance": "golden seed 1, event @tick 4336 (quench)",
+   "from": [
+    57,
+    59,
+    61,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    6,
+    10
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    66,
+    70
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": []
+  },
+  {
+   "id": "golden-1-73",
+   "provenance": "golden seed 1, event @tick 4350 (selection)",
+   "from": [
+    57,
+    59,
+    61,
+    66,
+    70
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    6,
+    10
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    66,
+    70
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-75",
+   "provenance": "golden seed 1, event @tick 4500 (selection)",
+   "from": [
+    57,
+    59,
+    61,
+    66,
+    70
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    6,
+    10,
+    0,
+    4,
+    9
+   ],
+   "realized": [
+    54,
+    58,
+    60,
+    64,
+    69
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-1-76",
+   "provenance": "golden seed 1, event @tick 4575 (selection)",
+   "from": [
+    54,
+    58,
+    60,
+    64,
+    69
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    6,
+    10,
+    0,
+    4,
+    9
+   ],
+   "realized": [
+    54,
+    58,
+    60,
+    64,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-77",
+   "provenance": "golden seed 1, event @tick 4650 (selection)",
+   "from": [
+    54,
+    58,
+    60,
+    64,
+    69
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    1,
+    6,
+    10
+   ],
+   "realized": [
+    57,
+    59,
+    61,
+    66,
+    70
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-1-79",
+   "provenance": "golden seed 1, event @tick 4922 (selection)",
+   "from": [
+    57,
+    59,
+    61,
+    66,
+    70
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    0,
+    4,
+    9,
+    11
+   ],
+   "realized": [
+    58,
+    60,
+    64,
+    69,
+    71
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-1-80",
+   "provenance": "golden seed 1, event @tick 4950 (selection)",
+   "from": [
+    58,
+    60,
+    64,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    0,
+    4,
+    9,
+    11
+   ],
+   "realized": [
+    58,
+    60,
+    64,
+    69,
+    71
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-1-81",
+   "provenance": "golden seed 1, event @tick 5063 (selection)",
+   "from": [
+    58,
+    60,
+    64,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    11,
+    1,
+    6,
+    10,
+    0
+   ],
+   "realized": [
+    59,
+    61,
+    66,
+    70,
+    72
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": []
+  },
+  {
+   "id": "golden-1-82",
+   "provenance": "golden seed 1, event @tick 5100 (selection)",
+   "from": [
+    59,
+    61,
+    66,
+    70,
+    72
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    0,
+    4,
+    9,
+    11
+   ],
+   "realized": [
+    58,
+    60,
+    64,
+    69,
+    71
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": []
+  },
+  {
+   "id": "golden-1-84",
+   "provenance": "golden seed 1, event @tick 5250 (selection)",
+   "from": [
+    59,
+    61,
+    66,
+    70,
+    72
+   ],
+   "modeMaskRootRelative": 671,
+   "modeMaskAbsolute": 3667,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    9
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    11,
+    1,
+    6,
+    10,
+    0
+   ],
+   "realized": [
+    59,
+    61,
+    66,
+    70,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-0",
+   "provenance": "golden seed 101, event @tick 33 (quench)",
+   "from": [
+    57,
+    62,
+    67,
+    72,
+    76
+   ],
+   "modeMaskRootRelative": 3241,
+   "modeMaskAbsolute": 917,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    7,
+    9,
+    2
+   ],
+   "realized": [
+    57,
+    62,
+    67,
+    69,
+    74
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-1",
+   "provenance": "golden seed 101, event @tick 113 (selection)",
+   "from": [
+    57,
+    62,
+    67,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 3241,
+   "modeMaskAbsolute": 917,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    7,
+    9,
+    2
+   ],
+   "realized": [
+    57,
+    62,
+    67,
+    69,
+    74
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-4",
+   "provenance": "golden seed 101, event @tick 353 (quench)",
+   "from": [
+    57,
+    62,
+    67,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 3243,
+   "modeMaskAbsolute": 1941,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    68,
+    70
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": []
+  },
+  {
+   "id": "golden-101-5",
+   "provenance": "golden seed 101, event @tick 450 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3243,
+   "modeMaskAbsolute": 1941,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    8,
+    10,
+    2,
+    7,
+    9
+   ],
+   "realized": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-101-6",
+   "provenance": "golden seed 101, event @tick 525 (selection)",
+   "from": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3243,
+   "modeMaskAbsolute": 1941,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    9,
+    0,
+    4,
+    8
+   ],
+   "realized": [
+    55,
+    57,
+    60,
+    64,
+    68
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-101-7",
+   "provenance": "golden seed 101, event @tick 600 (selection)",
+   "from": [
+    55,
+    57,
+    60,
+    64,
+    68
+   ],
+   "modeMaskRootRelative": 3243,
+   "modeMaskAbsolute": 1941,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    9,
+    0,
+    4,
+    8
+   ],
+   "realized": [
+    55,
+    57,
+    60,
+    64,
+    68
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-9",
+   "provenance": "golden seed 101, event @tick 673 (quench)",
+   "from": [
+    55,
+    57,
+    60,
+    64,
+    68
+   ],
+   "modeMaskRootRelative": 3755,
+   "modeMaskAbsolute": 2005,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 13,
+   "sortedDisplacement": 13,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-10",
+   "provenance": "golden seed 101, event @tick 713 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3755,
+   "modeMaskAbsolute": 2005,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    2,
+    6,
+    8,
+    10
+   ],
+   "realized": [
+    58,
+    62,
+    66,
+    68,
+    70
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-11",
+   "provenance": "golden seed 101, event @tick 750 (selection)",
+   "from": [
+    58,
+    62,
+    66,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3755,
+   "modeMaskAbsolute": 2005,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-12",
+   "provenance": "golden seed 101, event @tick 788 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3755,
+   "modeMaskAbsolute": 2005,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-15",
+   "provenance": "golden seed 101, event @tick 993 (quench)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 1707,
+   "modeMaskAbsolute": 1749,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    70
+   ],
+   "greedyCost": 1,
+   "sortedDisplacement": 1,
+   "flags": []
+  },
+  {
+   "id": "golden-101-16",
+   "provenance": "golden seed 101, event @tick 1050 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1707,
+   "modeMaskAbsolute": 1749,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    70
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-18",
+   "provenance": "golden seed 101, event @tick 1238 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1707,
+   "modeMaskAbsolute": 1749,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    7,
+    10,
+    2,
+    6,
+    9
+   ],
+   "realized": [
+    55,
+    58,
+    62,
+    66,
+    69
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-101-19",
+   "provenance": "golden seed 101, event @tick 1275 (selection)",
+   "from": [
+    55,
+    58,
+    62,
+    66,
+    69
+   ],
+   "modeMaskRootRelative": 1707,
+   "modeMaskAbsolute": 1749,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    70
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-101-20",
+   "provenance": "golden seed 101, event @tick 1313 (quench)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1723,
+   "modeMaskAbsolute": 1751,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    2,
+    6,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    62,
+    66,
+    69
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-21",
+   "provenance": "golden seed 101, event @tick 1350 (selection)",
+   "from": [
+    57,
+    60,
+    62,
+    66,
+    69
+   ],
+   "modeMaskRootRelative": 1723,
+   "modeMaskAbsolute": 1751,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    2,
+    6,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    62,
+    66,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-23",
+   "provenance": "golden seed 101, event @tick 1500 (selection)",
+   "from": [
+    57,
+    60,
+    62,
+    66,
+    69
+   ],
+   "modeMaskRootRelative": 1723,
+   "modeMaskAbsolute": 1751,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    1,
+    4,
+    7,
+    10
+   ],
+   "realized": [
+    58,
+    61,
+    64,
+    67,
+    70
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-24",
+   "provenance": "golden seed 101, event @tick 1575 (selection)",
+   "from": [
+    58,
+    61,
+    64,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1723,
+   "modeMaskAbsolute": 1751,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    4,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    1,
+    4,
+    7,
+    10
+   ],
+   "realized": [
+    58,
+    61,
+    64,
+    67,
+    70
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-25",
+   "provenance": "golden seed 101, event @tick 1633 (quench)",
+   "from": [
+    58,
+    61,
+    64,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1715,
+   "modeMaskAbsolute": 1750,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    67,
+    70
+   ],
+   "greedyCost": 1,
+   "sortedDisplacement": 1,
+   "flags": []
+  },
+  {
+   "id": "golden-101-26",
+   "provenance": "golden seed 101, event @tick 1650 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    67,
+    70
+   ],
+   "modeMaskRootRelative": 1715,
+   "modeMaskAbsolute": 1750,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    2,
+    6,
+    9,
+    1
+   ],
+   "realized": [
+    58,
+    62,
+    66,
+    69,
+    73
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-101-27",
+   "provenance": "golden seed 101, event @tick 1688 (selection)",
+   "from": [
+    58,
+    62,
+    66,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1715,
+   "modeMaskAbsolute": 1750,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    2,
+    6,
+    9,
+    1
+   ],
+   "realized": [
+    58,
+    62,
+    66,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-28",
+   "provenance": "golden seed 101, event @tick 1800 (selection)",
+   "from": [
+    58,
+    62,
+    66,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1715,
+   "modeMaskAbsolute": 1750,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    1,
+    4,
+    7,
+    10,
+    2
+   ],
+   "realized": [
+    61,
+    64,
+    67,
+    70,
+    74
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-101-29",
+   "provenance": "golden seed 101, event @tick 1950 (selection)",
+   "from": [
+    61,
+    64,
+    67,
+    70,
+    74
+   ],
+   "modeMaskRootRelative": 1715,
+   "modeMaskAbsolute": 1750,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    1,
+    4,
+    7,
+    10,
+    2
+   ],
+   "realized": [
+    61,
+    64,
+    67,
+    70,
+    74
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-30",
+   "provenance": "golden seed 101, event @tick 1953 (quench)",
+   "from": [
+    61,
+    64,
+    67,
+    70,
+    74
+   ],
+   "modeMaskRootRelative": 1203,
+   "modeMaskAbsolute": 1686,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-31",
+   "provenance": "golden seed 101, event @tick 2025 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1203,
+   "modeMaskAbsolute": 1686,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    2,
+    7,
+    10,
+    2
+   ],
+   "realized": [
+    58,
+    62,
+    67,
+    70,
+    74
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-32",
+   "provenance": "golden seed 101, event @tick 2100 (selection)",
+   "from": [
+    58,
+    62,
+    67,
+    70,
+    74
+   ],
+   "modeMaskRootRelative": 1203,
+   "modeMaskAbsolute": 1686,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    2,
+    7,
+    10,
+    2
+   ],
+   "realized": [
+    58,
+    62,
+    67,
+    70,
+    74
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-33",
+   "provenance": "golden seed 101, event @tick 2175 (selection)",
+   "from": [
+    58,
+    62,
+    67,
+    70,
+    74
+   ],
+   "modeMaskRootRelative": 1203,
+   "modeMaskAbsolute": 1686,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-34",
+   "provenance": "golden seed 101, event @tick 2250 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1203,
+   "modeMaskAbsolute": 1686,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-35",
+   "provenance": "golden seed 101, event @tick 2273 (quench)",
+   "from": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 3251,
+   "modeMaskAbsolute": 1942,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    68,
+    70
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": []
+  },
+  {
+   "id": "golden-101-36",
+   "provenance": "golden seed 101, event @tick 2325 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3251,
+   "modeMaskAbsolute": 1942,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    68,
+    70
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-37",
+   "provenance": "golden seed 101, event @tick 2400 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3251,
+   "modeMaskAbsolute": 1942,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    8,
+    10,
+    2,
+    7,
+    9
+   ],
+   "realized": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-101-38",
+   "provenance": "golden seed 101, event @tick 2438 (selection)",
+   "from": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3251,
+   "modeMaskAbsolute": 1942,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    8,
+    10,
+    2,
+    7,
+    9
+   ],
+   "realized": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-39",
+   "provenance": "golden seed 101, event @tick 2475 (selection)",
+   "from": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3251,
+   "modeMaskAbsolute": 1942,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    68,
+    70
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-101-42",
+   "provenance": "golden seed 101, event @tick 2593 (quench)",
+   "from": [
+    57,
+    61,
+    64,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3507,
+   "modeMaskAbsolute": 1974,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 2,
+   "sortedDisplacement": 2,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-43",
+   "provenance": "golden seed 101, event @tick 2700 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3507,
+   "modeMaskAbsolute": 1974,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    2,
+    5,
+    8,
+    10
+   ],
+   "realized": [
+    58,
+    62,
+    65,
+    68,
+    70
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-44",
+   "provenance": "golden seed 101, event @tick 2738 (selection)",
+   "from": [
+    58,
+    62,
+    65,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3507,
+   "modeMaskAbsolute": 1974,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-45",
+   "provenance": "golden seed 101, event @tick 2775 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3507,
+   "modeMaskAbsolute": 1974,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-47",
+   "provenance": "golden seed 101, event @tick 2850 (selection)",
+   "from": [
+    58,
+    62,
+    65,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3507,
+   "modeMaskAbsolute": 1974,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    7,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    2,
+    5,
+    8,
+    10
+   ],
+   "realized": [
+    58,
+    62,
+    65,
+    68,
+    70
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-48",
+   "provenance": "golden seed 101, event @tick 2913 (quench)",
+   "from": [
+    58,
+    62,
+    65,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3379,
+   "modeMaskAbsolute": 1958,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    5,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    61,
+    65,
+    68,
+    70
+   ],
+   "greedyCost": 2,
+   "sortedDisplacement": 2,
+   "flags": []
+  },
+  {
+   "id": "golden-101-49",
+   "provenance": "golden seed 101, event @tick 2925 (selection)",
+   "from": [
+    57,
+    61,
+    65,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3379,
+   "modeMaskAbsolute": 1958,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    8,
+    10,
+    2,
+    7,
+    9
+   ],
+   "realized": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-101-50",
+   "provenance": "golden seed 101, event @tick 3000 (selection)",
+   "from": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3379,
+   "modeMaskAbsolute": 1958,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    9,
+    1,
+    5,
+    8
+   ],
+   "realized": [
+    55,
+    57,
+    61,
+    65,
+    68
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": []
+  },
+  {
+   "id": "golden-101-51",
+   "provenance": "golden seed 101, event @tick 3075 (selection)",
+   "from": [
+    55,
+    57,
+    61,
+    65,
+    68
+   ],
+   "modeMaskRootRelative": 3379,
+   "modeMaskAbsolute": 1958,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    9,
+    1,
+    5,
+    8
+   ],
+   "realized": [
+    55,
+    57,
+    61,
+    65,
+    68
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-53",
+   "provenance": "golden seed 101, event @tick 3225 (selection)",
+   "from": [
+    55,
+    57,
+    61,
+    65,
+    68
+   ],
+   "modeMaskRootRelative": 3379,
+   "modeMaskAbsolute": 1958,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    5,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    8,
+    10,
+    2,
+    7,
+    9
+   ],
+   "realized": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": []
+  },
+  {
+   "id": "golden-101-54",
+   "provenance": "golden seed 101, event @tick 3233 (quench)",
+   "from": [
+    56,
+    58,
+    62,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3347,
+   "modeMaskAbsolute": 1954,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    7,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "greedyCost": 15,
+   "sortedDisplacement": 15,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-55",
+   "provenance": "golden seed 101, event @tick 3300 (selection)",
+   "from": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 3347,
+   "modeMaskAbsolute": 1954,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    7,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-58",
+   "provenance": "golden seed 101, event @tick 3525 (selection)",
+   "from": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 3347,
+   "modeMaskAbsolute": 1954,
+   "modeDegrees": [
+    0,
+    1,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    8,
+    10,
+    5,
+    8,
+    10
+   ],
+   "realized": [
+    56,
+    58,
+    65,
+    68,
+    70
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-59",
+   "provenance": "golden seed 101, event @tick 3553 (quench)",
+   "from": [
+    56,
+    58,
+    65,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3345,
+   "modeMaskAbsolute": 930,
+   "modeDegrees": [
+    0,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    5,
+    8,
+    1,
+    7
+   ],
+   "realized": [
+    53,
+    57,
+    67,
+    68,
+    73
+   ],
+   "greedyCost": 17,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-101-60",
+   "provenance": "golden seed 101, event @tick 3600 (selection)",
+   "from": [
+    53,
+    57,
+    67,
+    68,
+    73
+   ],
+   "modeMaskRootRelative": 3345,
+   "modeMaskAbsolute": 930,
+   "modeDegrees": [
+    0,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    7,
+    9,
+    5,
+    8,
+    1
+   ],
+   "realized": [
+    55,
+    57,
+    65,
+    68,
+    73
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": []
+  },
+  {
+   "id": "golden-101-61",
+   "provenance": "golden seed 101, event @tick 3675 (selection)",
+   "from": [
+    55,
+    57,
+    65,
+    68,
+    73
+   ],
+   "modeMaskRootRelative": 3345,
+   "modeMaskAbsolute": 930,
+   "modeDegrees": [
+    0,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    7,
+    9,
+    5,
+    8,
+    1
+   ],
+   "realized": [
+    55,
+    57,
+    65,
+    68,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-64",
+   "provenance": "golden seed 101, event @tick 3873 (quench)",
+   "from": [
+    55,
+    57,
+    65,
+    68,
+    73
+   ],
+   "modeMaskRootRelative": 3353,
+   "modeMaskAbsolute": 931,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    7,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-65",
+   "provenance": "golden seed 101, event @tick 3900 (selection)",
+   "from": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 3353,
+   "modeMaskAbsolute": 931,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    8,
+    0,
+    5,
+    8,
+    0
+   ],
+   "realized": [
+    56,
+    60,
+    65,
+    68,
+    72
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-66",
+   "provenance": "golden seed 101, event @tick 4050 (selection)",
+   "from": [
+    56,
+    60,
+    65,
+    68,
+    72
+   ],
+   "modeMaskRootRelative": 3353,
+   "modeMaskAbsolute": 931,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    7,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-67",
+   "provenance": "golden seed 101, event @tick 4193 (quench)",
+   "from": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 3345,
+   "modeMaskAbsolute": 930,
+   "modeDegrees": [
+    0,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    5,
+    8,
+    1,
+    7
+   ],
+   "realized": [
+    57,
+    65,
+    67,
+    68,
+    73
+   ],
+   "greedyCost": 15,
+   "sortedDisplacement": 5,
+   "flags": []
+  },
+  {
+   "id": "golden-101-68",
+   "provenance": "golden seed 101, event @tick 4200 (selection)",
+   "from": [
+    57,
+    65,
+    67,
+    68,
+    73
+   ],
+   "modeMaskRootRelative": 3345,
+   "modeMaskAbsolute": 930,
+   "modeDegrees": [
+    0,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    7,
+    9,
+    5,
+    8,
+    1
+   ],
+   "realized": [
+    55,
+    65,
+    68,
+    69,
+    73
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 4,
+   "flags": []
+  },
+  {
+   "id": "golden-101-69",
+   "provenance": "golden seed 101, event @tick 4275 (selection)",
+   "from": [
+    55,
+    65,
+    68,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 3345,
+   "modeMaskAbsolute": 930,
+   "modeDegrees": [
+    0,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    5,
+    8,
+    1,
+    7
+   ],
+   "realized": [
+    57,
+    65,
+    67,
+    68,
+    73
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 4,
+   "flags": []
+  },
+  {
+   "id": "golden-101-72",
+   "provenance": "golden seed 101, event @tick 4500 (selection)",
+   "from": [
+    57,
+    65,
+    67,
+    68,
+    73
+   ],
+   "modeMaskRootRelative": 3345,
+   "modeMaskAbsolute": 930,
+   "modeDegrees": [
+    0,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    8,
+    1,
+    7,
+    9,
+    5
+   ],
+   "realized": [
+    56,
+    61,
+    67,
+    69,
+    77
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": []
+  },
+  {
+   "id": "golden-101-73",
+   "provenance": "golden seed 101, event @tick 4513 (quench)",
+   "from": [
+    56,
+    61,
+    67,
+    69,
+    77
+   ],
+   "modeMaskRootRelative": 3349,
+   "modeMaskAbsolute": 2978,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    7,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-74",
+   "provenance": "golden seed 101, event @tick 4575 (selection)",
+   "from": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 3349,
+   "modeMaskAbsolute": 2978,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    7,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-75",
+   "provenance": "golden seed 101, event @tick 4650 (selection)",
+   "from": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 3349,
+   "modeMaskAbsolute": 2978,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    8,
+    11,
+    5,
+    8,
+    11
+   ],
+   "realized": [
+    56,
+    59,
+    65,
+    68,
+    71
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-76",
+   "provenance": "golden seed 101, event @tick 4763 (selection)",
+   "from": [
+    56,
+    59,
+    65,
+    68,
+    71
+   ],
+   "modeMaskRootRelative": 3349,
+   "modeMaskAbsolute": 2978,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    7,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-78",
+   "provenance": "golden seed 101, event @tick 4833 (quench)",
+   "from": [
+    57,
+    61,
+    67,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 2325,
+   "modeMaskAbsolute": 2850,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    8,
+    11,
+    5
+   ],
+   "realized": [
+    57,
+    61,
+    68,
+    71,
+    77
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-101-79",
+   "provenance": "golden seed 101, event @tick 4875 (selection)",
+   "from": [
+    57,
+    61,
+    68,
+    71,
+    77
+   ],
+   "modeMaskRootRelative": 2325,
+   "modeMaskAbsolute": 2850,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    8,
+    11,
+    5
+   ],
+   "realized": [
+    57,
+    61,
+    68,
+    71,
+    77
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-82",
+   "provenance": "golden seed 101, event @tick 5100 (selection)",
+   "from": [
+    57,
+    61,
+    68,
+    71,
+    77
+   ],
+   "modeMaskRootRelative": 2325,
+   "modeMaskAbsolute": 2850,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    11,
+    5,
+    9,
+    1,
+    8
+   ],
+   "realized": [
+    59,
+    65,
+    69,
+    73,
+    80
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": []
+  },
+  {
+   "id": "golden-101-83",
+   "provenance": "golden seed 101, event @tick 5153 (quench)",
+   "from": [
+    59,
+    65,
+    69,
+    73,
+    80
+   ],
+   "modeMaskRootRelative": 2837,
+   "modeMaskAbsolute": 2914,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    6,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    66,
+    69,
+    85
+   ],
+   "greedyCost": 18,
+   "sortedDisplacement": 18,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-84",
+   "provenance": "golden seed 101, event @tick 5175 (selection)",
+   "from": [
+    57,
+    61,
+    66,
+    69,
+    85
+   ],
+   "modeMaskRootRelative": 2837,
+   "modeMaskAbsolute": 2914,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    8,
+    11,
+    5,
+    8,
+    11
+   ],
+   "realized": [
+    56,
+    59,
+    65,
+    68,
+    83
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-85",
+   "provenance": "golden seed 101, event @tick 5250 (selection)",
+   "from": [
+    56,
+    59,
+    65,
+    68,
+    83
+   ],
+   "modeMaskRootRelative": 2837,
+   "modeMaskAbsolute": 2914,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    8,
+    11,
+    5,
+    8,
+    11
+   ],
+   "realized": [
+    56,
+    59,
+    65,
+    68,
+    83
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-87",
+   "provenance": "golden seed 101, event @tick 5400 (selection)",
+   "from": [
+    56,
+    59,
+    65,
+    68,
+    83
+   ],
+   "modeMaskRootRelative": 2837,
+   "modeMaskAbsolute": 2914,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    6,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    66,
+    69,
+    85
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-88",
+   "provenance": "golden seed 101, event @tick 5473 (quench)",
+   "from": [
+    57,
+    61,
+    66,
+    69,
+    85
+   ],
+   "modeMaskRootRelative": 2965,
+   "modeMaskAbsolute": 2930,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    7,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    5,
+    8,
+    11
+   ],
+   "realized": [
+    57,
+    61,
+    65,
+    68,
+    83
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": []
+  },
+  {
+   "id": "golden-101-89",
+   "provenance": "golden seed 101, event @tick 5550 (selection)",
+   "from": [
+    57,
+    61,
+    65,
+    68,
+    83
+   ],
+   "modeMaskRootRelative": 2965,
+   "modeMaskAbsolute": 2930,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    7,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    5,
+    8,
+    11
+   ],
+   "realized": [
+    57,
+    61,
+    65,
+    68,
+    83
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-101-91",
+   "provenance": "golden seed 101, event @tick 5700 (selection)",
+   "from": [
+    57,
+    61,
+    65,
+    68,
+    83
+   ],
+   "modeMaskRootRelative": 2965,
+   "modeMaskAbsolute": 2930,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    7,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    11,
+    4,
+    6,
+    9,
+    1
+   ],
+   "realized": [
+    59,
+    64,
+    66,
+    69,
+    85
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-101-92",
+   "provenance": "golden seed 101, event @tick 5775 (selection)",
+   "from": [
+    59,
+    64,
+    66,
+    69,
+    85
+   ],
+   "modeMaskRootRelative": 2965,
+   "modeMaskAbsolute": 2930,
+   "modeDegrees": [
+    0,
+    2,
+    4,
+    7,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    5,
+    8,
+    11
+   ],
+   "realized": [
+    57,
+    61,
+    65,
+    68,
+    83
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-101-93",
+   "provenance": "golden seed 101, event @tick 5793 (quench)",
+   "from": [
+    57,
+    61,
+    65,
+    68,
+    83
+   ],
+   "modeMaskRootRelative": 2973,
+   "modeMaskAbsolute": 2931,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    6,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    66,
+    81
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-94",
+   "provenance": "golden seed 101, event @tick 5850 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    66,
+    81
+   ],
+   "modeMaskRootRelative": 2973,
+   "modeMaskAbsolute": 2931,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    6,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    66,
+    81
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-95",
+   "provenance": "golden seed 101, event @tick 5925 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    66,
+    81
+   ],
+   "modeMaskRootRelative": 2973,
+   "modeMaskAbsolute": 2931,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    11,
+    1,
+    5,
+    8,
+    11
+   ],
+   "realized": [
+    59,
+    61,
+    65,
+    68,
+    83
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-101-96",
+   "provenance": "golden seed 101, event @tick 6000 (selection)",
+   "from": [
+    59,
+    61,
+    65,
+    68,
+    83
+   ],
+   "modeMaskRootRelative": 2973,
+   "modeMaskAbsolute": 2931,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    7,
+    8,
+    9,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    11,
+    1,
+    5,
+    8,
+    11
+   ],
+   "realized": [
+    59,
+    61,
+    65,
+    68,
+    83
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-5",
+   "provenance": "golden seed 49374, event @tick 338 (selection)",
+   "from": [
+    57,
+    62,
+    64,
+    69,
+    74
+   ],
+   "modeMaskRootRelative": 1257,
+   "modeMaskAbsolute": 669,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    3,
+    7,
+    0,
+    3
+   ],
+   "realized": [
+    60,
+    63,
+    67,
+    72,
+    75
+   ],
+   "greedyCost": 11,
+   "sortedDisplacement": 11,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-6",
+   "provenance": "golden seed 49374, event @tick 352 (quench)",
+   "from": [
+    60,
+    63,
+    67,
+    72,
+    75
+   ],
+   "modeMaskRootRelative": 1273,
+   "modeMaskAbsolute": 671,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    7,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    67,
+    72
+   ],
+   "greedyCost": 17,
+   "sortedDisplacement": 17,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-10",
+   "provenance": "golden seed 49374, event @tick 525 (selection)",
+   "from": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1273,
+   "modeMaskAbsolute": 671,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    7,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    67,
+    72
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-13",
+   "provenance": "golden seed 49374, event @tick 672 (quench)",
+   "from": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1529,
+   "modeMaskAbsolute": 703,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    5,
+    9
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    65,
+    69
+   ],
+   "greedyCost": 13,
+   "sortedDisplacement": 13,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-14",
+   "provenance": "golden seed 49374, event @tick 713 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    65,
+    69
+   ],
+   "modeMaskRootRelative": 1529,
+   "modeMaskAbsolute": 703,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    5,
+    9
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    65,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-16",
+   "provenance": "golden seed 49374, event @tick 825 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    65,
+    69
+   ],
+   "modeMaskRootRelative": 1529,
+   "modeMaskAbsolute": 703,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    10
+   ],
+   "rootDegree": 7,
+   "targetPcs": [
+    7,
+    0,
+    2,
+    4,
+    7
+   ],
+   "realized": [
+    55,
+    60,
+    62,
+    64,
+    67
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-17",
+   "provenance": "golden seed 49374, event @tick 900 (selection)",
+   "from": [
+    55,
+    60,
+    62,
+    64,
+    67
+   ],
+   "modeMaskRootRelative": 1529,
+   "modeMaskAbsolute": 703,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    10
+   ],
+   "rootDegree": 7,
+   "targetPcs": [
+    7,
+    0,
+    2,
+    4,
+    7
+   ],
+   "realized": [
+    55,
+    60,
+    62,
+    64,
+    67
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-18",
+   "provenance": "golden seed 49374, event @tick 992 (quench)",
+   "from": [
+    55,
+    60,
+    62,
+    64,
+    67
+   ],
+   "modeMaskRootRelative": 505,
+   "modeMaskAbsolute": 575,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    5,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    65,
+    72
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-19",
+   "provenance": "golden seed 49374, event @tick 1050 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    65,
+    72
+   ],
+   "modeMaskRootRelative": 505,
+   "modeMaskAbsolute": 575,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    5,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    65,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-20",
+   "provenance": "golden seed 49374, event @tick 1125 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    65,
+    72
+   ],
+   "modeMaskRootRelative": 505,
+   "modeMaskAbsolute": 575,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-21",
+   "provenance": "golden seed 49374, event @tick 1200 (selection)",
+   "from": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 505,
+   "modeMaskAbsolute": 575,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-22",
+   "provenance": "golden seed 49374, event @tick 1275 (selection)",
+   "from": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 505,
+   "modeMaskAbsolute": 575,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    5,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    65,
+    72
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-23",
+   "provenance": "golden seed 49374, event @tick 1312 (quench)",
+   "from": [
+    57,
+    61,
+    63,
+    65,
+    72
+   ],
+   "modeMaskRootRelative": 249,
+   "modeMaskAbsolute": 543,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    69,
+    73
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-24",
+   "provenance": "golden seed 49374, event @tick 1350 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 249,
+   "modeMaskAbsolute": 543,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-26",
+   "provenance": "golden seed 49374, event @tick 1463 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 249,
+   "modeMaskAbsolute": 543,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    0,
+    2
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    72,
+    74
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-27",
+   "provenance": "golden seed 49374, event @tick 1500 (selection)",
+   "from": [
+    60,
+    62,
+    64,
+    72,
+    74
+   ],
+   "modeMaskRootRelative": 249,
+   "modeMaskAbsolute": 543,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    69,
+    73
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-30",
+   "provenance": "golden seed 49374, event @tick 1613 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 249,
+   "modeMaskAbsolute": 543,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    4,
+    0,
+    2,
+    4,
+    0
+   ],
+   "realized": [
+    52,
+    60,
+    62,
+    64,
+    72
+   ],
+   "greedyCost": 13,
+   "sortedDisplacement": 13,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-31",
+   "provenance": "golden seed 49374, event @tick 1632 (quench)",
+   "from": [
+    52,
+    60,
+    62,
+    64,
+    72
+   ],
+   "modeMaskRootRelative": 761,
+   "modeMaskAbsolute": 607,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    6,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    66,
+    72
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-32",
+   "provenance": "golden seed 49374, event @tick 1650 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 761,
+   "modeMaskAbsolute": 607,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    6,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    66,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-34",
+   "provenance": "golden seed 49374, event @tick 1800 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 761,
+   "modeMaskAbsolute": 607,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-35",
+   "provenance": "golden seed 49374, event @tick 1875 (selection)",
+   "from": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 761,
+   "modeMaskAbsolute": 607,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-37",
+   "provenance": "golden seed 49374, event @tick 1952 (quench)",
+   "from": [
+    60,
+    62,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 697,
+   "modeMaskAbsolute": 599,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    7,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-38",
+   "provenance": "golden seed 49374, event @tick 2100 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 697,
+   "modeMaskAbsolute": 599,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    7,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-39",
+   "provenance": "golden seed 49374, event @tick 2250 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 697,
+   "modeMaskAbsolute": 599,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    7,
+    9
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    6,
+    0,
+    2,
+    6,
+    0
+   ],
+   "realized": [
+    54,
+    60,
+    62,
+    66,
+    72
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-40",
+   "provenance": "golden seed 49374, event @tick 2272 (quench)",
+   "from": [
+    54,
+    60,
+    62,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 953,
+   "modeMaskAbsolute": 631,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    6,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-41",
+   "provenance": "golden seed 49374, event @tick 2325 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 953,
+   "modeMaskAbsolute": 631,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    6,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-44",
+   "provenance": "golden seed 49374, event @tick 2550 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 953,
+   "modeMaskAbsolute": 631,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    5,
+    9,
+    1
+   ],
+   "realized": [
+    60,
+    62,
+    65,
+    69,
+    73
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-45",
+   "provenance": "golden seed 49374, event @tick 2592 (quench)",
+   "from": [
+    60,
+    62,
+    65,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    5,
+    9
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    65,
+    69
+   ],
+   "greedyCost": 14,
+   "sortedDisplacement": 14,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-46",
+   "provenance": "golden seed 49374, event @tick 2663 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    65,
+    69
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    5,
+    9
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    65,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-48",
+   "provenance": "golden seed 49374, event @tick 2775 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    65,
+    69
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    6,
+    0
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    66,
+    72
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-49",
+   "provenance": "golden seed 49374, event @tick 2850 (selection)",
+   "from": [
+    60,
+    62,
+    64,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    6,
+    0
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    66,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-50",
+   "provenance": "golden seed 49374, event @tick 2925 (selection)",
+   "from": [
+    60,
+    62,
+    64,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    1,
+    3,
+    5,
+    9,
+    1
+   ],
+   "realized": [
+    61,
+    63,
+    65,
+    69,
+    73
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-51",
+   "provenance": "golden seed 49374, event @tick 3000 (selection)",
+   "from": [
+    61,
+    63,
+    65,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    2,
+    4,
+    6,
+    0,
+    2
+   ],
+   "realized": [
+    62,
+    64,
+    66,
+    72,
+    74
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-52",
+   "provenance": "golden seed 49374, event @tick 3150 (selection)",
+   "from": [
+    62,
+    64,
+    66,
+    72,
+    74
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    2,
+    4,
+    6,
+    0,
+    2
+   ],
+   "realized": [
+    62,
+    64,
+    66,
+    72,
+    74
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-53",
+   "provenance": "golden seed 49374, event @tick 3244 (selection)",
+   "from": [
+    62,
+    64,
+    66,
+    72,
+    74
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    1,
+    3,
+    5,
+    9,
+    1
+   ],
+   "realized": [
+    61,
+    63,
+    65,
+    69,
+    73
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-54",
+   "provenance": "golden seed 49374, event @tick 3300 (selection)",
+   "from": [
+    61,
+    63,
+    65,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 2,
+   "targetPcs": [
+    1,
+    3,
+    5,
+    9,
+    1
+   ],
+   "realized": [
+    61,
+    63,
+    65,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-55",
+   "provenance": "golden seed 49374, event @tick 3450 (selection)",
+   "from": [
+    61,
+    63,
+    65,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    2,
+    4,
+    6,
+    0
+   ],
+   "realized": [
+    60,
+    62,
+    64,
+    66,
+    72
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-57",
+   "provenance": "golden seed 49374, event @tick 3638 (selection)",
+   "from": [
+    60,
+    62,
+    64,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    5,
+    9
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    65,
+    69
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-67",
+   "provenance": "golden seed 49374, event @tick 4425 (selection)",
+   "from": [
+    62,
+    64,
+    66,
+    72,
+    74
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    3,
+    5,
+    9,
+    1,
+    3
+   ],
+   "realized": [
+    63,
+    65,
+    69,
+    73,
+    75
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-68",
+   "provenance": "golden seed 49374, event @tick 4500 (selection)",
+   "from": [
+    63,
+    65,
+    69,
+    73,
+    75
+   ],
+   "modeMaskRootRelative": 1017,
+   "modeMaskAbsolute": 639,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    2,
+    4,
+    6,
+    0,
+    2
+   ],
+   "realized": [
+    62,
+    64,
+    66,
+    72,
+    74
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-69",
+   "provenance": "golden seed 49374, event @tick 4560 (quench)",
+   "from": [
+    62,
+    64,
+    66,
+    72,
+    74
+   ],
+   "modeMaskRootRelative": 889,
+   "modeMaskAbsolute": 623,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    6,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    66,
+    72
+   ],
+   "greedyCost": 19,
+   "sortedDisplacement": 19,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-70",
+   "provenance": "golden seed 49374, event @tick 4575 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 889,
+   "modeMaskAbsolute": 623,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    3,
+    6,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    63,
+    66,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-73",
+   "provenance": "golden seed 49374, event @tick 4800 (selection)",
+   "from": [
+    57,
+    61,
+    63,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 889,
+   "modeMaskAbsolute": 623,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    6,
+    0,
+    2,
+    5,
+    9
+   ],
+   "realized": [
+    54,
+    60,
+    62,
+    65,
+    69
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-74",
+   "provenance": "golden seed 49374, event @tick 4875 (selection)",
+   "from": [
+    54,
+    60,
+    62,
+    65,
+    69
+   ],
+   "modeMaskRootRelative": 889,
+   "modeMaskAbsolute": 623,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    6,
+    0,
+    2,
+    5,
+    9
+   ],
+   "realized": [
+    54,
+    60,
+    62,
+    65,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-75",
+   "provenance": "golden seed 49374, event @tick 4880 (quench)",
+   "from": [
+    54,
+    60,
+    62,
+    65,
+    69
+   ],
+   "modeMaskRootRelative": 857,
+   "modeMaskAbsolute": 619,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    5,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    65,
+    69,
+    73
+   ],
+   "greedyCost": 15,
+   "sortedDisplacement": 15,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-76",
+   "provenance": "golden seed 49374, event @tick 4913 (selection)",
+   "from": [
+    57,
+    61,
+    65,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 857,
+   "modeMaskAbsolute": 619,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    8,
+    9
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    6,
+    0,
+    3,
+    6,
+    0
+   ],
+   "realized": [
+    54,
+    60,
+    63,
+    66,
+    72
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-77",
+   "provenance": "golden seed 49374, event @tick 4950 (selection)",
+   "from": [
+    54,
+    60,
+    63,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 857,
+   "modeMaskAbsolute": 619,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    8,
+    9
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    6,
+    0,
+    3,
+    6,
+    0
+   ],
+   "realized": [
+    54,
+    60,
+    63,
+    66,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-78",
+   "provenance": "golden seed 49374, event @tick 5100 (selection)",
+   "from": [
+    54,
+    60,
+    63,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 857,
+   "modeMaskAbsolute": 619,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    5,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    65,
+    69,
+    73
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-79",
+   "provenance": "golden seed 49374, event @tick 5138 (selection)",
+   "from": [
+    57,
+    61,
+    65,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 857,
+   "modeMaskAbsolute": 619,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    5,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    65,
+    69,
+    73
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-81",
+   "provenance": "golden seed 49374, event @tick 5200 (quench)",
+   "from": [
+    57,
+    61,
+    65,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 985,
+   "modeMaskAbsolute": 635,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    6,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-82",
+   "provenance": "golden seed 49374, event @tick 5250 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 985,
+   "modeMaskAbsolute": 635,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    3,
+    5,
+    9,
+    1
+   ],
+   "realized": [
+    60,
+    63,
+    65,
+    69,
+    73
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-83",
+   "provenance": "golden seed 49374, event @tick 5288 (selection)",
+   "from": [
+    60,
+    63,
+    65,
+    69,
+    73
+   ],
+   "modeMaskRootRelative": 985,
+   "modeMaskAbsolute": 635,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    6,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-84",
+   "provenance": "golden seed 49374, event @tick 5325 (selection)",
+   "from": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 985,
+   "modeMaskAbsolute": 635,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    6,
+    0
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-86",
+   "provenance": "golden seed 49374, event @tick 5520 (quench)",
+   "from": [
+    57,
+    61,
+    64,
+    66,
+    72
+   ],
+   "modeMaskRootRelative": 969,
+   "modeMaskAbsolute": 633,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    5,
+    9,
+    3
+   ],
+   "realized": [
+    57,
+    63,
+    65,
+    69,
+    75
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-87",
+   "provenance": "golden seed 49374, event @tick 5550 (selection)",
+   "from": [
+    57,
+    63,
+    65,
+    69,
+    75
+   ],
+   "modeMaskRootRelative": 969,
+   "modeMaskAbsolute": 633,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    5,
+    9,
+    3
+   ],
+   "realized": [
+    57,
+    63,
+    65,
+    69,
+    75
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-88",
+   "provenance": "golden seed 49374, event @tick 5700 (selection)",
+   "from": [
+    57,
+    63,
+    65,
+    69,
+    75
+   ],
+   "modeMaskRootRelative": 969,
+   "modeMaskAbsolute": 633,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    4,
+    6,
+    0,
+    4
+   ],
+   "realized": [
+    60,
+    64,
+    66,
+    72,
+    76
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-89",
+   "provenance": "golden seed 49374, event @tick 5813 (selection)",
+   "from": [
+    60,
+    64,
+    66,
+    72,
+    76
+   ],
+   "modeMaskRootRelative": 969,
+   "modeMaskAbsolute": 633,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    8,
+    9
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    4,
+    6,
+    0,
+    4
+   ],
+   "realized": [
+    60,
+    64,
+    66,
+    72,
+    76
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-49374-90",
+   "provenance": "golden seed 49374, event @tick 5840 (quench)",
+   "from": [
+    60,
+    64,
+    66,
+    72,
+    76
+   ],
+   "modeMaskRootRelative": 713,
+   "modeMaskAbsolute": 601,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    6,
+    0,
+    4
+   ],
+   "realized": [
+    57,
+    63,
+    66,
+    72,
+    76
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-91",
+   "provenance": "golden seed 49374, event @tick 5850 (selection)",
+   "from": [
+    57,
+    63,
+    66,
+    72,
+    76
+   ],
+   "modeMaskRootRelative": 713,
+   "modeMaskAbsolute": 601,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    9
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    6,
+    0,
+    4
+   ],
+   "realized": [
+    57,
+    63,
+    66,
+    72,
+    76
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-49374-94",
+   "provenance": "golden seed 49374, event @tick 6000 (selection)",
+   "from": [
+    57,
+    63,
+    66,
+    72,
+    76
+   ],
+   "modeMaskRootRelative": 713,
+   "modeMaskAbsolute": 601,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    9
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    6,
+    0,
+    4,
+    9,
+    3
+   ],
+   "realized": [
+    54,
+    60,
+    64,
+    69,
+    75
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-5",
+   "provenance": "golden seed 900001, event @tick 300 (selection)",
+   "from": [
+    60,
+    63,
+    67,
+    72,
+    75
+   ],
+   "modeMaskRootRelative": 1257,
+   "modeMaskAbsolute": 669,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    3,
+    7,
+    0,
+    3
+   ],
+   "realized": [
+    60,
+    63,
+    67,
+    72,
+    75
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-6",
+   "provenance": "golden seed 900001, event @tick 338 (selection)",
+   "from": [
+    60,
+    63,
+    67,
+    72,
+    75
+   ],
+   "modeMaskRootRelative": 1257,
+   "modeMaskAbsolute": 669,
+   "modeDegrees": [
+    0,
+    3,
+    5,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    2,
+    4,
+    9,
+    2
+   ],
+   "realized": [
+    57,
+    62,
+    64,
+    69,
+    74
+   ],
+   "greedyCost": 11,
+   "sortedDisplacement": 11,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-10",
+   "provenance": "golden seed 900001, event @tick 672 (quench)",
+   "from": [
+    57,
+    61,
+    63,
+    67,
+    72
+   ],
+   "modeMaskRootRelative": 1241,
+   "modeMaskAbsolute": 667,
+   "modeDegrees": [
+    0,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    1,
+    4,
+    9,
+    1
+   ],
+   "realized": [
+    57,
+    61,
+    64,
+    69,
+    73
+   ],
+   "greedyCost": 4,
+   "sortedDisplacement": 4,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-21",
+   "provenance": "golden seed 900001, event @tick 1275 (selection)",
+   "from": [
+    59,
+    61,
+    64,
+    69,
+    72
+   ],
+   "modeMaskRootRelative": 1245,
+   "modeMaskAbsolute": 2715,
+   "modeDegrees": [
+    0,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    11,
+    1,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    59,
+    61,
+    64,
+    69,
+    72
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-30",
+   "provenance": "golden seed 900001, event @tick 1913 (selection)",
+   "from": [
+    57,
+    63,
+    67,
+    72,
+    76
+   ],
+   "modeMaskRootRelative": 1225,
+   "modeMaskAbsolute": 665,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    4,
+    9,
+    3,
+    7
+   ],
+   "realized": [
+    60,
+    64,
+    69,
+    75,
+    79
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-31",
+   "provenance": "golden seed 900001, event @tick 1950 (selection)",
+   "from": [
+    60,
+    64,
+    69,
+    75,
+    79
+   ],
+   "modeMaskRootRelative": 1225,
+   "modeMaskAbsolute": 665,
+   "modeDegrees": [
+    0,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    0,
+    4,
+    9,
+    3,
+    7
+   ],
+   "realized": [
+    60,
+    64,
+    69,
+    75,
+    79
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-32",
+   "provenance": "golden seed 900001, event @tick 1952 (quench)",
+   "from": [
+    60,
+    64,
+    69,
+    75,
+    79
+   ],
+   "modeMaskRootRelative": 1227,
+   "modeMaskAbsolute": 1689,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    69,
+    84
+   ],
+   "greedyCost": 23,
+   "sortedDisplacement": 23,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-33",
+   "provenance": "golden seed 900001, event @tick 2025 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    69,
+    84
+   ],
+   "modeMaskRootRelative": 1227,
+   "modeMaskAbsolute": 1689,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    9,
+    0
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    69,
+    84
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-34",
+   "provenance": "golden seed 900001, event @tick 2100 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    69,
+    84
+   ],
+   "modeMaskRootRelative": 1227,
+   "modeMaskAbsolute": 1689,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    10,
+    3,
+    7,
+    10
+   ],
+   "realized": [
+    55,
+    58,
+    63,
+    67,
+    82
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-35",
+   "provenance": "golden seed 900001, event @tick 2175 (selection)",
+   "from": [
+    55,
+    58,
+    63,
+    67,
+    82
+   ],
+   "modeMaskRootRelative": 1227,
+   "modeMaskAbsolute": 1689,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    10,
+    3,
+    7,
+    10
+   ],
+   "realized": [
+    55,
+    58,
+    63,
+    67,
+    82
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-36",
+   "provenance": "golden seed 900001, event @tick 2250 (selection)",
+   "from": [
+    55,
+    58,
+    63,
+    67,
+    82
+   ],
+   "modeMaskRootRelative": 1227,
+   "modeMaskAbsolute": 1689,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    10
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    4,
+    9,
+    0,
+    4,
+    9
+   ],
+   "realized": [
+    52,
+    57,
+    60,
+    64,
+    81
+   ],
+   "greedyCost": 11,
+   "sortedDisplacement": 11,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-37",
+   "provenance": "golden seed 900001, event @tick 2272 (quench)",
+   "from": [
+    52,
+    57,
+    60,
+    64,
+    81
+   ],
+   "modeMaskRootRelative": 1739,
+   "modeMaskAbsolute": 1753,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    82
+   ],
+   "greedyCost": 16,
+   "sortedDisplacement": 16,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-38",
+   "provenance": "golden seed 900001, event @tick 2363 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    82
+   ],
+   "modeMaskRootRelative": 1739,
+   "modeMaskAbsolute": 1753,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    82
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-39",
+   "provenance": "golden seed 900001, event @tick 2400 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    82
+   ],
+   "modeMaskRootRelative": 1739,
+   "modeMaskAbsolute": 1753,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    7,
+    10,
+    3,
+    6,
+    9
+   ],
+   "realized": [
+    55,
+    58,
+    63,
+    66,
+    81
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-40",
+   "provenance": "golden seed 900001, event @tick 2550 (selection)",
+   "from": [
+    55,
+    58,
+    63,
+    66,
+    81
+   ],
+   "modeMaskRootRelative": 1739,
+   "modeMaskAbsolute": 1753,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    9,
+    10
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    10
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    82
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-41",
+   "provenance": "golden seed 900001, event @tick 2592 (quench)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    82
+   ],
+   "modeMaskRootRelative": 3787,
+   "modeMaskAbsolute": 2009,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    81
+   ],
+   "greedyCost": 1,
+   "sortedDisplacement": 1,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-42",
+   "provenance": "golden seed 900001, event @tick 2625 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    81
+   ],
+   "modeMaskRootRelative": 3787,
+   "modeMaskAbsolute": 2009,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    81
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-43",
+   "provenance": "golden seed 900001, event @tick 2700 (selection)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    81
+   ],
+   "modeMaskRootRelative": 3787,
+   "modeMaskAbsolute": 2009,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 7,
+   "targetPcs": [
+    8,
+    10,
+    3,
+    6,
+    8
+   ],
+   "realized": [
+    56,
+    58,
+    63,
+    66,
+    80
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-44",
+   "provenance": "golden seed 900001, event @tick 2775 (selection)",
+   "from": [
+    56,
+    58,
+    63,
+    66,
+    80
+   ],
+   "modeMaskRootRelative": 3787,
+   "modeMaskAbsolute": 2009,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 7,
+   "targetPcs": [
+    8,
+    10,
+    3,
+    6,
+    8
+   ],
+   "realized": [
+    56,
+    58,
+    63,
+    66,
+    80
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-45",
+   "provenance": "golden seed 900001, event @tick 2850 (selection)",
+   "from": [
+    56,
+    58,
+    63,
+    66,
+    80
+   ],
+   "modeMaskRootRelative": 3787,
+   "modeMaskAbsolute": 2009,
+   "modeDegrees": [
+    0,
+    1,
+    3,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    0,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    60,
+    64,
+    67,
+    81
+   ],
+   "greedyCost": 6,
+   "sortedDisplacement": 6,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-46",
+   "provenance": "golden seed 900001, event @tick 2912 (quench)",
+   "from": [
+    57,
+    60,
+    64,
+    67,
+    81
+   ],
+   "modeMaskRootRelative": 3779,
+   "modeMaskAbsolute": 2008,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    6,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    63,
+    66,
+    68,
+    82
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-47",
+   "provenance": "golden seed 900001, event @tick 2963 (selection)",
+   "from": [
+    57,
+    63,
+    66,
+    68,
+    82
+   ],
+   "modeMaskRootRelative": 3779,
+   "modeMaskAbsolute": 2008,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    4,
+    7,
+    9,
+    3
+   ],
+   "realized": [
+    58,
+    64,
+    67,
+    69,
+    85
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 7,
+   "flags": [
+    "clampMax"
+   ]
+  },
+  {
+   "id": "golden-900001-48",
+   "provenance": "golden seed 900001, event @tick 3000 (selection)",
+   "from": [
+    58,
+    64,
+    67,
+    69,
+    85
+   ],
+   "modeMaskRootRelative": 3779,
+   "modeMaskAbsolute": 2008,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    6,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    63,
+    66,
+    68,
+    82
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-49",
+   "provenance": "golden seed 900001, event @tick 3150 (selection)",
+   "from": [
+    57,
+    63,
+    66,
+    68,
+    82
+   ],
+   "modeMaskRootRelative": 3779,
+   "modeMaskAbsolute": 2008,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    6,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    63,
+    66,
+    68,
+    82
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-52",
+   "provenance": "golden seed 900001, event @tick 3456 (quench)",
+   "from": [
+    57,
+    63,
+    66,
+    68,
+    82
+   ],
+   "modeMaskRootRelative": 3777,
+   "modeMaskAbsolute": 984,
+   "modeDegrees": [
+    0,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    4,
+    7,
+    9,
+    4
+   ],
+   "realized": [
+    57,
+    64,
+    67,
+    69,
+    76
+   ],
+   "greedyCost": 9,
+   "sortedDisplacement": 9,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-53",
+   "provenance": "golden seed 900001, event @tick 3525 (selection)",
+   "from": [
+    57,
+    64,
+    67,
+    69,
+    76
+   ],
+   "modeMaskRootRelative": 3777,
+   "modeMaskAbsolute": 984,
+   "modeDegrees": [
+    0,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    8,
+    3,
+    6,
+    8,
+    3
+   ],
+   "realized": [
+    56,
+    63,
+    66,
+    68,
+    75
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-54",
+   "provenance": "golden seed 900001, event @tick 3600 (selection)",
+   "from": [
+    56,
+    63,
+    66,
+    68,
+    75
+   ],
+   "modeMaskRootRelative": 3777,
+   "modeMaskAbsolute": 984,
+   "modeDegrees": [
+    0,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    4,
+    7,
+    9,
+    4
+   ],
+   "realized": [
+    57,
+    64,
+    67,
+    69,
+    76
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-55",
+   "provenance": "golden seed 900001, event @tick 3675 (selection)",
+   "from": [
+    57,
+    64,
+    67,
+    69,
+    76
+   ],
+   "modeMaskRootRelative": 3777,
+   "modeMaskAbsolute": 984,
+   "modeDegrees": [
+    0,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    4,
+    7,
+    9,
+    4
+   ],
+   "realized": [
+    57,
+    64,
+    67,
+    69,
+    76
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-57",
+   "provenance": "golden seed 900001, event @tick 3776 (quench)",
+   "from": [
+    57,
+    64,
+    67,
+    69,
+    76
+   ],
+   "modeMaskRootRelative": 3265,
+   "modeMaskAbsolute": 920,
+   "modeDegrees": [
+    0,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    4,
+    8,
+    3,
+    7
+   ],
+   "realized": [
+    57,
+    63,
+    64,
+    68,
+    79
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-58",
+   "provenance": "golden seed 900001, event @tick 3825 (selection)",
+   "from": [
+    57,
+    63,
+    64,
+    68,
+    79
+   ],
+   "modeMaskRootRelative": 3265,
+   "modeMaskAbsolute": 920,
+   "modeDegrees": [
+    0,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    8,
+    3,
+    7,
+    9,
+    4
+   ],
+   "realized": [
+    56,
+    63,
+    67,
+    69,
+    76
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-59",
+   "provenance": "golden seed 900001, event @tick 3863 (selection)",
+   "from": [
+    56,
+    63,
+    67,
+    69,
+    76
+   ],
+   "modeMaskRootRelative": 3265,
+   "modeMaskAbsolute": 920,
+   "modeDegrees": [
+    0,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    8,
+    3,
+    7,
+    9,
+    4
+   ],
+   "realized": [
+    56,
+    63,
+    67,
+    69,
+    76
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-60",
+   "provenance": "golden seed 900001, event @tick 3900 (selection)",
+   "from": [
+    56,
+    63,
+    67,
+    69,
+    76
+   ],
+   "modeMaskRootRelative": 3265,
+   "modeMaskAbsolute": 920,
+   "modeDegrees": [
+    0,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    4,
+    8,
+    3,
+    7
+   ],
+   "realized": [
+    57,
+    63,
+    64,
+    68,
+    79
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 8,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-64",
+   "provenance": "golden seed 900001, event @tick 4096 (quench)",
+   "from": [
+    57,
+    63,
+    64,
+    68,
+    79
+   ],
+   "modeMaskRootRelative": 3267,
+   "modeMaskAbsolute": 1944,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    7,
+    9,
+    3
+   ],
+   "realized": [
+    57,
+    63,
+    67,
+    69,
+    75
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-65",
+   "provenance": "golden seed 900001, event @tick 4125 (selection)",
+   "from": [
+    57,
+    63,
+    67,
+    69,
+    75
+   ],
+   "modeMaskRootRelative": 3267,
+   "modeMaskAbsolute": 1944,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    4,
+    8,
+    10,
+    4
+   ],
+   "realized": [
+    58,
+    64,
+    68,
+    70,
+    76
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-66",
+   "provenance": "golden seed 900001, event @tick 4200 (selection)",
+   "from": [
+    58,
+    64,
+    68,
+    70,
+    76
+   ],
+   "modeMaskRootRelative": 3267,
+   "modeMaskAbsolute": 1944,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 1,
+   "targetPcs": [
+    10,
+    4,
+    8,
+    10,
+    4
+   ],
+   "realized": [
+    58,
+    64,
+    68,
+    70,
+    76
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-67",
+   "provenance": "golden seed 900001, event @tick 4275 (selection)",
+   "from": [
+    58,
+    64,
+    68,
+    70,
+    76
+   ],
+   "modeMaskRootRelative": 3267,
+   "modeMaskAbsolute": 1944,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    7,
+    9,
+    3
+   ],
+   "realized": [
+    57,
+    63,
+    67,
+    69,
+    75
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-68",
+   "provenance": "golden seed 900001, event @tick 4350 (selection)",
+   "from": [
+    57,
+    63,
+    67,
+    69,
+    75
+   ],
+   "modeMaskRootRelative": 3267,
+   "modeMaskAbsolute": 1944,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    7,
+    9,
+    3
+   ],
+   "realized": [
+    57,
+    63,
+    67,
+    69,
+    75
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-69",
+   "provenance": "golden seed 900001, event @tick 4416 (quench)",
+   "from": [
+    57,
+    63,
+    67,
+    69,
+    75
+   ],
+   "modeMaskRootRelative": 3779,
+   "modeMaskAbsolute": 2008,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    6,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    63,
+    66,
+    68,
+    70
+   ],
+   "greedyCost": 7,
+   "sortedDisplacement": 7,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-70",
+   "provenance": "golden seed 900001, event @tick 4500 (selection)",
+   "from": [
+    57,
+    63,
+    66,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3779,
+   "modeMaskAbsolute": 2008,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    7,
+    9,
+    3,
+    6,
+    8
+   ],
+   "realized": [
+    55,
+    57,
+    63,
+    66,
+    68
+   ],
+   "greedyCost": 15,
+   "sortedDisplacement": 15,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-71",
+   "provenance": "golden seed 900001, event @tick 4575 (selection)",
+   "from": [
+    55,
+    57,
+    63,
+    66,
+    68
+   ],
+   "modeMaskRootRelative": 3779,
+   "modeMaskAbsolute": 2008,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    8,
+    10,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    56,
+    58,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-72",
+   "provenance": "golden seed 900001, event @tick 4650 (selection)",
+   "from": [
+    56,
+    58,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3779,
+   "modeMaskAbsolute": 2008,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    8,
+    10,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    56,
+    58,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-73",
+   "provenance": "golden seed 900001, event @tick 4688 (selection)",
+   "from": [
+    56,
+    58,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3779,
+   "modeMaskAbsolute": 2008,
+   "modeDegrees": [
+    0,
+    1,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    3,
+    6,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    63,
+    66,
+    68,
+    70
+   ],
+   "greedyCost": 10,
+   "sortedDisplacement": 10,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-74",
+   "provenance": "golden seed 900001, event @tick 4736 (quench)",
+   "from": [
+    57,
+    63,
+    66,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3783,
+   "modeMaskAbsolute": 4056,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    59,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 8,
+   "sortedDisplacement": 8,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-75",
+   "provenance": "golden seed 900001, event @tick 4763 (selection)",
+   "from": [
+    57,
+    59,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3783,
+   "modeMaskAbsolute": 4056,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    59,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-77",
+   "provenance": "golden seed 900001, event @tick 4950 (selection)",
+   "from": [
+    57,
+    59,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3783,
+   "modeMaskAbsolute": 4056,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 7,
+   "targetPcs": [
+    8,
+    10,
+    3,
+    6,
+    8
+   ],
+   "realized": [
+    56,
+    58,
+    63,
+    66,
+    68
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-78",
+   "provenance": "golden seed 900001, event @tick 4988 (selection)",
+   "from": [
+    56,
+    58,
+    63,
+    66,
+    68
+   ],
+   "modeMaskRootRelative": 3783,
+   "modeMaskAbsolute": 4056,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    9,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    4,
+    7,
+    9
+   ],
+   "realized": [
+    57,
+    59,
+    64,
+    67,
+    69
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-79",
+   "provenance": "golden seed 900001, event @tick 5056 (quench)",
+   "from": [
+    57,
+    59,
+    64,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3271,
+   "modeMaskAbsolute": 3992,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    4,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    59,
+    64,
+    68,
+    70
+   ],
+   "greedyCost": 2,
+   "sortedDisplacement": 2,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-80",
+   "provenance": "golden seed 900001, event @tick 5100 (selection)",
+   "from": [
+    57,
+    59,
+    64,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3271,
+   "modeMaskAbsolute": 3992,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    4,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    59,
+    64,
+    68,
+    70
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-81",
+   "provenance": "golden seed 900001, event @tick 5250 (selection)",
+   "from": [
+    57,
+    59,
+    64,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 3271,
+   "modeMaskAbsolute": 3992,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 6,
+   "targetPcs": [
+    8,
+    10,
+    3,
+    7,
+    9
+   ],
+   "realized": [
+    56,
+    58,
+    63,
+    67,
+    69
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-82",
+   "provenance": "golden seed 900001, event @tick 5363 (selection)",
+   "from": [
+    56,
+    58,
+    63,
+    67,
+    69
+   ],
+   "modeMaskRootRelative": 3271,
+   "modeMaskAbsolute": 3992,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    10,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    4,
+    8,
+    10
+   ],
+   "realized": [
+    57,
+    59,
+    64,
+    68,
+    70
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-83",
+   "provenance": "golden seed 900001, event @tick 5376 (quench)",
+   "from": [
+    57,
+    59,
+    64,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 2247,
+   "modeMaskAbsolute": 3864,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    4,
+    9,
+    11
+   ],
+   "realized": [
+    57,
+    59,
+    64,
+    69,
+    71
+   ],
+   "greedyCost": 2,
+   "sortedDisplacement": 2,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-84",
+   "provenance": "golden seed 900001, event @tick 5400 (selection)",
+   "from": [
+    57,
+    59,
+    64,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 2247,
+   "modeMaskAbsolute": 3864,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    4,
+    9,
+    11
+   ],
+   "realized": [
+    57,
+    59,
+    64,
+    69,
+    71
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-87",
+   "provenance": "golden seed 900001, event @tick 5588 (selection)",
+   "from": [
+    57,
+    59,
+    64,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 2247,
+   "modeMaskAbsolute": 3864,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    7,
+    11
+   ],
+   "rootDegree": 5,
+   "targetPcs": [
+    8,
+    10,
+    3,
+    8,
+    10
+   ],
+   "realized": [
+    56,
+    58,
+    63,
+    68,
+    70
+   ],
+   "greedyCost": 5,
+   "sortedDisplacement": 5,
+   "flags": [
+    "pcDoubling"
+   ]
+  },
+  {
+   "id": "golden-900001-88",
+   "provenance": "golden seed 900001, event @tick 5696 (quench)",
+   "from": [
+    56,
+    58,
+    63,
+    68,
+    70
+   ],
+   "modeMaskRootRelative": 2119,
+   "modeMaskAbsolute": 3848,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    8,
+    10,
+    3
+   ],
+   "realized": [
+    57,
+    59,
+    68,
+    70,
+    75
+   ],
+   "greedyCost": 14,
+   "sortedDisplacement": 14,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-89",
+   "provenance": "golden seed 900001, event @tick 5700 (selection)",
+   "from": [
+    57,
+    59,
+    68,
+    70,
+    75
+   ],
+   "modeMaskRootRelative": 2119,
+   "modeMaskAbsolute": 3848,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    11
+   ],
+   "rootDegree": 0,
+   "targetPcs": [
+    9,
+    11,
+    8,
+    10,
+    3
+   ],
+   "realized": [
+    57,
+    59,
+    68,
+    70,
+    75
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-92",
+   "provenance": "golden seed 900001, event @tick 5888 (selection)",
+   "from": [
+    57,
+    59,
+    68,
+    70,
+    75
+   ],
+   "modeMaskRootRelative": 2119,
+   "modeMaskAbsolute": 3848,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    11
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    8,
+    10,
+    3,
+    9,
+    11
+   ],
+   "realized": [
+    56,
+    58,
+    63,
+    69,
+    71
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-93",
+   "provenance": "golden seed 900001, event @tick 5925 (selection)",
+   "from": [
+    56,
+    58,
+    63,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 2119,
+   "modeMaskAbsolute": 3848,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    11
+   ],
+   "rootDegree": 4,
+   "targetPcs": [
+    8,
+    10,
+    3,
+    9,
+    11
+   ],
+   "realized": [
+    56,
+    58,
+    63,
+    69,
+    71
+   ],
+   "greedyCost": 0,
+   "sortedDisplacement": 0,
+   "flags": []
+  },
+  {
+   "id": "golden-900001-95",
+   "provenance": "golden seed 900001, event @tick 6000 (selection)",
+   "from": [
+    56,
+    58,
+    63,
+    69,
+    71
+   ],
+   "modeMaskRootRelative": 2119,
+   "modeMaskAbsolute": 3848,
+   "modeDegrees": [
+    0,
+    1,
+    2,
+    6,
+    11
+   ],
+   "rootDegree": 3,
+   "targetPcs": [
+    3,
+    9,
+    11,
+    8,
+    10
+   ],
+   "realized": [
+    51,
+    57,
+    59,
+    68,
+    70
+   ],
+   "greedyCost": 12,
+   "sortedDisplacement": 12,
+   "flags": []
+  }
+ ]
+}
