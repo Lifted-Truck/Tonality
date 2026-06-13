@@ -89,7 +89,15 @@ list as new applications come into view.
   dynamics, terrain, and feel; all exact pc analysis is delegated here.
   Queries at chord-event rate (seconds), so **batch APIs suffice for its
   Phase 1** (Python import door, in-process; browser frontend is
-  visualization only). Epistemically aligned by design: key-induction margins
+  visualization only). *(Destination confirmed brief-3, 2026-06-13: a
+  **VST3/AU JUCE plugin for Ableton Live** — Phase 1's no-audio prototype
+  is built + passing its ten acceptance criteria and stays throwaway. The
+  plugin ships no CPython/sidecar, so TERRANE becomes the motivating
+  **native-export** consumer: a fixed four-function subset — weighted key
+  induction, `voice_leading_realized`, `dft_magnitudes` evenness, chord
+  identity/naming — all harmonic-rate, never audio-rate. Ruled under the
+  Decision 10 consumer-port corollary; no blocker for Phase 1, which is
+  consuming the Python door correctly today.)* Epistemically aligned by design: key-induction margins
   and ambiguity are *rendered* (terrain ruggedness, gated home-pull), not
   worked around — margin semantics are therefore a stability contract
   (documented in INTEGRATION.md).
@@ -406,6 +414,29 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     regenerate goldens in the same PR, making output drift reviewable.
     Versioned priors and catalogs are JSON and ship to both
     implementations verbatim. See Phase 8.
+    *Consumer-port corollary (2026-06-13, ruled from TERRANE brief-3 —
+    its VST3/AU JUCE plugin can ship neither CPython nor a sidecar):*
+    **a consumer MAY maintain a faithful native port of the subset it
+    uses, in the interim before the Phase 8 shared core exists** — bounded
+    by two contracts so it is sanctioned interim, not a drift-prone fork.
+    (1) *Versioned data + documented algorithm:* the port computes the same
+    answers from the same versioned data, citing the same version strings.
+    Key profiles (`kk-1982.1`) are already portable JSON; the table-driven
+    functions (DFT/set-class/prime-form, the `doubling.1` pairing) are
+    deterministic algorithms over the 4096 mask-space, documented in their
+    docstrings — ported by reimplementation, optionally against a generated
+    precomputed-table artifact if a consumer wants pure data. (2) *Parity
+    is mechanically checkable, not trust-based:* the **golden conformance
+    harness is the oracle for consumer ports too** — a port is faithful iff
+    it reproduces the relevant golden cases (within the same tolerances).
+    The *destination* still removes the fork entirely: when the Phase 8 C++
+    core lands, consumers **link it** rather than maintaining a port. TERRANE
+    is the recorded motivating native consumer (four functions: weighted key
+    induction, `voice_leading_realized`, `dft_magnitudes` evenness, chord
+    identity/naming; all at harmonic-event rate, never audio-rate). A
+    **stable-schema versioned-data export** (priors + a generated set-class/
+    DFT table artifact) is the concrete deliverable this implies — recorded
+    in Phase 8.
 
 ## Build sequence
 
@@ -1081,6 +1112,18 @@ A4's plugin/device frame; side effects: WASM falls out nearly free.
       (rel 1e-9 / abs 1e-12), plus a coverage ratchet (a new tool without a
       conformance case fails the suite). Doubles as regression armor today;
       intended output changes regenerate goldens in the same PR.
+- [ ] **Versioned-data export (pullable forward — A native consumer can use
+      it before the full port).** Stable-schema embeddable artifacts a
+      non-Python consumer loads and pins by version: the priors (key
+      profiles already JSON; naming weights; the `doubling.1` policy
+      constant) plus a *generated* precomputed table for the algorithmic
+      pieces (set-class prime forms / DFT magnitudes over the 4096 masks),
+      so a consumer can choose data-load *or* documented-algorithm
+      reimplementation. Requested by TERRANE brief-3 (its JUCE plugin), and
+      the lowest-cost half of the consumer-port corollary (Decision 10) —
+      this alone may suffice for a faithful native port, parity-checked
+      against the conformance goldens. Independent of the sequencing fence
+      (it exports current 12-TET data; no substrate commitment).
 - [ ] Core identity layer (bitmask/set-class/symmetry/DFT) — `constexpr`
       tables over the 4096 universe; the cleanest layer, C++-native.
 - [ ] Analysis layer (parsers, naming + evidence, induction, VL, containment)
