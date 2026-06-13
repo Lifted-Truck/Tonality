@@ -933,7 +933,17 @@ descriptor-track item below and Decision 9.)*
     the shipped `TonnetzAnalysis` does not yet derive. Slice order behind
     keyboard + piano-roll unless A6 reorders by brief.)*
   - *register-required (`Realization`):* **keyboard / piano diagram** of a chosen
-    voicing, fretboard.
+    voicing, fretboard. **Keyboard delivered (2026-06-12, slice 1 — the
+    layer's first inhabitant, `mts/representation/keyboard.py`):** one
+    descriptor serves both keyboard uses across the lattice — register-less
+    scale membership (per key: pc, octave, black/white topology, in-scale /
+    degree-index / tonic flags; no context → no claim) and activation at a
+    **declared** spec level: `active_midi` lights exact keys (registered),
+    `active_pcs` lights every octave as an explicit octave-invariant
+    projection, both together errors, and the result's `spec_level` names
+    which was used so renderers show the difference instead of guessing.
+    Numeric only (labels/colors are the renderer's). MCP: `keyboard_view`
+    (#28). Sets the layer's conventions for piano-roll / bracelet / Tonnetz.
   - *register + time (depends on Phase 2):* **piano roll**, **staff / sheet-music**
     engraving model.
 - [ ] Stable output schemas (coordinates, encodings, an engraving model) with
