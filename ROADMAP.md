@@ -326,6 +326,31 @@ list as new applications come into view.
     local readings. Conformance goldens regenerated (additive field —
     a 4-line reviewable diff, the harness working as designed). Directly
     serves A6's player overlays now that A6 is the explicit GUI.
+14. **Next-chord recommendation** (added 2026-06-13, Julian's idea —
+    flagged by him as "a big build," recorded so it's decided). Given an
+    established context (a key, and a current chord or short progression
+    history), return **multiple ranked candidate next chords, each tagged**
+    with music-theoretic / qualitative / historical context — the engine's
+    plural-and-evidenced contract applied to *succession*, not just
+    identity. Decomposes onto existing + planned pieces (so it is a
+    *synthesis* target, not greenfield): the **functional-harmony generator**
+    (`theory/functions.py`) already enumerates per-degree candidate chords
+    with roles (T/PD/D) and tags (borrowed / modal-mix / secondary-dominant)
+    — the candidate *set*; **voice-leading distance** ranks/tags smoothness
+    and common-tone retention; **set-class/DFT** color gives a
+    tension/evenness axis; **cadence detection — gap 7** supplies cadential
+    candidates and the sequential vocabulary; **corpus transition statistics
+    — Phase 4.5** supply the *historical* tags as a versioned prior (the
+    one genuinely new data asset; the engine stays exact + no in-engine ML
+    per Decision 8, so this is a shipped transition table, not a model).
+    The hard/honest parts: a **tag taxonomy** (which annotations are
+    computable today vs corpus-dependent vs subjective) and whether
+    transition stats are one table or **per-style** priors. *Two background
+    research agents commissioned 2026-06-13* (one on succession theory + tag
+    taxonomy, one on corpus/licensing for a shippable transition prior);
+    this entry will be enriched from their findings before any build.
+    Natural home: a Phase 4.5/7 capability built atop gap 7 — sequence it
+    after the cadence + statistical-interpretation groundwork it leans on.
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.
