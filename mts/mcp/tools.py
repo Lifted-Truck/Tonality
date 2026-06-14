@@ -235,6 +235,45 @@ def relative_key(pc_weights: list[float]) -> dict:
     return disambiguate_relative_key(pc_weights).to_dict()
 
 
+def meter_estimation(
+    events: list[list[float]],
+    bpm: float = 120.0,
+    numerator: int = 4,
+    denominator: int = 4,
+) -> dict:
+    """Infer the time signature from note content — ranked candidate signatures
+    with scores + margin, and a declared-vs-estimated disagreement flag. Each
+    candidate's score combines bar-period autocorrelation (does the content
+    repeat each bar?) with metric-profile correlation (does the within-bar
+    accent match the meter's template — distinguishing e.g. 3/4 from 6/8);
+    templates are a versioned prior (meter-grid.1, cited). The engine NEVER
+    overrides the file's meter — numerator/denominator set the declared meter
+    and `agrees_with_declared` evidences against it. events: each [onset_beats,
+    duration_beats, midi_note] or [..., velocity] (velocity at index 3 weights
+    the accent). Raises on too few onsets or content with no metric information."""
+    from ..analysis import infer_meter
+    from ..temporal import Event, Sequence
+
+    try:
+        parsed = tuple(
+            Event(
+                float(e[0]), float(e[1]),
+                Pitch.from_midi(int(e[2]),
+                                velocity=int(e[3]) if len(e) > 3 and e[3] is not None else None),
+            )
+            for e in events
+        )
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            "Each event must be [onset_beats, duration_beats, midi_note] with "
+            f"optional velocity (index 3): {exc}"
+        ) from exc
+    sequence = Sequence.from_events(
+        parsed, bpm=float(bpm), time_signature=(int(numerator), int(denominator))
+    )
+    return infer_meter(sequence).to_dict()
+
+
 def name_pcs_in_inferred_keys(
     pcs: list[int],
     pc_weights: list[float],
@@ -1051,6 +1090,7 @@ TOOLS = (
     name_pcs,
     key_induction,
     relative_key,
+    meter_estimation,
     key_tracking,
     cadences,
     next_chord,

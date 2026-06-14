@@ -338,6 +338,25 @@ list as new applications come into view.
     claim — it evidences against it). Empirical templates ship as
     versioned priors. The *online* form joins gap 5's session, as with
     key tracking.
+    **Delivered — slice 1 (global batch + disagreement, 2026-06-13):**
+    `analysis/meter_estimation.py` `infer_meter(sequence)` + MCP tool
+    `meter_estimation` (#42) — `infer_key` for meter. Each candidate signature
+    is scored `period_score × max(profile_score, 0)`: **bar-period
+    autocorrelation** of the onset-salience signal (kills the aliasing where a
+    3-beat pattern spuriously folds onto a non-dividing 4.5-beat bar) × **metric-
+    profile correlation** (the within-bar accent vs the meter's template —
+    distinguishes 3/4 from 6/8, which share a 3-beat bar). Onset salience =
+    velocity when present, else unit; phase 0 (bar lines from the sequence start,
+    as `MeterMap` assumes). Candidate set + GTTM-style metric-grid templates are
+    a versioned prior (`data/meter_profiles.json`, `meter-grid.1` — Palmer–
+    Krumhansl empirical profiles welcome as a future version). Ranked + margin
+    (Decision 7); both sub-scores are evidence. **Never overrides** the file's
+    meter: the result carries the declared signature + `agrees_with_declared`,
+    leaving the `MeterMap` untouched. Degenerate input (too few onsets / flat
+    signal) raises. **Deferred follow-ons:** change-point detection / local meter
+    (the windowed form, as local key tracking was to `infer_key`); anacrusis/
+    phase estimation; agogic (duration) weighting; opt-in wiring into
+    `midi_file_analysis`; the online form (gap 5).
 12. **Performed-input tolerance** (added 2026-06-12; theory-grounding
     review pass #1's headline finding — A1/A6 feed real MIDI to exactly
     these paths). The temporal analysis layer silently assumes
