@@ -67,6 +67,16 @@ def _swung_events():
     return events
 
 
+def _induction_corpus():
+    # Hand-built, language-neutral (no RNG): 6 identical 2-voice pieces whose
+    # transitions induction mines into a small soft ruleset (Phase 4.6).
+    moments = [(60, 64), (62, 66), (64, 68), (62, 69), (60, 64)]
+    piece = []
+    for i, (a, b) in enumerate(moments):
+        piece += [[float(i), 1.0, a, "v0"], [float(i), 1.0, b, "v1"]]
+    return [list(piece) for _ in range(6)]
+
+
 def _groove_loop():
     # Swung, accented loop: [onset, dur, midi, velocity] (groove event format).
     events = []
@@ -188,6 +198,7 @@ CASES: list[tuple[str, dict]] = [
             "events": _satb_events(),
         },
     ),
+    ("induce_rules", {"corpus": _induction_corpus(), "family": "voice_motion"}),
     (
         "combine_rulesets",
         {"rulesets": [

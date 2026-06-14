@@ -6453,6 +6453,570 @@
   },
   {
    "kwargs": {
+    "corpus": [
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ]
+    ],
+    "family": "voice_motion"
+   },
+   "result": {
+    "caveat": "Exploratory: 6 piece(s) is below the 30-piece floor for confirmatory induction; treat rules as hypotheses (Fisher has little power on a handful of pieces).",
+    "evidence": [
+     {
+      "base_rate": 0.25,
+      "check": {
+       "motion": "similar"
+      },
+      "check_kind": "forbid",
+      "confidence": 0.0,
+      "context_items": 18,
+      "contingency": {
+       "a": 0,
+       "b": 18,
+       "c": 6,
+       "d": 0,
+       "n": 24
+      },
+      "items_considered": 24,
+      "leverage": -0.1875,
+      "p_value": 7.429641296918184e-06,
+      "q_value": 3.7e-05,
+      "rule_id": "induced-voice_motion-0",
+      "significant": true,
+      "support_items": 0,
+      "support_pieces": 0,
+      "where": {
+       "interval_class_from": 4
+      }
+     },
+     {
+      "base_rate": 0.25,
+      "check": {
+       "motion": "contrary"
+      },
+      "check_kind": "forbid",
+      "confidence": 0.0,
+      "context_items": 18,
+      "contingency": {
+       "a": 0,
+       "b": 18,
+       "c": 6,
+       "d": 0,
+       "n": 24
+      },
+      "items_considered": 24,
+      "leverage": -0.1875,
+      "p_value": 7.429641296918184e-06,
+      "q_value": 3.7e-05,
+      "rule_id": "induced-voice_motion-1",
+      "significant": true,
+      "support_items": 0,
+      "support_pieces": 0,
+      "where": {
+       "interval_class_to": 4
+      }
+     },
+     {
+      "base_rate": 0.5,
+      "check": {
+       "motion": "parallel"
+      },
+      "check_kind": "require",
+      "confidence": 0.666667,
+      "context_items": 18,
+      "contingency": {
+       "a": 12,
+       "b": 6,
+       "c": 0,
+       "d": 6,
+       "n": 24
+      },
+      "items_considered": 24,
+      "leverage": 0.125,
+      "p_value": 0.006864988558352402,
+      "q_value": 0.017162,
+      "rule_id": "induced-voice_motion-2",
+      "significant": true,
+      "support_items": 12,
+      "support_pieces": 6,
+      "where": {
+       "interval_class_from": 4
+      }
+     },
+     {
+      "base_rate": 0.5,
+      "check": {
+       "motion": "parallel"
+      },
+      "check_kind": "require",
+      "confidence": 0.666667,
+      "context_items": 18,
+      "contingency": {
+       "a": 12,
+       "b": 6,
+       "c": 0,
+       "d": 6,
+       "n": 24
+      },
+      "items_considered": 24,
+      "leverage": 0.125,
+      "p_value": 0.006864988558352402,
+      "q_value": 0.017162,
+      "rule_id": "induced-voice_motion-3",
+      "significant": true,
+      "support_items": 12,
+      "support_pieces": 6,
+      "where": {
+       "interval_class_to": 4
+      }
+     }
+    ],
+    "exploratory": true,
+    "family": "voice_motion",
+    "items": 24,
+    "pieces": 6,
+    "ruleset": {
+     "description": "Induced from 6 piece(s) over the voice_motion family (induction.fisher-bh.1; soft rules, Fisher's exact + BH-FDR q=0.05).",
+     "name": "induced-voice_motion",
+     "rules": [
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "motion": "similar"
+       },
+       "id": "induced-voice_motion-0",
+       "polarity": "soft",
+       "weight": 1.75,
+       "where": {
+        "interval_class_from": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "motion": "contrary"
+       },
+       "id": "induced-voice_motion-1",
+       "polarity": "soft",
+       "weight": 1.75,
+       "where": {
+        "interval_class_to": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "id": "induced-voice_motion-2",
+       "polarity": "soft",
+       "require": {
+        "motion": "parallel"
+       },
+       "weight": 1.5,
+       "where": {
+        "interval_class_from": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "id": "induced-voice_motion-3",
+       "polarity": "soft",
+       "require": {
+        "motion": "parallel"
+       },
+       "weight": 1.5,
+       "where": {
+        "interval_class_to": 4
+       }
+      }
+     ],
+     "version": "induced.1"
+    },
+    "scoring_prior": {
+     "arity_cap": 3,
+     "exploratory_floor_pieces": 30,
+     "fdr_q": 0.05,
+     "measure": "fishers_exact_one_sided",
+     "min_support_pieces": 5,
+     "null_model": "independence_given_marginals",
+     "source": "Phase 4.6 induction slice 1 (engineering defaults; corpus calibration deferred). Apriori frequent-pattern mining over the where-lattice with closed-itemset condensation; interestingness = Fisher's exact test (one-sided, in the leverage direction) vs an independence-given-marginals null, BH-FDR corrected, behind a piece-presence min-support floor, with leverage as the effect-size tie-break. Below exploratory_floor_pieces the result is flagged exploratory (Fisher has little power on a handful of pieces).",
+     "version": "induction.fisher-bh.1",
+     "weight_scale": 4.0
+    },
+    "tests_performed": 10
+   },
+   "tool": "induce_rules"
+  },
+  {
+   "kwargs": {
     "name": "cp",
     "rulesets": [
      {

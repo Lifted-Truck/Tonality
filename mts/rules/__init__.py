@@ -35,8 +35,12 @@ from .composition import (
     compare,
     specialize,
 )
+from .induction import InductionResult, RuleEvidence, induce_ruleset
 
 __all__ = [
+    "InductionResult",
+    "RuleEvidence",
+    "induce_ruleset",
     "FAMILIES",
     "Rule",
     "Ruleset",

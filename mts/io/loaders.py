@@ -34,6 +34,7 @@ _SWING_FEEL_CACHE: tuple[Path, int, tuple["SwingFeelPriors", ...]] | None = None
 _SUCCESSION_WEIGHTS_CACHE: tuple[Path, int, tuple["SuccessionWeights", ...]] | None = None
 _RELATIVE_KEY_CACHE: tuple[Path, int, tuple["RelativeKeyWeights", ...]] | None = None
 _KEY_SMOOTHING_CACHE: tuple[Path, int, tuple["KeySmoothingPriors", ...]] | None = None
+_SCORING_PRIORS_CACHE: tuple[Path, int, tuple["ScoringPrior", ...]] | None = None
 
 
 @dataclass(frozen=True)
@@ -134,6 +135,30 @@ class KeySmoothingPriors:
     source: str
     min_region_windows: int
     min_region_margin: float
+
+
+@dataclass(frozen=True)
+class ScoringPrior:
+    """One versioned ruleset-induction scoring table (a versioned empirical prior).
+
+    Documents the mining + interestingness configuration so an induction result is
+    reproducible and self-describing: the ``measure`` (Fisher's exact) and
+    ``null_model`` (independence given marginals), the piece-presence
+    ``min_support_pieces`` floor, ``exploratory_floor_pieces`` (below which results
+    are flagged exploratory), the BH-FDR ``fdr_q``, the ``arity_cap`` on conjunction
+    length, and ``weight_scale`` mapping |leverage| → soft-rule weight. Results cite
+    ``version`` (ROADMAP "versioned-priors pattern").
+    """
+
+    version: str
+    source: str
+    measure: str
+    null_model: str
+    min_support_pieces: int
+    exploratory_floor_pieces: int
+    fdr_q: float
+    arity_cap: int
+    weight_scale: float
 
 
 @dataclass(frozen=True)
@@ -395,6 +420,56 @@ def load_key_smoothing(version: str | None = None) -> KeySmoothingPriors:
             return entry
     known = ", ".join(e.version for e in entries)
     raise ValueError(f"Unknown key-smoothing version {version!r} (known: {known})")
+
+
+def load_scoring_prior(version: str | None = None) -> ScoringPrior:
+    """Load a versioned induction scoring prior from ``data/scoring_priors.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime.
+    """
+    global _SCORING_PRIORS_CACHE
+    path = DATA_DIR / "scoring_priors.json"
+    mtime = path.stat().st_mtime_ns
+    if _SCORING_PRIORS_CACHE is not None and _SCORING_PRIORS_CACHE[:2] == (path, mtime):
+        entries = _SCORING_PRIORS_CACHE[2]
+    else:
+        parsed: list[ScoringPrior] = []
+        for payload in _read_json("scoring_priors.json"):
+            prior = ScoringPrior(
+                version=str(payload["version"]),
+                source=str(payload.get("source", "")),
+                measure=str(payload["measure"]),
+                null_model=str(payload["null_model"]),
+                min_support_pieces=int(payload["min_support_pieces"]),
+                exploratory_floor_pieces=int(payload["exploratory_floor_pieces"]),
+                fdr_q=float(payload["fdr_q"]),
+                arity_cap=int(payload["arity_cap"]),
+                weight_scale=float(payload["weight_scale"]),
+            )
+            if prior.min_support_pieces < 1:
+                raise ValueError(
+                    f"Scoring prior {prior.version!r}: min_support_pieces must be >= 1"
+                )
+            if prior.arity_cap < 1:
+                raise ValueError(
+                    f"Scoring prior {prior.version!r}: arity_cap must be >= 1"
+                )
+            if not 0.0 < prior.fdr_q < 1.0:
+                raise ValueError(
+                    f"Scoring prior {prior.version!r}: fdr_q must be in (0, 1)"
+                )
+            parsed.append(prior)
+        if not parsed:
+            raise ValueError("scoring_priors.json contains no prior tables")
+        entries = tuple(parsed)
+        _SCORING_PRIORS_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown scoring-prior version {version!r} (known: {known})")
 
 
 def load_intervals() -> list[Interval]:

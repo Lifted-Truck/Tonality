@@ -1,0 +1,13 @@
+[
+  {
+    "version": "induction.fisher-bh.1",
+    "source": "Phase 4.6 induction slice 1 (engineering defaults; corpus calibration deferred). Apriori frequent-pattern mining over the where-lattice with closed-itemset condensation; interestingness = Fisher's exact test (one-sided, in the leverage direction) vs an independence-given-marginals null, BH-FDR corrected, behind a piece-presence min-support floor, with leverage as the effect-size tie-break. Below exploratory_floor_pieces the result is flagged exploratory (Fisher has little power on a handful of pieces).",
+    "measure": "fishers_exact_one_sided",
+    "null_model": "independence_given_marginals",
+    "min_support_pieces": 5,
+    "exploratory_floor_pieces": 30,
+    "fdr_q": 0.05,
+    "arity_cap": 3,
+    "weight_scale": 4.0
+  }
+]

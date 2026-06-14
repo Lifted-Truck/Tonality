@@ -1131,7 +1131,34 @@ provenance).
       Ruleset *comparison* (shared rules, conflicts, contradictions) ships
       with slice 2 above; implication-by-enumeration and corpus-conformance
       profiles are recorded there as deferred/derivable.
-- [ ] **Induction** (the rule-space). Version-space mining, not learning:
+- [x] **Induction** (the rule-space). **Slice 1 delivered (2026-06-13):**
+      `mts/rules/induction.py` `induce_ruleset(sequences, *, family, ...)` + MCP
+      tool `induce_rules` (#41). Apriori frequent-pattern mining over the
+      `where`-lattice (piece-presence support floor, anti-monotone prune +
+      same-field guard, arity cap 3, **closed**-itemset condensation) → rule
+      formation over frequent consequent literals → **Fisher's exact test**
+      (one-sided in the `leverage` direction, exact `Fraction` hypergeometric
+      recurrence — no SciPy) vs an independence-given-marginals null →
+      **BH-FDR** (q from the prior) over the realized search space. Emits a
+      **validated soft `Ruleset`** (round-trips through `validation_errors`;
+      empty when nothing is significant) + a `RuleEvidence` sidecar
+      (support/confidence/leverage/contingency/p/q). `leverage` sign picks
+      `require` (positive) vs `forbid` (negative — the spurious-forbid defuser);
+      weight = `1 + scale·|leverage|`. Mineable fields = categorical / bool /
+      low-card-int (`interval_class`, `pc`); floats + high-card ints excluded as
+      the explosion vectors (their idiom-bearing projections are already
+      fields). Deterministic (canonical ordering throughout); the scoring config
+      is a versioned prior (`data/scoring_priors.json`, `induction.fisher-bh.1`)
+      cited in the result; below `exploratory_floor_pieces` the result is
+      flagged `exploratory` (Fisher has little power on a handful). Tests pin a
+      planted "parallel motion forbids the perfect fifth" recovery + a
+      null/FDR-load-bearing check + the source-corpus self-conformance.
+      **Deferred follow-ons (recorded):** float-field bucketing + high-card
+      ints; the disjunction/exception **merge pass** (AND-only `where` fragments
+      one human rule — closed condensation mitigates); S/G generality-boundary
+      labeling; MDL rule-*set* scoring; cross-family / phrase / global scope;
+      hard-rule promotion. *Original design notes (retained):* Version-space
+      mining, not learning:
       enumerate which instantiations of the template vocabulary a corpus
       satisfies (or satisfies at frequency ≥ θ). Output is a *rule-space* —
       plural by construction — narrowed by counterexample pieces, thresholds,

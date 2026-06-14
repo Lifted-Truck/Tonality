@@ -672,6 +672,44 @@ def evaluate_ruleset(
     return evaluate(ruleset, _flex_events(events), harmony=spans).to_dict()
 
 
+def induce_rules(
+    corpus: list[list[list]],
+    family: str,
+    harmony: list[list[list]] | None = None,
+    scoring_prior: str | None = None,
+) -> dict:
+    """Mine a corpus for the statistically significant compositional rules it
+    follows (Phase 4.6 induction), emitting a validated SOFT ruleset in the DSL
+    plus per-rule evidence (support, confidence, leverage, Fisher p-value,
+    BH-FDR q-value). Apriori frequent-pattern mining over the where-lattice
+    (closed itemsets, arity cap 3) + Fisher's exact test vs an
+    independence-given-marginals null, BH-FDR at q=0.05; weights are a versioned
+    scoring prior cited in the result. corpus: a list of pieces, each a list of
+    [onset_beats, duration_beats, midi_note] (or [..., voice_label] — voices
+    needed for the voice_motion family). family: 'voice_motion' | 'melody' |
+    'rhythm'. harmony: optional per-piece list of [start_beat, end_beat, [pcs]]
+    spans (only melody's nht_type/is_chord_tone consult it). Below ~30 pieces
+    the result is flagged exploratory. The emitted ruleset round-trips through
+    the validator."""
+    from ..rules import induce_ruleset
+
+    pieces = [_flex_events(piece) for piece in corpus]
+    spans = None
+    if harmony is not None:
+        try:
+            spans = [
+                [(float(s), float(e), [int(pc) for pc in pcs]) for s, e, pcs in piece]
+                for piece in harmony
+            ]
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Each harmony span must be [start_beat, end_beat, [pcs]]: {exc}"
+            ) from exc
+    return induce_ruleset(
+        pieces, family=str(family), harmony=spans, scoring_prior=scoring_prior
+    ).to_dict()
+
+
 def combine_rulesets(
     rulesets: list[dict], name: str, version: str, description: str = ""
 ) -> dict:
@@ -1022,6 +1060,7 @@ TOOLS = (
     apply_groove,
     validate_ruleset,
     evaluate_ruleset,
+    induce_rules,
     combine_rulesets,
     specialize_ruleset,
     compare_rulesets,
