@@ -158,11 +158,15 @@ list as new applications come into view.
   back Eb major on this exact shape; **pipeline wiring ✅ shipped (2026-06-13,
   opt-in `disambiguate_relative[_keys]` on `key_tracking` /
   `midi_file_analysis` / `piano_roll_view`)** so the fix reaches A6's rendered
-  key timeline directly. The other
-  finding stays a recorded motivating case (no build):
+  key timeline directly. The other finding —
   **residual 1–2 s key-region micro-bands in stable passages** (the
-  local-key-tracking axis, untouched by coalescing) is the motivating case for
-  the **adaptive hysteresis** noted in 3.5b (ships as a versioned prior). The
+  local-key-tracking axis, untouched by coalescing) — drove the **opt-in
+  adaptive hysteresis ✅ shipped (2026-06-13, `smoothing` on `track_keys` /
+  `key_tracking`, `smooth_key_regions` on `midi_file_analysis` /
+  `piano_roll_view`; versioned prior `key-smoothing.1` — see 3.5b)**, which
+  absorbs the weak blips while keeping confident brief modulations. With this,
+  all four brief-3 findings are addressed (A documented + recipe, B + C fixed,
+  D faithful). The
   triage also added a "Choosing a coalesce window" recipe to INTEGRATION.md and
   affirmed migration to the official `mts.mcp.bridge` (identical `{ok, result}`
   envelope). Net engine work: zero — see `response-3.md`.
@@ -880,9 +884,16 @@ placeholder contexts. Momentum was the only argument for consumer-first.
       with beats+seconds extents, per-region mean score/margin, and the
       per-window evidence. Full-size windows only (a truncated tail is a
       different evidence basis); uninformative windows make no claim and
-      never split a region (no evidence ≠ a key change); no smoothing in
-      v1 — thin-evidence blips are surfaced per Decision 7, `mean_margin`
-      is the gate, and any future hysteresis ships as a versioned prior.
+      never split a region (no evidence ≠ a key change). **v1 surfaces every
+      blip** (Decision 7) and that stays the default; **opt-in hysteresis
+      ✅ shipped (2026-06-13, Audiology Finding C)** — `track_keys(smoothing=)`
+      (+ `smooth_key_regions` on `midi_file_analysis`/`piano_roll_view`) absorbs
+      a region shorter than `min_region_windows` whose `mean_margin` is below
+      `min_region_margin` into its stronger neighbour, with a margin override
+      keeping confident brief modulations; thresholds are a versioned prior
+      (`key-smoothing.1`, cited via `smoothing_version`). A *region-level*
+      decision: windows keep their raw argmax as evidence, only the grouping is
+      smoothed (contrast `disambiguate_relative`, a per-window correction).
       Window geometry is caller-set, cited in the result. MCP: new
       `key_tracking` tool (#20, event triples) + additive `key_regions`
       field on `midi_file_analysis`. The *online* form (A4) remains gap 5.

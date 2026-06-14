@@ -1,0 +1,8 @@
+[
+  {
+    "version": "key-smoothing.1",
+    "source": "Engineering defaults pending corpus calibration. Opt-in hysteresis for local key tracking: a region shorter than min_region_windows whose mean_margin is below min_region_margin is a low-confidence blip and is absorbed into its stronger neighbour; a short region with a strong margin is a confident brief modulation and is kept (the margin override). Audiology brief-3 reported surviving spurious bands with margins ~0.06-0.17, so 0.1 absorbs the weak ones while keeping the confident ones.",
+    "min_region_windows": 2,
+    "min_region_margin": 0.1
+  }
+]
