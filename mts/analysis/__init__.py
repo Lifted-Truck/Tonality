@@ -16,7 +16,7 @@ from .analytical_context import AnalyticalContext, ChordInKey, contextualize_cho
 from .containment import find_containers
 from .cadence import detect_cadences
 from .succession import recommend_next_chord, tag_transition
-from .key_induction import candidate_context, infer_key
+from .key_induction import candidate_context, disambiguate_relative_key, infer_key
 from .naming import name_chord, name_chord_across_keys
 from .voice_leading import POLICY_DOUBLING_V1, voice_leading, voice_leading_realized
 from .errors import SpecificationError, require_realization
@@ -68,6 +68,8 @@ from .results import (
     Inversion,
     KeyCandidate,
     KeyInductionResult,
+    RelativeKeyDisambiguation,
+    RelativeKeyEvidence,
     ModeRotation,
     MultiKeyNaming,
     NamingEvidence,
@@ -133,8 +135,11 @@ __all__ = [
     "SuccessionEvidence",
     "infer_key",
     "candidate_context",
+    "disambiguate_relative_key",
     "KeyCandidate",
     "KeyInductionResult",
+    "RelativeKeyDisambiguation",
+    "RelativeKeyEvidence",
     "voice_leading",
     "voice_leading_realized",
     "POLICY_DOUBLING_V1",

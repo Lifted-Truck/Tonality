@@ -1,0 +1,13 @@
+[
+  {
+    "version": "rel-key.1",
+    "source": "Engineering defaults pending corpus calibration. Tonal-hierarchy tie-breaker for relative major/minor (which share a diatonic collection, so correlation alone is weak): leading_tone is near-dispositive (the minor's raised 7th lies outside the shared collection) and weighted highest; tonic_triad and tonic salience follow tonal-hierarchy theory (Krumhansl). Signals are normalized by total weight; positive score favors the minor reading. near_tie_margin is the correlation gap below which the top candidate and its relative partner count as a tie worth breaking; decision_margin is the tie-break-score band that stays honestly ambiguous.",
+    "weights": {
+      "leading_tone": 3.0,
+      "tonic_triad_salience": 2.0,
+      "tonic_salience": 1.0
+    },
+    "near_tie_margin": 0.2,
+    "decision_margin": 0.02
+  }
+]

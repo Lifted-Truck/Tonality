@@ -38,7 +38,12 @@ from ..core.scale import Scale
 if TYPE_CHECKING:  # lazy at runtime: io.loaders imports analysis.builders
     from ..io.loaders import KeyProfileSet
 from .analytical_context import AnalyticalContext
-from .results import KeyCandidate, KeyInductionResult
+from .results import (
+    KeyCandidate,
+    KeyInductionResult,
+    RelativeKeyDisambiguation,
+    RelativeKeyEvidence,
+)
 
 # Catalog scale realizing each profile mode (the same mapping the functional
 # harmony generator uses for "major"/"minor").
@@ -139,4 +144,113 @@ def candidate_context(
     return AnalyticalContext(tonic_pc=candidate.tonic_pc, key=scales[scale_name])
 
 
-__all__ = ["infer_key", "candidate_context"]
+def _find(candidates: list[KeyCandidate], tonic_pc: int, mode: str) -> KeyCandidate:
+    for candidate in candidates:
+        if candidate.tonic_pc == tonic_pc and candidate.mode == mode:
+            return candidate
+    raise ValueError(f"No candidate for ({tonic_pc}, {mode}) — corrupt induction.")
+
+
+def disambiguate_relative_key(
+    material: Any,
+    *,
+    profiles: "KeyProfileSet | None" = None,
+    weights: Any = None,
+) -> RelativeKeyDisambiguation:
+    """Break a relative-major/minor near-tie with tonal-hierarchy signals (3.5a).
+
+    Relative pairs (e.g. C major / A minor) share a diatonic collection, so the
+    KK-profile correlation in :func:`infer_key` separates them weakly — the very
+    confusion Audiology's brief-3 surfaced. This is the **additive** refinement:
+    :func:`infer_key` is left untouched (its scores/margin are a pinned stability
+    contract for A5/A7) and carried here as ``induction``; the tie-break runs on
+    top, evidenced and reproducible.
+
+    ``material`` is the usual :func:`infer_key` input (a 12-vector or an object
+    with ``pc_weights()``) **or** an already-computed :class:`KeyInductionResult`.
+    When the top candidate and its relative partner are not within the prior's
+    ``near_tie_margin`` the result is a passthrough (``applied=False``).
+    """
+
+    if isinstance(material, KeyInductionResult):
+        induction = material
+    else:
+        induction = infer_key(material, profiles=profiles)
+
+    if weights is None:
+        from ..io.loaders import load_relative_key_weights
+
+        weights = load_relative_key_weights()
+
+    w = induction.pc_weights
+    top = induction.best
+
+    # The relative partner: major M ↔ minor M+9 (i.e. minor m ↔ major m+3).
+    if top.mode == "major":
+        major = top
+        minor = _find(induction.candidates, (top.tonic_pc + 9) % 12, "minor")
+    else:
+        minor = top
+        major = _find(induction.candidates, (top.tonic_pc + 3) % 12, "major")
+    partner = minor if top is major else major
+
+    if top.score - partner.score > weights.near_tie_margin:
+        return RelativeKeyDisambiguation(
+            applied=False,
+            chosen=None,
+            relative=None,
+            is_ambiguous=False,
+            tiebreak_score=0.0,
+            evidence=[],
+            induction=induction,
+            weights_version=weights.version,
+        )
+
+    M, m = major.tonic_pc, minor.tonic_pc
+    total = sum(w) or 1.0
+
+    def _triad(root: int, third: int) -> float:
+        return w[root] + w[(root + third) % 12] + w[(root + 7) % 12]
+
+    signals = {
+        "tonic_salience": (w[m] - w[M]) / total,
+        "tonic_triad_salience": (_triad(m, 3) - _triad(M, 4)) / total,
+        "leading_tone": w[(m + 11) % 12] / total,
+    }
+    details = {
+        "tonic_salience": "minor-tonic vs major-tonic weight",
+        "tonic_triad_salience": "minor-triad vs major-triad weight",
+        "leading_tone": "raised 7th of the minor (outside the shared collection)",
+    }
+    evidence = [
+        RelativeKeyEvidence(
+            signal=name,
+            value=round(value, 6),
+            weight=weights.weights.get(name, 0.0),
+            detail=details[name],
+        )
+        for name, value in signals.items()
+    ]
+    score = sum(weights.weights.get(name, 0.0) * value for name, value in signals.items())
+
+    if score > weights.decision_margin:
+        chosen, relative, ambiguous = minor, major, False
+    elif score < -weights.decision_margin:
+        chosen, relative, ambiguous = major, minor, False
+    else:
+        # Tie-break inconclusive: keep the correlation winner, flag it honestly.
+        chosen, relative, ambiguous = top, partner, True
+
+    return RelativeKeyDisambiguation(
+        applied=True,
+        chosen=chosen,
+        relative=relative,
+        is_ambiguous=ambiguous,
+        tiebreak_score=round(score, 6),
+        evidence=evidence,
+        induction=induction,
+        weights_version=weights.version,
+    )
+
+
+__all__ = ["infer_key", "candidate_context", "disambiguate_relative_key"]

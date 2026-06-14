@@ -101,6 +101,9 @@ CASES: list[tuple[str, dict]] = [
          "realization_midi": [45, 60, 64, 67]},
     ),
     ("key_induction", {"pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0]}),
+    # Eb-major-solo shape (Audiology brief-3 case): a relative near-tie the
+    # tonal-hierarchy signals resolve to Eb major.
+    ("relative_key", {"pc_weights": [2.0, 0, 2.0, 4.0, 0, 1.0, 0, 3.0, 1.0, 0, 3.0, 0]}),
     (
         "name_pcs_in_inferred_keys",
         {"pcs": [0, 4, 7, 9],
