@@ -38,7 +38,7 @@ import dataclasses
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ..analysis.key_induction import infer_key
+from ..analysis.key_induction import disambiguate_relative_key, infer_key
 from .sequence import Sequence
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -99,6 +99,7 @@ class KeyTrackingResult:
     window_beats: float
     hop_beats: float
     profile_version: str
+    disambiguate_relative: bool = False
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""
@@ -111,6 +112,7 @@ def track_keys(
     window_beats: float = DEFAULT_WINDOW_BEATS,
     hop_beats: float = DEFAULT_HOP_BEATS,
     profiles: "KeyProfileSet | None" = None,
+    disambiguate_relative: bool = False,
 ) -> KeyTrackingResult:
     """Track the local key of *sequence* through time.
 
@@ -119,6 +121,13 @@ def track_keys(
     consecutive same-best-key windows into regions. Raises ``ValueError`` on
     an empty sequence, non-positive window/hop, or when **no** window carries
     tonal information — the engine reports nothing rather than guessing.
+
+    ``disambiguate_relative`` (opt-in, off by default — the
+    :func:`~mts.analysis.key_induction.disambiguate_relative_key` refinement
+    applied per window): on a relative-major/minor near-tie the window adopts the
+    tonal-hierarchy reading instead of the bare correlation argmax (only when the
+    tie-break is decisive — passthrough/ambiguous windows are untouched). Better
+    relative-key sections in the rendered timeline; cited on the result.
     """
 
     if window_beats <= _EPS:
@@ -154,6 +163,10 @@ def track_keys(
             )
         else:
             best = ranking.candidates[0]
+            if disambiguate_relative:
+                tiebreak = disambiguate_relative_key(ranking, profiles=profiles)
+                if tiebreak.applied and not tiebreak.is_ambiguous:
+                    best = tiebreak.chosen  # the tonal-hierarchy reading
             windows.append(
                 KeyWindow(
                     start_beats=start,
@@ -214,6 +227,7 @@ def track_keys(
         window_beats=window_beats,
         hop_beats=hop_beats,
         profile_version=profiles.version,
+        disambiguate_relative=disambiguate_relative,
     )
 
 

@@ -4088,6 +4088,7 @@
     ]
    },
    "result": {
+    "disambiguate_relative": false,
     "hop_beats": 2.0,
     "profile_version": "kk-1982.1",
     "regions": [
@@ -4232,6 +4233,86 @@
       "score": 0.9290867947985157,
       "start_beats": 24.0,
       "tonic_pc": 6
+     }
+    ]
+   },
+   "tool": "key_tracking"
+  },
+  {
+   "kwargs": {
+    "disambiguate_relative": true,
+    "events": [
+     [
+      0.0,
+      3.3,
+      60
+     ],
+     [
+      0.0,
+      2.3,
+      64
+     ],
+     [
+      0.0,
+      2.0,
+      67
+     ],
+     [
+      0.0,
+      2.0,
+      69
+     ],
+     [
+      0.0,
+      2.0,
+      68
+     ],
+     [
+      0.0,
+      1.0,
+      62
+     ],
+     [
+      0.0,
+      1.0,
+      65
+     ],
+     [
+      0.0,
+      1.0,
+      71
+     ]
+    ],
+    "hop_beats": 2.0,
+    "window_beats": 4.0
+   },
+   "result": {
+    "disambiguate_relative": true,
+    "hop_beats": 2.0,
+    "profile_version": "kk-1982.1",
+    "regions": [
+     {
+      "end_beats": 3.3,
+      "end_seconds": 1.65,
+      "mean_margin": 0.051596653294564754,
+      "mean_score": 0.766656793329804,
+      "mode": "minor",
+      "start_beats": 0.0,
+      "start_seconds": 0.0,
+      "tonic_pc": 9,
+      "window_count": 1
+     }
+    ],
+    "window_beats": 4.0,
+    "windows": [
+     {
+      "center_beats": 1.65,
+      "end_beats": 3.3,
+      "margin": 0.051596653294564754,
+      "mode": "minor",
+      "score": 0.766656793329804,
+      "start_beats": 0.0,
+      "tonic_pc": 9
      }
     ]
    },
