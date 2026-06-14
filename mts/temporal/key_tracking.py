@@ -42,7 +42,7 @@ from ..analysis.key_induction import disambiguate_relative_key, infer_key
 from .sequence import Sequence
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
-    from ..io.loaders import KeyProfileSet
+    from ..io.loaders import KeyProfileSet, KeySmoothingPriors
 
 _EPS = 1e-9
 
@@ -100,10 +100,61 @@ class KeyTrackingResult:
     hop_beats: float
     profile_version: str
     disambiguate_relative: bool = False
+    smoothing_version: str | None = None
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""
         return dataclasses.asdict(self)
+
+
+def _smooth_labels(
+    informative: list[KeyWindow],
+    labels: list[tuple[int, str]],
+    priors: "KeySmoothingPriors",
+) -> list[tuple[int, str]]:
+    """Absorb short, low-confidence key-region blips into their stronger neighbour.
+
+    Iteratively: build runs of consecutive equal labels; a run shorter than
+    ``min_region_windows`` whose mean per-window margin is below
+    ``min_region_margin`` is a blip. Relabel the weakest blip (shortest, then
+    leftmost) to its longer adjacent neighbour's label (ties → preceding), then
+    re-coalesce; repeat until none remain. Each step strictly reduces the run
+    count, so it terminates. The margin override keeps confident brief
+    modulations.
+    """
+
+    labels = list(labels)
+    while True:
+        runs: list[list] = []  # [label, start_idx, end_idx, count]
+        for i, label in enumerate(labels):
+            if runs and runs[-1][0] == label:
+                runs[-1][2] = i
+                runs[-1][3] += 1
+            else:
+                runs.append([label, i, i, 1])
+        if len(runs) <= 1:
+            break
+
+        blips = []
+        for ri, (label, start, end, count) in enumerate(runs):
+            mean_margin = sum(informative[k].margin for k in range(start, end + 1)) / count
+            if count < priors.min_region_windows and mean_margin < priors.min_region_margin:
+                blips.append((count, start, ri))
+        if not blips:
+            break
+
+        blips.sort()  # shortest, then leftmost — deterministic
+        _, _, ri = blips[0]
+        label, start, end, count = runs[ri]
+        left = runs[ri - 1] if ri > 0 else None
+        right = runs[ri + 1] if ri + 1 < len(runs) else None
+        if left and right:
+            target = left[0] if left[3] >= right[3] else right[0]
+        else:
+            target = (left or right)[0]
+        for k in range(start, end + 1):
+            labels[k] = target
+    return labels
 
 
 def track_keys(
@@ -113,6 +164,7 @@ def track_keys(
     hop_beats: float = DEFAULT_HOP_BEATS,
     profiles: "KeyProfileSet | None" = None,
     disambiguate_relative: bool = False,
+    smoothing: bool = False,
 ) -> KeyTrackingResult:
     """Track the local key of *sequence* through time.
 
@@ -128,6 +180,16 @@ def track_keys(
     tonal-hierarchy reading instead of the bare correlation argmax (only when the
     tie-break is decisive — passthrough/ambiguous windows are untouched). Better
     relative-key sections in the rendered timeline; cited on the result.
+
+    ``smoothing`` (opt-in, off by default — versioned hysteresis): a key region
+    shorter than the prior's ``min_region_windows`` whose ``mean_margin`` is
+    below ``min_region_margin`` is a low-confidence **blip** and is absorbed into
+    its stronger neighbour (a short region with a strong margin — a confident
+    brief modulation — is kept). Unlike ``disambiguate_relative`` this is a
+    *region-level* decision: the per-window ``windows`` keep their raw argmax as
+    evidence; only the region grouping is smoothed. Cited via
+    ``smoothing_version`` on the result. Removes the residual micro-band noise on
+    real performances (Audiology brief-3, Finding C).
     """
 
     if window_beats <= _EPS:
@@ -185,36 +247,44 @@ def track_keys(
             "No window carries tonal information (all silence or uniform content)."
         )
 
-    # Group consecutive informative windows by best key; uninformative windows
-    # between same-key groups do not split them (no evidence != a key change).
-    groups: list[list[KeyWindow]] = []
-    for window in informative:
-        if groups and (groups[-1][0].tonic_pc, groups[-1][0].mode) == (
-            window.tonic_pc,
-            window.mode,
-        ):
-            groups[-1].append(window)
+    # Per-window labels — raw argmax, or the smoothed sequence (opt-in). The
+    # windows themselves keep their raw labels; only the grouping is smoothed.
+    labels = [(w.tonic_pc, w.mode) for w in informative]
+    smoothing_version: str | None = None
+    if smoothing:
+        from ..io.loaders import load_key_smoothing
+
+        priors = load_key_smoothing()
+        labels = _smooth_labels(informative, labels, priors)
+        smoothing_version = priors.version
+
+    # Group consecutive informative windows by (possibly smoothed) label;
+    # uninformative windows between same-key groups do not split them.
+    groups: list[tuple[tuple[int, str], list[KeyWindow]]] = []
+    for window, label in zip(informative, labels):
+        if groups and groups[-1][0] == label:
+            groups[-1][1].append(window)
         else:
-            groups.append([window])
+            groups.append((label, [window]))
 
     regions: list[KeyRegion] = []
-    for index, group in enumerate(groups):
+    for index, (label, group) in enumerate(groups):
         if index == 0:
             start_beats = group[0].start_beats
         else:
-            start_beats = (groups[index - 1][-1].center_beats + group[0].center_beats) / 2.0
+            start_beats = (groups[index - 1][1][-1].center_beats + group[0].center_beats) / 2.0
         if index == len(groups) - 1:
             end_beats = duration  # full-size windows leave no claimed tail
         else:
-            end_beats = (group[-1].center_beats + groups[index + 1][0].center_beats) / 2.0
+            end_beats = (group[-1].center_beats + groups[index + 1][1][0].center_beats) / 2.0
         regions.append(
             KeyRegion(
                 start_beats=start_beats,
                 end_beats=end_beats,
                 start_seconds=sequence.seconds_at(start_beats),
                 end_seconds=sequence.seconds_at(end_beats),
-                tonic_pc=group[0].tonic_pc,
-                mode=group[0].mode,
+                tonic_pc=label[0],
+                mode=label[1],
                 mean_score=sum(w.score for w in group) / len(group),
                 mean_margin=sum(w.margin for w in group) / len(group),
                 window_count=len(group),
@@ -227,6 +297,7 @@ def track_keys(
         window_beats=window_beats,
         hop_beats=hop_beats,
         profile_version=profiles.version,
+        smoothing_version=smoothing_version,
         disambiguate_relative=disambiguate_relative,
     )
 

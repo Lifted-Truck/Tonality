@@ -320,6 +320,7 @@ def key_tracking(
     hop_beats: float = 2.0,
     bpm: float = 120.0,
     disambiguate_relative: bool = False,
+    smoothing: bool = False,
 ) -> dict:
     """Local key tracking: key regions through time for a list of events, each
     [onset_beats, duration_beats, midi_note]. Windowed key induction (same
@@ -328,7 +329,11 @@ def key_tracking(
     disambiguate_relative=true to apply the relative-major/minor tie-breaker per
     window (off by default): a window over a relative near-tie adopts the
     tonal-hierarchy reading instead of the bare correlation argmax — better
-    relative-key sections in the timeline; cited on the result."""
+    relative-key sections in the timeline; cited on the result. Set
+    smoothing=true to absorb short, low-confidence key-region blips into their
+    stronger neighbour (off by default, versioned hysteresis): removes residual
+    micro-band noise on real performances; windows keep their raw argmax as
+    evidence, only the region grouping is smoothed; cited via smoothing_version."""
     from ..temporal import Event, Sequence, track_keys
 
     try:
@@ -346,6 +351,7 @@ def key_tracking(
         window_beats=window_beats,
         hop_beats=hop_beats,
         disambiguate_relative=bool(disambiguate_relative),
+        smoothing=bool(smoothing),
     ).to_dict()
 
 
@@ -861,6 +867,7 @@ def midi_file_analysis(
     coalesce_window_beats: float | None = None,
     per_region_context: bool = True,
     disambiguate_relative_keys: bool = False,
+    smooth_key_regions: bool = False,
 ) -> dict:
     """Analyze a Standard MIDI File end-to-end: segment it, infer the global key,
     and emit the enriched dataset (per-segment identity, namings, placement).
@@ -879,7 +886,9 @@ def midi_file_analysis(
     tie-breaker to both the global key context and the per-window tracking
     (off by default): better relative-key readings where correlation alone is
     weak. The global "key" induction is returned unchanged; when the flag is on
-    the tie-break is surfaced under "key_disambiguation"."""
+    the tie-break is surfaced under "key_disambiguation". Set
+    smooth_key_regions=true to absorb short, low-confidence key-region blips
+    (off by default; versioned hysteresis, cited on the tracking result)."""
     from ..analysis import candidate_context, disambiguate_relative_key
     from ..io.midi import sequence_from_midi_file
     from ..temporal import coalesce, track_keys
@@ -903,7 +912,9 @@ def midi_file_analysis(
     if include_key_regions or (per_region_context and infer_context):
         try:
             regions = track_keys(
-                sequence, disambiguate_relative=bool(disambiguate_relative_keys)
+                sequence,
+                disambiguate_relative=bool(disambiguate_relative_keys),
+                smoothing=bool(smooth_key_regions),
             )
         except ValueError:
             regions = None  # no window carried tonal information
@@ -929,6 +940,7 @@ def piano_roll_view(
     track_local_keys: bool = True,
     coalesce_window_beats: float | None = None,
     disambiguate_relative_keys: bool = False,
+    smooth_key_regions: bool = False,
 ) -> dict:
     """Render-ready piano-roll descriptor for a Standard MIDI File (Phase 5):
     per-note rectangles (midi/pc/voice/velocity, onset+duration in BOTH beats
@@ -938,8 +950,9 @@ def piano_roll_view(
     byte-for-byte (same builder). Set coalesce_window_beats (e.g. 0.05) to
     repair performed timing first. Set disambiguate_relative_keys=true to apply
     the relative-major/minor tie-breaker to the key backdrop (matches
-    midi_file_analysis under the same flag). Numeric only — labels/colors are
-    the renderer's business."""
+    midi_file_analysis under the same flag); smooth_key_regions=true absorbs
+    short low-confidence key-band blips (both off by default). Numeric only —
+    labels/colors are the renderer's business."""
     from ..analysis import candidate_context, disambiguate_relative_key
     from ..io.midi import sequence_from_midi_file
     from ..representation import piano_roll_descriptor
@@ -956,7 +969,9 @@ def piano_roll_view(
     if track_local_keys:
         try:
             regions = track_keys(
-                sequence, disambiguate_relative=bool(disambiguate_relative_keys)
+                sequence,
+                disambiguate_relative=bool(disambiguate_relative_keys),
+                smoothing=bool(smooth_key_regions),
             )
         except ValueError:
             regions = None  # no window carried tonal information

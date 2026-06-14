@@ -118,6 +118,17 @@ CASES: list[tuple[str, dict]] = [
                     [0.0, 2.0, 68], [0.0, 1.0, 62], [0.0, 1.0, 65], [0.0, 1.0, 71]],
          "window_beats": 4.0, "hop_beats": 2.0, "disambiguate_relative": True},
     ),
+    # Smoothing on: a weak 1-window foreign blip between C-major spans is absorbed
+    # (Audiology brief-3, Finding C). Non-overlapping windows for an exact blip.
+    (
+        "key_tracking",
+        {"events": (
+            [[float(t), 2.0, m] for t in range(0, 16, 2) for m in (60, 64, 67)]
+            + [[16.0, 2.0, m] for m in (62, 65, 71)] + [[18.0, 2.0, m] for m in (62, 65, 71)]
+            + [[float(t), 2.0, m] for t in range(20, 36, 2) for m in (60, 64, 67)]
+         ),
+         "window_beats": 4.0, "hop_beats": 4.0, "smoothing": True},
+    ),
     (
         "cadences",
         {"chords": [[2, "min"], [7, "maj"], [0, "maj"]], "tonic": "C", "mode": "major"},

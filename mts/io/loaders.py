@@ -33,6 +33,7 @@ _NAMING_WEIGHTS_CACHE: tuple[Path, int, tuple["NamingWeights", ...]] | None = No
 _SWING_FEEL_CACHE: tuple[Path, int, tuple["SwingFeelPriors", ...]] | None = None
 _SUCCESSION_WEIGHTS_CACHE: tuple[Path, int, tuple["SuccessionWeights", ...]] | None = None
 _RELATIVE_KEY_CACHE: tuple[Path, int, tuple["RelativeKeyWeights", ...]] | None = None
+_KEY_SMOOTHING_CACHE: tuple[Path, int, tuple["KeySmoothingPriors", ...]] | None = None
 
 
 @dataclass(frozen=True)
@@ -115,6 +116,24 @@ class RelativeKeyWeights:
     weights: dict[str, float]
     near_tie_margin: float
     decision_margin: float
+
+
+@dataclass(frozen=True)
+class KeySmoothingPriors:
+    """One versioned key-region smoothing table (a versioned empirical prior).
+
+    Opt-in hysteresis for local key tracking: a region with fewer than
+    ``min_region_windows`` windows whose ``mean_margin`` is below
+    ``min_region_margin`` is a low-confidence blip and is absorbed into its
+    stronger neighbour; a short region with a strong margin is a confident brief
+    modulation and is kept. Results cite ``version`` (ROADMAP
+    "versioned-priors pattern").
+    """
+
+    version: str
+    source: str
+    min_region_windows: int
+    min_region_margin: float
 
 
 @dataclass(frozen=True)
@@ -339,6 +358,43 @@ def load_relative_key_weights(version: str | None = None) -> RelativeKeyWeights:
             return entry
     known = ", ".join(e.version for e in entries)
     raise ValueError(f"Unknown relative-key version {version!r} (known: {known})")
+
+
+def load_key_smoothing(version: str | None = None) -> KeySmoothingPriors:
+    """Load a versioned key-region smoothing prior from ``data/key_smoothing.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime.
+    """
+    global _KEY_SMOOTHING_CACHE
+    path = DATA_DIR / "key_smoothing.json"
+    mtime = path.stat().st_mtime_ns
+    if _KEY_SMOOTHING_CACHE is not None and _KEY_SMOOTHING_CACHE[:2] == (path, mtime):
+        entries = _KEY_SMOOTHING_CACHE[2]
+    else:
+        parsed: list[KeySmoothingPriors] = []
+        for payload in _read_json("key_smoothing.json"):
+            priors = KeySmoothingPriors(
+                version=str(payload["version"]),
+                source=str(payload.get("source", "")),
+                min_region_windows=int(payload["min_region_windows"]),
+                min_region_margin=float(payload["min_region_margin"]),
+            )
+            if priors.min_region_windows < 1:
+                raise ValueError(
+                    f"Key smoothing {priors.version!r}: min_region_windows must be >= 1"
+                )
+            parsed.append(priors)
+        if not parsed:
+            raise ValueError("key_smoothing.json contains no prior tables")
+        entries = tuple(parsed)
+        _KEY_SMOOTHING_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown key-smoothing version {version!r} (known: {known})")
 
 
 def load_intervals() -> list[Interval]:
