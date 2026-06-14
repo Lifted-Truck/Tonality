@@ -1153,11 +1153,18 @@ provenance).
       flagged `exploratory` (Fisher has little power on a handful). Tests pin a
       planted "parallel motion forbids the perfect fifth" recovery + a
       null/FDR-load-bearing check + the source-corpus self-conformance.
-      **Deferred follow-ons (recorded):** float-field bucketing + high-card
-      ints; the disjunction/exception **merge pass** (AND-only `where` fragments
-      one human rule — closed condensation mitigates); S/G generality-boundary
-      labeling; MDL rule-*set* scoring; cross-family / phrase / global scope;
-      hard-rule promotion. *Original design notes (retained):* Version-space
+      **Disjunction merge pass ✅ shipped (2026-06-13):** `merge_disjunctions`
+      (default on) collapses same-`(where, kind, field)` single-value rules into
+      one `in`-rule (`forbid interval_class in {0,7}` rather than two forbids —
+      the human-readable form), **re-tested with Fisher's exact** so rigor holds
+      (pooling already-significant findings, not re-FDR'd, never pooling a
+      non-significant value to rescue a borderline one); `RuleEvidence.merged`
+      marks them. **Deferred follow-ons (recorded):** float-field bucketing +
+      high-card ints; the **exception/antecedent merge** ("forbidden everywhere
+      except Y" — the AND-only `where` can't say "except"; genuinely harder);
+      S/G generality-boundary labeling; MDL rule-*set* scoring; cross-family /
+      phrase / global scope; hard-rule promotion. *Original design notes
+      (retained):* Version-space
       mining, not learning:
       enumerate which instantiations of the template vocabulary a corpus
       satisfies (or satisfies at frequency ≥ θ). Output is a *rule-space* —

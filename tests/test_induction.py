@@ -208,3 +208,97 @@ def test_tiny_corpus_below_support_floor_emits_nothing():
 def test_unknown_family_raises():
     with pytest.raises(ValueError, match="Unknown family"):
         induce_ruleset([], family="harmony")
+
+
+# --- disjunction (`in`) merge pass --------------------------------------------------------
+
+
+def _both_perfect_corpus(n_pieces=45, seed=21):
+    """Parallel motion avoids BOTH the octave (ic 0) and the fifth (ic 7);
+    both are reached only by non-parallel motion (rare parallel exceptions)."""
+    rng = random.Random(seed)
+    corpus = []
+    for _ in range(n_pieces):
+        a, b = 60, 64
+        moments = [(a, b)]
+        for _ in range(14):
+            iv = (b - a) % 12
+            if iv in (0, 7):
+                if rng.random() < 0.1:
+                    s = rng.choice([-2, 2]); a += s; b += s
+                else:
+                    a += 2; b = a + 4
+            elif rng.random() < 0.55:
+                s = rng.choice([-2, 2]); a += s; b += s
+            else:
+                a -= 2; b = a + rng.choice([0, 7])
+            moments.append((a, b))
+        corpus.append(_two_voice(moments))
+    return corpus
+
+
+def _parallel_forbid(result):
+    """The (rule, evidence) whose where is {motion: parallel} forbidding ic_to."""
+    return [
+        (r, e)
+        for r, e in zip(result.ruleset.rules, result.evidence)
+        if e.where == {"motion": "parallel"} and r.check_kind == "forbid"
+        and "interval_class_to" in e.check
+    ]
+
+
+def test_disjunction_merges_into_one_in_rule():
+    result = induce_ruleset(_both_perfect_corpus(), family="voice_motion")
+    hits = [(r, e) for r, e in _parallel_forbid(result) if e.merged]
+    assert len(hits) == 1, "expected exactly one merged parallel-forbid rule"
+    rule, ev = hits[0]
+    assert ev.check == {"interval_class_to": {"in": [0, 7]}}
+    assert ev.leverage < 0 and ev.significant
+    # the DSL `in` consequent is built with the in-operator
+    assert rule.check[0].op == "in" and set(rule.check[0].value) == {0, 7}
+
+
+def test_flag_off_keeps_the_singletons():
+    result = induce_ruleset(_both_perfect_corpus(), family="voice_motion",
+                            merge_disjunctions=False)
+    values = {
+        e.check["interval_class_to"]
+        for r, e in _parallel_forbid(result) if not e.merged
+    }
+    assert {0, 7} <= values  # both forbids present, unmerged
+    assert all(not e.merged for _, e in zip(result.ruleset.rules, result.evidence))
+
+
+def test_merge_pools_evidence_and_preserves_rigor():
+    raw = induce_ruleset(_both_perfect_corpus(), family="voice_motion",
+                         merge_disjunctions=False)
+    singles = {
+        e.check["interval_class_to"]: e
+        for r, e in _parallel_forbid(raw) if not e.merged
+    }
+    merged = induce_ruleset(_both_perfect_corpus(), family="voice_motion")
+    m_ev = next(e for r, e in _parallel_forbid(merged) if e.merged)
+    # pooled a = sum of the singletons' a (same context + field, disjoint values)
+    assert m_ev.contingency["a"] == sum(singles[v].contingency["a"] for v in (0, 7))
+    # pooling strengthens: the merged p is no worse than either constituent's
+    assert m_ev.p_value <= min(singles[v].p_value for v in (0, 7)) + 1e-12
+
+
+def test_singleton_consequent_is_not_merged():
+    # The slice-1 corpus forbids only ic 7 under parallel — a group of size 1
+    # stays a single-value rule (nothing to merge).
+    result = induce_ruleset(_planted_corpus(), family="voice_motion")
+    hits = _parallel_forbid(result)
+    assert hits and all(not e.merged for _, e in hits)
+
+
+def test_merged_rule_round_trips_through_the_validator():
+    result = induce_ruleset(_both_perfect_corpus(), family="voice_motion")
+    payload = result.to_dict()["ruleset"]
+    assert validation_errors(payload) == []
+    parse_ruleset(payload)
+    assert any(  # an in-consequent survives serialization
+        isinstance(cond, dict) and "in" in cond
+        for rule in payload["rules"] for k in ("forbid", "require")
+        for cond in rule.get(k, {}).values()
+    )

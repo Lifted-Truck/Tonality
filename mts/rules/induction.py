@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import dataclasses
 import math
+from collections import defaultdict
 from collections.abc import Iterable, Sequence as SequenceABC
 from dataclasses import dataclass
 from fractions import Fraction
@@ -167,6 +168,7 @@ class RuleEvidence:
     p_value: float
     q_value: float
     significant: bool
+    merged: bool = False       # a disjunction (`in`) of merged single-value rules
 
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
@@ -231,6 +233,7 @@ def induce_ruleset(
     family: str,
     harmony: list | None = None,
     scoring_prior: str | None = None,
+    merge_disjunctions: bool = True,
     name: str | None = None,
     version: str = "induced.1",
 ) -> InductionResult:
@@ -241,6 +244,11 @@ def induce_ruleset(
     melody's ``nht_type`` / ``is_chord_tone`` consult it). Raises on an unknown
     family. Below the prior's ``exploratory_floor_pieces`` the result is flagged
     ``exploratory`` but still returned (surfaced, never hidden).
+
+    ``merge_disjunctions`` (default on): collapse same-``(where, kind, field)``
+    single-value rules into one ``in``-rule (``forbid ic in {0, 7}`` rather than
+    two forbids), re-tested with Fisher's exact so rigor is preserved — the
+    human-readable form. Set ``False`` for the raw single-value rules.
     """
 
     if family not in FAMILIES:
@@ -355,18 +363,76 @@ def induce_ruleset(
         raw[i]["significant"] = qvalues[i] <= prior.fdr_q
 
     survivors = [r for r in raw if r["significant"]]
-    survivors.sort(key=lambda r: (-abs(r["leverage"]), r["q"],
-                                  _itemset_key(family, r["context"]), _lit_key(family, r["lit"])))
+
+    # --- disjunction (`in`) merge pass: collapse same-(context, kind, field)
+    # single-value rules into one `in`-rule, re-tested with Fisher so rigor is
+    # preserved (pooling already-significant findings; never re-FDR'd, never
+    # pooling a non-significant value in to rescue a borderline one). ---
+    def _record(field, values, kind, context, cells, lev, p, q, merged):
+        a, b, c, d, n_, a_b, a_c = cells
+        vtids = set().union(*(tids[(field, v)] for v in values))
+        return {
+            "context": context, "check_kind": kind, "field": field,
+            "values": tuple(values), "merged": merged,
+            "a": a, "b": b, "c": c, "d": d, "n": n_, "a_b": a_b, "a_c": a_c,
+            "leverage": lev, "p": p, "q": q,
+            "support_pieces": pieces_of(frequent[context] & vtids),
+        }
+
+    def _singleton(r):
+        cells = (r["a"], r["b"], r["c"], r["d"], r["n"], r["a_b"], r["a_c"])
+        return _record(r["lit"][0], (r["lit"][1],), r["check_kind"], r["context"],
+                       cells, r["leverage"], r["p"], r["q"], False)
+
+    records: list[dict] = []
+    if merge_disjunctions:
+        groups: dict = defaultdict(list)
+        for r in survivors:
+            groups[(r["context"], r["check_kind"], r["lit"][0])].append(r)
+        for (context, kind, field), members in groups.items():
+            if len(members) < 2:
+                records.append(_singleton(members[0]))
+                continue
+            values = sorted({m["lit"][1] for m in members},
+                            key=lambda v: _value_rank(family, field, v))
+            ctx_tids, universe = frequent[context], claim_tids[field]
+            merged_tids = set().union(*(tids[(field, v)] for v in values))
+            n_, a_b, a_c = len(universe), len(ctx_tids & universe), len(merged_tids)
+            a = len(ctx_tids & merged_tids)
+            b, c = a_b - a, a_c - a
+            d = n_ - a - b - c
+            lev = float(Fraction(a, n_) - Fraction(a_b, n_) * Fraction(a_c, n_))
+            right_tail = kind == "require"
+            if lev == 0.0 or (lev > 0) != right_tail:
+                records.extend(_singleton(m) for m in members)
+                continue
+            p = _fisher_one_sided(a, b, c, d, right_tail=right_tail)
+            if p > prior.fdr_q:  # merge not significant on its own — keep singletons
+                records.extend(_singleton(m) for m in members)
+                continue
+            q = max(m["q"] for m in members)  # ≥ as significant as the weakest replaced
+            records.append(_record(field, values, kind, context,
+                                   (a, b, c, d, n_, a_b, a_c), lev, p, q, True))
+    else:
+        records = [_singleton(r) for r in survivors]
+
+    records.sort(key=lambda r: (-abs(r["leverage"]), r["q"], _itemset_key(family, r["context"]),
+                                _lit_key(family, (r["field"], r["values"][0]))))
 
     rules: list[Rule] = []
     evidence: list[RuleEvidence] = []
-    for n_idx, r in enumerate(survivors):
+    for n_idx, r in enumerate(records):
         rule_id = f"induced-{family}-{n_idx}"
         where = tuple(
             Condition(f, "eq", v)
             for f, v in sorted(r["context"], key=lambda l: _lit_key(family, l))
         )
-        check = (Condition(r["lit"][0], "eq", r["lit"][1]),)
+        if r["merged"]:
+            check = (Condition(r["field"], "in", tuple(r["values"])),)
+            check_payload = {r["field"]: {"in": list(r["values"])}}
+        else:
+            check = (Condition(r["field"], "eq", r["values"][0]),)
+            check_payload = {r["field"]: r["values"][0]}
         weight = round(1.0 + prior.weight_scale * abs(r["leverage"]), 3)
         rules.append(Rule(
             id=rule_id, family=family, where=where, check_kind=r["check_kind"],
@@ -376,7 +442,7 @@ def induce_ruleset(
             rule_id=rule_id,
             where={f: v for f, v in sorted(r["context"], key=lambda l: _lit_key(family, l))},
             check_kind=r["check_kind"],
-            check={r["lit"][0]: r["lit"][1]},
+            check=check_payload,
             support_pieces=r["support_pieces"],
             support_items=r["a"],
             items_considered=r["n"],
@@ -388,6 +454,7 @@ def induce_ruleset(
             p_value=r["p"],
             q_value=round(r["q"], 6),
             significant=True,
+            merged=r["merged"],
         ))
 
     ruleset = Ruleset(name=name, version=version, description=(

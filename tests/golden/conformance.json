@@ -6849,6 +6849,7 @@
       },
       "items_considered": 24,
       "leverage": -0.1875,
+      "merged": false,
       "p_value": 7.429641296918184e-06,
       "q_value": 3.7e-05,
       "rule_id": "induced-voice_motion-0",
@@ -6876,6 +6877,7 @@
       },
       "items_considered": 24,
       "leverage": -0.1875,
+      "merged": false,
       "p_value": 7.429641296918184e-06,
       "q_value": 3.7e-05,
       "rule_id": "induced-voice_motion-1",
@@ -6903,6 +6905,7 @@
       },
       "items_considered": 24,
       "leverage": 0.125,
+      "merged": false,
       "p_value": 0.006864988558352402,
       "q_value": 0.017162,
       "rule_id": "induced-voice_motion-2",
@@ -6930,6 +6933,7 @@
       },
       "items_considered": 24,
       "leverage": 0.125,
+      "merged": false,
       "p_value": 0.006864988558352402,
       "q_value": 0.017162,
       "rule_id": "induced-voice_motion-3",
@@ -7012,6 +7016,1920 @@
      "weight_scale": 4.0
     },
     "tests_performed": 10
+   },
+   "tool": "induce_rules"
+  },
+  {
+   "kwargs": {
+    "corpus": [
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       5.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       5.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       6.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       6.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       7.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       7.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       8.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       8.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       10.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       10.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       11.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       11.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       12.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       12.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       5.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       5.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       6.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       6.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       7.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       7.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       8.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       8.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       10.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       10.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       11.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       11.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       12.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       12.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       5.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       5.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       6.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       6.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       7.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       7.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       8.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       8.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       10.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       10.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       11.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       11.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       12.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       12.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       5.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       5.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       6.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       6.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       7.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       7.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       8.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       8.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       10.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       10.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       11.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       11.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       12.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       12.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       5.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       5.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       6.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       6.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       7.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       7.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       8.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       8.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       10.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       10.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       11.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       11.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       12.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       12.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       5.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       5.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       6.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       6.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       7.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       7.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       8.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       8.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       10.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       10.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       11.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       11.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       12.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       12.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       5.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       5.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       6.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       6.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       7.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       7.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       8.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       8.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       10.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       10.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       11.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       11.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       12.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       12.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ],
+     [
+      [
+       0.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       0.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       1.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       1.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       2.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       2.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       3.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       4.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       4.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       5.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       5.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       6.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       6.0,
+       1.0,
+       64,
+       "v1"
+      ],
+      [
+       7.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       7.0,
+       1.0,
+       66,
+       "v1"
+      ],
+      [
+       8.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       8.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       9.0,
+       1.0,
+       62,
+       "v1"
+      ],
+      [
+       10.0,
+       1.0,
+       64,
+       "v0"
+      ],
+      [
+       10.0,
+       1.0,
+       68,
+       "v1"
+      ],
+      [
+       11.0,
+       1.0,
+       62,
+       "v0"
+      ],
+      [
+       11.0,
+       1.0,
+       69,
+       "v1"
+      ],
+      [
+       12.0,
+       1.0,
+       60,
+       "v0"
+      ],
+      [
+       12.0,
+       1.0,
+       64,
+       "v1"
+      ]
+     ]
+    ],
+    "family": "voice_motion"
+   },
+   "result": {
+    "caveat": "Exploratory: 8 piece(s) is below the 30-piece floor for confirmatory induction; treat rules as hypotheses (Fisher has little power on a handful of pieces).",
+    "evidence": [
+     {
+      "base_rate": 0.666667,
+      "check": {
+       "interval_class_from": 4
+      },
+      "check_kind": "forbid",
+      "confidence": 0.0,
+      "context_items": 32,
+      "contingency": {
+       "a": 0,
+       "b": 32,
+       "c": 64,
+       "d": 0,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": -0.222222,
+      "merged": false,
+      "p_value": 3.3668052386751337e-26,
+      "q_value": 0.0,
+      "rule_id": "induced-voice_motion-0",
+      "significant": true,
+      "support_items": 0,
+      "support_pieces": 0,
+      "where": {
+       "interval_class_to": 4,
+       "motion": "similar"
+      }
+     },
+     {
+      "base_rate": 0.333333,
+      "check": {
+       "interval_class_from": {
+        "in": [
+         0,
+         7
+        ]
+       }
+      },
+      "check_kind": "require",
+      "confidence": 1.0,
+      "context_items": 32,
+      "contingency": {
+       "a": 32,
+       "b": 0,
+       "c": 0,
+       "d": 64,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": 0.222222,
+      "merged": true,
+      "p_value": 3.3668052386751337e-26,
+      "q_value": 0.0,
+      "rule_id": "induced-voice_motion-1",
+      "significant": true,
+      "support_items": 32,
+      "support_pieces": 8,
+      "where": {
+       "interval_class_to": 4,
+       "motion": "similar"
+      }
+     },
+     {
+      "base_rate": 0.5,
+      "check": {
+       "motion": "similar"
+      },
+      "check_kind": "forbid",
+      "confidence": 0.25,
+      "context_items": 64,
+      "contingency": {
+       "a": 16,
+       "b": 48,
+       "c": 32,
+       "d": 0,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": -0.166667,
+      "merged": false,
+      "p_value": 7.591637134887653e-14,
+      "q_value": 0.0,
+      "rule_id": "induced-voice_motion-2",
+      "significant": true,
+      "support_items": 16,
+      "support_pieces": 8,
+      "where": {
+       "interval_class_from": 4
+      }
+     },
+     {
+      "base_rate": 0.666667,
+      "check": {
+       "interval_class_from": 4
+      },
+      "check_kind": "forbid",
+      "confidence": 0.333333,
+      "context_items": 48,
+      "contingency": {
+       "a": 16,
+       "b": 32,
+       "c": 48,
+       "d": 0,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": -0.166667,
+      "merged": false,
+      "p_value": 7.591637134887653e-14,
+      "q_value": 0.0,
+      "rule_id": "induced-voice_motion-3",
+      "significant": true,
+      "support_items": 16,
+      "support_pieces": 8,
+      "where": {
+       "motion": "similar"
+      }
+     },
+     {
+      "base_rate": 0.333333,
+      "check": {
+       "interval_class_from": {
+        "in": [
+         0,
+         7
+        ]
+       }
+      },
+      "check_kind": "require",
+      "confidence": 0.666667,
+      "context_items": 48,
+      "contingency": {
+       "a": 32,
+       "b": 16,
+       "c": 0,
+       "d": 48,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": 0.166667,
+      "merged": true,
+      "p_value": 7.591637134887653e-14,
+      "q_value": 5e-06,
+      "rule_id": "induced-voice_motion-4",
+      "significant": true,
+      "support_items": 32,
+      "support_pieces": 8,
+      "where": {
+       "motion": "similar"
+      }
+     },
+     {
+      "base_rate": 0.5,
+      "check": {
+       "motion": {
+        "in": [
+         "parallel",
+         "contrary"
+        ]
+       }
+      },
+      "check_kind": "require",
+      "confidence": 0.75,
+      "context_items": 64,
+      "contingency": {
+       "a": 48,
+       "b": 16,
+       "c": 0,
+       "d": 32,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": 0.166667,
+      "merged": true,
+      "p_value": 7.591637134887653e-14,
+      "q_value": 0.000738,
+      "rule_id": "induced-voice_motion-5",
+      "significant": true,
+      "support_items": 48,
+      "support_pieces": 8,
+      "where": {
+       "interval_class_from": 4
+      }
+     },
+     {
+      "base_rate": 0.166667,
+      "check": {
+       "motion": "contrary"
+      },
+      "check_kind": "forbid",
+      "confidence": 0.0,
+      "context_items": 64,
+      "contingency": {
+       "a": 0,
+       "b": 64,
+       "c": 16,
+       "d": 16,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": -0.111111,
+      "merged": false,
+      "p_value": 9.076308012755879e-10,
+      "q_value": 0.0,
+      "rule_id": "induced-voice_motion-6",
+      "significant": true,
+      "support_items": 0,
+      "support_pieces": 0,
+      "where": {
+       "interval_class_to": 4
+      }
+     },
+     {
+      "base_rate": 0.666667,
+      "check": {
+       "interval_class_to": 4
+      },
+      "check_kind": "forbid",
+      "confidence": 0.5,
+      "context_items": 64,
+      "contingency": {
+       "a": 32,
+       "b": 32,
+       "c": 32,
+       "d": 0,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": -0.111111,
+      "merged": false,
+      "p_value": 6.170088558248031e-08,
+      "q_value": 0.0,
+      "rule_id": "induced-voice_motion-7",
+      "significant": true,
+      "support_items": 32,
+      "support_pieces": 8,
+      "where": {
+       "interval_class_from": 4
+      }
+     },
+     {
+      "base_rate": 0.666667,
+      "check": {
+       "interval_class_from": 4
+      },
+      "check_kind": "forbid",
+      "confidence": 0.5,
+      "context_items": 64,
+      "contingency": {
+       "a": 32,
+       "b": 32,
+       "c": 32,
+       "d": 0,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": -0.111111,
+      "merged": false,
+      "p_value": 6.170088558248031e-08,
+      "q_value": 0.0,
+      "rule_id": "induced-voice_motion-8",
+      "significant": true,
+      "support_items": 32,
+      "support_pieces": 8,
+      "where": {
+       "interval_class_to": 4
+      }
+     },
+     {
+      "base_rate": 0.333333,
+      "check": {
+       "motion": "parallel"
+      },
+      "check_kind": "require",
+      "confidence": 0.5,
+      "context_items": 64,
+      "contingency": {
+       "a": 32,
+       "b": 32,
+       "c": 0,
+       "d": 32,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": 0.111111,
+      "merged": false,
+      "p_value": 6.170088558248031e-08,
+      "q_value": 0.0,
+      "rule_id": "induced-voice_motion-9",
+      "significant": true,
+      "support_items": 32,
+      "support_pieces": 8,
+      "where": {
+       "interval_class_to": 4
+      }
+     },
+     {
+      "base_rate": 0.333333,
+      "check": {
+       "interval_class_to": {
+        "in": [
+         0,
+         7
+        ]
+       }
+      },
+      "check_kind": "require",
+      "confidence": 0.5,
+      "context_items": 64,
+      "contingency": {
+       "a": 32,
+       "b": 32,
+       "c": 0,
+       "d": 32,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": 0.111111,
+      "merged": true,
+      "p_value": 6.170088558248031e-08,
+      "q_value": 0.000738,
+      "rule_id": "induced-voice_motion-10",
+      "significant": true,
+      "support_items": 32,
+      "support_pieces": 8,
+      "where": {
+       "interval_class_from": 4
+      }
+     },
+     {
+      "base_rate": 0.333333,
+      "check": {
+       "interval_class_from": {
+        "in": [
+         0,
+         7
+        ]
+       }
+      },
+      "check_kind": "require",
+      "confidence": 0.5,
+      "context_items": 64,
+      "contingency": {
+       "a": 32,
+       "b": 32,
+       "c": 0,
+       "d": 32,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": 0.111111,
+      "merged": true,
+      "p_value": 6.170088558248031e-08,
+      "q_value": 0.000738,
+      "rule_id": "induced-voice_motion-11",
+      "significant": true,
+      "support_items": 32,
+      "support_pieces": 8,
+      "where": {
+       "interval_class_to": 4
+      }
+     },
+     {
+      "base_rate": 0.166667,
+      "check": {
+       "interval_class_to": 0
+      },
+      "check_kind": "require",
+      "confidence": 0.333333,
+      "context_items": 48,
+      "contingency": {
+       "a": 16,
+       "b": 32,
+       "c": 0,
+       "d": 48,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": 0.083333,
+      "merged": false,
+      "p_value": 3.4048196552358252e-06,
+      "q_value": 5e-06,
+      "rule_id": "induced-voice_motion-12",
+      "significant": true,
+      "support_items": 16,
+      "support_pieces": 8,
+      "where": {
+       "motion": "similar"
+      }
+     },
+     {
+      "base_rate": 0.166667,
+      "check": {
+       "interval_class_to": 7
+      },
+      "check_kind": "forbid",
+      "confidence": 0.0,
+      "context_items": 48,
+      "contingency": {
+       "a": 0,
+       "b": 48,
+       "c": 16,
+       "d": 32,
+       "n": 96
+      },
+      "items_considered": 96,
+      "leverage": -0.083333,
+      "merged": false,
+      "p_value": 3.4048196552358252e-06,
+      "q_value": 5e-06,
+      "rule_id": "induced-voice_motion-13",
+      "significant": true,
+      "support_items": 0,
+      "support_pieces": 0,
+      "where": {
+       "motion": "similar"
+      }
+     }
+    ],
+    "exploratory": true,
+    "family": "voice_motion",
+    "items": 96,
+    "pieces": 8,
+    "ruleset": {
+     "description": "Induced from 8 piece(s) over the voice_motion family (induction.fisher-bh.1; soft rules, Fisher's exact + BH-FDR q=0.05).",
+     "name": "induced-voice_motion",
+     "rules": [
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "interval_class_from": 4
+       },
+       "id": "induced-voice_motion-0",
+       "polarity": "soft",
+       "weight": 1.889,
+       "where": {
+        "interval_class_to": 4,
+        "motion": "similar"
+       }
+      },
+      {
+       "family": "voice_motion",
+       "id": "induced-voice_motion-1",
+       "polarity": "soft",
+       "require": {
+        "interval_class_from": {
+         "in": [
+          0,
+          7
+         ]
+        }
+       },
+       "weight": 1.889,
+       "where": {
+        "interval_class_to": 4,
+        "motion": "similar"
+       }
+      },
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "motion": "similar"
+       },
+       "id": "induced-voice_motion-2",
+       "polarity": "soft",
+       "weight": 1.667,
+       "where": {
+        "interval_class_from": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "interval_class_from": 4
+       },
+       "id": "induced-voice_motion-3",
+       "polarity": "soft",
+       "weight": 1.667,
+       "where": {
+        "motion": "similar"
+       }
+      },
+      {
+       "family": "voice_motion",
+       "id": "induced-voice_motion-4",
+       "polarity": "soft",
+       "require": {
+        "interval_class_from": {
+         "in": [
+          0,
+          7
+         ]
+        }
+       },
+       "weight": 1.667,
+       "where": {
+        "motion": "similar"
+       }
+      },
+      {
+       "family": "voice_motion",
+       "id": "induced-voice_motion-5",
+       "polarity": "soft",
+       "require": {
+        "motion": {
+         "in": [
+          "parallel",
+          "contrary"
+         ]
+        }
+       },
+       "weight": 1.667,
+       "where": {
+        "interval_class_from": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "motion": "contrary"
+       },
+       "id": "induced-voice_motion-6",
+       "polarity": "soft",
+       "weight": 1.444,
+       "where": {
+        "interval_class_to": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "interval_class_to": 4
+       },
+       "id": "induced-voice_motion-7",
+       "polarity": "soft",
+       "weight": 1.444,
+       "where": {
+        "interval_class_from": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "interval_class_from": 4
+       },
+       "id": "induced-voice_motion-8",
+       "polarity": "soft",
+       "weight": 1.444,
+       "where": {
+        "interval_class_to": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "id": "induced-voice_motion-9",
+       "polarity": "soft",
+       "require": {
+        "motion": "parallel"
+       },
+       "weight": 1.444,
+       "where": {
+        "interval_class_to": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "id": "induced-voice_motion-10",
+       "polarity": "soft",
+       "require": {
+        "interval_class_to": {
+         "in": [
+          0,
+          7
+         ]
+        }
+       },
+       "weight": 1.444,
+       "where": {
+        "interval_class_from": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "id": "induced-voice_motion-11",
+       "polarity": "soft",
+       "require": {
+        "interval_class_from": {
+         "in": [
+          0,
+          7
+         ]
+        }
+       },
+       "weight": 1.444,
+       "where": {
+        "interval_class_to": 4
+       }
+      },
+      {
+       "family": "voice_motion",
+       "id": "induced-voice_motion-12",
+       "polarity": "soft",
+       "require": {
+        "interval_class_to": 0
+       },
+       "weight": 1.333,
+       "where": {
+        "motion": "similar"
+       }
+      },
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "interval_class_to": 7
+       },
+       "id": "induced-voice_motion-13",
+       "polarity": "soft",
+       "weight": 1.333,
+       "where": {
+        "motion": "similar"
+       }
+      }
+     ],
+     "version": "induced.1"
+    },
+    "scoring_prior": {
+     "arity_cap": 3,
+     "exploratory_floor_pieces": 30,
+     "fdr_q": 0.05,
+     "measure": "fishers_exact_one_sided",
+     "min_support_pieces": 5,
+     "null_model": "independence_given_marginals",
+     "source": "Phase 4.6 induction slice 1 (engineering defaults; corpus calibration deferred). Apriori frequent-pattern mining over the where-lattice with closed-itemset condensation; interestingness = Fisher's exact test (one-sided, in the leverage direction) vs an independence-given-marginals null, BH-FDR corrected, behind a piece-presence min-support floor, with leverage as the effect-size tie-break. Below exploratory_floor_pieces the result is flagged exploratory (Fisher has little power on a handful of pieces).",
+     "version": "induction.fisher-bh.1",
+     "weight_scale": 4.0
+    },
+    "tests_performed": 19
    },
    "tool": "induce_rules"
   },

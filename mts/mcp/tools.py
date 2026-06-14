@@ -677,6 +677,7 @@ def induce_rules(
     family: str,
     harmony: list[list[list]] | None = None,
     scoring_prior: str | None = None,
+    merge_disjunctions: bool = True,
 ) -> dict:
     """Mine a corpus for the statistically significant compositional rules it
     follows (Phase 4.6 induction), emitting a validated SOFT ruleset in the DSL
@@ -689,8 +690,11 @@ def induce_rules(
     needed for the voice_motion family). family: 'voice_motion' | 'melody' |
     'rhythm'. harmony: optional per-piece list of [start_beat, end_beat, [pcs]]
     spans (only melody's nht_type/is_chord_tone consult it). Below ~30 pieces
-    the result is flagged exploratory. The emitted ruleset round-trips through
-    the validator."""
+    the result is flagged exploratory. merge_disjunctions (default true)
+    collapses same-(where, field) single-value rules into one `in`-rule
+    (forbid ic in {0,7} rather than two forbids), re-tested with Fisher — the
+    human-readable form; set false for the raw single-value rules. The emitted
+    ruleset round-trips through the validator."""
     from ..rules import induce_ruleset
 
     pieces = [_flex_events(piece) for piece in corpus]
@@ -706,7 +710,8 @@ def induce_rules(
                 f"Each harmony span must be [start_beat, end_beat, [pcs]]: {exc}"
             ) from exc
     return induce_ruleset(
-        pieces, family=str(family), harmony=spans, scoring_prior=scoring_prior
+        pieces, family=str(family), harmony=spans, scoring_prior=scoring_prior,
+        merge_disjunctions=bool(merge_disjunctions),
     ).to_dict()
 
 
