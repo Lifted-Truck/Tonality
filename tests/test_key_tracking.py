@@ -133,3 +133,39 @@ def test_to_dict_is_json_ready_with_window_evidence():
     assert payload["regions"][0]["window_count"] >= 1
     assert payload["windows"]  # per-window evidence ships with the answer
     assert payload["profile_version"]
+
+
+# --- relative-key disambiguation (opt-in, off by default) -------------------------------
+
+def _relative_confusable_sequence() -> Sequence:
+    """A window the bare argmax reads as C major but tonal hierarchy (the G#
+    leading tone of A minor, outside the C-major collection) reads as A minor."""
+    weights = {0: 3.3, 4: 2.3, 7: 2.0, 9: 2.0, 8: 2.0, 2: 1.0, 5: 1.0, 11: 1.0}
+    events = [Event(0.0, dur, Pitch.from_midi(60 + pc)) for pc, dur in weights.items()]
+    return Sequence.from_events(events)
+
+
+def test_disambiguate_off_by_default_is_byte_identical():
+    seq = Sequence.from_events(_progression(60, 0, cycles=2))
+    explicit_off = track_keys(seq, disambiguate_relative=False)
+    assert json.dumps(track_keys(seq).to_dict()) == json.dumps(explicit_off.to_dict())
+    assert explicit_off.disambiguate_relative is False
+
+
+def test_disambiguate_flips_a_relative_region():
+    seq = _relative_confusable_sequence()
+    off = track_keys(seq, window_beats=4.0, hop_beats=2.0)
+    on = track_keys(seq, window_beats=4.0, hop_beats=2.0, disambiguate_relative=True)
+    assert (off.regions[0].tonic_pc, off.regions[0].mode) == (0, "major")
+    assert (on.regions[0].tonic_pc, on.regions[0].mode) == (9, "minor")
+    assert on.disambiguate_relative is True
+
+
+def test_disambiguate_does_not_over_trigger_on_a_clear_key():
+    # A clear C-major progression is not a relative near-tie — the flag is a no-op.
+    seq = Sequence.from_events(_progression(60, 0, cycles=2))
+    off = track_keys(seq)
+    on = track_keys(seq, disambiguate_relative=True)
+    assert [(r.tonic_pc, r.mode) for r in on.regions] == [
+        (r.tonic_pc, r.mode) for r in off.regions
+    ]

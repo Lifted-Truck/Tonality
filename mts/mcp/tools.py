@@ -319,11 +319,16 @@ def key_tracking(
     window_beats: float = 8.0,
     hop_beats: float = 2.0,
     bpm: float = 120.0,
+    disambiguate_relative: bool = False,
 ) -> dict:
     """Local key tracking: key regions through time for a list of events, each
     [onset_beats, duration_beats, midi_note]. Windowed key induction (same
     versioned profiles); regions carry beats+seconds extents, mean score/margin,
-    and the per-window evidence. Boundary resolution is the window grid."""
+    and the per-window evidence. Boundary resolution is the window grid. Set
+    disambiguate_relative=true to apply the relative-major/minor tie-breaker per
+    window (off by default): a window over a relative near-tie adopts the
+    tonal-hierarchy reading instead of the bare correlation argmax — better
+    relative-key sections in the timeline; cited on the result."""
     from ..temporal import Event, Sequence, track_keys
 
     try:
@@ -337,7 +342,10 @@ def key_tracking(
         ) from exc
     sequence = Sequence.from_events(parsed, bpm=float(bpm))
     return track_keys(
-        sequence, window_beats=window_beats, hop_beats=hop_beats
+        sequence,
+        window_beats=window_beats,
+        hop_beats=hop_beats,
+        disambiguate_relative=bool(disambiguate_relative),
     ).to_dict()
 
 
@@ -852,6 +860,7 @@ def midi_file_analysis(
     include_key_regions: bool = True,
     coalesce_window_beats: float | None = None,
     per_region_context: bool = True,
+    disambiguate_relative_keys: bool = False,
 ) -> dict:
     """Analyze a Standard MIDI File end-to-end: segment it, infer the global key,
     and emit the enriched dataset (per-segment identity, namings, placement).
@@ -865,8 +874,13 @@ def midi_file_analysis(
     tracking result (null if no window carries tonal information). For
     performed/humanized files, set coalesce_window_beats (e.g. 0.05) to
     coalesce near-simultaneous timing before analysis — off by default, and
-    cited in the result under "coalesce" when used (losses itemized)."""
-    from ..analysis import candidate_context
+    cited in the result under "coalesce" when used (losses itemized).
+    Set disambiguate_relative_keys=true to apply the relative-major/minor
+    tie-breaker to both the global key context and the per-window tracking
+    (off by default): better relative-key readings where correlation alone is
+    weak. The global "key" induction is returned unchanged; when the flag is on
+    the tie-break is surfaced under "key_disambiguation"."""
+    from ..analysis import candidate_context, disambiguate_relative_key
     from ..io.midi import sequence_from_midi_file
     from ..temporal import coalesce, track_keys
 
@@ -877,12 +891,20 @@ def midi_file_analysis(
         sequence = cleaned.sequence
         coalesce_meta = cleaned.to_dict()
     keys = infer_key(sequence)
-    context = candidate_context(keys.best) if infer_context else None
+    best = keys.best
+    disambiguation = None
+    if disambiguate_relative_keys:
+        disambiguation = disambiguate_relative_key(keys)
+        if disambiguation.applied and not disambiguation.is_ambiguous:
+            best = disambiguation.chosen
+    context = candidate_context(best) if infer_context else None
 
     regions = None
     if include_key_regions or (per_region_context and infer_context):
         try:
-            regions = track_keys(sequence)
+            regions = track_keys(
+                sequence, disambiguate_relative=bool(disambiguate_relative_keys)
+            )
         except ValueError:
             regions = None  # no window carried tonal information
 
@@ -894,6 +916,8 @@ def midi_file_analysis(
     result = {"key": keys.to_dict(), "dataset": dataset.to_dict()}
     if coalesce_meta is not None:
         result["coalesce"] = coalesce_meta
+    if disambiguation is not None:
+        result["key_disambiguation"] = disambiguation.to_dict()
     if include_key_regions:
         result["key_regions"] = regions.to_dict() if regions is not None else None
     return result
@@ -904,6 +928,7 @@ def piano_roll_view(
     chord_overlays: bool = True,
     track_local_keys: bool = True,
     coalesce_window_beats: float | None = None,
+    disambiguate_relative_keys: bool = False,
 ) -> dict:
     """Render-ready piano-roll descriptor for a Standard MIDI File (Phase 5):
     per-note rectangles (midi/pc/voice/velocity, onset+duration in BOTH beats
@@ -911,9 +936,11 @@ def piano_roll_view(
     chord name (conditioned on the local key per onset when track_local_keys),
     and local-key backdrop bands. Chord-overlay names match midi_file_analysis
     byte-for-byte (same builder). Set coalesce_window_beats (e.g. 0.05) to
-    repair performed timing first. Numeric only — labels/colors are the
-    renderer's business."""
-    from ..analysis import candidate_context
+    repair performed timing first. Set disambiguate_relative_keys=true to apply
+    the relative-major/minor tie-breaker to the key backdrop (matches
+    midi_file_analysis under the same flag). Numeric only — labels/colors are
+    the renderer's business."""
+    from ..analysis import candidate_context, disambiguate_relative_key
     from ..io.midi import sequence_from_midi_file
     from ..representation import piano_roll_descriptor
     from ..temporal import coalesce, track_keys
@@ -928,12 +955,20 @@ def piano_roll_view(
     context = None
     if track_local_keys:
         try:
-            regions = track_keys(sequence)
+            regions = track_keys(
+                sequence, disambiguate_relative=bool(disambiguate_relative_keys)
+            )
         except ValueError:
             regions = None  # no window carried tonal information
     if regions is None and chord_overlays:
         try:
-            context = candidate_context(infer_key(sequence).best)
+            best = infer_key(sequence)
+            chosen = best.best
+            if disambiguate_relative_keys:
+                rel = disambiguate_relative_key(best)
+                if rel.applied and not rel.is_ambiguous:
+                    chosen = rel.chosen
+            context = candidate_context(chosen)
         except ValueError:
             context = None  # no tonal information — intrinsic naming only
 

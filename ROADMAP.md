@@ -155,8 +155,10 @@ list as new applications come into view.
   validation of INTEGRATION.md's accuracy. The **Eb solo read as its relative
   minor (Cm)** drove the **relative-key tie-breaker ✅ shipped (2026-06-13,
   `disambiguate_relative_key` / `relative_key` #40 — see 3.5b)**, validated to
-  back Eb major on this exact shape; pipeline wiring (an opt-in flag on
-  `key_tracking`/`midi_file_analysis`) is the direct A6 follow-on. The other
+  back Eb major on this exact shape; **pipeline wiring ✅ shipped (2026-06-13,
+  opt-in `disambiguate_relative[_keys]` on `key_tracking` /
+  `midi_file_analysis` / `piano_roll_view`)** so the fix reaches A6's rendered
+  key timeline directly. The other
   finding stays a recorded motivating case (no build):
   **residual 1–2 s key-region micro-bands in stable passages** (the
   local-key-tracking axis, untouched by coalescing) is the motivating case for
@@ -901,11 +903,17 @@ placeholder contexts. Momentum was the only argument for consumer-first.
       and A minor when the raised 7th is present. **Chosen form vs the recorded
       "DFT-based" framing (3.5a):** shipped the transparent tonal-hierarchy
       signals (more interpretable, directly decisive on the shared collection);
-      DFT-phase signals remain an available future addition. **Follow-ons
-      (recorded):** wire it into `key_tracking`/`midi_file_analysis` as an
-      opt-in flag (kept out of this slice to preserve A1 output + goldens — the
-      direct A6 win); register-aware (bass-emphasis) and cadential signals;
-      corpus calibration of the weights.
+      DFT-phase signals remain an available future addition. **Pipeline wiring
+      ✅ shipped (2026-06-13, the direct A6 win):** opt-in `disambiguate_relative`
+      on `track_keys` (applied per window — a relative near-tie adopts the
+      tonal-hierarchy reading; cited additive field on `KeyTrackingResult`) +
+      `disambiguate_relative_keys` on `midi_file_analysis`/`piano_roll_view`
+      (global key context + per-region tracking; the global break surfaced under
+      `key_disambiguation`). Off by default — exactness/stability stay default,
+      `infer_key`/`key_induction` goldens untouched (the conformance diff is one
+      additive cited field + one new flag-on `key_tracking` case). **Remaining
+      follow-ons:** register-aware (bass-emphasis) + cadential signals; corpus
+      calibration of the weights; per-window flip evidence on `KeyWindow`.
 - [x] **Voice-leading distance** (parallel track; leaf primitive with no
       dependencies). Exact minimal voice-leading distance between two identities:
       min-cost bipartite matching for equal cardinality; the unequal-cardinality

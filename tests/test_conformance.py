@@ -110,6 +110,14 @@ CASES: list[tuple[str, dict]] = [
          "pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0]},
     ),
     ("key_tracking", {"events": _modulating_events()}),
+    # Relative-key tie-breaker on: a window the bare argmax reads as C major but
+    # the G# leading tone flips to A minor (Audiology brief-3 follow-on).
+    (
+        "key_tracking",
+        {"events": [[0.0, 3.3, 60], [0.0, 2.3, 64], [0.0, 2.0, 67], [0.0, 2.0, 69],
+                    [0.0, 2.0, 68], [0.0, 1.0, 62], [0.0, 1.0, 65], [0.0, 1.0, 71]],
+         "window_beats": 4.0, "hop_beats": 2.0, "disambiguate_relative": True},
+    ),
     (
         "cadences",
         {"chords": [[2, "min"], [7, "maj"], [0, "maj"]], "tonic": "C", "mode": "major"},
