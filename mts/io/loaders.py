@@ -35,6 +35,7 @@ _SUCCESSION_WEIGHTS_CACHE: tuple[Path, int, tuple["SuccessionWeights", ...]] | N
 _RELATIVE_KEY_CACHE: tuple[Path, int, tuple["RelativeKeyWeights", ...]] | None = None
 _KEY_SMOOTHING_CACHE: tuple[Path, int, tuple["KeySmoothingPriors", ...]] | None = None
 _SCORING_PRIORS_CACHE: tuple[Path, int, tuple["ScoringPrior", ...]] | None = None
+_METER_PROFILES_CACHE: tuple[Path, int, tuple["MeterProfileSet", ...]] | None = None
 
 
 @dataclass(frozen=True)
@@ -159,6 +160,23 @@ class ScoringPrior:
     fdr_q: float
     arity_cap: int
     weight_scale: float
+
+
+@dataclass(frozen=True)
+class MeterProfileSet:
+    """One versioned set of metric-profile templates (a versioned empirical prior).
+
+    ``profiles`` maps a ``"num/den"`` signature to a per-grid-position weight
+    template (metric salience, one value per ``grid_beats`` slot across one bar).
+    Meter estimation folds onset salience onto each candidate bar and correlates
+    it with the template, weighted by the bar-period autocorrelation. Results
+    cite ``version`` (ROADMAP "versioned-priors pattern").
+    """
+
+    version: str
+    source: str
+    grid_beats: float
+    profiles: dict[str, tuple[float, ...]]
 
 
 @dataclass(frozen=True)
@@ -470,6 +488,46 @@ def load_scoring_prior(version: str | None = None) -> ScoringPrior:
             return entry
     known = ", ".join(e.version for e in entries)
     raise ValueError(f"Unknown scoring-prior version {version!r} (known: {known})")
+
+
+def load_meter_profiles(version: str | None = None) -> MeterProfileSet:
+    """Load a versioned metric-profile set from ``data/meter_profiles.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime.
+    """
+    global _METER_PROFILES_CACHE
+    path = DATA_DIR / "meter_profiles.json"
+    mtime = path.stat().st_mtime_ns
+    if _METER_PROFILES_CACHE is not None and _METER_PROFILES_CACHE[:2] == (path, mtime):
+        entries = _METER_PROFILES_CACHE[2]
+    else:
+        parsed: list[MeterProfileSet] = []
+        for payload in _read_json("meter_profiles.json"):
+            profiles = {
+                str(sig): tuple(float(w) for w in weights)
+                for sig, weights in dict(payload["profiles"]).items()
+            }
+            if not profiles:
+                raise ValueError(f"Meter profile set {payload['version']!r} defines no meters")
+            parsed.append(
+                MeterProfileSet(
+                    version=str(payload["version"]),
+                    source=str(payload.get("source", "")),
+                    grid_beats=float(payload["grid_beats"]),
+                    profiles=profiles,
+                )
+            )
+        if not parsed:
+            raise ValueError("meter_profiles.json contains no profile sets")
+        entries = tuple(parsed)
+        _METER_PROFILES_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown meter-profile version {version!r} (known: {known})")
 
 
 def load_intervals() -> list[Interval]:

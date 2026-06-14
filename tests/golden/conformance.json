@@ -3239,6 +3239,225 @@
   },
   {
    "kwargs": {
+    "denominator": 4,
+    "events": [
+     [
+      0,
+      0.5,
+      60,
+      100
+     ],
+     [
+      1,
+      0.5,
+      60,
+      40
+     ],
+     [
+      2,
+      0.5,
+      60,
+      40
+     ],
+     [
+      3,
+      0.5,
+      60,
+      100
+     ],
+     [
+      4,
+      0.5,
+      60,
+      40
+     ],
+     [
+      5,
+      0.5,
+      60,
+      40
+     ],
+     [
+      6,
+      0.5,
+      60,
+      100
+     ],
+     [
+      7,
+      0.5,
+      60,
+      40
+     ],
+     [
+      8,
+      0.5,
+      60,
+      40
+     ],
+     [
+      9,
+      0.5,
+      60,
+      100
+     ],
+     [
+      10,
+      0.5,
+      60,
+      40
+     ],
+     [
+      11,
+      0.5,
+      60,
+      40
+     ],
+     [
+      12,
+      0.5,
+      60,
+      100
+     ],
+     [
+      13,
+      0.5,
+      60,
+      40
+     ],
+     [
+      14,
+      0.5,
+      60,
+      40
+     ],
+     [
+      15,
+      0.5,
+      60,
+      100
+     ],
+     [
+      16,
+      0.5,
+      60,
+      40
+     ],
+     [
+      17,
+      0.5,
+      60,
+      40
+     ],
+     [
+      18,
+      0.5,
+      60,
+      100
+     ],
+     [
+      19,
+      0.5,
+      60,
+      40
+     ],
+     [
+      20,
+      0.5,
+      60,
+      40
+     ],
+     [
+      21,
+      0.5,
+      60,
+      100
+     ],
+     [
+      22,
+      0.5,
+      60,
+      40
+     ],
+     [
+      23,
+      0.5,
+      60,
+      40
+     ]
+    ],
+    "numerator": 4
+   },
+   "result": {
+    "agrees_with_declared": false,
+    "candidates": [
+     {
+      "denominator": 4,
+      "numerator": 3,
+      "period_score": 1.0,
+      "profile_score": 0.874083,
+      "score": 0.874083
+     },
+     {
+      "denominator": 8,
+      "numerator": 6,
+      "period_score": 1.0,
+      "profile_score": 0.746809,
+      "score": 0.746809
+     },
+     {
+      "denominator": 8,
+      "numerator": 12,
+      "period_score": 1.0,
+      "profile_score": 0.678662,
+      "score": 0.678662
+     },
+     {
+      "denominator": 4,
+      "numerator": 2,
+      "period_score": 0.725715,
+      "profile_score": 0.890745,
+      "score": 0.646427
+     },
+     {
+      "denominator": 4,
+      "numerator": 4,
+      "period_score": 0.730652,
+      "profile_score": 0.873986,
+      "score": 0.638579
+     },
+     {
+      "denominator": 4,
+      "numerator": 5,
+      "period_score": 0.725592,
+      "profile_score": 0.707745,
+      "score": 0.513534
+     },
+     {
+      "denominator": 8,
+      "numerator": 7,
+      "period_score": 0.0,
+      "profile_score": 0.666425,
+      "score": 0.0
+     },
+     {
+      "denominator": 8,
+      "numerator": 9,
+      "period_score": 0.0,
+      "profile_score": 0.971354,
+      "score": 0.0
+     }
+    ],
+    "declared_denominator": 4,
+    "declared_numerator": 4,
+    "grid_beats": 0.25,
+    "margin": 0.127274,
+    "profile_version": "meter-grid.1"
+   },
+   "tool": "meter_estimation"
+  },
+  {
+   "kwargs": {
     "pc_weights": [
      2.0,
      0,

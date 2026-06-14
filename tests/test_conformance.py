@@ -124,6 +124,13 @@ CASES: list[tuple[str, dict]] = [
          "realization_midi": [45, 60, 64, 67]},
     ),
     ("key_induction", {"pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0]}),
+    # 3/4 accent content tagged 4/4 — estimation ranks 3/4 and flags disagreement.
+    (
+        "meter_estimation",
+        {"events": [[b * 3 + o, 0.5, 60, v]
+                    for b in range(8) for o, v in ((0, 100), (1, 40), (2, 40))],
+         "numerator": 4, "denominator": 4},
+    ),
     # Eb-major-solo shape (Audiology brief-3 case): a relative near-tie the
     # tonal-hierarchy signals resolve to Eb major.
     ("relative_key", {"pc_weights": [2.0, 0, 2.0, 4.0, 0, 1.0, 0, 3.0, 1.0, 0, 3.0, 0]}),

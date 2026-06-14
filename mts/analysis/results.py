@@ -312,6 +312,50 @@ class RelativeKeyDisambiguation:
 
 
 @dataclass(frozen=True)
+class MeterCandidate:
+    """One candidate time signature with its estimation score (gap 11).
+
+    ``score`` is the combined metric fit (bar-period autocorrelation ×
+    metric-profile correlation); the two components are exposed as evidence.
+    """
+
+    numerator: int
+    denominator: int
+    score: float
+    period_score: float    # bar-period autocorrelation (does the content repeat each bar?)
+    profile_score: float   # within-bar accent vs the metric-profile template
+
+
+@dataclass(frozen=True)
+class MeterEstimationResult:
+    """Ranked candidate time signatures inferred from note content (gap 11).
+
+    Per Decision 7: plural + evidenced (every candidate with its score, plus the
+    top-two ``margin``). The engine **never overrides** the file's declared
+    meter — it evidences against it: ``declared_numerator``/``declared_denominator``
+    carry the file's claim and ``agrees_with_declared`` flags a disagreement,
+    leaving the sequence's ``MeterMap`` untouched. ``grid_beats`` + the cited
+    ``profile_version`` make the reading reproducible.
+    """
+
+    candidates: list[MeterCandidate]   # best first
+    margin: float
+    declared_numerator: int | None
+    declared_denominator: int | None
+    agrees_with_declared: bool
+    grid_beats: float
+    profile_version: str
+
+    @property
+    def best(self) -> MeterCandidate:
+        return self.candidates[0]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
 class VoiceLeadingResult:
     """Minimal voice leading between two pc-set identities (Phase 3.5).
 
@@ -689,6 +733,8 @@ __all__ = [
     "KeyInductionResult",
     "RelativeKeyEvidence",
     "RelativeKeyDisambiguation",
+    "MeterCandidate",
+    "MeterEstimationResult",
     "MultiKeyNaming",
     "NamingEvidence",
     "NamingUnderKey",
