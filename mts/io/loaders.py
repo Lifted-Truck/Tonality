@@ -32,6 +32,7 @@ _KEY_PROFILES_CACHE: tuple[Path, int, tuple["KeyProfileSet", ...]] | None = None
 _NAMING_WEIGHTS_CACHE: tuple[Path, int, tuple["NamingWeights", ...]] | None = None
 _SWING_FEEL_CACHE: tuple[Path, int, tuple["SwingFeelPriors", ...]] | None = None
 _SUCCESSION_WEIGHTS_CACHE: tuple[Path, int, tuple["SuccessionWeights", ...]] | None = None
+_RELATIVE_KEY_CACHE: tuple[Path, int, tuple["RelativeKeyWeights", ...]] | None = None
 
 
 @dataclass(frozen=True)
@@ -96,6 +97,24 @@ class SuccessionWeights:
     version: str
     source: str
     weights: dict[str, float]
+
+
+@dataclass(frozen=True)
+class RelativeKeyWeights:
+    """One versioned relative-major/minor tie-breaker table (a versioned prior).
+
+    ``weights`` maps a tonal-hierarchy signal name to its score weight (positive
+    score favors the minor reading); ``near_tie_margin`` is the correlation gap
+    below which the top key and its relative partner count as a tie worth
+    breaking; ``decision_margin`` is the tie-break-score band that stays honestly
+    ambiguous. Results cite ``version`` (ROADMAP "versioned-priors pattern").
+    """
+
+    version: str
+    source: str
+    weights: dict[str, float]
+    near_tie_margin: float
+    decision_margin: float
 
 
 @dataclass(frozen=True)
@@ -280,6 +299,46 @@ def load_succession_weights(version: str | None = None) -> SuccessionWeights:
             return entry
     known = ", ".join(e.version for e in entries)
     raise ValueError(f"Unknown succession-weights version {version!r} (known: {known})")
+
+
+def load_relative_key_weights(version: str | None = None) -> RelativeKeyWeights:
+    """Load a versioned relative-key tie-breaker from ``data/relative_key_weights.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime.
+    """
+    global _RELATIVE_KEY_CACHE
+    path = DATA_DIR / "relative_key_weights.json"
+    mtime = path.stat().st_mtime_ns
+    if _RELATIVE_KEY_CACHE is not None and _RELATIVE_KEY_CACHE[:2] == (path, mtime):
+        entries = _RELATIVE_KEY_CACHE[2]
+    else:
+        parsed: list[RelativeKeyWeights] = []
+        for payload in _read_json("relative_key_weights.json"):
+            weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
+            if not weights:
+                raise ValueError(
+                    f"Relative-key weights {payload['version']!r} define no signals"
+                )
+            parsed.append(
+                RelativeKeyWeights(
+                    version=str(payload["version"]),
+                    source=str(payload.get("source", "")),
+                    weights=weights,
+                    near_tie_margin=float(payload["near_tie_margin"]),
+                    decision_margin=float(payload["decision_margin"]),
+                )
+            )
+        if not parsed:
+            raise ValueError("relative_key_weights.json contains no weight tables")
+        entries = tuple(parsed)
+        _RELATIVE_KEY_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown relative-key version {version!r} (known: {known})")
 
 
 def load_intervals() -> list[Interval]:

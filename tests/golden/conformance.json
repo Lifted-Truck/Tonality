@@ -3240,6 +3240,201 @@
   {
    "kwargs": {
     "pc_weights": [
+     2.0,
+     0,
+     2.0,
+     4.0,
+     0,
+     1.0,
+     0,
+     3.0,
+     1.0,
+     0,
+     3.0,
+     0
+    ]
+   },
+   "result": {
+    "applied": true,
+    "chosen": {
+     "mode": "major",
+     "score": 0.91396914800165,
+     "tonic_pc": 3
+    },
+    "evidence": [
+     {
+      "detail": "minor-tonic vs major-tonic weight",
+      "signal": "tonic_salience",
+      "value": -0.125,
+      "weight": 1.0
+     },
+     {
+      "detail": "minor-triad vs major-triad weight",
+      "signal": "tonic_triad_salience",
+      "value": -0.0625,
+      "weight": 2.0
+     },
+     {
+      "detail": "raised 7th of the minor (outside the shared collection)",
+      "signal": "leading_tone",
+      "value": 0.0,
+      "weight": 3.0
+     }
+    ],
+    "induction": {
+     "candidates": [
+      {
+       "mode": "major",
+       "score": 0.91396914800165,
+       "tonic_pc": 3
+      },
+      {
+       "mode": "minor",
+       "score": 0.7498588587587984,
+       "tonic_pc": 7
+      },
+      {
+       "mode": "minor",
+       "score": 0.7167845707061933,
+       "tonic_pc": 0
+      },
+      {
+       "mode": "major",
+       "score": 0.6657958026671683,
+       "tonic_pc": 10
+      },
+      {
+       "mode": "major",
+       "score": 0.3806604697296789,
+       "tonic_pc": 8
+      },
+      {
+       "mode": "minor",
+       "score": 0.35664232302227106,
+       "tonic_pc": 3
+      },
+      {
+       "mode": "major",
+       "score": 0.14208764065571872,
+       "tonic_pc": 7
+      },
+      {
+       "mode": "major",
+       "score": 0.12144653069559741,
+       "tonic_pc": 5
+      },
+      {
+       "mode": "minor",
+       "score": 0.11357255527058577,
+       "tonic_pc": 10
+      },
+      {
+       "mode": "major",
+       "score": 0.10464562723968475,
+       "tonic_pc": 0
+      },
+      {
+       "mode": "minor",
+       "score": 0.09204801860143005,
+       "tonic_pc": 5
+      },
+      {
+       "mode": "minor",
+       "score": 0.061073685345815774,
+       "tonic_pc": 2
+      },
+      {
+       "mode": "minor",
+       "score": -0.05127389629319201,
+       "tonic_pc": 8
+      },
+      {
+       "mode": "minor",
+       "score": -0.15679662484197981,
+       "tonic_pc": 4
+      },
+      {
+       "mode": "major",
+       "score": -0.16656895712004857,
+       "tonic_pc": 1
+      },
+      {
+       "mode": "major",
+       "score": -0.24337308720422085,
+       "tonic_pc": 6
+      },
+      {
+       "mode": "major",
+       "score": -0.25105350021263817,
+       "tonic_pc": 2
+      },
+      {
+       "mode": "minor",
+       "score": -0.322693053804253,
+       "tonic_pc": 11
+      },
+      {
+       "mode": "minor",
+       "score": -0.3232180425035008,
+       "tonic_pc": 9
+      },
+      {
+       "mode": "major",
+       "score": -0.3403383014354884,
+       "tonic_pc": 11
+      },
+      {
+       "mode": "minor",
+       "score": -0.5526381040747457,
+       "tonic_pc": 1
+      },
+      {
+       "mode": "major",
+       "score": -0.6566753122196729,
+       "tonic_pc": 4
+      },
+      {
+       "mode": "major",
+       "score": -0.6705960607974292,
+       "tonic_pc": 9
+      },
+      {
+       "mode": "minor",
+       "score": -0.683360290187423,
+       "tonic_pc": 6
+      }
+     ],
+     "margin": 0.16411028924285154,
+     "pc_weights": [
+      2.0,
+      0.0,
+      2.0,
+      4.0,
+      0.0,
+      1.0,
+      0.0,
+      3.0,
+      1.0,
+      0.0,
+      3.0,
+      0.0
+     ],
+     "profile_version": "kk-1982.1"
+    },
+    "is_ambiguous": false,
+    "relative": {
+     "mode": "minor",
+     "score": 0.7167845707061933,
+     "tonic_pc": 0
+    },
+    "tiebreak_score": -0.25,
+    "weights_version": "rel-key.1"
+   },
+   "tool": "relative_key"
+  },
+  {
+   "kwargs": {
+    "pc_weights": [
      4.0,
      0,
      1.0,

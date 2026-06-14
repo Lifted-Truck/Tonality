@@ -270,6 +270,48 @@ class KeyInductionResult:
 
 
 @dataclass(frozen=True)
+class RelativeKeyEvidence:
+    """One tonal-hierarchy signal behind a relative-key tie-break (Decision 7).
+
+    ``value`` is the (weight-normalized) signal reading, ``weight`` its
+    contribution from the versioned table; both signed so positive favors the
+    minor reading."""
+
+    signal: str
+    value: float
+    weight: float
+    detail: str | None = None
+
+
+@dataclass(frozen=True)
+class RelativeKeyDisambiguation:
+    """A relative-major/minor tie-break over a key-induction result (3.5a).
+
+    ``infer_key`` (the stability-contract surface) is left untouched and carried
+    here as ``induction``; this is the additive, evidenced refinement applied on
+    top. ``applied`` is False when the top candidate and its relative partner are
+    *not* a near-tie (passthrough — nothing to second-guess). ``chosen`` /
+    ``relative`` are the two members of the disambiguated pair; ``tiebreak_score``
+    is signed (+ favors minor, − favors major); ``is_ambiguous`` flags a
+    tie-break that itself stayed within the prior's decision band (honest, per
+    Decision 7). ``weights_version`` cites the prior.
+    """
+
+    applied: bool
+    chosen: KeyCandidate | None
+    relative: KeyCandidate | None
+    is_ambiguous: bool
+    tiebreak_score: float
+    evidence: list[RelativeKeyEvidence]
+    induction: KeyInductionResult
+    weights_version: str
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
 class VoiceLeadingResult:
     """Minimal voice leading between two pc-set identities (Phase 3.5).
 
@@ -645,6 +687,8 @@ __all__ = [
     "ChordNaming",
     "KeyCandidate",
     "KeyInductionResult",
+    "RelativeKeyEvidence",
+    "RelativeKeyDisambiguation",
     "MultiKeyNaming",
     "NamingEvidence",
     "NamingUnderKey",

@@ -220,6 +220,21 @@ def key_induction(pc_weights: list[float]) -> dict:
     return infer_key(pc_weights).to_dict()
 
 
+def relative_key(pc_weights: list[float]) -> dict:
+    """Relative-major/minor tie-breaker over duration-weighted pitch-class content
+    (12 weights, index = pc). Relative pairs (e.g. C major / A minor) share a
+    diatonic collection, so the KK-profile correlation in key_induction separates
+    them weakly; this applies tonal-hierarchy signals (leading-tone, tonic-triad
+    and tonic salience) to choose between them, evidenced and versioned
+    (rel-key.1). key_induction itself is unchanged and carried in the result as
+    `induction`. `applied` is false when the top key and its relative partner are
+    not a near-tie (nothing to second-guess); `is_ambiguous` flags an honestly
+    inconclusive tie-break. Positive `tiebreak_score` favors the minor reading."""
+    from ..analysis import disambiguate_relative_key
+
+    return disambiguate_relative_key(pc_weights).to_dict()
+
+
 def name_pcs_in_inferred_keys(
     pcs: list[int],
     pc_weights: list[float],
@@ -942,6 +957,7 @@ TOOLS = (
     chord_in_key,
     name_pcs,
     key_induction,
+    relative_key,
     key_tracking,
     cadences,
     next_chord,

@@ -152,11 +152,12 @@ list as new applications come into view.
   documented sections (incl. the A-major opera pivot and the F-major coda out
   of a Bb whole), cross-checked against raw `identity.pcs`. Both rough edges
   hit were **documented contracts the consumer triggered itself** — strong
-  validation of INTEGRATION.md's accuracy. Two findings recorded as motivating
-  cases for already-deferred items (no build): the **Eb solo read as its
-  relative minor (Cm)** is a named adversarial case for the **DFT-based
-  key-finding refinement** + relative-key tie-breaker (3.5a; cadential evidence
-  via `cadences`/`next_chord` and bass emphasis are the candidate signals); and
+  validation of INTEGRATION.md's accuracy. The **Eb solo read as its relative
+  minor (Cm)** drove the **relative-key tie-breaker ✅ shipped (2026-06-13,
+  `disambiguate_relative_key` / `relative_key` #40 — see 3.5b)**, validated to
+  back Eb major on this exact shape; pipeline wiring (an opt-in flag on
+  `key_tracking`/`midi_file_analysis`) is the direct A6 follow-on. The other
+  finding stays a recorded motivating case (no build):
   **residual 1–2 s key-region micro-bands in stable passages** (the
   local-key-tracking axis, untouched by coalescing) is the motivating case for
   the **adaptive hysteresis** noted in 3.5b (ships as a versioned prior). The
@@ -883,6 +884,28 @@ placeholder contexts. Momentum was the only argument for consumer-first.
       Window geometry is caller-set, cited in the result. MCP: new
       `key_tracking` tool (#20, event triples) + additive `key_regions`
       field on `midi_file_analysis`. The *online* form (A4) remains gap 5.
+      *Relative-key tie-breaker delivered (2026-06-13 — the relative-major/minor
+      refinement motivated by Audiology brief-3 Findings B/C):*
+      `disambiguate_relative_key` (`analysis/key_induction.py`) + MCP tool
+      `relative_key` (#40). **`infer_key` is left byte-identical** — its
+      scores/margin are a pinned stability contract (A5/A7 control signals), so
+      this is an *additive* refinement carrying the untouched induction in its
+      result. It engages only on a relative near-tie (`near_tie_margin` gap to
+      the relative partner) and applies **tonal-hierarchy signals** from the
+      weighted 12-vector (no register, preserving the pure-vector contract):
+      `leading_tone` (the minor's raised 7th — a pc *outside* the shared
+      diatonic collection, near-dispositive), `tonic_triad_salience`,
+      `tonic_salience`; signed score (+ = minor) over a versioned prior
+      (`rel-key.1`); honest `is_ambiguous` when the break is inconclusive
+      (Decision 7). Validated to back Eb major on the Audiology Eb-solo shape
+      and A minor when the raised 7th is present. **Chosen form vs the recorded
+      "DFT-based" framing (3.5a):** shipped the transparent tonal-hierarchy
+      signals (more interpretable, directly decisive on the shared collection);
+      DFT-phase signals remain an available future addition. **Follow-ons
+      (recorded):** wire it into `key_tracking`/`midi_file_analysis` as an
+      opt-in flag (kept out of this slice to preserve A1 output + goldens — the
+      direct A6 win); register-aware (bass-emphasis) and cadential signals;
+      corpus calibration of the weights.
 - [x] **Voice-leading distance** (parallel track; leaf primitive with no
       dependencies). Exact minimal voice-leading distance between two identities:
       min-cost bipartite matching for equal cardinality; the unequal-cardinality
