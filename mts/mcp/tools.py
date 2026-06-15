@@ -401,6 +401,7 @@ def structural_keys(
     bpm: float = 120.0,
     disambiguate_relative: bool = False,
     smoothing: bool = False,
+    anchor_method: str = "most_prevalent_region",
 ) -> dict:
     """Reduce the windowed local key track to **structural key-areas** — the
     fix for over-segmentation. The windowed `key_tracking` reports each window's
@@ -411,10 +412,14 @@ def structural_keys(
     (brevity OR return) — the functional context confidence-gating lacks.
     Returns structural `areas` (each with its absorbed `tonicizations` + the
     home key) and carries the underlying `tracking` + global key as evidence;
-    thresholds are a versioned prior (structural-key.1, cited). Never overrides
+    thresholds are a versioned prior (structural-key.2, cited). Never overrides
     the file's meter/key. events: each [onset_beats, duration_beats, midi_note]
     or [..., voice]. disambiguate_relative/smoothing choose the underlying local
-    track the reduction runs on (the reduction is agnostic to either)."""
+    track the reduction runs on (the reduction is agnostic to either).
+    anchor_method picks the home key: 'most_prevalent_region' (default — longest
+    summed local duration) or 'frame_weighted' (opt-in — weights the opening +
+    closing regions, the tonicization-robust home-key signal for pieces whose
+    interior repeatedly tonicizes the dominant; A6 brief-7)."""
     from ..temporal import Event, Sequence, reduce_to_structural_keys, track_keys
 
     try:
@@ -433,7 +438,9 @@ def structural_keys(
         sequence, window_beats=float(window_beats), hop_beats=float(hop_beats),
         disambiguate_relative=bool(disambiguate_relative), smoothing=bool(smoothing),
     )
-    return reduce_to_structural_keys(sequence, tracking=tracking).to_dict()
+    return reduce_to_structural_keys(
+        sequence, tracking=tracking, anchor_method=str(anchor_method)
+    ).to_dict()
 
 
 def voice_pair_motion(events: list[list]) -> dict:

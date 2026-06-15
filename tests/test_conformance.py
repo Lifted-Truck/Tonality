@@ -142,6 +142,8 @@ CASES: list[tuple[str, dict]] = [
     ("key_tracking", {"events": _modulating_events()}),
     # structural reduction of the same modulating track (C → F#).
     ("structural_keys", {"events": _modulating_events()}),
+    # opt-in frame-weighted home anchor (A6 brief-7) on the same track.
+    ("structural_keys", {"events": _modulating_events(), "anchor_method": "frame_weighted"}),
     # Relative-key tie-breaker on: a window the bare argmax reads as C major but
     # the G# leading tone flips to A minor (Audiology brief-3 follow-on).
     (
