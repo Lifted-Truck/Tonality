@@ -13,6 +13,12 @@ from .meter import TimeSignature, MetricPosition, MeterChange, MeterMap
 from .sequence import Event, Sequence
 from .segmentation import Segment, HarmonicRhythm, segment, harmonic_rhythm
 from .key_tracking import KeyRegion, KeyTrackingResult, KeyWindow, track_keys
+from .structural_key import (
+    StructuralKeyArea,
+    StructuralKeyResult,
+    Tonicization,
+    reduce_to_structural_keys,
+)
 from .voice_motion import VoiceMotionResult, VoicePairMotion, voice_motion
 from .melodic import MelodicAnalysis, MelodicNoteAtoms, analyze_melody
 from .tolerance import CoalesceResult, DroppedEvent, coalesce
@@ -49,6 +55,10 @@ __all__ = [
     "KeyTrackingResult",
     "KeyWindow",
     "track_keys",
+    "StructuralKeyArea",
+    "StructuralKeyResult",
+    "Tonicization",
+    "reduce_to_structural_keys",
     "VoiceMotionResult",
     "VoicePairMotion",
     "voice_motion",

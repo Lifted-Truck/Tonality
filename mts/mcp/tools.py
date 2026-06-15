@@ -394,6 +394,48 @@ def key_tracking(
     ).to_dict()
 
 
+def structural_keys(
+    events: list[list[float]],
+    window_beats: float = 8.0,
+    hop_beats: float = 2.0,
+    bpm: float = 120.0,
+    disambiguate_relative: bool = False,
+    smoothing: bool = False,
+) -> dict:
+    """Reduce the windowed local key track to **structural key-areas** — the
+    fix for over-segmentation. The windowed `key_tracking` reports each window's
+    best-fit key, so a brief tonicization (a V/V span) reads as the dominant's
+    key; this distinguishes a **tonicization** (brief, diatonically-related
+    excursion — absorbed into the parent key and recorded as a `degree`) from a
+    **modulation** (sustained/structural change — kept), via relatedness AND
+    (brevity OR return) — the functional context confidence-gating lacks.
+    Returns structural `areas` (each with its absorbed `tonicizations` + the
+    home key) and carries the underlying `tracking` + global key as evidence;
+    thresholds are a versioned prior (structural-key.1, cited). Never overrides
+    the file's meter/key. events: each [onset_beats, duration_beats, midi_note]
+    or [..., voice]. disambiguate_relative/smoothing choose the underlying local
+    track the reduction runs on (the reduction is agnostic to either)."""
+    from ..temporal import Event, Sequence, reduce_to_structural_keys, track_keys
+
+    try:
+        parsed = tuple(
+            Event(float(onset), float(duration), Pitch.from_midi(int(midi)),
+                  voice=str(entry[3]) if len(entry) > 3 and entry[3] is not None else None)
+            for entry in events
+            for onset, duration, midi in [entry[:3]]
+        )
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            f"Each event must be [onset_beats, duration_beats, midi_note] (optional voice): {exc}"
+        ) from exc
+    sequence = Sequence.from_events(parsed, bpm=float(bpm))
+    tracking = track_keys(
+        sequence, window_beats=float(window_beats), hop_beats=float(hop_beats),
+        disambiguate_relative=bool(disambiguate_relative), smoothing=bool(smoothing),
+    )
+    return reduce_to_structural_keys(sequence, tracking=tracking).to_dict()
+
+
 def voice_pair_motion(events: list[list]) -> dict:
     """Classify how voice pairs move (parallel/similar/contrary/oblique, with
     interval evidence) for voiced events, each [onset_beats, duration_beats,
@@ -1092,6 +1134,7 @@ TOOLS = (
     relative_key,
     meter_estimation,
     key_tracking,
+    structural_keys,
     cadences,
     next_chord,
     name_pcs_in_inferred_keys,

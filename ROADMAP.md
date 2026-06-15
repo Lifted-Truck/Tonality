@@ -202,10 +202,28 @@ list as new applications come into view.
   difference, not key accuracy. The engine has **no structural-key-area output**
   — a tonicization-aware reduction needing **functional context**, not windowed
   best-fit. This is the empirically-motivated version of the parked
-  harmonic-segmentation / functional-context work (Phase 2 deferred refinement);
-  **recorded as the next key-track investment** — it dissolves Findings 2 *and*
-  likely 3. Until it ships, the windowed track is a *relative* instrument (deltas
-  vs the global baseline), now documented in INTEGRATION.
+  harmonic-segmentation / functional-context work (Phase 2 deferred refinement).
+  **✅ Delivered — structural reduction slice 1 (2026-06-15):**
+  `temporal/structural_key.py` `reduce_to_structural_keys` + MCP tool
+  `structural_keys` (#43). A single deterministic pass over the local track
+  absorbs a brief, **diatonically-related** excursion (a V/V span) into its
+  parent key as a `tonicization` (with its scale `degree`) and keeps a
+  sustained/structural change as a modulation — discriminator = **relatedness AND
+  (brevity OR return)**, the functional context confidence-gating lacked. Home
+  key = the **most-prevalent local region** (not the averaging global induction —
+  sidesteps Finding 3 for the anchor); global `infer_key` carried as evidence
+  alongside the full local `tracking`. Thresholds are a versioned prior
+  (`structural-key.1`, `min_modulation_beats=8` set by **phrase-length theory,
+  not corpus-fit** — the BY-NC-SA boundary). A derived reduction — never
+  overrides. The worked Mozart track collapses 6 over-segmented regions → 2
+  structural areas (C-major with V/vi tonicizations + the real G-major
+  modulation), which is the fix. **Deferred:** chromatic tonicizations
+  (roots outside the parent collection — needs an applied-chord model); the
+  returning-modulation distinction (`require_return` flag); multi-pass
+  re-anchoring (`min_area_beats` dormant); recursive nesting > 1 level;
+  structurally-weighted home-key induction (Q3); the online/change-point form.
+  Use `structural_keys` for key-area comparison, the windowed track for
+  tonicization-grain detail.
   (2) **`disambiguate_relative_keys` empirical negative result.** On real
   classical repertoire it's a **no-op** (A/B Δ ≈ 0 global, −0.018 region). It
   *does* reach the per-window path (`key_tracking.py`); the cause is the
