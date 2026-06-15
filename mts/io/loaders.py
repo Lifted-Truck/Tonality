@@ -36,6 +36,7 @@ _RELATIVE_KEY_CACHE: tuple[Path, int, tuple["RelativeKeyWeights", ...]] | None =
 _KEY_SMOOTHING_CACHE: tuple[Path, int, tuple["KeySmoothingPriors", ...]] | None = None
 _SCORING_PRIORS_CACHE: tuple[Path, int, tuple["ScoringPrior", ...]] | None = None
 _METER_PROFILES_CACHE: tuple[Path, int, tuple["MeterProfileSet", ...]] | None = None
+_STRUCTURAL_KEY_CACHE: tuple[Path, int, tuple["StructuralKeyPriors", ...]] | None = None
 
 
 @dataclass(frozen=True)
@@ -160,6 +161,26 @@ class ScoringPrior:
     fdr_q: float
     arity_cap: int
     weight_scale: float
+
+
+@dataclass(frozen=True)
+class StructuralKeyPriors:
+    """One versioned structural-key-reduction table (a versioned empirical prior).
+
+    Distinguishes a tonicization (a brief, diatonically-related excursion absorbed
+    into the parent key) from a modulation (a sustained/structural key change
+    kept): ``min_modulation_beats`` is the duration floor below which a related
+    excursion reads as a tonicization; ``min_area_beats`` floors a structural
+    modulation area (reserved); ``require_return`` gates the prolongational
+    return rule (reserved). Defaults are theory-set, never corpus-fit. Results
+    cite ``version`` (ROADMAP "versioned-priors pattern").
+    """
+
+    version: str
+    source: str
+    min_modulation_beats: float
+    min_area_beats: float
+    require_return: bool
 
 
 @dataclass(frozen=True)
@@ -528,6 +549,44 @@ def load_meter_profiles(version: str | None = None) -> MeterProfileSet:
             return entry
     known = ", ".join(e.version for e in entries)
     raise ValueError(f"Unknown meter-profile version {version!r} (known: {known})")
+
+
+def load_structural_key_priors(version: str | None = None) -> StructuralKeyPriors:
+    """Load a versioned structural-key prior from ``data/structural_key.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime.
+    """
+    global _STRUCTURAL_KEY_CACHE
+    path = DATA_DIR / "structural_key.json"
+    mtime = path.stat().st_mtime_ns
+    if _STRUCTURAL_KEY_CACHE is not None and _STRUCTURAL_KEY_CACHE[:2] == (path, mtime):
+        entries = _STRUCTURAL_KEY_CACHE[2]
+    else:
+        parsed: list[StructuralKeyPriors] = []
+        for payload in _read_json("structural_key.json"):
+            priors = StructuralKeyPriors(
+                version=str(payload["version"]),
+                source=str(payload.get("source", "")),
+                min_modulation_beats=float(payload["min_modulation_beats"]),
+                min_area_beats=float(payload["min_area_beats"]),
+                require_return=bool(payload["require_return"]),
+            )
+            if priors.min_modulation_beats <= 0 or priors.min_area_beats <= 0:
+                raise ValueError(
+                    f"Structural-key prior {priors.version!r}: beat floors must be > 0"
+                )
+            parsed.append(priors)
+        if not parsed:
+            raise ValueError("structural_key.json contains no prior tables")
+        entries = tuple(parsed)
+        _STRUCTURAL_KEY_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown structural-key version {version!r} (known: {known})")
 
 
 def load_intervals() -> list[Interval]:

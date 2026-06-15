@@ -1,0 +1,9 @@
+[
+  {
+    "version": "structural-key.1",
+    "source": "Engineering defaults set by theory, NOT fit to any validation corpus (When-in-Rome is CC BY-NC-SA; calibrating thresholds against its accuracy would be derivation — the response-4/-5 ShareAlike boundary). min_modulation_beats is the phrase-length floor below which a diatonically-related foreign-key span is heard as a tonicization within the parent key rather than a structural modulation: 8 beats = 2 bars in 4/4 sits in the gap between the longest typical tonicization (~1 bar, a single applied-dominant gesture) and the shortest genuine key establishment (a phrase, ~4 bars), and is >= the window/hop boundary grid so the comparison is meaningful at the engine's resolution. min_area_beats floors a structural modulation area (reserved for a future merge-back pass; dormant in slice 1). require_return gates whether a sustained related span must resolve home to count as prolongational (reserved; false selects the conservative brief-or-returns rule).",
+    "min_modulation_beats": 8.0,
+    "min_area_beats": 8.0,
+    "require_return": false
+  }
+]

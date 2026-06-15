@@ -140,6 +140,8 @@ CASES: list[tuple[str, dict]] = [
          "pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0]},
     ),
     ("key_tracking", {"events": _modulating_events()}),
+    # structural reduction of the same modulating track (C → F#).
+    ("structural_keys", {"events": _modulating_events()}),
     # Relative-key tie-breaker on: a window the bare argmax reads as C major but
     # the G# leading tone flips to A minor (Audiology brief-3 follow-on).
     (

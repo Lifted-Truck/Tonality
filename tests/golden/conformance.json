@@ -4460,6 +4460,458 @@
   },
   {
    "kwargs": {
+    "events": [
+     [
+      0,
+      8,
+      48
+     ],
+     [
+      0,
+      2,
+      60
+     ],
+     [
+      0,
+      2,
+      64
+     ],
+     [
+      0,
+      2,
+      67
+     ],
+     [
+      2,
+      2,
+      65
+     ],
+     [
+      2,
+      2,
+      69
+     ],
+     [
+      2,
+      2,
+      72
+     ],
+     [
+      4,
+      2,
+      67
+     ],
+     [
+      4,
+      2,
+      71
+     ],
+     [
+      4,
+      2,
+      74
+     ],
+     [
+      6,
+      2,
+      60
+     ],
+     [
+      6,
+      2,
+      64
+     ],
+     [
+      6,
+      2,
+      67
+     ],
+     [
+      8,
+      8,
+      48
+     ],
+     [
+      8,
+      2,
+      60
+     ],
+     [
+      8,
+      2,
+      64
+     ],
+     [
+      8,
+      2,
+      67
+     ],
+     [
+      10,
+      2,
+      65
+     ],
+     [
+      10,
+      2,
+      69
+     ],
+     [
+      10,
+      2,
+      72
+     ],
+     [
+      12,
+      2,
+      67
+     ],
+     [
+      12,
+      2,
+      71
+     ],
+     [
+      12,
+      2,
+      74
+     ],
+     [
+      14,
+      2,
+      60
+     ],
+     [
+      14,
+      2,
+      64
+     ],
+     [
+      14,
+      2,
+      67
+     ],
+     [
+      16,
+      8,
+      54
+     ],
+     [
+      16,
+      2,
+      66
+     ],
+     [
+      16,
+      2,
+      70
+     ],
+     [
+      16,
+      2,
+      73
+     ],
+     [
+      18,
+      2,
+      71
+     ],
+     [
+      18,
+      2,
+      75
+     ],
+     [
+      18,
+      2,
+      78
+     ],
+     [
+      20,
+      2,
+      73
+     ],
+     [
+      20,
+      2,
+      77
+     ],
+     [
+      20,
+      2,
+      80
+     ],
+     [
+      22,
+      2,
+      66
+     ],
+     [
+      22,
+      2,
+      70
+     ],
+     [
+      22,
+      2,
+      73
+     ],
+     [
+      24,
+      8,
+      54
+     ],
+     [
+      24,
+      2,
+      66
+     ],
+     [
+      24,
+      2,
+      70
+     ],
+     [
+      24,
+      2,
+      73
+     ],
+     [
+      26,
+      2,
+      71
+     ],
+     [
+      26,
+      2,
+      75
+     ],
+     [
+      26,
+      2,
+      78
+     ],
+     [
+      28,
+      2,
+      73
+     ],
+     [
+      28,
+      2,
+      77
+     ],
+     [
+      28,
+      2,
+      80
+     ],
+     [
+      30,
+      2,
+      66
+     ],
+     [
+      30,
+      2,
+      70
+     ],
+     [
+      30,
+      2,
+      73
+     ]
+    ]
+   },
+   "result": {
+    "anchor_method": "most_prevalent_region",
+    "areas": [
+     {
+      "end_beats": 15.0,
+      "end_seconds": 7.5,
+      "mode": "major",
+      "region_count": 1,
+      "start_beats": 0.0,
+      "start_seconds": 0.0,
+      "tonic_pc": 0,
+      "tonicizations": [],
+      "window_count": 6
+     },
+     {
+      "end_beats": 32.0,
+      "end_seconds": 16.0,
+      "mode": "major",
+      "region_count": 1,
+      "start_beats": 15.0,
+      "start_seconds": 7.5,
+      "tonic_pc": 6,
+      "tonicizations": [],
+      "window_count": 7
+     }
+    ],
+    "global_margin": 0.0,
+    "global_mode": "major",
+    "global_tonic_pc": 0,
+    "home_mode": "major",
+    "home_tonic_pc": 6,
+    "hop_beats": 2.0,
+    "prior_version": "structural-key.1",
+    "tracking": {
+     "disambiguate_relative": false,
+     "hop_beats": 2.0,
+     "profile_version": "kk-1982.1",
+     "regions": [
+      {
+       "end_beats": 15.0,
+       "end_seconds": 7.5,
+       "mean_margin": 0.28071293077510057,
+       "mean_score": 0.901719002265518,
+       "mode": "major",
+       "start_beats": 0.0,
+       "start_seconds": 0.0,
+       "tonic_pc": 0,
+       "window_count": 6
+      },
+      {
+       "end_beats": 32.0,
+       "end_seconds": 16.0,
+       "mean_margin": 0.24594181786254063,
+       "mean_score": 0.8351999100369135,
+       "mode": "major",
+       "start_beats": 15.0,
+       "start_seconds": 7.5,
+       "tonic_pc": 6,
+       "window_count": 7
+      }
+     ],
+     "smoothing_version": null,
+     "window_beats": 8.0,
+     "windows": [
+      {
+       "center_beats": 4.0,
+       "end_beats": 8.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 0.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 6.0,
+       "end_beats": 10.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 2.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 8.0,
+       "end_beats": 12.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 4.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 10.0,
+       "end_beats": 14.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 6.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 12.0,
+       "end_beats": 16.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 8.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 14.0,
+       "end_beats": 18.0,
+       "margin": 0.27816082259712854,
+       "mode": "major",
+       "score": 0.7648800396005302,
+       "start_beats": 10.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 16.0,
+       "end_beats": 20.0,
+       "margin": 0.037315140387181145,
+       "mode": "major",
+       "score": 0.43608535666528514,
+       "start_beats": 12.0,
+       "tonic_pc": 6
+      },
+      {
+       "center_beats": 18.0,
+       "end_beats": 22.0,
+       "margin": 0.27816082259712854,
+       "mode": "major",
+       "score": 0.7648800396005302,
+       "start_beats": 14.0,
+       "tonic_pc": 6
+      },
+      {
+       "center_beats": 20.0,
+       "end_beats": 24.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 16.0,
+       "tonic_pc": 6
+      },
+      {
+       "center_beats": 22.0,
+       "end_beats": 26.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 18.0,
+       "tonic_pc": 6
+      },
+      {
+       "center_beats": 24.0,
+       "end_beats": 28.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 20.0,
+       "tonic_pc": 6
+      },
+      {
+       "center_beats": 26.0,
+       "end_beats": 30.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 22.0,
+       "tonic_pc": 6
+      },
+      {
+       "center_beats": 28.0,
+       "end_beats": 32.0,
+       "margin": 0.28122335241069496,
+       "mode": "major",
+       "score": 0.9290867947985157,
+       "start_beats": 24.0,
+       "tonic_pc": 6
+      }
+     ]
+    },
+    "window_beats": 8.0
+   },
+   "tool": "structural_keys"
+  },
+  {
+   "kwargs": {
     "disambiguate_relative": true,
     "events": [
      [
