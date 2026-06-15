@@ -25,6 +25,11 @@ qt = [
 mcp = [
     "mcp>=1.2",
 ]
+validation = [
+    # Corpus accuracy harness (validation/) — parses RomanText ground truth and
+    # renders scores to MIDI. Optional dev/test extra, never a runtime dep.
+    "music21>=9",
+]
 
 [tool.pytest.ini_options]
 # The dev suite is tests/ only. Audit checks live in audit/checks/ and are run

@@ -189,6 +189,41 @@ list as new applications come into view.
   engine prior** (the DCML/gap-14 ShareAlike rule). Phase 2 (chord-level scoring
   vs per-beat RNs) recorded as a separate round. Net engine work: zero — see
   `response-4.md`.
+  *First corpus results (brief-5, 2026-06-15 — the harness paid off):* it
+  produced a **measured negative result on a shipped feature**, the loop working
+  as intended. Three durable outcomes (all reads, no immediate build — see
+  `response-5.md`):
+  (1) **Structural key-areas vs windowed local-fit — the headline gap.**
+  `key_regions` is a **tonicization-sensitive local-fit** signal (each window's
+  best-fit key; a V/V span reads as the dominant), a *different object* than the
+  analyst's **structural key-areas** (which subsume tonicizations under the
+  parent). Frame-scoring one against the other lands *below* a no-modulation
+  baseline (0.357 vs 0.608 on Mozart) because it measures that category
+  difference, not key accuracy. The engine has **no structural-key-area output**
+  — a tonicization-aware reduction needing **functional context**, not windowed
+  best-fit. This is the empirically-motivated version of the parked
+  harmonic-segmentation / functional-context work (Phase 2 deferred refinement);
+  **recorded as the next key-track investment** — it dissolves Findings 2 *and*
+  likely 3. Until it ships, the windowed track is a *relative* instrument (deltas
+  vs the global baseline), now documented in INTEGRATION.
+  (2) **`disambiguate_relative_keys` empirical negative result.** On real
+  classical repertoire it's a **no-op** (A/B Δ ≈ 0 global, −0.018 region). It
+  *does* reach the per-window path (`key_tracking.py`); the cause is the
+  deliberately-conservative near-tie gate (`near_tie_margin=0.2`, #70) not firing
+  on **confident-but-wrong** relative errors (which are real — ~7% of region
+  frames). As shipped it doesn't earn its place here. The gate-widening trade-off
+  is harness-measurable, **but corpus-calibration against When-in-Rome is barred**
+  (BY-NC-SA — fitting a prior to the corpus is derivation); a CC0/BY recalibration
+  corpus would lift that. Likely a *symptom* of (1) — argues for the structural
+  reduction over re-tuning. `smooth_key_regions` (Finding C) similarly can't fix
+  it: the over-segmentation is **signal at the wrong grain, not noise** —
+  confidence-gating can't remove a confident tonicization.
+  (3) **Global induction over modulating forms** — ~26% non-relative miss on
+  sonata movements is **expected** (whole-sequence KK-correlation is ill-posed for
+  a form that lives off-tonic); a **structurally-weighted induction** (over-weight
+  opening + final cadence) is a recorded candidate refinement. Harness landed at
+  `validation/validate_corpus.py`; Haydn/music21 RomanText parse failures recorded
+  as a corpus-coverage limit.
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
