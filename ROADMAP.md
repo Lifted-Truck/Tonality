@@ -221,11 +221,31 @@ list as new applications come into view.
   (roots outside the parent collection — needs an applied-chord model); the
   returning-modulation distinction (`require_return` flag); multi-pass
   re-anchoring (`min_area_beats` dormant — *empirically motivated by brief-7:
-  phrase-length granularity, boundary recall 0.64→0.10; floor stays
-  phrase/meter-derived, not corpus-fit*); recursive nesting > 1 level;
-  structurally-weighted home-key induction (Q3 — *empirically motivated by
-  brief-7: region accuracy coupled to global-key accuracy; must ship additively
-  to preserve the `infer_key` stability contract*); the online/change-point form.
+  phrase-length granularity, boundary recall 0.64→0.10; the floor stays
+  phrase/meter-derived, not corpus-fit*); recursive nesting > 1 level; the
+  online/change-point form.
+  **✅ Frame-weighted home anchor (slice 2, 2026-06-15 — PR follow-on to brief-7):**
+  brief-7's "global-key-miss coupling" was diagnosed (reading the code + the
+  vendored D911-07) as an **anchor** problem, *not* an `infer_key` one — avoiding
+  an XY trap. `reduce_to_structural_keys`'s home key is the **most-prevalent local
+  region** (`_anchor`), which over-counts a *repeatedly-tonicized dominant*; it
+  does **not** use `infer_key` except as a tie-break, so a structurally-weighted
+  `infer_key` would not have moved the anchor. The lever is the anchor itself:
+  opt-in `anchor_method="frame_weighted"` adds a theory-set bonus to the opening +
+  closing regions (the structural frame is the place least likely to be a
+  tonicization — the tonicization-robust home-key signal). Versioned prior
+  `structural-key.2` (`frame_anchor_bonus=1.0`, theory-set not SWD-fit — robust
+  across 1..3), MCP `structural_keys` `anchor_method` param, new conformance case.
+  Verified end-to-end: recovers E-minor on D911-07 where the default anchors on the
+  dominant B-major, and breaks none of the 4 correctly-anchored smoke songs.
+  **Opt-in pending full-corpus validation** (consistent with how disambiguate/
+  smoothing shipped); flip the default once A6's harness confirms on the 24-song set.
+  **Distinct, still-deferred lever — structurally-weighted `infer_key` (Q3):** a
+  *separate* refinement for the global-key **baseline** (the harness draws it from
+  `midi_file_analysis`/`infer_key`) and for A5/A7's global-key quality — over-weight
+  the opening + final cadential frames in *whole-sequence* induction; **must ship
+  additively** (the `infer_key` default is the pinned A5/A7 stability contract),
+  never a mutation. The two are not the same fix — brief-7's framing conflated them.
   Use `structural_keys` for key-area comparison, the windowed track for
   tonicization-grain detail.
   (2) **`disambiguate_relative_keys` empirical negative result.** On real
@@ -287,7 +307,11 @@ list as new applications come into view.
   accuracy** — the 6 global-key misses collapse to ~0 and drag the all-24 number
   flat → the **structurally-weighted home-key induction** (Q3) refinement, which
   **must ship additively** (the `infer_key` default is the A5/A7 stability
-  contract); and (3b) **phrase-length granularity** — boundary recall collapses
+  contract). *(Build-time correction: diagnosis showed the structural reduction's
+  home miss is an **anchor** problem, not an `infer_key` one — fixed by the
+  **frame-weighted anchor ✅ shipped** in the follow-ons above; structurally-weighted
+  `infer_key` remains a distinct, still-deferred lever for the global baseline +
+  A5/A7.)* And (3b) **phrase-length granularity** — boundary recall collapses
   0.64 → 0.10 because the flat `min_modulation_beats=8` (2 bars) is too coarse for
   *Winterreise*'s short strophic phrases → activate the **dormant `min_area_beats`
   re-anchoring** pass, with the floor staying **phrase/meter-derived, not SWD-fit**
@@ -302,7 +326,9 @@ list as new applications come into view.
   fair test of whether structural *beats* baseline needs a **modulating
   license-clean corpus with key-area annotations**, which does not yet exist in a
   clean form (SWD was the only clean option even for the mono-tonal case). Net
-  engine work: zero.
+  engine work at triage: zero — but the follow-on build landed the
+  **frame-weighted home anchor** (slice 2; see the structural-key follow-ons above),
+  the contract-safe fix for cause (3a) once it was correctly localized to the anchor.
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber

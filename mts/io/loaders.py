@@ -172,8 +172,11 @@ class StructuralKeyPriors:
     kept): ``min_modulation_beats`` is the duration floor below which a related
     excursion reads as a tonicization; ``min_area_beats`` floors a structural
     modulation area (reserved); ``require_return`` gates the prolongational
-    return rule (reserved). Defaults are theory-set, never corpus-fit. Results
-    cite ``version`` (ROADMAP "versioned-priors pattern").
+    return rule (reserved). ``frame_anchor_bonus`` weights the opening + closing
+    regions when ``anchor_method='frame_weighted'`` is selected (the structural
+    frame is the most tonicization-robust home-key signal — A6 brief-7). Defaults
+    are theory-set, never corpus-fit. Results cite ``version`` (ROADMAP
+    "versioned-priors pattern").
     """
 
     version: str
@@ -181,6 +184,7 @@ class StructuralKeyPriors:
     min_modulation_beats: float
     min_area_beats: float
     require_return: bool
+    frame_anchor_bonus: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -570,10 +574,15 @@ def load_structural_key_priors(version: str | None = None) -> StructuralKeyPrior
                 min_modulation_beats=float(payload["min_modulation_beats"]),
                 min_area_beats=float(payload["min_area_beats"]),
                 require_return=bool(payload["require_return"]),
+                frame_anchor_bonus=float(payload.get("frame_anchor_bonus", 1.0)),
             )
             if priors.min_modulation_beats <= 0 or priors.min_area_beats <= 0:
                 raise ValueError(
                     f"Structural-key prior {priors.version!r}: beat floors must be > 0"
+                )
+            if priors.frame_anchor_bonus < 0:
+                raise ValueError(
+                    f"Structural-key prior {priors.version!r}: frame_anchor_bonus must be >= 0"
                 )
             parsed.append(priors)
         if not parsed:
