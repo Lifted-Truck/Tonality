@@ -170,6 +170,25 @@ list as new applications come into view.
   triage also added a "Choosing a coalesce window" recipe to INTEGRATION.md and
   affirmed migration to the official `mts.mcp.bridge` (identical `{ok, result}`
   envelope). Net engine work: zero — see `response-3.md`.
+  *Validation harness adopted (brief-4, 2026-06-14):* the brief-3 hand-check
+  becomes a **Tonality-owned corpus accuracy harness** — `validation/`
+  (new top-level dir, peer to `audit/`): runs `midi_file_analysis` over
+  human-annotated repertoire (When-in-Rome RomanText + scores; BPS-FH
+  cross-check) and scores inferred-key + key-region accuracy. It is the
+  **empirical instrument for Findings B & C** — the with/without
+  `disambiguate_relative_keys` / `smooth_key_regions` A/B that will *measure*
+  whether those flags earn their place. Contract of record (response-4): keys
+  reduce to `(tonic_pc, major/minor)` (the engine's space; modal flagged, not
+  charged); **frame agreement** is the headline region metric (boundary-tolerance
+  secondary); relative-major/minor scored in three buckets (`exact`/`relative`/
+  `wrong`) with the **exact-rate Δ** as the Finding-B headline; temporal
+  comparisons align in **beats, not seconds**. music21 is a `[validation]`
+  optional extra (never runtime); a skip-if-absent smoke test in `tests/` runs a
+  vendored ~10-piece set. **License boundary (load-bearing):** scores are PD,
+  RomanText annotations are CC BY-SA — read to score, **never derived into an
+  engine prior** (the DCML/gap-14 ShareAlike rule). Phase 2 (chord-level scoring
+  vs per-beat RNs) recorded as a separate round. Net engine work: zero — see
+  `response-4.md`.
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
