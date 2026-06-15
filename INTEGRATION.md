@@ -109,6 +109,15 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
   `interpretations`, and key-conditional `naming` — directly renderable as
   timeline overlays. Shape: `DatasetRecord.to_dict()` with `SCHEMA_VERSION`
   for pinning (`mts/dataset/record.py` is the schema of record).
+- **Align temporal comparisons in beats, not seconds.** Every region/placement
+  carries beats *and* seconds; beats are exact and tempo-independent, seconds are
+  a derived convenience. To compare engine output against another timeline (e.g.
+  RomanText quarter-length offsets), compare in **beats** — no tempo conversion
+  on either side, no multi-tempo caveat. (The engine *is* multi-tempo and
+  multi-meter correct: `io/midi.py` builds a piecewise `TempoMap`/`MeterMap` from
+  every `set_tempo`/`time_signature`; seconds derive from the full tempo map.)
+  Region boundaries sit on the `window_beats`/`hop_beats` grid — don't read them
+  finer than `hop_beats`.
 - **Choosing a coalesce window** (performed/humanized MIDI): the engine never
   coalesces implicitly — a *performed* file fed to `midi_file_analysis` with no
   `coalesce_window_beats` fragments into micro-segments (the gap-12 contract,
