@@ -220,8 +220,12 @@ list as new applications come into view.
   modulation), which is the fix. **Deferred:** chromatic tonicizations
   (roots outside the parent collection — needs an applied-chord model); the
   returning-modulation distinction (`require_return` flag); multi-pass
-  re-anchoring (`min_area_beats` dormant); recursive nesting > 1 level;
-  structurally-weighted home-key induction (Q3); the online/change-point form.
+  re-anchoring (`min_area_beats` dormant — *empirically motivated by brief-7:
+  phrase-length granularity, boundary recall 0.64→0.10; floor stays
+  phrase/meter-derived, not corpus-fit*); recursive nesting > 1 level;
+  structurally-weighted home-key induction (Q3 — *empirically motivated by
+  brief-7: region accuracy coupled to global-key accuracy; must ship additively
+  to preserve the `infer_key` stability contract*); the online/change-point form.
   Use `structural_keys` for key-area comparison, the windowed track for
   tonicization-grain detail.
   (2) **`disambiguate_relative_keys` empirical negative result.** On real
@@ -271,6 +275,34 @@ list as new applications come into view.
   the same structural object as SWD's local-key annotations), sequenced *before*
   any `near_tie_margin` sweep (the relative errors are likely a symptom of
   over-segmentation the reduction targets). Net engine work: zero.
+  *Structural reduction scored on SWD (brief-7, 2026-06-15 — see `response-7.md`):*
+  A6 ran the handed-back experiment — `structural_keys`'s `areas` vs the SWD
+  analyst key-areas through the frame-agreement pipeline (`--structural`). The
+  reduction is confirmed the **right object** (it beats the windowed track by
+  **+0.068** on the 18 global-key-correct songs, 0.522 → 0.590) but does **not**
+  reach the global-key baseline (0.590 < 0.658); the response-6 prediction that it
+  would move *past* baseline was too strong — corrected. The residual gap resolves
+  to **two levers, both already recorded, now empirically motivated** (the
+  structural-key follow-ons in the brief-5 record above): (3a) region accuracy is **coupled to global-key
+  accuracy** — the 6 global-key misses collapse to ~0 and drag the all-24 number
+  flat → the **structurally-weighted home-key induction** (Q3) refinement, which
+  **must ship additively** (the `infer_key` default is the A5/A7 stability
+  contract); and (3b) **phrase-length granularity** — boundary recall collapses
+  0.64 → 0.10 because the flat `min_modulation_beats=8` (2 bars) is too coarse for
+  *Winterreise*'s short strophic phrases → activate the **dormant `min_area_beats`
+  re-anchoring** pass, with the floor staying **phrase/meter-derived, not SWD-fit**
+  (the methodological overfit leg that did *not* lift with the license). The
+  tie-breaker is **confirmed not the lever** (structural disambiguate Δ +0.007,
+  no bucket flips) — validating the response-6 sequencing call; with this,
+  `disambiguate_relative_keys` is a measured **no-op across three repertoires under
+  both scorings**, so no `near_tie_margin` prior is warranted (keep
+  `--ab-disambiguate` as a standing instrument). **Repertoire caveat (recorded as a
+  new open data gap):** *Winterreise* is mono-tonal strophic lieder, so the
+  baseline is unusually high and a correct reduction can at best **tie** it — a
+  fair test of whether structural *beats* baseline needs a **modulating
+  license-clean corpus with key-area annotations**, which does not yet exist in a
+  clean form (SWD was the only clean option even for the mono-tonal case). Net
+  engine work: zero.
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
