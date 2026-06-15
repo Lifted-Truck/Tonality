@@ -99,6 +99,57 @@ def test_areas_tile_the_sequence_contiguously():
         assert a.end_beats == b.start_beats  # shared boundaries, no gaps/overlaps
 
 
+# --- frame-weighted anchor (A6 brief-7: tonicization-robust home key) ---------------------
+
+
+# A D911-07-shaped track: the dominant (G) is repeatedly tonicized and out-totals
+# the tonic (C) by raw duration (G=32 vs C=22), but C is the opening AND closing
+# region — the structural frame. most_prevalent anchors on the dominant; frame
+# weighting recovers the tonic.
+_DOMINANT_OVERCOUNTED = [
+    _region(0, "major", 0, 8),    # C — opening frame (8)
+    _region(7, "major", 8, 22),   # G (14)
+    _region(0, "major", 22, 28),  # C (6)
+    _region(7, "major", 28, 46),  # G (18)
+    _region(0, "major", 46, 54),  # C — closing frame (8)
+]
+
+
+def test_default_anchor_picks_the_overcounted_dominant():
+    # The slice-1 behaviour, pinned: most-prevalent-by-duration anchors on G.
+    result = reduce_to_structural_keys(_cmaj_seq(), tracking=_tracking(_DOMINANT_OVERCOUNTED))
+    assert (result.home_tonic_pc, result.home_mode) == (7, "major")
+    assert result.anchor_method == "most_prevalent_region"
+
+
+def test_frame_weighted_anchor_recovers_the_framed_tonic():
+    # Opt-in frame weighting: the opening + closing C regions carry the tonic.
+    result = reduce_to_structural_keys(
+        _cmaj_seq(), tracking=_tracking(_DOMINANT_OVERCOUNTED), anchor_method="frame_weighted"
+    )
+    assert (result.home_tonic_pc, result.home_mode) == (0, "major")
+    assert result.anchor_method == "frame_weighted"
+
+
+def test_frame_weighting_never_overturns_a_genuine_duration_majority():
+    # C is both most-prevalent (72) and framed; a brief G tonicization shouldn't
+    # flip it under either method — the bonus is additive, not a replacement.
+    clean = [_region(0, "major", 0, 40), _region(7, "major", 40, 48), _region(0, "major", 48, 80)]
+    default = reduce_to_structural_keys(_cmaj_seq(), tracking=_tracking(clean))
+    framed = reduce_to_structural_keys(
+        _cmaj_seq(), tracking=_tracking(clean), anchor_method="frame_weighted"
+    )
+    assert (default.home_tonic_pc, default.home_mode) == (0, "major")
+    assert (framed.home_tonic_pc, framed.home_mode) == (0, "major")
+
+
+def test_unknown_anchor_method_raises():
+    with pytest.raises(ValueError, match="anchor_method"):
+        reduce_to_structural_keys(
+            _cmaj_seq(), tracking=_tracking(MOZART), anchor_method="bogus"
+        )
+
+
 # --- the predicate ------------------------------------------------------------------------
 
 
@@ -141,7 +192,7 @@ def test_deterministic_and_cited():
     a = _reduce(MOZART).to_dict()
     b = _reduce(MOZART).to_dict()
     assert a == b
-    assert a["prior_version"] == load_structural_key_priors().version == "structural-key.1"
+    assert a["prior_version"] == load_structural_key_priors().version == "structural-key.2"
 
 
 def test_output_is_numeric_and_json_serialisable():

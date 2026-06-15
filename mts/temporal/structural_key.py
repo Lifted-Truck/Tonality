@@ -111,8 +111,25 @@ def _diatonic_pcs(tonic_pc: int, mode: str) -> frozenset[int]:
     return frozenset((tonic_pc + d) % 12 for d in degrees)
 
 
-def _anchor(regions: list[KeyRegion], global_key: tuple[int, str]) -> tuple[int, str]:
-    """The most-prevalent local key by summed duration (the home key)."""
+ANCHOR_METHODS = ("most_prevalent_region", "frame_weighted")
+
+
+def _anchor(
+    regions: list[KeyRegion],
+    global_key: tuple[int, str],
+    *,
+    method: str = "most_prevalent_region",
+    frame_bonus: float = 1.0,
+) -> tuple[int, str]:
+    """The home key, by summed local-region duration (``most_prevalent_region``).
+
+    ``frame_weighted`` adds ``frame_bonus × duration`` to the opening and closing
+    regions before the argmax: the structural frame is the place least likely to
+    be a tonicization, so it is the most tonicization-robust home-key signal when
+    the interior is full of tonicizations (a repeatedly-tonicized dominant can
+    out-total the tonic by raw duration — A6 brief-7). A *bonus* on top of
+    duration, not a replacement, so it never overturns a genuine duration majority.
+    """
 
     totals: dict[tuple[int, str], float] = {}
     first_seen: dict[tuple[int, str], float] = {}
@@ -120,8 +137,15 @@ def _anchor(regions: list[KeyRegion], global_key: tuple[int, str]) -> tuple[int,
         key = (r.tonic_pc, r.mode)
         totals[key] = totals.get(key, 0.0) + r.duration_beats
         first_seen.setdefault(key, r.start_beats)
-    best = max(totals.values())
-    tied = [k for k, v in totals.items() if best - v <= _EPS]
+
+    scores = dict(totals)
+    if method == "frame_weighted" and frame_bonus > 0 and regions:
+        for frame in (regions[0], regions[-1]):  # opening + closing assertions
+            fk = (frame.tonic_pc, frame.mode)
+            scores[fk] = scores.get(fk, 0.0) + frame_bonus * frame.duration_beats
+
+    best = max(scores.values())
+    tied = [k for k, v in scores.items() if best - v <= _EPS]
     if len(tied) == 1:
         return tied[0]
     if global_key in tied:  # prefer the global home-key estimate among ties
@@ -150,6 +174,7 @@ def reduce_to_structural_keys(
     profiles: "KeyProfileSet | None" = None,
     tracking: "KeyTrackingResult | None" = None,
     priors: "StructuralKeyPriors | None" = None,
+    anchor_method: str = "most_prevalent_region",
 ) -> StructuralKeyResult:
     """Reduce a sequence's windowed local key track to structural key-areas.
 
@@ -159,8 +184,19 @@ def reduce_to_structural_keys(
     to reduce that track instead of recomputing. Raises ``ValueError`` (via
     ``track_keys``/``infer_key``) on empty or uninformative material — never
     invents a key.
+
+    ``anchor_method`` selects how the home key is chosen: ``most_prevalent_region``
+    (default — longest summed local-region duration) or ``frame_weighted`` (adds a
+    theory-set bonus to the opening + closing regions, the tonicization-robust
+    home-key signal — A6 brief-7; opt-in pending full-corpus validation). A wrong
+    home anchor poisons every downstream relatedness test, so this is the lever for
+    pieces whose interior repeatedly tonicizes the dominant.
     """
 
+    if anchor_method not in ANCHOR_METHODS:
+        raise ValueError(
+            f"anchor_method must be one of {ANCHOR_METHODS}, got {anchor_method!r}"
+        )
     if priors is None:
         from ..io.loaders import load_structural_key_priors
 
@@ -174,7 +210,10 @@ def reduce_to_structural_keys(
     global_key = (induction.best.tonic_pc, induction.best.mode)
 
     regions = tracking.regions
-    anchor = _anchor(regions, global_key)
+    anchor = _anchor(
+        regions, global_key,
+        method=anchor_method, frame_bonus=priors.frame_anchor_bonus,
+    )
     current = anchor
 
     areas: list[StructuralKeyArea] = []
@@ -238,7 +277,7 @@ def reduce_to_structural_keys(
         areas=tuple(areas),
         home_tonic_pc=anchor[0],
         home_mode=anchor[1],
-        anchor_method="most_prevalent_region",
+        anchor_method=anchor_method,
         global_tonic_pc=global_key[0],
         global_mode=global_key[1],
         global_margin=round(induction.margin, 6),
