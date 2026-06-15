@@ -232,7 +232,8 @@ list as new applications come into view.
   frames). As shipped it doesn't earn its place here. The gate-widening trade-off
   is harness-measurable, **but corpus-calibration against When-in-Rome is barred**
   (BY-NC-SA — fitting a prior to the corpus is derivation); a CC0/BY recalibration
-  corpus would lift that. Likely a *symptom* of (1) — argues for the structural
+  corpus would lift that *(now satisfied — SWD CC BY 3.0, brief-6; only the license
+  leg lifts, the overfit caveat remains)*. Likely a *symptom* of (1) — argues for the structural
   reduction over re-tuning. `smooth_key_regions` (Finding C) similarly can't fix
   it: the over-segmentation is **signal at the wrong grain, not noise** —
   confidence-gating can't remove a confident tonicization.
@@ -242,6 +243,34 @@ list as new applications come into view.
   opening + final cadence) is a recorded candidate refinement. Harness landed at
   `validation/validate_corpus.py`; Haydn/music21 RomanText parse failures recorded
   as a corpus-coverage limit.
+  *License-clean corpus + the unblock (brief-6, 2026-06-15 — see `response-6.md`):*
+  A6 surveyed the field and adopted the **Schubert Winterreise Dataset (SWD)** —
+  **CC BY 3.0** (verified firsthand on the live Zenodo record,
+  [10.5281/zenodo.5139893](https://zenodo.org/records/5139893); attribution-only,
+  no SA/NC) — wiring it into the harness (`--swd` alongside `--corpus`, a 5-song
+  vendored smoke set under `validation/corpus/swd/`, measures→beats via an
+  empirical beats-per-bar read off the engine's own records). It is the **CC0/BY
+  recalibration corpus response-5 said would lift the tuning constraint** — the
+  only clean option with full key+chord+modulation truth on symbolic data (TAVERN
+  BY-SA, When-in-Rome/DCML BY-SA/BY-NC-SA, PDMX scores-only). Two outcomes:
+  (1) **Findings 2 & 3 replicate on CC-BY data** — region tracking below the
+  no-modulation baseline (0.472 < 0.515) and `disambiguate_relative_keys` a no-op
+  (Δ ≈ 0 global, −0.009 region, no bucket flips), confirming the response-5
+  diagnosis is not a Mozart artifact; the ×3 inter-annotator floor bounds the
+  interpretive-variance denominator. (2) **The boundary lifts for SWD** — a prior's
+  parameters may now be fit/tuned against it with citation (the `near_tie_margin`
+  sweep is unblocked), **but only the license leg lifts**: "theory-set, not
+  corpus-fit" also rests on a methodological leg (SWD = one composer/one cycle →
+  overfit risk), so SWD is a sanctioned **measurement oracle + candidate calibration
+  source, not an auto-fit one** — a shipped corpus-fit prior wants corroborating
+  breadth or explicit theory-bounding. **State correction:** the brief predates
+  #78 and treats the structural-key-area reduction as unshipped; it shipped today
+  (`structural_keys` #43). So the genuinely unblocked experiment handed back is
+  consumer-side: **score `structural_keys` against the SWD analyst key-areas** (the
+  apples-to-apples comparison target response-5 promised — its `areas` spans are
+  the same structural object as SWD's local-key annotations), sequenced *before*
+  any `near_tie_margin` sweep (the relative errors are likely a symptom of
+  over-segmentation the reduction targets). Net engine work: zero.
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
