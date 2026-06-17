@@ -99,6 +99,21 @@ def test_key_induction_and_combined_naming():
     assert combined["per_key"][0]["naming"]["context"]["tonic_pc"] == 0
 
 
+def test_key_induction_profile_version_selector():
+    # D911-24-shaped vector: default (kk-1982.1) reads A major, opt-in CBMS
+    # recovers A minor; the result cites whichever profile it used.
+    w = [51.26562, 0, 14.62708, 0.14062, 265.62917, 4.8125, 0, 0,
+         39.17083, 270.78125, 0, 55.02187]
+    default = _json_safe(tools.key_induction(w))
+    cbms = _json_safe(tools.key_induction(w, profile_version="tkp-cbms.1"))
+    assert default["profile_version"] == "kk-1982.1"
+    assert (default["candidates"][0]["tonic_pc"], default["candidates"][0]["mode"]) == (9, "major")
+    assert cbms["profile_version"] == "tkp-cbms.1"
+    assert (cbms["candidates"][0]["tonic_pc"], cbms["candidates"][0]["mode"]) == (9, "minor")
+    with pytest.raises(ValueError, match="Unknown key-profile version"):
+        tools.key_induction(w, profile_version="no-such-version")
+
+
 def test_key_tracking_over_event_triples():
     events = []
     for base, tonic in ((0, 60), (16, 66)):  # C major, then F# major

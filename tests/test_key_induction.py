@@ -116,6 +116,27 @@ def test_profiles_are_versioned():
         load_key_profiles("no-such-version")
 
 
+def test_cbms_profile_available_and_default_unchanged():
+    # The opt-in Temperley-Kostka-Payne profile ships alongside kk-1982.1, which
+    # stays the default (the A5/A7 stability contract).
+    assert load_key_profiles().version == "kk-1982.1"  # still first/default
+    cbms = load_key_profiles("tkp-cbms.1")
+    assert cbms.version == "tkp-cbms.1"
+    assert set(cbms.profiles) == {"major", "minor"}
+    assert cbms.profiles["major"][0] == 0.748  # tonic weight, verified vector
+
+
+def test_profile_choice_changes_the_reading():
+    # A6 brief-9 D911-24 vector: kk-1982.1 reads A major (parallel miss), the
+    # better-balanced CBMS profile recovers A minor. Pins the lever's effect.
+    w = [51.26562, 0, 14.62708, 0.14062, 265.62917, 4.8125, 0, 0,
+         39.17083, 270.78125, 0, 55.02187]
+    kk = infer_key(w, profiles=load_key_profiles("kk-1982.1")).best
+    cbms = infer_key(w, profiles=load_key_profiles("tkp-cbms.1")).best
+    assert (kk.tonic_pc, kk.mode) == (9, "major")    # A major — the miss
+    assert (cbms.tonic_pc, cbms.mode) == (9, "minor")  # A minor — recovered
+
+
 # --- temporal integration ---------------------------------------------------------
 
 def _c_major_sequence() -> Sequence:

@@ -6,5 +6,13 @@
       "major": [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88],
       "minor": [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17]
     }
+  },
+  {
+    "version": "tkp-cbms.1",
+    "source": "Temperley-Kostka-Payne (CBMS) key profiles: Temperley, Music and Probability (MIT Press, 2007), derived from the Kostka-Payne theory-textbook corpus. Vectors verified digit-for-digit against music21 analysis/discrete.py (TemperleyKostkaPayneKeyWeights) and Sapp's Humdrum keycor. Documented biases (use as an OPT-IN alternative, validate on the target corpus): well-balanced for MAJOR keys (corrects the Krumhansl-Kessler dominant bias); but a known tendency to read the RELATIVE MAJOR as tonic in minor keys. Added A6 brief-9/research-9: on the SWD residual it recovers the dominant-substitution (e.g. A maj read as E maj) and parallel near-tie cases under the engine's Pearson scoring, trading kk-1982.1's dominant bias for a relative-major bias — hence opt-in pending full-corpus regression scoring, never a silent default change (the infer_key default is the A5/A7 stability contract).",
+    "profiles": {
+      "major": [0.748, 0.060, 0.488, 0.082, 0.670, 0.460, 0.096, 0.715, 0.104, 0.366, 0.057, 0.400],
+      "minor": [0.712, 0.084, 0.474, 0.618, 0.049, 0.460, 0.105, 0.747, 0.404, 0.067, 0.133, 0.330]
+    }
   }
 ]

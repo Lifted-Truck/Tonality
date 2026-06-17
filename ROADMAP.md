@@ -258,18 +258,34 @@ list as new applications come into view.
   (phrase-granularity) can't manufacture a region the fit never proposes — it
   addresses a *different* failure (boundary recall / over-segmentation on
   correctly-anchored songs), so the two stay distinct, not substitutes.
-  **Distinct, still-deferred lever — structurally-weighted `infer_key` (Q3):** a
-  *separate* refinement for the global-key **baseline** (the harness draws it from
-  `midi_file_analysis`/`infer_key`) and for A5/A7's global-key quality — over-weight
-  the opening + final cadential frames in *whole-sequence* induction; **must ship
-  additively** (the `infer_key` default is the pinned A5/A7 stability contract),
-  never a mutation. **New sub-signal to fold in when taken up (brief-8 point 3):**
-  *minor-mode under-detection* — D911-08/-22 recover the tonic **pitch class** but
-  flip it to **major** at the structural level (`G major` for g), smelling like a
-  KK-profile/weighting bias toward major on minor-mode repertoire (distinct from the
-  dominant-substitution story; possibly one fix for both). Concrete reproducible
-  sub-cases on record. The anchor and `infer_key` levers are not the same fix —
-  brief-7's framing conflated them; brief-8's partition confirmed the split.
+  **Global-key induction lever (Q3) — scoped + sliced 2026-06-17 (brief-9 +
+  research-9; see `response-9.md`).** brief-9 dumped the 6 global-key-miss songs'
+  pc-vectors on the authoritative SWD edition; diagnosis closed: 3 are
+  dominant-substitution (07 anchor-handled, 19, 22), 1 parallel near-tie (24), 1
+  dominant+parallel stacked (08), 1 relative-major (03). A cited literature pass
+  (Temperley & Marvin 2008; White MTO 2018; Quinn ZGMTH 2010; Noland & Sandler
+  ISMIR 2006; Temperley *Music and Probability* 2007) established: histogram
+  correlation measures **prevalence, not centricity** (order/function-blind);
+  **no single lever fixes both modes**; **naive positional/frame weighting is a
+  confirmed dead end** (Temperley & Marvin — so the earlier "structurally-weight
+  the whole-sequence vector" idea is dropped); and the **KK profile carries a
+  documented dominant bias** (= failure mode 1). **✅ Shipped — CBMS profile,
+  opt-in (slice 1):** `data/key_profiles.json` gains `tkp-cbms.1` (Temperley-
+  Kostka-Payne, verified vectors), selectable via a `profile_version` arg on
+  `key_induction`/`key_tracking`/`structural_keys`/`midi_file_analysis`. CBMS is
+  documented "well-balanced for major keys"; on the 6 misses it recovers 3 (19, 22,
+  24) as a pure data swap under the existing Pearson core. **Default stays
+  `kk-1982.1`** (the A5/A7 stability contract) — CBMS is opt-in pending A6's full-24
+  `--ab` regression scoring (it trades KK's dominant bias for a relative-major bias,
+  so the net effect on the 18 currently-correct songs decides any default flip).
+  **Deferred — slice 2, the relative/parallel tail (03, 08):** a deterministic
+  **cadence/closure-aware** layer (tonic as the point of harmonic resolution,
+  leveraging the existing cadence detection) — flagged higher-risk because the
+  literature's closure methods are corpus-trained and validated on chorales/opening
+  passages, not modulating lieder; build only after prototype-and-measure. The
+  "minor-mode under-detection" sub-signal (brief-8) is now explained: it is the
+  natural-minor profile losing the raised leading tone, which CBMS's better balance
+  partly addresses. The anchor and induction levers stay distinct fixes.
   Use `structural_keys` for key-area comparison, the windowed track for
   tonicization-grain detail.
   (2) **`disambiguate_relative_keys` empirical negative result.** On real
@@ -366,6 +382,17 @@ list as new applications come into view.
   possible KK major-bias). `min_area_beats` stays a *distinct* lever (boundary
   recall / over-segmentation), not a substitute. Net engine work: the default flip
   (additive — legacy method retained).
+  *infer_key residual diagnosed + CBMS profile shipped (brief-9 + research-9,
+  2026-06-17 — see `response-9.md`):* A6 dumped the 6 global-key-miss songs'
+  authoritative pc-vectors; a cited literature pass closed the diagnosis (histogram
+  correlation = prevalence not centricity; KK has a documented dominant bias; naive
+  frame-weighting is a dead end; no single lever fixes both modes). **✅ Shipped the
+  opt-in `tkp-cbms.1` profile** (verified Temperley-Kostka-Payne vectors) + a
+  `profile_version` selector on the induction tools; it recovers 3 of 6 misses as a
+  data swap, default unchanged (A5/A7 contract). Ball back to A6: the full-24 `--ab`
+  regression score on `profile_version="tkp-cbms.1"` decides any default flip. The
+  relative/parallel tail (03, 08) is deferred to a cadence-closure layer (slice 2,
+  research-grade). Net engine work: a new opt-in profile + selector (additive).
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
