@@ -238,14 +238,38 @@ list as new applications come into view.
   across 1..3), MCP `structural_keys` `anchor_method` param, new conformance case.
   Verified end-to-end: recovers E-minor on D911-07 where the default anchors on the
   dominant B-major, and breaks none of the 4 correctly-anchored smoke songs.
-  **Opt-in pending full-corpus validation** (consistent with how disambiguate/
-  smoothing shipped); flip the default once A6's harness confirms on the 24-song set.
+  **✅ Promoted to default (2026-06-17, brief-8):** A6 scored it on the **full 24**
+  with `--ab-anchor` (bonus left at the theory-set 1.0, fence intact) — a **Pareto
+  improvement**: global-key-miss subset **+10.1pp** region agreement (0.134→0.235),
+  correctly-anchored subset **exactly 0.000** (byte-identical), 0 regressions. Met
+  the pre-committed bar, so `anchor_method` now defaults to `frame_weighted`
+  (`most_prevalent_region` kept as an explicit legacy option + a parity conformance
+  case). *Symmetric risk accepted:* a piece ending in a sustained non-returning
+  modulation gets a closing-frame vote for that key — zero such regressions on SWD,
+  but it surfaced on a synthetic walk-test (which now pins the legacy anchor).
+  *Honest partial:* it fixes **1 of 6** global-key misses (D911-07 +60pp) — it can
+  only promote a tonic region the local track already proposes; the residual 5 are
+  **upstream of the anchor** (next paragraph).
+  **The residual lever is `infer_key`, not `min_area_beats` (brief-8 partition).**
+  A6 dumped the 6 misses: 4 are the engine reading the **dominant** as the key, 1 a
+  **parallel-major** flip, 1 the **relative major** — all cases where the
+  window/global key-*fit* prefers V or the parallel/relative to the tonic-minor, so
+  no tonic-minor region exists for the frame bonus to promote. `min_area_beats`
+  (phrase-granularity) can't manufacture a region the fit never proposes — it
+  addresses a *different* failure (boundary recall / over-segmentation on
+  correctly-anchored songs), so the two stay distinct, not substitutes.
   **Distinct, still-deferred lever — structurally-weighted `infer_key` (Q3):** a
   *separate* refinement for the global-key **baseline** (the harness draws it from
   `midi_file_analysis`/`infer_key`) and for A5/A7's global-key quality — over-weight
   the opening + final cadential frames in *whole-sequence* induction; **must ship
   additively** (the `infer_key` default is the pinned A5/A7 stability contract),
-  never a mutation. The two are not the same fix — brief-7's framing conflated them.
+  never a mutation. **New sub-signal to fold in when taken up (brief-8 point 3):**
+  *minor-mode under-detection* — D911-08/-22 recover the tonic **pitch class** but
+  flip it to **major** at the structural level (`G major` for g), smelling like a
+  KK-profile/weighting bias toward major on minor-mode repertoire (distinct from the
+  dominant-substitution story; possibly one fix for both). Concrete reproducible
+  sub-cases on record. The anchor and `infer_key` levers are not the same fix —
+  brief-7's framing conflated them; brief-8's partition confirmed the split.
   Use `structural_keys` for key-area comparison, the windowed track for
   tonicization-grain detail.
   (2) **`disambiguate_relative_keys` empirical negative result.** On real
@@ -329,6 +353,19 @@ list as new applications come into view.
   engine work at triage: zero — but the follow-on build landed the
   **frame-weighted home anchor** (slice 2; see the structural-key follow-ons above),
   the contract-safe fix for cause (3a) once it was correctly localized to the anchor.
+  *Frame-weighted anchor scored on the full 24 (brief-8, 2026-06-17 — see
+  `response-8.md`):* A6's `--ab-anchor` A/B on all 24 *Winterreise* songs made it a
+  **Pareto improvement** (miss subset +10.1pp, correctly-anchored subset exactly
+  0.000, 0 regressions, bonus left theory-set) → **promoted to the default**
+  `anchor_method` (the pre-committed bar was met; see the follow-ons above for the
+  engine detail). Honest partial: 1 of 6 global-key misses fixed; A6's partition
+  showed the residual 5 are **upstream of the anchor** (the window/global key-fit
+  preferring the dominant/parallel/relative to the tonic-minor) → the
+  **structurally-weighted `infer_key`** lever, with a new **minor-mode
+  under-detection** sub-signal (D911-08/-22 recover tonic pc but flip to major —
+  possible KK major-bias). `min_area_beats` stays a *distinct* lever (boundary
+  recall / over-segmentation), not a substitute. Net engine work: the default flip
+  (additive — legacy method retained).
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber

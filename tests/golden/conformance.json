@@ -4724,7 +4724,7 @@
     ]
    },
    "result": {
-    "anchor_method": "most_prevalent_region",
+    "anchor_method": "frame_weighted",
     "areas": [
      {
       "end_beats": 15.0,
@@ -4912,7 +4912,7 @@
   },
   {
    "kwargs": {
-    "anchor_method": "frame_weighted",
+    "anchor_method": "most_prevalent_region",
     "events": [
      [
       0,
@@ -5177,7 +5177,7 @@
     ]
    },
    "result": {
-    "anchor_method": "frame_weighted",
+    "anchor_method": "most_prevalent_region",
     "areas": [
      {
       "end_beats": 15.0,
