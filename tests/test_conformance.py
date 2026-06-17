@@ -140,10 +140,11 @@ CASES: list[tuple[str, dict]] = [
          "pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0]},
     ),
     ("key_tracking", {"events": _modulating_events()}),
-    # structural reduction of the same modulating track (C → F#).
+    # structural reduction of the same modulating track (C → F#); default anchor
+    # is frame_weighted (A6 brief-8).
     ("structural_keys", {"events": _modulating_events()}),
-    # opt-in frame-weighted home anchor (A6 brief-7) on the same track.
-    ("structural_keys", {"events": _modulating_events(), "anchor_method": "frame_weighted"}),
+    # the legacy most_prevalent_region anchor, pinned for parity.
+    ("structural_keys", {"events": _modulating_events(), "anchor_method": "most_prevalent_region"}),
     # Relative-key tie-breaker on: a window the bare argmax reads as C major but
     # the G# leading tone flips to A minor (Audiology brief-3 follow-on).
     (

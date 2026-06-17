@@ -401,7 +401,7 @@ def structural_keys(
     bpm: float = 120.0,
     disambiguate_relative: bool = False,
     smoothing: bool = False,
-    anchor_method: str = "most_prevalent_region",
+    anchor_method: str = "frame_weighted",
 ) -> dict:
     """Reduce the windowed local key track to **structural key-areas** — the
     fix for over-segmentation. The windowed `key_tracking` reports each window's
@@ -416,10 +416,11 @@ def structural_keys(
     the file's meter/key. events: each [onset_beats, duration_beats, midi_note]
     or [..., voice]. disambiguate_relative/smoothing choose the underlying local
     track the reduction runs on (the reduction is agnostic to either).
-    anchor_method picks the home key: 'most_prevalent_region' (default — longest
-    summed local duration) or 'frame_weighted' (opt-in — weights the opening +
-    closing regions, the tonicization-robust home-key signal for pieces whose
-    interior repeatedly tonicizes the dominant; A6 brief-7)."""
+    anchor_method picks the home key: 'frame_weighted' (default — weights the
+    opening + closing regions, the tonicization-robust home-key signal for pieces
+    whose interior repeatedly tonicizes the dominant; promoted to default after A6
+    brief-8 validated it on the full Winterreise set, a Pareto improvement) or
+    'most_prevalent_region' (legacy — longest summed local duration)."""
     from ..temporal import Event, Sequence, reduce_to_structural_keys, track_keys
 
     try:

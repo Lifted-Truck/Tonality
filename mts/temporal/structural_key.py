@@ -82,9 +82,10 @@ class StructuralKeyArea:
 class StructuralKeyResult:
     """Structural key-areas reduced from the windowed local track.
 
-    The home key is the **most-prevalent local key** (the anchor); the global
-    ``infer_key`` reading rides along as evidence (``global_*``), as does the full
-    local ``tracking``. ``prior_version`` cites the versioned thresholds.
+    The home key (the anchor) is chosen by ``anchor_method`` — ``frame_weighted``
+    by default (A6 brief-8); the global ``infer_key`` reading rides along as
+    evidence (``global_*``), as does the full local ``tracking``. ``prior_version``
+    cites the versioned thresholds.
     """
 
     areas: tuple[StructuralKeyArea, ...]
@@ -129,6 +130,11 @@ def _anchor(
     the interior is full of tonicizations (a repeatedly-tonicized dominant can
     out-total the tonic by raw duration — A6 brief-7). A *bonus* on top of
     duration, not a replacement, so it never overturns a genuine duration majority.
+    Symmetric risk (accepted): a piece ending in a *sustained, non-returning*
+    modulation gets a closing-frame vote for that ending key — but A6 brief-8
+    measured zero such regressions across the 24-song Winterreise set (real tonal
+    closure rarely ends with the longest region off-tonic), so the net is a Pareto
+    win that earned the default.
     """
 
     totals: dict[tuple[int, str], float] = {}
@@ -174,7 +180,7 @@ def reduce_to_structural_keys(
     profiles: "KeyProfileSet | None" = None,
     tracking: "KeyTrackingResult | None" = None,
     priors: "StructuralKeyPriors | None" = None,
-    anchor_method: str = "most_prevalent_region",
+    anchor_method: str = "frame_weighted",
 ) -> StructuralKeyResult:
     """Reduce a sequence's windowed local key track to structural key-areas.
 
@@ -185,12 +191,17 @@ def reduce_to_structural_keys(
     ``track_keys``/``infer_key``) on empty or uninformative material — never
     invents a key.
 
-    ``anchor_method`` selects how the home key is chosen: ``most_prevalent_region``
-    (default — longest summed local-region duration) or ``frame_weighted`` (adds a
-    theory-set bonus to the opening + closing regions, the tonicization-robust
-    home-key signal — A6 brief-7; opt-in pending full-corpus validation). A wrong
-    home anchor poisons every downstream relatedness test, so this is the lever for
-    pieces whose interior repeatedly tonicizes the dominant.
+    ``anchor_method`` selects how the home key is chosen: ``frame_weighted``
+    (default — adds a theory-set bonus to the opening + closing regions, the
+    tonicization-robust home-key signal) or ``most_prevalent_region`` (the legacy
+    slice-1 method — longest summed local-region duration; over-counts a
+    repeatedly-tonicized dominant). A wrong home anchor poisons every downstream
+    relatedness test. ``frame_weighted`` promoted to default after A6 brief-8
+    validated it on the full 24-song Winterreise set: a Pareto improvement
+    (+10.1pp on the global-key-miss subset, 0 regressions on correctly-anchored
+    songs). Note its known limit: it can only promote a tonic region the local
+    track already proposes (residual global-key misses are upstream — the
+    `infer_key`/local-fit lever, not the anchor).
     """
 
     if anchor_method not in ANCHOR_METHODS:

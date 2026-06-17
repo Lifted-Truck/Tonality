@@ -47,7 +47,12 @@ def _cmaj_seq():
 
 
 def _reduce(regions):
-    return reduce_to_structural_keys(_cmaj_seq(), tracking=_tracking(regions))
+    # The tonicization/modulation *walk* is independent of how the home anchor is
+    # chosen; these tests pin the legacy most_prevalent_region anchor so they
+    # exercise the walk in isolation. Anchor-method behaviour has its own tests.
+    return reduce_to_structural_keys(
+        _cmaj_seq(), tracking=_tracking(regions), anchor_method="most_prevalent_region"
+    )
 
 
 # Mozart-like track: home C, a V tonicization, a vi tonicization, a real modulation to G.
@@ -115,20 +120,28 @@ _DOMINANT_OVERCOUNTED = [
 ]
 
 
-def test_default_anchor_picks_the_overcounted_dominant():
-    # The slice-1 behaviour, pinned: most-prevalent-by-duration anchors on G.
-    result = reduce_to_structural_keys(_cmaj_seq(), tracking=_tracking(_DOMINANT_OVERCOUNTED))
+def test_legacy_most_prevalent_region_picks_the_overcounted_dominant():
+    # The slice-1 method (still available, explicit): most-prevalent-by-duration
+    # anchors on the repeatedly-tonicized dominant G.
+    result = reduce_to_structural_keys(
+        _cmaj_seq(), tracking=_tracking(_DOMINANT_OVERCOUNTED),
+        anchor_method="most_prevalent_region",
+    )
     assert (result.home_tonic_pc, result.home_mode) == (7, "major")
     assert result.anchor_method == "most_prevalent_region"
 
 
-def test_frame_weighted_anchor_recovers_the_framed_tonic():
-    # Opt-in frame weighting: the opening + closing C regions carry the tonic.
-    result = reduce_to_structural_keys(
-        _cmaj_seq(), tracking=_tracking(_DOMINANT_OVERCOUNTED), anchor_method="frame_weighted"
-    )
+def test_default_anchor_is_frame_weighted_and_recovers_the_framed_tonic():
+    # Default flipped to frame_weighted (A6 brief-8): the opening + closing C
+    # regions carry the tonic, so the default now recovers it.
+    result = reduce_to_structural_keys(_cmaj_seq(), tracking=_tracking(_DOMINANT_OVERCOUNTED))
     assert (result.home_tonic_pc, result.home_mode) == (0, "major")
     assert result.anchor_method == "frame_weighted"
+    # explicit frame_weighted is identical to the default
+    explicit = reduce_to_structural_keys(
+        _cmaj_seq(), tracking=_tracking(_DOMINANT_OVERCOUNTED), anchor_method="frame_weighted"
+    )
+    assert explicit.to_dict() == result.to_dict()
 
 
 def test_frame_weighting_never_overturns_a_genuine_duration_majority():
