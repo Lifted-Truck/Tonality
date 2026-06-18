@@ -274,10 +274,20 @@ list as new applications come into view.
   Kostka-Payne, verified vectors), selectable via a `profile_version` arg on
   `key_induction`/`key_tracking`/`structural_keys`/`midi_file_analysis`. CBMS is
   documented "well-balanced for major keys"; on the 6 misses it recovers 3 (19, 22,
-  24) as a pure data swap under the existing Pearson core. **Default stays
-  `kk-1982.1`** (the A5/A7 stability contract) — CBMS is opt-in pending A6's full-24
-  `--ab` regression scoring (it trades KK's dominant bias for a relative-major bias,
-  so the net effect on the 18 currently-correct songs decides any default flip).
+  24) as a pure data swap under the existing Pearson core. **✅ Flipped to the
+  default (A6 brief-10, 2026-06-17):** the full-24 `--ab` returned a **Pareto win**
+  — global-key exact-rate **+12.5pp (18/24 → 21/24), zero regressions** on the 18
+  correct songs — clearing the pre-stated decision rule, so `tkp-cbms.1` is now the
+  default `key_profiles` entry. **Contract migration (A5/A7):** flipping the default
+  changes `infer_key`'s default output (the A5/A7 stability contract), done
+  *coordinated, not unilateral* — A5/A7 are notified and **pin
+  `profile_version="kk-1982.1"` to retain the exact old margins** (the selector makes
+  the old behaviour a one-arg opt-out; additive migration, nothing breaks). *Ripple
+  noted:* the flip also changes the windowed track + structural reduction + the
+  KK-tuned relative-key tie-breaker (which fires less under CBMS — benign; its tests
+  pin KK, the prior being KK-companion); A6 re-scores the **region/structural
+  metrics** under CBMS as a validation fast-follow (brief-10 measured global key
+  only).
   **Deferred — slice 2, the relative/parallel tail (03, 08):** a deterministic
   **cadence/closure-aware** layer (tonic as the point of harmonic resolution,
   leveraging the existing cadence detection) — flagged higher-risk because the
@@ -393,6 +403,15 @@ list as new applications come into view.
   regression score on `profile_version="tkp-cbms.1"` decides any default flip. The
   relative/parallel tail (03, 08) is deferred to a cadence-closure layer (slice 2,
   research-grade). Net engine work: a new opt-in profile + selector (additive).
+  *CBMS A/B + default flip (brief-10, 2026-06-17 — see `response-10.md`):* A6's
+  full-24 `--ab-profile` returned a **Pareto win** (global-key exact-rate
+  **+12.5pp**, 18/24 → 21/24, recovering D911-19/-22/-24; **zero regressions**),
+  clearing the decision rule → **`tkp-cbms.1` flipped to the default**, with A5/A7
+  notified to pin `kk-1982.1` for the old margins (coordinated contract migration).
+  D911-08 now reads the parallel (G maj, tonic pc recovered) and 03 stays relative
+  — both clean hand-offs to the deferred closure layer. **Fast-follow:** A6 re-scores
+  the region/structural metrics under CBMS (the flip changes the windowed track too;
+  brief-10 measured global key only).
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
@@ -1145,7 +1164,10 @@ placeholder contexts. Momentum was the only argument for consumer-first.
       `relative_key` (#40). **`infer_key` is left byte-identical** — its
       scores/margin are a pinned stability contract (A5/A7 control signals), so
       this is an *additive* refinement carrying the untouched induction in its
-      result. It engages only on a relative near-tie (`near_tie_margin` gap to
+      result. *(The one coordinated change to that default since: the 2026-06-17
+      CBMS key-profile flip — A6 brief-10, a +12.5pp Pareto win; A5/A7 pin
+      `profile_version="kk-1982.1"` to retain the old margins. See the A6 brief-9/10
+      fold.)* It engages only on a relative near-tie (`near_tie_margin` gap to
       the relative partner) and applies **tonal-hierarchy signals** from the
       weighted 12-vector (no register, preserving the pure-vector contract):
       `leading_tone` (the minor's raised 7th — a pc *outside* the shared
