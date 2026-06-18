@@ -266,7 +266,14 @@ def reduce_to_structural_keys(
         diatonic = _diatonic_pcs(current[0], current[1])
         related = region.tonic_pc in diatonic
         brief = region.duration_beats < priors.min_modulation_beats - _EPS
-        if related and (brief or _returns(regions, i, current, diatonic)):
+        # A structural modulation requires SUSTAINED presence (the min_modulation_beats
+        # phrase-length floor) — this applies to *every* excursion, related or not. A
+        # brief excursion is a tonicization: a diatonic one, or (when unrelated) a brief
+        # chromatic one. Only a sustained region establishes a new structural key; this
+        # stops a 2-beat unrelated blip from anchoring a large spurious area that then
+        # absorbs everything around it (A6 brief-11, D911-11: a 2-beat G-major window —
+        # 4 beats total in the piece — was anchoring a 122-beat area).
+        if brief or (related and _returns(regions, i, current, diatonic)):
             open_area["tonicizations"].append(Tonicization(
                 degree=(region.tonic_pc - current[0]) % 12,
                 tonic_pc=region.tonic_pc, mode=region.mode,

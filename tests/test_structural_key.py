@@ -174,12 +174,21 @@ def test_relatedness_is_mode_agnostic():
     assert 2 in {t.degree for t in result.areas[0].tonicizations}
 
 
-def test_unrelated_brief_region_is_not_absorbed():
-    # Eb is not diatonic to C → a brief Eb excursion is its own (modulation) area.
-    regions = [_region(0, "major", 0, 40), _region(3, "major", 40, 44), _region(0, "major", 44, 80)]
-    result = _reduce(regions)
-    assert any((a.tonic_pc, a.mode) == (3, "major") for a in result.areas)
-    assert all(t.degree != 3 for a in result.areas for t in a.tonicizations)
+def test_brief_unrelated_is_chromatic_tonicization_sustained_unrelated_modulates():
+    # A6 brief-11 fix: a structural modulation requires SUSTAINED presence, related
+    # or not. A *brief* Eb excursion in C (Eb not diatonic to C) is a brief CHROMATIC
+    # tonicization absorbed into the home — not its own area (a 2-beat blip must not
+    # anchor a structural key). A *sustained* Eb is still a real modulation.
+    brief = [_region(0, "major", 0, 40), _region(3, "major", 40, 44), _region(0, "major", 44, 80)]
+    r1 = _reduce(brief)
+    assert len(r1.areas) == 1
+    assert (r1.areas[0].tonic_pc, r1.areas[0].mode) == (0, "major")
+    assert 3 in {t.degree for t in r1.areas[0].tonicizations}  # Eb absorbed (chromatic)
+    assert not any((a.tonic_pc, a.mode) == (3, "major") for a in r1.areas)
+
+    sustained = [_region(0, "major", 0, 40), _region(3, "major", 40, 64), _region(0, "major", 64, 100)]
+    r2 = _reduce(sustained)
+    assert any((a.tonic_pc, a.mode) == (3, "major") for a in r2.areas)  # kept as modulation
 
 
 def test_chained_modulations_rebase_the_current_key():
