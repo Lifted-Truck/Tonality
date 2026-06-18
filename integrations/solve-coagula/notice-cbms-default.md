@@ -26,10 +26,16 @@ default will need regenerating against `tkp-cbms.1`, **or** pin the old profile.
 
 1. **Adopt the new default:** no code change; better key reads. Regenerate any
    chronicle fixtures that pin default `infer_key` scores/margins.
-2. **Pin the old contract (zero change):** pass **`profile_version="kk-1982.1"`**
-   to the induction tools (`infer_key` / `key_induction` / `key_tracking` /
-   `structural_keys` / `midi_file_analysis`). Reproduces the exact pre-flip margins
-   — a one-arg opt-out, nothing breaks, fixtures stay valid.
+2. **Pin the old contract (zero change):** select `kk-1982.1` explicitly.
+   **Correction (TERRANE caught this — the engine and tool surfaces differ):**
+   the engine functions take a profile *object* —
+   `infer_key(w, profiles=load_key_profiles("kk-1982.1"))` (same `profiles=` on
+   `track_keys` / `reduce_to_structural_keys`); the **MCP tools** take a version
+   *string* — `profile_version="kk-1982.1"` (`key_induction` / `key_tracking` /
+   `structural_keys` / `midi_file_analysis`). There is **no `profile_version` kwarg
+   on `infer_key` itself** — passing one raises `TypeError` and would silently fall
+   through to the (now CBMS) default. Reproduces the exact pre-flip margins; nothing
+   breaks, fixtures stay valid.
 
 Both profiles are versioned data, cited in every result (`profile_version`), and
 byte-reproducible — consistent with your absolute-core-purity stance. Tell us which
