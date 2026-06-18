@@ -13,7 +13,14 @@ import json
 import pytest
 
 from mts.analysis import disambiguate_relative_key, infer_key
-from mts.io.loaders import load_relative_key_weights
+from mts.io.loaders import load_key_profiles, load_relative_key_weights
+
+# The relative-key tie-breaker prior (rel-key.1) was derived for the KK profile's
+# correlation behaviour, and its fixtures are deliberate KK near-ties. Pin KK for
+# the engagement tests so they test the tie-break logic, not the default profile
+# (the default is now tkp-cbms.1, which resolves several relative near-ties at the
+# profile level — so the tie-breaker simply fires less under it).
+_KK = load_key_profiles("kk-1982.1")
 
 
 def _w(pairs: dict[int, float]) -> list[float]:
@@ -38,7 +45,7 @@ CLEAR_C_MAJOR = _w({0: 4, 2: 1, 4: 2, 5: 1, 7: 3, 9: 1, 11: 1})
 
 
 def test_engages_and_backs_the_major_reading():
-    d = disambiguate_relative_key(EB_MAJOR_SOLO)
+    d = disambiguate_relative_key(infer_key(EB_MAJOR_SOLO, profiles=_KK))
     assert d.applied is True
     assert (d.chosen.tonic_pc, d.chosen.mode) == (3, "major")
     assert (d.relative.tonic_pc, d.relative.mode) == (0, "minor")
@@ -92,21 +99,21 @@ def test_infer_key_unchanged():
             (c.tonic_pc, c.mode, c.score) for c in result.candidates
         ]
         assert carried.margin == result.margin
-        assert carried.profile_version == "kk-1982.1"
+        assert carried.profile_version == "tkp-cbms.1"  # the default profile
 
 
 # --- shape, versioning, determinism -----------------------------------------------------
 
 
 def test_accepts_a_precomputed_induction():
-    induction = infer_key(EB_MAJOR_SOLO)
+    induction = infer_key(EB_MAJOR_SOLO, profiles=_KK)
     d = disambiguate_relative_key(induction)
     assert d.induction is induction
     assert (d.chosen.tonic_pc, d.chosen.mode) == (3, "major")
 
 
 def test_result_shape_and_version():
-    d = disambiguate_relative_key(EB_MAJOR_SOLO)
+    d = disambiguate_relative_key(infer_key(EB_MAJOR_SOLO, profiles=_KK))
     assert d.weights_version == load_relative_key_weights().version == "rel-key.1"
     assert {e.signal for e in d.evidence} == {
         "tonic_salience", "tonic_triad_salience", "leading_tone"

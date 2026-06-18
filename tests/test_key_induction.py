@@ -85,7 +85,7 @@ def test_result_shape():
     scores = [c.score for c in result.candidates]
     assert scores == sorted(scores, reverse=True)
     assert result.margin == pytest.approx(scores[0] - scores[1])
-    assert result.profile_version == "kk-1982.1"
+    assert result.profile_version == "tkp-cbms.1"  # the default profile (A6 brief-10)
     assert result.pc_weights == C_MAJOR_WEIGHTED
     json.dumps(result.to_dict())  # JSON-serializable evidence
 
@@ -110,20 +110,22 @@ def test_uninformative_or_invalid_input_raises(bad):
 
 def test_profiles_are_versioned():
     default = load_key_profiles()
-    assert default.version == "kk-1982.1"
-    assert load_key_profiles("kk-1982.1") is default
+    assert default.version == "tkp-cbms.1"  # the default after the A6 brief-10 flip
+    assert load_key_profiles("tkp-cbms.1") is default
     with pytest.raises(ValueError, match="Unknown key-profile version"):
         load_key_profiles("no-such-version")
 
 
-def test_cbms_profile_available_and_default_unchanged():
-    # The opt-in Temperley-Kostka-Payne profile ships alongside kk-1982.1, which
-    # stays the default (the A5/A7 stability contract).
-    assert load_key_profiles().version == "kk-1982.1"  # still first/default
-    cbms = load_key_profiles("tkp-cbms.1")
-    assert cbms.version == "tkp-cbms.1"
-    assert set(cbms.profiles) == {"major", "minor"}
-    assert cbms.profiles["major"][0] == 0.748  # tonic weight, verified vector
+def test_cbms_is_default_kk_is_pinnable():
+    # CBMS (Temperley-Kostka-Payne) is the default after A6 brief-10's full-24
+    # Pareto win (+12.5pp, 0 regressions); legacy KK stays loadable so A5/A7 can
+    # pin profile_version='kk-1982.1' to retain the old margins.
+    default = load_key_profiles()
+    assert default.version == "tkp-cbms.1"
+    assert default.profiles["major"][0] == 0.748  # tonic weight, verified vector
+    kk = load_key_profiles("kk-1982.1")
+    assert kk.version == "kk-1982.1"
+    assert kk.profiles["major"][0] == 6.35
 
 
 def test_profile_choice_changes_the_reading():

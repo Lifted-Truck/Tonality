@@ -123,10 +123,11 @@ CASES: list[tuple[str, dict]] = [
         {"pcs": [0, 4, 7, 9], "tonic": "A", "key_name": "Aeolian",
          "realization_midi": [45, 60, 64, 67]},
     ),
+    # default profile is now tkp-cbms.1 (A6 brief-10 flip).
     ("key_induction", {"pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0]}),
-    # opt-in Temperley-Kostka-Payne profile (A6 brief-9): same input, CBMS profile.
+    # the legacy kk-1982.1 profile, pinned for parity (A5/A7 can still select it).
     ("key_induction", {"pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0],
-                       "profile_version": "tkp-cbms.1"}),
+                       "profile_version": "kk-1982.1"}),
     # 3/4 accent content tagged 4/4 — estimation ranks 3/4 and flags disagreement.
     (
         "meter_estimation",
