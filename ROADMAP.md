@@ -218,12 +218,27 @@ list as new applications come into view.
   overrides. The worked Mozart track collapses 6 over-segmented regions → 2
   structural areas (C-major with V/vi tonicizations + the real G-major
   modulation), which is the fix. **Deferred:** chromatic tonicizations
-  (roots outside the parent collection — needs an applied-chord model); the
+  (roots outside the parent collection — needs an applied-chord model; *brief*
+  chromatic excursions are now absorbed — see the brief-11 fix below — but a
+  *sustained* applied-chord region still needs the model); the
   returning-modulation distinction (`require_return` flag); multi-pass
   re-anchoring (`min_area_beats` dormant — *empirically motivated by brief-7:
   phrase-length granularity, boundary recall 0.64→0.10; the floor stays
-  phrase/meter-derived, not corpus-fit*); recursive nesting > 1 level; the
-  online/change-point form.
+  phrase/meter-derived, not corpus-fit; distinct from the brief-11 fix — that
+  gates establishment, this merges back sustained-but-low-support areas*);
+  recursive nesting > 1 level; the online/change-point form.
+  **✅ Brief-blip modulation fix (2026-06-18 — A6 brief-11):** the CBMS flip
+  surfaced a profile-agnostic reduction bug — a **brief, *unrelated* windowed blip
+  was promoted to a structural modulation** (the brevity escape only protected
+  *related* excursions: `related AND (brief OR returns)`), so a 2-beat chromatic
+  window could anchor a large spurious area (vendored D911-11: a 2-beat G-major
+  window — 4 beats total in the piece — anchored a 122-beat area, splitting the
+  A-major home). Fixed to `brief OR (related AND returns)`: only a **sustained**
+  region (≥ `min_modulation_beats`) establishes a structural key; a brief excursion
+  is a tonicization (diatonic, or a brief *chromatic* one). Verified to recover the
+  vendored regressions (D911-11/-09/-21 → clean single home areas); **zero
+  conformance change** (sustained modulations untouched). A first dent in the
+  deferred chromatic-tonicization gap.
   **✅ Frame-weighted home anchor (slice 2, 2026-06-15 — PR follow-on to brief-7):**
   brief-7's "global-key-miss coupling" was diagnosed (reading the code + the
   vendored D911-07) as an **anchor** problem, *not* an `infer_key` one — avoiding
@@ -412,6 +427,16 @@ list as new applications come into view.
   — both clean hand-offs to the deferred closure layer. **Fast-follow:** A6 re-scores
   the region/structural metrics under CBMS (the flip changes the windowed track too;
   brief-10 measured global key only).
+  *Region/structural fast-follow + a regression fix (brief-11, 2026-06-18 — see
+  `response-11.md`):* A6 scored the windowed + structural surfaces under CBMS on the
+  full 24. **Windowed track: clean win** (+15.5pp, 0 regressions; +11.7pp even on
+  the 18 stable songs). **Structural: net +8.8pp** but with a concentrated
+  regression tail on a few globally-stable songs — which I diagnosed (on the vendored
+  D911-11) as a **profile-agnostic reduction bug** (a brief unrelated windowed blip
+  promoted to a spurious structural modulation) and **fixed** (see the structural-key
+  follow-ons above: a modulation now requires sustained presence). Validated to keep
+  CBMS everywhere — **no pinning**. A6 re-runs `--ab-profile-regions` with the fix to
+  confirm the tail closes. Net engine work: a one-condition walk fix.
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
