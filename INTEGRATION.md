@@ -95,6 +95,20 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
   ~0–0.5. **Stability contract:** these semantics hold per profile version;
   a different prior version may shift absolute values, which is exactly why
   results cite the version — pin it if you map margin to a control curve.
+  **The default profile changed (2026-06-17): `kk-1982.1` → `tkp-cbms.1`**
+  (Temperley-Kostka-Payne; a +12.5pp global-key accuracy win, A6 brief-10). It
+  is more accurate on *which* key, but **mode-asymmetric on the margin scale**:
+  major margins inflate and minor margins compress (the documented relative-major
+  bias). So **ranking-accuracy** consumers want the new default; **margin-as-signal**
+  consumers (margin mapped to a control curve) may prefer `kk-1982.1`'s
+  major/minor balance — TERRANE measured exactly this and pinned KK. **How to pin:**
+  the engine functions take a profile *object* — `infer_key(material,
+  profiles=load_key_profiles("kk-1982.1"))` (same `profiles=` on `track_keys` /
+  `reduce_to_structural_keys`); the **MCP tools** take a version *string* —
+  `profile_version="kk-1982.1"` (`key_induction` / `key_tracking` /
+  `structural_keys` / `midi_file_analysis`). Note the surfaces differ — there is
+  **no `profile_version` kwarg on `infer_key` itself** (passing one raises
+  `TypeError` and would silently fall through to the default).
 - **Near-silence contract**: all-zero or perfectly uniform pc weights raise
   (no tonal information — the engine won't guess). Streaming consumers with
   decaying histograms should gate induction calls on total weight.

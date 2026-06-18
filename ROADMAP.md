@@ -102,6 +102,18 @@ list as new applications come into view.
   and ambiguity are *rendered* (terrain ruggedness, gated home-pull), not
   worked around — margin semantics are therefore a stability contract
   (documented in INTEGRATION.md).
+  *CBMS default flip + TERRANE's pin (2026-06-18 — notice + `notice-cbms-default-response.md`):*
+  when the default key profile flipped to `tkp-cbms.1` (A6 brief-10), TERRANE was
+  notified and **pinned `kk-1982.1`** explicitly. Their reason is a durable finding:
+  CBMS is **mode-asymmetric on the *margin* scale** (major margins inflate, minor
+  compress via the relative-major bias), so while it's better on *which* key, KK's
+  major/minor balance is better for **margin-as-a-control-signal**. The clean line:
+  **ranking-accuracy consumers (A6/A1) want CBMS; margin-shape consumers (A5) pin
+  KK** — any future profile decision must weigh *both* axes. They also caught a real
+  doc bug (the notices said `profile_version=` on `infer_key`, which takes
+  `profiles=`; the version-string selector is tool-only) — fixed in both notices +
+  INTEGRATION.md. The split engine (`profiles=`) vs tool (`profile_version=`) surface
+  is a recorded ergonomics wart (a possible future harmonization, not scheduled).
   *Capabilities:* weighted-distribution key induction ✅ shipped — `infer_key`
   takes any non-negative 12-vector, so decaying pc histograms work today;
   profiles are swappable versioned priors, and **Temperley/Aarden profile
