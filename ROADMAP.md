@@ -722,6 +722,46 @@ list as new applications come into view.
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.
+15. **Multi-dimensional validation program** (recorded 2026-06-17; discussed with
+    Julian, *discuss/hold* — no build or A6 brief yet). The corpus-accuracy
+    harness that paid off for **key** (A6's `validation/validate_corpus.py`:
+    ground-truth corpus + a `(label, fn)` producer seam + a scorer + a *metric
+    contract* + the license spine + A/B levers) generalizes to other inference
+    dimensions. Architecture: each dimension is a **scorer plugin** =
+    `(inference entry point, ground-truth parser, metric definition, A/B levers)`
+    over the existing producer seam. Dimension readiness differs sharply:
+    - **Meter / time-signature — READY, the recommended first dimension.**
+      `infer_meter` is shipped (gap 11) and already shaped like `infer_key`
+      (ranked candidates + margin + `agrees_with_declared`); SWD's score-aligned
+      **measure annotations** give clean ground truth (bar positions → meter).
+      Metric contract: exact-signature match + downbeat-phase agreement. Proves
+      the multi-dimensional pattern at the lowest lift.
+    - **Tempo — gated on a build AND a data decision.** There is **no tempo
+      inference** today (only `TempoMap` from file meta); `infer_tempo` (the
+      rhythmic analog — onset-IOI / autocorrelation beat induction) would be a new
+      capability. And the data is the hard part: score MIDI carries a fixed
+      notated tempo (trivial truth); the *interesting* case is performance
+      timing / rubato, which lives in audio + performance data — and **audio is
+      out of scope (Decision 9)**. So first decide what "tempo deduction" means for
+      a symbolic engine (IOI-based beat induction over performed-but-symbolic MIDI
+      is the in-scope reading) before building.
+    - **Groove — methodology-first.** `extract_groove` is shipped (gap 10) but
+      there is no "ground-truth groove" annotation corpus; "correct" isn't a label.
+      Validation is either the **round-trip invariant already pinned**
+      (extract→apply reconstructs timing) or **distance-to-a-reference-template**
+      — a different shape than accuracy-vs-annotation, needing a methodology
+      decision before any corpus.
+    *Coordination:* A6 owns the harness + corpus infrastructure; Tonality supplies
+    the inference tools + the per-dimension **metric contract** (the `response-4`
+    pattern that defined the key metrics). A6 is **not yet clued in** — the move,
+    when scheduled, is a brief proposing the program + the first dimension (meter)
+    with its metric contract and the SWD CC-BY-3.0 read-to-score license spine.
+    *Cross-link:* the **closure-aware / functional-context key-finding** slice (the
+    cadence/closure reweighting layer for the relative/parallel residual — D911-03,
+    D911-08 — recorded in the infer_key follow-ons) is the first *new* analytical
+    capability this program would score, and it shares the measure-before-believe
+    discipline (the literature's closure methods are validated on non-modulating
+    repertoire; transfer to lieder is unproven).
 
 ## Decisions on record (the "why", so we don't relitigate)
 
