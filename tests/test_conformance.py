@@ -124,6 +124,9 @@ CASES: list[tuple[str, dict]] = [
          "realization_midi": [45, 60, 64, 67]},
     ),
     ("key_induction", {"pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0]}),
+    # opt-in Temperley-Kostka-Payne profile (A6 brief-9): same input, CBMS profile.
+    ("key_induction", {"pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0],
+                       "profile_version": "tkp-cbms.1"}),
     # 3/4 accent content tagged 4/4 — estimation ranks 3/4 and flags disagreement.
     (
         "meter_estimation",

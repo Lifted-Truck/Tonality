@@ -40,7 +40,7 @@ from ..core.pitch import Pitch
 from ..core.realization import Realization
 from ..core.symmetry import mask_symmetry_order
 from ..dataset.builders import dataset_from_sequence
-from ..io.loaders import load_chord_qualities, load_scales
+from ..io.loaders import load_chord_qualities, load_key_profiles, load_scales
 
 
 # --- input helpers (agent-friendly coercions) --------------------------------------
@@ -78,6 +78,15 @@ def _context(tonic: int | str | None, key_name: str | None) -> AnalyticalContext
         raise ValueError("A key_name needs a tonic (the key's root pitch class or note name).")
     key = _scale(key_name) if key_name is not None else None
     return AnalyticalContext(tonic_pc=_pc(tonic), key=key)
+
+
+def _profiles(profile_version: str | None):
+    """Load a key-profile set by version, or None to use the engine default
+    (kk-1982.1 — the pinned A5/A7 stability contract). Surfaces an actionable
+    ValueError on an unknown version (the loader lists the known versions)."""
+    if profile_version is None:
+        return None
+    return load_key_profiles(str(profile_version))
 
 
 def _realization(midi_notes: list[int] | None, root: int | str | None = None) -> Realization | None:
@@ -214,10 +223,14 @@ def name_pcs(
     ).to_dict()
 
 
-def key_induction(pc_weights: list[float]) -> dict:
+def key_induction(pc_weights: list[float], profile_version: str | None = None) -> dict:
     """Ranked key candidates for duration-weighted pitch-class content
-    (12 weights, index = pc). All 24 candidates, scores, and the top-two margin."""
-    return infer_key(pc_weights).to_dict()
+    (12 weights, index = pc). All 24 candidates, scores, and the top-two margin.
+    profile_version selects the versioned key-profile set: default (None) uses
+    kk-1982.1; 'tkp-cbms.1' is the opt-in Temperley-Kostka-Payne profile (better-
+    balanced for major keys / less dominant-biased — A6 brief-9). The result cites
+    the profile_version used."""
+    return infer_key(pc_weights, profiles=_profiles(profile_version)).to_dict()
 
 
 def relative_key(pc_weights: list[float]) -> dict:
@@ -360,10 +373,13 @@ def key_tracking(
     bpm: float = 120.0,
     disambiguate_relative: bool = False,
     smoothing: bool = False,
+    profile_version: str | None = None,
 ) -> dict:
     """Local key tracking: key regions through time for a list of events, each
     [onset_beats, duration_beats, midi_note]. Windowed key induction (same
-    versioned profiles); regions carry beats+seconds extents, mean score/margin,
+    versioned profiles; profile_version selects the set — default kk-1982.1,
+    'tkp-cbms.1' the opt-in Temperley-Kostka-Payne alternative, A6 brief-9);
+    regions carry beats+seconds extents, mean score/margin,
     and the per-window evidence. Boundary resolution is the window grid. Set
     disambiguate_relative=true to apply the relative-major/minor tie-breaker per
     window (off by default): a window over a relative near-tie adopts the
@@ -391,6 +407,7 @@ def key_tracking(
         hop_beats=hop_beats,
         disambiguate_relative=bool(disambiguate_relative),
         smoothing=bool(smoothing),
+        profiles=_profiles(profile_version),
     ).to_dict()
 
 
@@ -402,6 +419,7 @@ def structural_keys(
     disambiguate_relative: bool = False,
     smoothing: bool = False,
     anchor_method: str = "frame_weighted",
+    profile_version: str | None = None,
 ) -> dict:
     """Reduce the windowed local key track to **structural key-areas** — the
     fix for over-segmentation. The windowed `key_tracking` reports each window's
@@ -420,7 +438,10 @@ def structural_keys(
     opening + closing regions, the tonicization-robust home-key signal for pieces
     whose interior repeatedly tonicizes the dominant; promoted to default after A6
     brief-8 validated it on the full Winterreise set, a Pareto improvement) or
-    'most_prevalent_region' (legacy — longest summed local duration)."""
+    'most_prevalent_region' (legacy — longest summed local duration).
+    profile_version selects the versioned key-profile set used for both the
+    windowed track and the global evidence (default kk-1982.1; 'tkp-cbms.1' opt-in,
+    A6 brief-9)."""
     from ..temporal import Event, Sequence, reduce_to_structural_keys, track_keys
 
     try:
@@ -435,12 +456,14 @@ def structural_keys(
             f"Each event must be [onset_beats, duration_beats, midi_note] (optional voice): {exc}"
         ) from exc
     sequence = Sequence.from_events(parsed, bpm=float(bpm))
+    profiles = _profiles(profile_version)
     tracking = track_keys(
         sequence, window_beats=float(window_beats), hop_beats=float(hop_beats),
         disambiguate_relative=bool(disambiguate_relative), smoothing=bool(smoothing),
+        profiles=profiles,
     )
     return reduce_to_structural_keys(
-        sequence, tracking=tracking, anchor_method=str(anchor_method)
+        sequence, tracking=tracking, anchor_method=str(anchor_method), profiles=profiles,
     ).to_dict()
 
 
@@ -1000,6 +1023,7 @@ def midi_file_analysis(
     per_region_context: bool = True,
     disambiguate_relative_keys: bool = False,
     smooth_key_regions: bool = False,
+    profile_version: str | None = None,
 ) -> dict:
     """Analyze a Standard MIDI File end-to-end: segment it, infer the global key,
     and emit the enriched dataset (per-segment identity, namings, placement).
@@ -1020,18 +1044,23 @@ def midi_file_analysis(
     weak. The global "key" induction is returned unchanged; when the flag is on
     the tie-break is surfaced under "key_disambiguation". Set
     smooth_key_regions=true to absorb short, low-confidence key-region blips
-    (off by default; versioned hysteresis, cited on the tracking result)."""
+    (off by default; versioned hysteresis, cited on the tracking result).
+    profile_version selects the versioned key-profile set for both the global
+    induction and the per-window tracking (default kk-1982.1; 'tkp-cbms.1' the
+    opt-in Temperley-Kostka-Payne alternative — better-balanced for major keys,
+    A6 brief-9)."""
     from ..analysis import candidate_context, disambiguate_relative_key
     from ..io.midi import sequence_from_midi_file
     from ..temporal import coalesce, track_keys
 
     sequence = sequence_from_midi_file(path)
+    profiles = _profiles(profile_version)
     coalesce_meta = None
     if coalesce_window_beats is not None:
         cleaned = coalesce(sequence, onset_window_beats=float(coalesce_window_beats))
         sequence = cleaned.sequence
         coalesce_meta = cleaned.to_dict()
-    keys = infer_key(sequence)
+    keys = infer_key(sequence, profiles=profiles)
     best = keys.best
     disambiguation = None
     if disambiguate_relative_keys:
@@ -1047,6 +1076,7 @@ def midi_file_analysis(
                 sequence,
                 disambiguate_relative=bool(disambiguate_relative_keys),
                 smoothing=bool(smooth_key_regions),
+                profiles=profiles,
             )
         except ValueError:
             regions = None  # no window carried tonal information

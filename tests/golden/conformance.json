@@ -3239,6 +3239,166 @@
   },
   {
    "kwargs": {
+    "pc_weights": [
+     4.0,
+     0,
+     1.0,
+     0,
+     2.0,
+     1.0,
+     0,
+     3.0,
+     0,
+     1.0,
+     0,
+     1.0
+    ],
+    "profile_version": "tkp-cbms.1"
+   },
+   "result": {
+    "candidates": [
+     {
+      "mode": "major",
+      "score": 0.9262976120208652,
+      "tonic_pc": 0
+     },
+     {
+      "mode": "major",
+      "score": 0.620125449176265,
+      "tonic_pc": 5
+     },
+     {
+      "mode": "major",
+      "score": 0.5535774980272281,
+      "tonic_pc": 7
+     },
+     {
+      "mode": "minor",
+      "score": 0.5309937853668091,
+      "tonic_pc": 0
+     },
+     {
+      "mode": "minor",
+      "score": 0.5034606092660676,
+      "tonic_pc": 9
+     },
+     {
+      "mode": "minor",
+      "score": 0.4775313075012916,
+      "tonic_pc": 4
+     },
+     {
+      "mode": "minor",
+      "score": 0.3933279048631014,
+      "tonic_pc": 5
+     },
+     {
+      "mode": "minor",
+      "score": 0.2623448340925834,
+      "tonic_pc": 7
+     },
+     {
+      "mode": "minor",
+      "score": 0.12628282792484122,
+      "tonic_pc": 2
+     },
+     {
+      "mode": "major",
+      "score": 0.12565869587121126,
+      "tonic_pc": 10
+     },
+     {
+      "mode": "major",
+      "score": 0.02377326678644544,
+      "tonic_pc": 8
+     },
+     {
+      "mode": "major",
+      "score": 0.021193888834932326,
+      "tonic_pc": 3
+     },
+     {
+      "mode": "major",
+      "score": -0.02704047885836193,
+      "tonic_pc": 2
+     },
+     {
+      "mode": "minor",
+      "score": -0.13247556494426369,
+      "tonic_pc": 11
+     },
+     {
+      "mode": "major",
+      "score": -0.2246208299442624,
+      "tonic_pc": 9
+     },
+     {
+      "mode": "minor",
+      "score": -0.2647951976614196,
+      "tonic_pc": 1
+     },
+     {
+      "mode": "minor",
+      "score": -0.2712106950052818,
+      "tonic_pc": 10
+     },
+     {
+      "mode": "major",
+      "score": -0.2965854747914768,
+      "tonic_pc": 4
+     },
+     {
+      "mode": "major",
+      "score": -0.4273599369331889,
+      "tonic_pc": 1
+     },
+     {
+      "mode": "minor",
+      "score": -0.4446964356788862,
+      "tonic_pc": 8
+     },
+     {
+      "mode": "minor",
+      "score": -0.47623929761954154,
+      "tonic_pc": 6
+     },
+     {
+      "mode": "major",
+      "score": -0.5532335809670264,
+      "tonic_pc": 11
+     },
+     {
+      "mode": "minor",
+      "score": -0.7045240781053015,
+      "tonic_pc": 3
+     },
+     {
+      "mode": "major",
+      "score": -0.7417861092226311,
+      "tonic_pc": 6
+     }
+    ],
+    "margin": 0.30617216284460025,
+    "pc_weights": [
+     4.0,
+     0.0,
+     1.0,
+     0.0,
+     2.0,
+     1.0,
+     0.0,
+     3.0,
+     0.0,
+     1.0,
+     0.0,
+     1.0
+    ],
+    "profile_version": "tkp-cbms.1"
+   },
+   "tool": "key_induction"
+  },
+  {
+   "kwargs": {
     "denominator": 4,
     "events": [
      [
