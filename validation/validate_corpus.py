@@ -54,7 +54,7 @@ MODE_TO_MAJOR_OFFSET = {"dorian": 2, "phrygian": 4, "lydian": 5, "mixolydian": 7
 # Engine
 # --------------------------------------------------------------------------- #
 def analyze(midi_path: str, *, coalesce: float | None, disambiguate: bool, smooth: bool, structural: bool = False,
-            anchor_method: str = "most_prevalent_region") -> dict:
+            anchor_method: str = "most_prevalent_region", profile_version: str | None = None) -> dict:
     """Call the engine. Corpus scores are quantized, so coalesce defaults off.
 
     With `structural=True`, the windowed `key_regions` (a tonicization-sensitive
@@ -70,15 +70,18 @@ def analyze(midi_path: str, *, coalesce: float | None, disambiguate: bool, smoot
         coalesce_window_beats=coalesce,
         disambiguate_relative_keys=disambiguate,
         smooth_key_regions=smooth,
+        profile_version=profile_version,
     )
     if structural:
         result["key_regions"] = {"regions": structural_regions(
-            midi_path, disambiguate=disambiguate, smooth=smooth, anchor_method=anchor_method)}
+            midi_path, disambiguate=disambiguate, smooth=smooth, anchor_method=anchor_method,
+            profile_version=profile_version)}
     return result
 
 
 def structural_regions(midi_path: str, *, disambiguate: bool, smooth: bool,
-                       anchor_method: str = "most_prevalent_region") -> list[dict]:
+                       anchor_method: str = "most_prevalent_region",
+                       profile_version: str | None = None) -> list[dict]:
     """Structural key-areas for a MIDI as region dicts (start_beats/end_beats/
     tonic_pc/mode) — `structural_keys` takes note events, so build them from the
     sequence. Tonicizations are absorbed (recorded on each area), not emitted.
@@ -94,7 +97,7 @@ def structural_regions(midi_path: str, *, disambiguate: bool, smooth: bool,
     events = [[e.onset, e.duration, e.pitch.midi] for e in seq.events]
     res = tools.structural_keys(events, window_beats=8.0, hop_beats=2.0,
                                 disambiguate_relative=disambiguate, smoothing=smooth,
-                                anchor_method=anchor_method)
+                                anchor_method=anchor_method, profile_version=profile_version)
     return [
         {"start_beats": a["start_beats"], "end_beats": a["end_beats"], "tonic_pc": a["tonic_pc"], "mode": a["mode"]}
         for a in (res.get("areas") or [])
@@ -263,9 +266,9 @@ def load_swd_ground_truth(case: dict, bpb: float) -> GroundTruth | None:
 
 
 def analyze_swd_piece(case: dict, *, coalesce, disambiguate, smooth, structural=False,
-                      anchor_method="most_prevalent_region") -> tuple[GroundTruth, dict] | None:
+                      anchor_method="most_prevalent_region", profile_version=None) -> tuple[GroundTruth, dict] | None:
     result = analyze(case["midi"], coalesce=coalesce, disambiguate=disambiguate, smooth=smooth,
-                     structural=structural, anchor_method=anchor_method)
+                     structural=structural, anchor_method=anchor_method, profile_version=profile_version)
     bpb = beats_per_bar(result)
     if bpb is None:
         return None
@@ -419,14 +422,14 @@ class Report:
 
 
 def analyze_piece(folder: Path, *, coalesce, disambiguate, smooth, structural=False,
-                  anchor_method="most_prevalent_region") -> tuple[GroundTruth, dict] | None:
+                  anchor_method="most_prevalent_region", profile_version=None) -> tuple[GroundTruth, dict] | None:
     gt = load_ground_truth(folder)
     if gt is None:
         return None
     midi = render_midi(folder / "score.mxl")
     try:
         result = analyze(midi, coalesce=coalesce, disambiguate=disambiguate, smooth=smooth,
-                         structural=structural, anchor_method=anchor_method)
+                         structural=structural, anchor_method=anchor_method, profile_version=profile_version)
     finally:
         Path(midi).unlink(missing_ok=True)
     return gt, result
@@ -554,6 +557,106 @@ def run_ab_anchor(producers, *, limit, coalesce, disambiguate, smooth) -> dict:
     }
 
 
+def run_ab_profile(producers, *, limit, coalesce, disambiguate, smooth,
+                   baseline="kk-1982.1", candidate="tkp-cbms.1", regions=False) -> dict:
+    """brief-9 follow-on: score each piece's GLOBAL key under two key profiles and report
+    whether the candidate lifts the global-key exact-rate WITHOUT regressing the currently-
+    correct songs. Unlike --ab-anchor (anchor moves only the structural timeline, bucket
+    shared), the profile moves the inferred global key itself — so here the *bucket* is the
+    thing under test. Headline: net exact-rate Δ (candidate − baseline) + per-song flip list
+    (wins = miss→exact, losses = exact→miss).
+
+    With `regions=True` (response-10 fast-follow): also score, under each profile, the
+    **windowed local-key frame-agreement** (from the same structural=False call) AND the
+    **structural key-area frame-agreement** (an extra structural=True / frame_weighted call —
+    the shipped anchor, validated under KK, re-checked under the candidate). The flip changes
+    `infer_key`'s default for *every* consumer — windowed track + structural reduction
+    included — so this measures the surface the global-key A/B didn't cover."""
+    rows: list[dict] = []
+    for i, (label, fn) in enumerate(producers):
+        if limit is not None and i >= limit:
+            break
+        try:
+            got_b = fn(coalesce=coalesce, disambiguate=disambiguate, smooth=smooth, profile_version=baseline)
+            if got_b is None:
+                continue
+            got_c = fn(coalesce=coalesce, disambiguate=disambiguate, smooth=smooth, profile_version=candidate)
+            if got_c is None:
+                continue
+            pb, pc = score_piece(*got_b), score_piece(*got_c)
+            b_ok, c_ok = pb.bucket == "exact", pc.bucket == "exact"
+            flip = "win" if (not b_ok and c_ok) else "loss" if (b_ok and not c_ok) else "same"
+            row = {"piece": pb.piece, "gt_global": pb.gt_global,
+                   "baseline_global": pb.engine_global, "candidate_global": pc.engine_global,
+                   "baseline_bucket": pb.bucket, "candidate_bucket": pc.bucket, "flip": flip,
+                   "win_region_base": pb.region_frame_agreement, "win_region_cand": pc.region_frame_agreement}
+            flag = {"win": "  ✔ recovery (miss→exact)", "loss": "  ⚠ REGRESSION (exact→miss)", "same": ""}[flip]
+            tag = {"exact": "OK  ", "relative": "~rel", "wrong": "MISS"}[pb.bucket]
+            if regions:
+                sb = score_piece(*fn(coalesce=coalesce, disambiguate=disambiguate, smooth=smooth,
+                                     structural=True, anchor_method="frame_weighted", profile_version=baseline))
+                sc = score_piece(*fn(coalesce=coalesce, disambiguate=disambiguate, smooth=smooth,
+                                     structural=True, anchor_method="frame_weighted", profile_version=candidate))
+                row["struct_region_base"] = sb.region_frame_agreement
+                row["struct_region_cand"] = sc.region_frame_agreement
+                wd = _ag_delta(pb.region_frame_agreement, pc.region_frame_agreement)
+                sd = _ag_delta(sb.region_frame_agreement, sc.region_frame_agreement)
+                row["win_delta"], row["struct_delta"] = wd, sd
+                print(f"[{tag}] {pb.piece:<22} glob({pb.bucket[:4]}→{pc.bucket[:4]}){flag and ' '+flag.strip() or ''}"
+                      f"  win-region Δ={_pct(wd):>5}  struct Δ={_pct(sd):>5}")
+            else:
+                print(f"[{tag}] {pb.piece:<24} {baseline}={pb.engine_global:<9} {candidate}={pc.engine_global:<9} "
+                      f"({pb.bucket}→{pc.bucket}){flag}")
+            rows.append(row)
+        except Exception as exc:
+            print(f"[ERR ] {label}: {type(exc).__name__}: {exc}", file=sys.stderr)
+
+    n = len(rows)
+    exact_b = sum(r["baseline_bucket"] == "exact" for r in rows)
+    exact_c = sum(r["candidate_bucket"] == "exact" for r in rows)
+    out = {
+        "baseline_profile": baseline,
+        "candidate_profile": candidate,
+        "pieces_scored": n,
+        "exact_rate_baseline": round(exact_b / n, 3) if n else None,
+        "exact_rate_candidate": round(exact_c / n, 3) if n else None,
+        "net_exact_rate_delta": round((exact_c - exact_b) / n, 3) if n else None,
+        "wins": [r["piece"] for r in rows if r["flip"] == "win"],
+        "losses": [r["piece"] for r in rows if r["flip"] == "loss"],
+    }
+    if regions:
+        out["windowed_region_agreement"] = _region_summary(rows, "win_region_base", "win_region_cand")
+        out["structural_area_agreement"] = _region_summary(rows, "struct_region_base", "struct_region_cand")
+    out["pieces"] = rows
+    return out
+
+
+def _ag_delta(base, cand):
+    return round(cand - base, 3) if (base is not None and cand is not None) else None
+
+
+def _pct(x):
+    return f"{x:+.0%}" if x is not None else "—"
+
+
+def _region_summary(rows: list[dict], base_key: str, cand_key: str) -> dict:
+    """Mean frame-agreement under each profile + Δ, plus per-song regression/improvement
+    counts (|Δ| > 0.01 to ignore sampling jitter)."""
+    pairs = [(r[base_key], r[cand_key]) for r in rows if r.get(base_key) is not None and r.get(cand_key) is not None]
+    if not pairs:
+        return {"pieces": 0}
+    mb = sum(b for b, _ in pairs) / len(pairs)
+    mc = sum(c for _, c in pairs) / len(pairs)
+    return {
+        "pieces": len(pairs),
+        "mean_baseline": round(mb, 3),
+        "mean_candidate": round(mc, 3),
+        "mean_delta": round(mc - mb, 3),
+        "regressions": sum(1 for b, c in pairs if c - b < -0.01),
+        "improvements": sum(1 for b, c in pairs if c - b > 0.01),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Validate Tonality key analysis vs an annotated corpus.")
     ap.add_argument("--corpus", type=Path, help="When-in-Rome corpus dir (folders with score.mxl + analysis.txt) — CC BY-SA, read-only scoring")
@@ -565,6 +668,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--structural", action="store_true", help="score the structural key-area reduction (structural_keys #43) instead of the windowed track — the apples-to-apples target for analyst key-areas")
     ap.add_argument("--ab-disambiguate", action="store_true", help="run each piece with the tie-breaker off AND on; report the exact-rate delta (Finding B)")
     ap.add_argument("--ab-anchor", action="store_true", help="structural-only: score the home anchor under most_prevalent_region AND frame_weighted; report region-agreement deltas split by global-key bucket (brief-7 slice 2)")
+    ap.add_argument("--ab-profile", action="store_true", help="score the global key under two key profiles (--baseline vs --candidate); report net exact-rate delta + per-song flip list (brief-9 / CBMS)")
+    ap.add_argument("--ab-profile-regions", action="store_true", help="response-10 fast-follow: --ab-profile PLUS windowed-region + structural-area frame-agreement under each profile")
+    ap.add_argument("--baseline", default="kk-1982.1", help="baseline key profile_version for --ab-profile (default kk-1982.1)")
+    ap.add_argument("--candidate", default="tkp-cbms.1", help="candidate key profile_version for --ab-profile (default tkp-cbms.1)")
     ap.add_argument("--anchor-method", choices=("most_prevalent_region", "frame_weighted"), default="most_prevalent_region", help="structural home-anchor rule for a plain --structural run")
     ap.add_argument("--json", type=Path, default=None, help="write the full report as JSON")
     args = ap.parse_args(argv)
@@ -591,6 +698,17 @@ def main(argv: list[str] | None = None) -> int:
     if args.ab_anchor:
         out = run_ab_anchor(producers, limit=args.limit, coalesce=args.coalesce, disambiguate=args.disambiguate, smooth=args.smooth)
         print("\n== A/B anchor_method (most_prevalent_region vs frame_weighted) ==")
+        print(json.dumps({k: v for k, v in out.items() if k != "pieces"}, indent=2))
+        if args.json:
+            args.json.write_text(json.dumps(out, indent=2))
+            print(f"wrote {args.json}")
+        return 0
+
+    if args.ab_profile or args.ab_profile_regions:
+        out = run_ab_profile(producers, limit=args.limit, coalesce=args.coalesce, disambiguate=args.disambiguate,
+                             smooth=args.smooth, baseline=args.baseline, candidate=args.candidate,
+                             regions=args.ab_profile_regions)
+        print(f"\n== A/B key profile ({args.baseline} vs {args.candidate}) ==")
         print(json.dumps({k: v for k, v in out.items() if k != "pieces"}, indent=2))
         if args.json:
             args.json.write_text(json.dumps(out, indent=2))
