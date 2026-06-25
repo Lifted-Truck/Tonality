@@ -303,14 +303,21 @@ list as new applications come into view.
   pin KK, the prior being KK-companion); A6 re-scores the **region/structural
   metrics** under CBMS as a validation fast-follow (brief-10 measured global key
   only).
-  **Deferred — slice 2, the relative/parallel tail (03, 08):** a deterministic
-  **cadence/closure-aware** layer (tonic as the point of harmonic resolution,
-  leveraging the existing cadence detection) — flagged higher-risk because the
-  literature's closure methods are corpus-trained and validated on chorales/opening
-  passages, not modulating lieder; build only after prototype-and-measure. The
-  "minor-mode under-detection" sub-signal (brief-8) is now explained: it is the
-  natural-minor profile losing the raised leading tone, which CBMS's better balance
-  partly addresses. The anchor and induction levers stay distinct fixes.
+  **Deferred — slice 2, mode-aware / functional-context key induction.** A
+  deterministic **cadence/closure-aware** layer (tonic as the point of harmonic
+  resolution, leveraging the existing cadence detection) and/or mode-aware induction
+  — flagged higher-risk because the literature's closure methods are corpus-trained
+  and validated on chorales/opening passages, not modulating lieder; build only
+  after prototype-and-measure. The "minor-mode under-detection" sub-signal (brief-8)
+  is now explained: it is the natural-minor profile losing the raised leading tone,
+  which CBMS's better balance partly addresses. **Acceptance set (post-CBMS, all
+  four converge on this one lever — brief-12):** the SWD residuals are D911-**03**
+  (relative-major, global), **08** (parallel, global), **07** (dominant-substitution,
+  global), and **16** (parallel-mode + sustained foreign fit in the *windowed*
+  track — CBMS's mode-asymmetry surfacing locally; `track_keys` shares `infer_key`,
+  so the same lever addresses it). That four cases across both the global and
+  windowed surfaces reduce to one investment is the signal that this is the right
+  next key-accuracy lever. The anchor and induction levers stay distinct fixes.
   Use `structural_keys` for key-area comparison, the windowed track for
   tonicization-grain detail.
   (2) **`disambiguate_relative_keys` empirical negative result.** On real
@@ -437,6 +444,16 @@ list as new applications come into view.
   follow-ons above: a modulation now requires sustained presence). Validated to keep
   CBMS everywhere — **no pinning**. A6 re-runs `--ab-profile-regions` with the fix to
   confirm the tail closes. Net engine work: a one-condition walk fix.
+  *Fix confirmed — CBMS arc closed (brief-12, 2026-06-18 — see `response-12.md`):*
+  the full-24 re-run with #89 in closed the diagnosed structural tail (**5 → 2
+  regressions**, Δ +0.088 → +0.130; D911-11 −0.47→−0.01, -09/-21 → 0.00), recoveries
+  + sustained modulations byte-identical. The CBMS default is now **validated across
+  all three surfaces** (global +12.5pp, windowed +15.5pp, structural +13pp). The two
+  remaining structural regressions are **explained, neither a reduction bug** — D911-07
+  (a global *miss*, sits on a wrong anchor) and D911-16 (a *sustained* windowed-track
+  profile difference: CBMS's parallel-mode/major bias surfacing locally) — both routed
+  to the deferred mode-aware-induction acceptance set above. A6's `--ab-profile[-regions]`
+  harness PR is now unblocked (all dependencies on `main`). Net engine work: zero.
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
   `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
