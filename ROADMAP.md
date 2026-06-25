@@ -803,12 +803,22 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     dimensions. Architecture: each dimension is a **scorer plugin** =
     `(inference entry point, ground-truth parser, metric definition, A/B levers)`
     over the existing producer seam. Dimension readiness differs sharply:
-    - **Meter / time-signature — READY, the recommended first dimension.**
-      `infer_meter` is shipped (gap 11) and already shaped like `infer_key`
-      (ranked candidates + margin + `agrees_with_declared`); SWD's score-aligned
-      **measure annotations** give clean ground truth (bar positions → meter).
-      Metric contract: exact-signature match + downbeat-phase agreement. Proves
-      the multi-dimensional pattern at the lowest lift.
+    - **Meter / time-signature — first dimension; contract scoped 2026-06-18
+      (`proposal-meter-validation.md`).** `infer_meter` is shipped (gap 11), shaped
+      like `infer_key` (ranked candidates + margin + `agrees_with_declared`). A
+      5-song vendored prototype reshaped the naive "exact-signature match" plan:
+      (a) **ground truth = the MusicXML score `<time>` signatures, NOT the MIDI meta**
+      — the meta is degenerate/multi-valued (D911-11 = `[1/8,3/4,2/4,6/8,2/4]`: a
+      pickup-bar 1/8 artifact + real meter changes); SWD has no meter annotation.
+      (b) **graded buckets, not exact-only** — exact / **hypermetric** (bar-multiple:
+      2/4↔4/4, 3/8↔6/8 — same beat, undecidable bar grouping from notes; report
+      separately, don't charge as wrong) / **simple↔compound** (3/4↔6/8 — the
+      metric-profile sub-score's job) / wrong; raw exact-rate (1/5 on the prototype)
+      *understates* the engine, which gets the beat grid right on 3/5. (c) **slice-1
+      scope = single-meter songs only** (`infer_meter` is whole-sequence; meter-
+      changing songs await the deferred change-point form — gap 11 follow-on). No
+      engine work needed — `infer_meter` provides the inference; A6 owns the scorer +
+      the score-`<time>` parser. Proposed to A6.
     - **Tempo — gated on a build AND a data decision.** There is **no tempo
       inference** today (only `TempoMap` from file meta); `infer_tempo` (the
       rhythmic analog — onset-IOI / autocorrelation beat induction) would be a new
