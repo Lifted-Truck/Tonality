@@ -374,6 +374,7 @@ def key_tracking(
     disambiguate_relative: bool = False,
     smoothing: bool = False,
     profile_version: str | None = None,
+    key_inertia: bool = False,
 ) -> dict:
     """Local key tracking: key regions through time for a list of events, each
     [onset_beats, duration_beats, midi_note]. Windowed key induction (same
@@ -388,7 +389,12 @@ def key_tracking(
     smoothing=true to absorb short, low-confidence key-region blips into their
     stronger neighbour (off by default, versioned hysteresis): removes residual
     micro-band noise on real performances; windows keep their raw argmax as
-    evidence, only the region grouping is smoothed; cited via smoothing_version."""
+    evidence, only the region grouping is smoothed; cited via smoothing_version.
+    Set key_inertia=true (off by default; A6 brief-13) to apply a continuity prior:
+    a deterministic Viterbi over the per-window scores with a versioned switch
+    penalty (key-inertia.1, cited via inertia_version) that rewards fit + penalizes
+    switching, holding near-tie mode flips to context and cutting over-segmentation;
+    composes with smoothing and leaves infer_key untouched."""
     from ..temporal import Event, Sequence, track_keys
 
     try:
@@ -408,6 +414,7 @@ def key_tracking(
         disambiguate_relative=bool(disambiguate_relative),
         smoothing=bool(smoothing),
         profiles=_profiles(profile_version),
+        key_inertia=bool(key_inertia),
     ).to_dict()
 
 
@@ -420,6 +427,7 @@ def structural_keys(
     smoothing: bool = False,
     anchor_method: str = "frame_weighted",
     profile_version: str | None = None,
+    key_inertia: bool = False,
 ) -> dict:
     """Reduce the windowed local key track to **structural key-areas** — the
     fix for over-segmentation. The windowed `key_tracking` reports each window's
@@ -460,7 +468,7 @@ def structural_keys(
     tracking = track_keys(
         sequence, window_beats=float(window_beats), hop_beats=float(hop_beats),
         disambiguate_relative=bool(disambiguate_relative), smoothing=bool(smoothing),
-        profiles=profiles,
+        profiles=profiles, key_inertia=bool(key_inertia),
     )
     return reduce_to_structural_keys(
         sequence, tracking=tracking, anchor_method=str(anchor_method), profiles=profiles,
@@ -1024,6 +1032,7 @@ def midi_file_analysis(
     disambiguate_relative_keys: bool = False,
     smooth_key_regions: bool = False,
     profile_version: str | None = None,
+    key_inertia: bool = False,
 ) -> dict:
     """Analyze a Standard MIDI File end-to-end: segment it, infer the global key,
     and emit the enriched dataset (per-segment identity, namings, placement).
@@ -1077,6 +1086,7 @@ def midi_file_analysis(
                 disambiguate_relative=bool(disambiguate_relative_keys),
                 smoothing=bool(smooth_key_regions),
                 profiles=profiles,
+                key_inertia=bool(key_inertia),
             )
         except ValueError:
             regions = None  # no window carried tonal information

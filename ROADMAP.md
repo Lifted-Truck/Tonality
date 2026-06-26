@@ -347,8 +347,23 @@ list as new applications come into view.
   changes the windowed track + structural reduction + A6 overlays, but **leaves
   `infer_key` (single-vector global) untouched, so the A5/A7 stability contract is NOT
   reopened**; penalty is a theory-set versioned prior (not corpus-fit); opt-in →
-  default on a clean `--ab`. Next step is a scoping pass (DP vs hysteresis; attach
-  point; penalty value) before building. **Mandate recorded (brief-13):**
+  default on a clean `--ab`. **✅ Shipped — opt-in `key_inertia` on `track_keys`
+  (2026-06-26):** a deterministic key-inertia Viterbi (`_key_inertia_path`) over the
+  per-window full score vectors with a flat `switch_penalty` (versioned prior
+  `key-inertia.1` = 0.1, theory-set: between the ~0.05 near-tie noise floor and a
+  ~0.3 confident modulation, calibrated to the correlation-margin scale, **not**
+  SWD-fit; cited via `inertia_version`). Ties break to the lowest state
+  (reproducible). Full key+mode state (subsumes the mode-only ask + cuts tonic
+  over-segmentation); composes with `smoothing` and largely subsumes it. Threaded
+  through `key_tracking`/`structural_keys`/`midi_file_analysis`; **default off →
+  zero golden-content change → `infer_key` and the A5/A7 contract untouched.**
+  Verified on the vendored corpus (region counts D911-09 6→5, -07 26→16, -21 20→9;
+  home key preserved/strengthened; deterministic). **Pending:** A6 `--ab` validation
+  (region/structural agreement under inertia) + the Bohemian Cases 1–2 acceptance
+  (needs A6's windowed-track dump — not vendored) before any default flip. The
+  scoping decisions that informed the build: DP (global, batch) — the causal/online
+  form joins gap 5; flat penalty not distance-weighted (distance-weighting makes
+  parallel flips *cheap*, the wrong direction). **Mandate recorded (brief-13):**
   key/mode/scale determination should live in and be hardened in the engine (the
   division-of-labor law) — a consumer report that turned out to be A6's beat-trim
   corrupting `structural_keys`'s input (engine read B♭ major on original beats)
