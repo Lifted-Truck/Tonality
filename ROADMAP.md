@@ -330,6 +330,29 @@ list as new applications come into view.
   so the same lever addresses it). That four cases across both the global and
   windowed surfaces reduce to one investment is the signal that this is the right
   next key-accuracy lever. The anchor and induction levers stay distinct fixes.
+  **✅ Mechanism settled — the continuity prior / Temperley key-inertia (A6 brief-13,
+  2026-06-26; `response-13.md`):** A6's maintainer (Julian) articulated the principle
+  the lever needs — **parsimony + a soft continuity prior on the MODE decision**
+  (reward fit, penalize switching, let context break ties) — which is exactly the
+  **deterministic** remedy research-9 already surfaced: **Temperley's key-inertia**
+  (an additive fixed-parameter self-transition penalty over the per-window key+mode
+  state, DP-decoded; penalizes spurious modulations, resolves local-vs-global; no
+  training — Decision 8 holds). So the slice's mechanism is no longer open. Concrete
+  acceptance (Bohemian Rhapsody, A6): short-window mode flips (9/97, near-tie on
+  sparse content — already absorbed, so *evidence* not a live bug) and an
+  **arbitrary-minor-on-mode-undetermined-content** case (a 100%-F span reads B♭ minor
+  by Δ−0.061 under CBMS while the established B♭-major context reads major at margin
+  0.315 — *verified locally*; the local face of TERRANE's CBMS mode-asymmetry).
+  **Scope/constraints:** a continuity-prior layer on **`track_keys`** (sequential) —
+  changes the windowed track + structural reduction + A6 overlays, but **leaves
+  `infer_key` (single-vector global) untouched, so the A5/A7 stability contract is NOT
+  reopened**; penalty is a theory-set versioned prior (not corpus-fit); opt-in →
+  default on a clean `--ab`. Next step is a scoping pass (DP vs hysteresis; attach
+  point; penalty value) before building. **Mandate recorded (brief-13):**
+  key/mode/scale determination should live in and be hardened in the engine (the
+  division-of-labor law) — a consumer report that turned out to be A6's beat-trim
+  corrupting `structural_keys`'s input (engine read B♭ major on original beats)
+  validated it.
   Use `structural_keys` for key-area comparison, the windowed track for
   tonicization-grain detail.
   (2) **`disambiguate_relative_keys` empirical negative result.** On real
