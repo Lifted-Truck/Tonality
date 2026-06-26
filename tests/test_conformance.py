@@ -144,6 +144,8 @@ CASES: list[tuple[str, dict]] = [
          "pc_weights": [4.0, 0, 1.0, 0, 2.0, 1.0, 0, 3.0, 0, 1.0, 0, 1.0]},
     ),
     ("key_tracking", {"events": _modulating_events()}),
+    # key-inertia continuity prior on the same modulating track (A6 brief-13).
+    ("key_tracking", {"events": _modulating_events(), "key_inertia": True}),
     # structural reduction of the same modulating track (C → F#); default anchor
     # is frame_weighted (A6 brief-8).
     ("structural_keys", {"events": _modulating_events()}),

@@ -101,6 +101,7 @@ class KeyTrackingResult:
     profile_version: str
     disambiguate_relative: bool = False
     smoothing_version: str | None = None
+    inertia_version: str | None = None
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""
@@ -157,6 +158,42 @@ def _smooth_labels(
     return labels
 
 
+def _key_inertia_path(
+    score_vectors: list[dict[tuple[int, str], float]], switch_penalty: float
+) -> list[tuple[int, str]]:
+    """Deterministic key-inertia Viterbi (A6 brief-13): the max-score
+    ``(tonic, mode)`` path over per-window correlation emissions with a flat
+    one-time ``switch_penalty`` on any state change. Rewards fit, penalizes
+    switching, lets a sustained well-fit key win (the penalty is paid once; a real
+    modulation accrues emission advantage over many windows). Ties break to the
+    lexicographically-lowest state so the path is reproducible.
+    """
+
+    states = sorted(score_vectors[0])  # all (tonic, mode), deterministic order
+    dp: dict[tuple[int, str], float] = dict(score_vectors[0])
+    back: list[dict[tuple[int, str], tuple[int, str]]] = [{}]
+    for emis in score_vectors[1:]:
+        prev = dp
+        cur: dict[tuple[int, str], float] = {}
+        bk: dict[tuple[int, str], tuple[int, str]] = {}
+        for s in states:
+            best_sp = states[0]
+            best_val: float | None = None
+            for sp in states:  # sorted → strict-> keeps the lowest state on ties
+                v = prev[sp] + (0.0 if sp == s else -switch_penalty)
+                if best_val is None or v > best_val:
+                    best_val, best_sp = v, sp
+            cur[s] = emis[s] + best_val
+            bk[s] = best_sp
+        dp = cur
+        back.append(bk)
+    last = max(states, key=lambda s: dp[s])  # first maximal (lowest) on ties
+    path = [last]
+    for bk in reversed(back[1:]):
+        path.append(bk[path[-1]])
+    return list(reversed(path))
+
+
 def track_keys(
     sequence: Sequence,
     *,
@@ -165,6 +202,7 @@ def track_keys(
     profiles: "KeyProfileSet | None" = None,
     disambiguate_relative: bool = False,
     smoothing: bool = False,
+    key_inertia: bool = False,
 ) -> KeyTrackingResult:
     """Track the local key of *sequence* through time.
 
@@ -190,6 +228,16 @@ def track_keys(
     evidence; only the region grouping is smoothed. Cited via
     ``smoothing_version`` on the result. Removes the residual micro-band noise on
     real performances (Audiology brief-3, Finding C).
+
+    ``key_inertia`` (opt-in, off by default — a continuity prior; A6 brief-13): a
+    deterministic Viterbi over the per-window candidate scores with a flat
+    ``switch_penalty`` (versioned prior ``key-inertia.1``, cited via
+    ``inertia_version``) re-decodes the per-window ``(tonic, mode)`` path —
+    rewarding fit, penalizing switching, letting a sustained well-fit key win. Holds
+    near-tie mode flips on sparse content to their context (the maintainer's
+    parsimony-plus-continuity principle), substantially reducing over-segmentation.
+    Composes with ``smoothing`` (inertia first, then region hysteresis) and largely
+    subsumes it. Operates on the windowed track only — ``infer_key`` is untouched.
     """
 
     if window_beats <= _EPS:
@@ -214,6 +262,9 @@ def track_keys(
         starts = [0.0]
 
     windows: list[KeyWindow] = []
+    # Per-window full candidate scores (the emission vectors the key-inertia path
+    # consumes); None for an uninformative window. Kept parallel to `windows`.
+    score_vectors: list[dict[tuple[int, str], float] | None] = []
     for start in starts:
         end = min(start + window_beats, duration)
         weights = sequence.pc_weights(start, end)
@@ -223,6 +274,7 @@ def track_keys(
             windows.append(
                 KeyWindow(start, end, (start + end) / 2.0, None, None, None, None)
             )
+            score_vectors.append(None)
         else:
             best = ranking.candidates[0]
             if disambiguate_relative:
@@ -240,16 +292,28 @@ def track_keys(
                     margin=ranking.margin,
                 )
             )
+            score_vectors.append({(c.tonic_pc, c.mode): c.score for c in ranking.candidates})
 
     informative = [w for w in windows if w.is_informative]
+    info_scores = [sv for sv in score_vectors if sv is not None]
     if not informative:
         raise ValueError(
             "No window carries tonal information (all silence or uniform content)."
         )
 
-    # Per-window labels — raw argmax, or the smoothed sequence (opt-in). The
-    # windows themselves keep their raw labels; only the grouping is smoothed.
+    # Per-window labels — raw argmax by default. Two opt-in refinements compose
+    # (the windows keep their raw labels as evidence; only the grouping changes):
+    # `key_inertia` re-decodes the per-window path with a continuity prior (a
+    # transition penalty over the full score vectors — A6 brief-13), then
+    # `smoothing` applies region-level hysteresis on top.
     labels = [(w.tonic_pc, w.mode) for w in informative]
+    inertia_version: str | None = None
+    if key_inertia:
+        from ..io.loaders import load_key_inertia
+
+        inertia = load_key_inertia()
+        labels = _key_inertia_path(info_scores, inertia.switch_penalty)
+        inertia_version = inertia.version
     smoothing_version: str | None = None
     if smoothing:
         from ..io.loaders import load_key_smoothing
@@ -298,6 +362,7 @@ def track_keys(
         hop_beats=hop_beats,
         profile_version=profiles.version,
         smoothing_version=smoothing_version,
+        inertia_version=inertia_version,
         disambiguate_relative=disambiguate_relative,
     )
 

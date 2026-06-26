@@ -34,6 +34,7 @@ _SWING_FEEL_CACHE: tuple[Path, int, tuple["SwingFeelPriors", ...]] | None = None
 _SUCCESSION_WEIGHTS_CACHE: tuple[Path, int, tuple["SuccessionWeights", ...]] | None = None
 _RELATIVE_KEY_CACHE: tuple[Path, int, tuple["RelativeKeyWeights", ...]] | None = None
 _KEY_SMOOTHING_CACHE: tuple[Path, int, tuple["KeySmoothingPriors", ...]] | None = None
+_KEY_INERTIA_CACHE: tuple[Path, int, tuple["KeyInertiaPriors", ...]] | None = None
 _SCORING_PRIORS_CACHE: tuple[Path, int, tuple["ScoringPrior", ...]] | None = None
 _METER_PROFILES_CACHE: tuple[Path, int, tuple["MeterProfileSet", ...]] | None = None
 _STRUCTURAL_KEY_CACHE: tuple[Path, int, tuple["StructuralKeyPriors", ...]] | None = None
@@ -137,6 +138,22 @@ class KeySmoothingPriors:
     source: str
     min_region_windows: int
     min_region_margin: float
+
+
+@dataclass(frozen=True)
+class KeyInertiaPriors:
+    """One versioned key-inertia (continuity prior) table (a versioned prior).
+
+    Opt-in transition-penalized local key tracking (A6 brief-13; Temperley's
+    deterministic key-inertia): ``switch_penalty`` is a flat, one-time score cost
+    subtracted when the Viterbi path changes the ``(tonic, mode)`` state between
+    consecutive informative windows. Penalizes switching, not distance; theory-set,
+    not corpus-fit. Results cite ``version``.
+    """
+
+    version: str
+    source: str
+    switch_penalty: float
 
 
 @dataclass(frozen=True)
@@ -463,6 +480,42 @@ def load_key_smoothing(version: str | None = None) -> KeySmoothingPriors:
             return entry
     known = ", ".join(e.version for e in entries)
     raise ValueError(f"Unknown key-smoothing version {version!r} (known: {known})")
+
+
+def load_key_inertia(version: str | None = None) -> KeyInertiaPriors:
+    """Load a versioned key-inertia prior from ``data/key_inertia.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime.
+    """
+    global _KEY_INERTIA_CACHE
+    path = DATA_DIR / "key_inertia.json"
+    mtime = path.stat().st_mtime_ns
+    if _KEY_INERTIA_CACHE is not None and _KEY_INERTIA_CACHE[:2] == (path, mtime):
+        entries = _KEY_INERTIA_CACHE[2]
+    else:
+        parsed: list[KeyInertiaPriors] = []
+        for payload in _read_json("key_inertia.json"):
+            priors = KeyInertiaPriors(
+                version=str(payload["version"]),
+                source=str(payload.get("source", "")),
+                switch_penalty=float(payload["switch_penalty"]),
+            )
+            if priors.switch_penalty < 0:
+                raise ValueError(
+                    f"Key inertia {priors.version!r}: switch_penalty must be >= 0"
+                )
+            parsed.append(priors)
+        if not parsed:
+            raise ValueError("key_inertia.json contains no prior tables")
+        entries = tuple(parsed)
+        _KEY_INERTIA_CACHE = (path, mtime, entries)
+    if version is None:
+        return entries[0]
+    for entry in entries:
+        if entry.version == version:
+            return entry
+    known = ", ".join(e.version for e in entries)
+    raise ValueError(f"Unknown key-inertia version {version!r} (known: {known})")
 
 
 def load_scoring_prior(version: str | None = None) -> ScoringPrior:

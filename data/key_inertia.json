@@ -1,0 +1,7 @@
+[
+  {
+    "version": "key-inertia.1",
+    "source": "Continuity / parsimony prior for local key tracking (A6 brief-13; the deterministic form of Temperley's key-inertia, Music and Probability 2007). switch_penalty is a flat, one-time score cost subtracted when the Viterbi path changes the (tonic, mode) state between consecutive informative windows; staying is free. It penalizes SWITCHING, not distance — a parallel major/minor flip costs the same as any other change, which is the point (parallel flips on mode-ambiguous content are the failure mode). Because the cost is paid ONCE per change while a genuine modulation accrues an emission (correlation) advantage over MANY windows, a sustained, well-supported new key still wins — the soft-prior property, automatic. Value is THEORY-SET, not corpus-fit (the BY-NC-SA/methodological fence): 0.1 sits in the gap between the near-tie noise floor (~0.05 correlation, where spurious window flips live) and a confident modulation (~0.3, e.g. an established-context read), calibrated to the profile-correlation margin scale (a property of the profile geometry), NOT tuned to maximize SWD region accuracy. Opt-in (key_inertia) on track_keys, pending A6 --ab regression scoring before any default flip; leaves infer_key (single-vector global) untouched, so the A5/A7 stability contract is not reopened.",
+    "switch_penalty": 0.1
+  }
+]
