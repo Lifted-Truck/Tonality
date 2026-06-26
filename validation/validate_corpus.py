@@ -657,6 +657,95 @@ def _region_summary(rows: list[dict], base_key: str, cand_key: str) -> dict:
     }
 
 
+# --------------------------------------------------------------------------- #
+# Dimension 2 — METER (proposal-meter-validation.md). Same scorer-plugin shape as
+# key: inference (`meter_estimation`/`infer_meter`) + ground-truth parser + a graded
+# metric. Whole-sequence inference → single-meter slice-1 (multi-meter songs filtered
+# and logged, per the contract). Ground truth = the score's time signature(s).
+# --------------------------------------------------------------------------- #
+def declared_meters(score_path: str) -> list[tuple[int, int]]:
+    """Distinct time signatures in a score, in order. Reads the MusicXML `<time>`
+    when given an .mxl/.xml (the contract's authoritative source); for a score MIDI
+    (SWD ships score_midi), reads the MIDI's time-signature meta — equivalent for the
+    single-meter slice, and it still surfaces a degenerate/multi-meter file (so the
+    slice-1 filter drops it)."""
+    import music21  # noqa: PLC0415
+    s = music21.converter.parse(score_path)
+    out: list[tuple[int, int]] = []
+    for ts in s.recurse().getElementsByClass(music21.meter.TimeSignature):
+        nd = (ts.numerator, ts.denominator)
+        if nd not in out:
+            out.append(nd)
+    return out or [(4, 4)]
+
+
+def _is_compound(num: int, den: int) -> bool:
+    return den == 8 and num >= 6 and num % 3 == 0  # 6/8, 9/8, 12/8
+
+
+def meter_bucket(inferred: tuple[int, int], truth: tuple[int, int]) -> str:
+    """Graded meter metric (proposal §metric contract):
+    exact | hypermetric (bar-multiple / same-bar regrouping) | simple↔compound | wrong.
+    Bar-grouping ambiguity (2/4↔4/4, 3/8↔6/8) is NOT charged as wrong."""
+    if inferred == truth:
+        return "exact"
+    bi = inferred[0] * 4 / inferred[1]  # bar length in quarter notes
+    bt = truth[0] * 4 / truth[1]
+    if abs(bi - bt) < 1e-6:  # same bar length
+        if _is_compound(*inferred) != _is_compound(*truth):
+            return "simple-compound"  # e.g. 3/4 ↔ 6/8 (same 3-quarter bar, different subdivision)
+        return "hypermetric"          # e.g. 2/2 ↔ 4/4 (same bar, different beat grouping)
+    ratio = max(bi, bt) / min(bi, bt)
+    if abs(ratio - round(ratio)) < 1e-6 and round(ratio) >= 2:
+        return "hypermetric"          # bar-multiple: 2/4↔4/4, 3/8↔6/8
+    return "wrong"
+
+
+def run_meter(items: list[tuple[str, str]], *, limit) -> dict:
+    """Score whole-sequence meter inference vs the score's time signature, graded.
+    `items` = (label, score_path). Multi-meter scores are dropped (slice-1) + logged."""
+    from mts.io.midi import sequence_from_midi_file  # noqa: PLC0415
+    from mts.mcp import tools  # noqa: PLC0415
+    rows: list[dict] = []
+    dropped: list[str] = []
+    for i, (label, path) in enumerate(items):
+        if limit is not None and i >= limit:
+            break
+        try:
+            decl = declared_meters(path)
+            if len(decl) != 1:  # slice-1: single-meter songs only
+                dropped.append(f"{label} {['%d/%d' % m for m in decl]}")
+                continue
+            truth = decl[0]
+            seq = sequence_from_midi_file(path)
+            events = [[e.onset, e.duration, e.pitch.midi] for e in seq.events]
+            r = tools.meter_estimation(events, numerator=truth[0], denominator=truth[1])
+            top = r["candidates"][0]
+            inferred = (top["numerator"], top["denominator"])
+            bucket = meter_bucket(inferred, truth)
+            rows.append({"piece": label, "truth": f"{truth[0]}/{truth[1]}",
+                         "inferred": f"{inferred[0]}/{inferred[1]}", "bucket": bucket,
+                         "margin": round(r.get("margin", 0.0), 3)})
+            tag = {"exact": "OK  ", "hypermetric": "~hyp", "simple-compound": "~s/c", "wrong": "MISS"}[bucket]
+            print(f"[{tag}] {label:<24} truth={truth[0]}/{truth[1]:<4} inferred={inferred[0]}/{inferred[1]:<5} {bucket}")
+        except Exception as exc:
+            print(f"[ERR ] {label}: {type(exc).__name__}: {exc}", file=sys.stderr)
+
+    if dropped:
+        print(f"\ndropped {len(dropped)} multi-meter score(s) (slice-1 = single-meter): {dropped}", file=sys.stderr)
+    n = len(rows)
+    from collections import Counter  # noqa: PLC0415
+    buckets = Counter(r["bucket"] for r in rows)
+    return {
+        "pieces_scored": n,
+        "dropped_multimeter": len(dropped),
+        "exact_rate": round(buckets["exact"] / n, 3) if n else None,
+        # report the hypermetric bucket alongside so bar-grouping ambiguity isn't read as wrong
+        "buckets": {b: buckets.get(b, 0) for b in ("exact", "hypermetric", "simple-compound", "wrong")},
+        "rows": rows,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Validate Tonality key analysis vs an annotated corpus.")
     ap.add_argument("--corpus", type=Path, help="When-in-Rome corpus dir (folders with score.mxl + analysis.txt) — CC BY-SA, read-only scoring")
@@ -673,6 +762,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--baseline", default="kk-1982.1", help="baseline key profile_version for --ab-profile (default kk-1982.1)")
     ap.add_argument("--candidate", default="tkp-cbms.1", help="candidate key profile_version for --ab-profile (default tkp-cbms.1)")
     ap.add_argument("--anchor-method", choices=("most_prevalent_region", "frame_weighted"), default="most_prevalent_region", help="structural home-anchor rule for a plain --structural run")
+    ap.add_argument("--meter", action="store_true", help="dimension 2: score meter_estimation vs the score time-signature, graded buckets (exact/hypermetric/simple-compound/wrong); single-meter slice-1 (proposal-meter-validation.md)")
     ap.add_argument("--json", type=Path, default=None, help="write the full report as JSON")
     args = ap.parse_args(argv)
 
@@ -684,6 +774,18 @@ def main(argv: list[str] | None = None) -> int:
     except ImportError:
         print("music21 is required: pip install 'mts[validation]'", file=sys.stderr)
         return 2
+
+    if args.meter:
+        if not args.swd:
+            ap.error("--meter currently scores the SWD score MIDIs; pass --swd")
+        items = [(c["id"], c["midi"]) for c in swd_cases(args.swd)]
+        out = run_meter(items, limit=args.limit)
+        print("\n== meter (meter_estimation vs score time-signature, single-meter slice-1) ==")
+        print(json.dumps({k: v for k, v in out.items() if k != "rows"}, indent=2))
+        if args.json:
+            args.json.write_text(json.dumps(out, indent=2))
+            print(f"wrote {args.json}")
+        return 0
 
     producers = swd_producers(args.swd) if args.swd else wir_producers(args.corpus)
 
