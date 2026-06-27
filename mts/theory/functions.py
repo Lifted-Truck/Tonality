@@ -616,6 +616,14 @@ TEMPLATES_MINOR: tuple[FunctionTemplate, ...] = (
             _variant("min", "v", "dominant", diatonic=True, extra_tags=(TAG_MODAL,)),
             _variant("min7", "v7", "dominant", diatonic=True, extra_tags=(TAG_MODAL,)),
             _variant(
+                "maj",
+                "V",
+                "dominant",
+                diatonic=False,
+                requires=(FEATURE_LEADING_TONE,),
+                extra_tags=(FEATURE_LEADING_TONE, TAG_HARMONIC_MINOR),
+            ),
+            _variant(
                 "7",
                 "V7",
                 "dominant",

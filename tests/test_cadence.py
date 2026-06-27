@@ -81,14 +81,14 @@ def test_minor_key_dominant_seventh():
     assert result.cadences[0].approach.roman == "V7"
 
 
-def test_minor_bare_major_v_triad_inherits_vocabulary_gap():
-    # The minor function templates list V7 but not the bare major V triad, so
-    # cadence detection (a faithful consumer of that vocabulary) does not
-    # recognize a bare E-major -> A-minor as authentic. Pinned as the honest
-    # inherited behavior — not a cadence bug.
+def test_minor_bare_major_v_triad_is_recognized():
+    # The minor templates now include the bare major V triad (the harmonic-minor
+    # dominant, raised leading tone) alongside V7, so a bare E-major -> A-minor
+    # reads as an authentic cadence — the vocabulary gap is closed.
     result = detect_cadences([(4, "maj"), (9, "min")], tonic_pc=9, mode="minor")
-    assert result.cadences == []
-    assert result.chords[0].role is None  # the bare major V triad has no role here
+    assert _types(result) == [("authentic", 1)]
+    assert result.cadences[0].approach.roman == "V"
+    assert result.chords[0].role == "dominant"
 
 
 def test_non_functional_chords_yield_no_cadence():
