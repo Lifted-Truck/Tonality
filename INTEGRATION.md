@@ -197,7 +197,10 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
   string(s). The port computes the same answers from the same versioned data,
   citing the same versions; the **golden conformance harness is the parity
   oracle** (a port is faithful iff it reproduces the golden cases). The engine
-  stays the source of truth — regenerate after upgrades.
+  stays the source of truth — regenerate after upgrades. The script also emits a
+  self-contained **`bundle.json`** that embeds each prior/catalog's parsed content
+  + a per-asset sha256 (plus the `doubling.1` voice-leading policy id/description),
+  so a port can run without the repo.
 - **Performed timing needs an explicit coalesce.** The temporal analyses
   (segmentation, metric placement, voice motion) treat onsets as exact:
   humanized/performed timing fragments segmentation into micro-segments and

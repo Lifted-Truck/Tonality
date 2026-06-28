@@ -6,18 +6,21 @@ the live combinatorics, and the manifest must cite the live prior versions.
 from __future__ import annotations
 
 import dataclasses
+import hashlib
 import json
 
 from mts.analysis.pcset_math import set_class_data
+from mts.analysis.voice_leading import POLICY_DOUBLING_V1
 from mts.core.bitmask import interval_vector_from_mask
 from mts.core.symmetry import mask_symmetry_order
 from mts.io.export import (
     EXPORT_SCHEMA_VERSION,
     SET_CLASS_TABLE_FIELDS,
     set_class_table,
+    versioned_data_bundle,
     versioned_data_manifest,
 )
-from mts.io.loaders import load_key_profiles
+from mts.io.loaders import DATA_DIR, load_key_profiles
 
 
 def test_table_covers_all_masks_indexed_by_mask():
@@ -66,3 +69,40 @@ def test_manifest_cites_live_versions():
     assert manifest["set_class_table"]["entries"] == 4096
     assert manifest["set_class_table"]["fields"] == list(SET_CLASS_TABLE_FIELDS)
     json.dumps(manifest)
+
+
+def test_manifest_exports_voice_leading_doubling_policy():
+    manifest = versioned_data_manifest()
+    policies = {p["id"]: p for p in manifest["policies"]}
+    # the doubling.1 cardinality policy is surfaced as data with an id + description
+    assert POLICY_DOUBLING_V1 == "doubling.1"
+    assert POLICY_DOUBLING_V1 in policies
+    policy = policies[POLICY_DOUBLING_V1]
+    assert policy["kind"] == "voice_leading_cardinality"
+    assert policy["description"].strip()
+
+
+def test_bundle_embeds_parsed_content_and_matching_sha256():
+    bundle = versioned_data_bundle()
+    assets = bundle["data_assets"]
+    # bundle is a strict superset of the manifest's index (same version listings)
+    manifest = versioned_data_manifest()
+    for name, entry in manifest["data_assets"].items():
+        assert assets[name]["versions"] == entry["versions"]
+    # every data/*.json is embedded with parsed content + a sha256 of file bytes
+    for path in sorted(DATA_DIR.glob("*.json")):
+        entry = assets[path.name]
+        raw = path.read_bytes()
+        # content is the parsed JSON (not a string) and matches the file
+        assert entry["content"] == json.loads(raw)
+        # sha256 is present and matches a freshly-hashed file
+        assert entry["sha256"] == hashlib.sha256(raw).hexdigest()
+    # the policy listing rides along too
+    assert any(p["id"] == POLICY_DOUBLING_V1 for p in bundle["policies"])
+
+
+def test_bundle_is_deterministic_and_json_serialisable():
+    a = versioned_data_bundle()
+    b = versioned_data_bundle()
+    assert a == b
+    json.dumps(a)  # the whole bundle (embedded content included) round-trips
