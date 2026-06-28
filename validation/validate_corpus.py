@@ -54,7 +54,8 @@ MODE_TO_MAJOR_OFFSET = {"dorian": 2, "phrygian": 4, "lydian": 5, "mixolydian": 7
 # Engine
 # --------------------------------------------------------------------------- #
 def analyze(midi_path: str, *, coalesce: float | None, disambiguate: bool, smooth: bool, structural: bool = False,
-            anchor_method: str = "most_prevalent_region", profile_version: str | None = None) -> dict:
+            anchor_method: str = "most_prevalent_region", profile_version: str | None = None,
+            key_inertia: bool = False) -> dict:
     """Call the engine. Corpus scores are quantized, so coalesce defaults off.
 
     With `structural=True`, the windowed `key_regions` (a tonicization-sensitive
@@ -71,17 +72,18 @@ def analyze(midi_path: str, *, coalesce: float | None, disambiguate: bool, smoot
         disambiguate_relative_keys=disambiguate,
         smooth_key_regions=smooth,
         profile_version=profile_version,
+        key_inertia=key_inertia,
     )
     if structural:
         result["key_regions"] = {"regions": structural_regions(
             midi_path, disambiguate=disambiguate, smooth=smooth, anchor_method=anchor_method,
-            profile_version=profile_version)}
+            profile_version=profile_version, key_inertia=key_inertia)}
     return result
 
 
 def structural_regions(midi_path: str, *, disambiguate: bool, smooth: bool,
                        anchor_method: str = "most_prevalent_region",
-                       profile_version: str | None = None) -> list[dict]:
+                       profile_version: str | None = None, key_inertia: bool = False) -> list[dict]:
     """Structural key-areas for a MIDI as region dicts (start_beats/end_beats/
     tonic_pc/mode) — `structural_keys` takes note events, so build them from the
     sequence. Tonicizations are absorbed (recorded on each area), not emitted.
@@ -97,7 +99,8 @@ def structural_regions(midi_path: str, *, disambiguate: bool, smooth: bool,
     events = [[e.onset, e.duration, e.pitch.midi] for e in seq.events]
     res = tools.structural_keys(events, window_beats=8.0, hop_beats=2.0,
                                 disambiguate_relative=disambiguate, smoothing=smooth,
-                                anchor_method=anchor_method, profile_version=profile_version)
+                                anchor_method=anchor_method, profile_version=profile_version,
+                                key_inertia=key_inertia)
     return [
         {"start_beats": a["start_beats"], "end_beats": a["end_beats"], "tonic_pc": a["tonic_pc"], "mode": a["mode"]}
         for a in (res.get("areas") or [])
@@ -266,9 +269,10 @@ def load_swd_ground_truth(case: dict, bpb: float) -> GroundTruth | None:
 
 
 def analyze_swd_piece(case: dict, *, coalesce, disambiguate, smooth, structural=False,
-                      anchor_method="most_prevalent_region", profile_version=None) -> tuple[GroundTruth, dict] | None:
+                      anchor_method="most_prevalent_region", profile_version=None, key_inertia=False) -> tuple[GroundTruth, dict] | None:
     result = analyze(case["midi"], coalesce=coalesce, disambiguate=disambiguate, smooth=smooth,
-                     structural=structural, anchor_method=anchor_method, profile_version=profile_version)
+                     structural=structural, anchor_method=anchor_method, profile_version=profile_version,
+                     key_inertia=key_inertia)
     bpb = beats_per_bar(result)
     if bpb is None:
         return None
@@ -422,14 +426,15 @@ class Report:
 
 
 def analyze_piece(folder: Path, *, coalesce, disambiguate, smooth, structural=False,
-                  anchor_method="most_prevalent_region", profile_version=None) -> tuple[GroundTruth, dict] | None:
+                  anchor_method="most_prevalent_region", profile_version=None, key_inertia=False) -> tuple[GroundTruth, dict] | None:
     gt = load_ground_truth(folder)
     if gt is None:
         return None
     midi = render_midi(folder / "score.mxl")
     try:
         result = analyze(midi, coalesce=coalesce, disambiguate=disambiguate, smooth=smooth,
-                         structural=structural, anchor_method=anchor_method, profile_version=profile_version)
+                         structural=structural, anchor_method=anchor_method, profile_version=profile_version,
+                         key_inertia=key_inertia)
     finally:
         Path(midi).unlink(missing_ok=True)
     return gt, result
@@ -545,6 +550,60 @@ def run_ab_anchor(producers, *, limit, coalesce, disambiguate, smooth) -> dict:
             "mean_region_default": md,
             "mean_region_frame_weighted": mf,
             "mean_delta": round(mf - md, 3) if (md is not None and mf is not None) else None,
+            "regressions": sum(1 for r in sub if r["delta"] is not None and r["delta"] < -0.001),
+            "improvements": sum(1 for r in sub if r["delta"] is not None and r["delta"] > 0.001),
+        }
+
+    return {
+        "all": _subset(lambda r: True),
+        "global_key_miss_subset": _subset(lambda r: r["bucket"] in ("relative", "wrong")),
+        "correctly_anchored_subset": _subset(lambda r: r["bucket"] == "exact"),
+        "pieces": rows,
+    }
+
+
+def run_ab_inertia(producers, *, limit, coalesce, disambiguate, smooth) -> dict:
+    """brief-14 follow-on: score each piece's structural region-frame agreement with
+    key_inertia OFF and ON. The continuity prior (key-inertia.1) changes track_keys →
+    the structural reduction, so this asks the gate question for flipping it opt-in →
+    default: does inertia help (or at least not regress) agreement with the human
+    key-areas? Split by global-key bucket, like --ab-anchor."""
+    rows: list[dict] = []
+    for i, (label, fn) in enumerate(producers):
+        if limit is not None and i >= limit:
+            break
+        try:
+            got_off = fn(coalesce=coalesce, disambiguate=disambiguate, smooth=smooth, structural=True, key_inertia=False)
+            if got_off is None:
+                continue
+            got_on = fn(coalesce=coalesce, disambiguate=disambiguate, smooth=smooth, structural=True, key_inertia=True)
+            if got_on is None:
+                continue
+            po, pn = score_piece(*got_off), score_piece(*got_on)
+            ao, an = po.region_frame_agreement, pn.region_frame_agreement
+            d = round(an - ao, 3) if (ao is not None and an is not None) else None
+            rows.append({"piece": po.piece, "bucket": po.bucket, "gt_global": po.gt_global,
+                         "off": ao, "inertia": an, "delta": d})
+            flag = "  ⚠ regression" if (d is not None and d < -0.001) else "  ✔ improvement" if (d is not None and d > 0.001) else ""
+            ao_s = f"{ao:.0%}" if ao is not None else "—"
+            an_s = f"{an:.0%}" if an is not None else "—"
+            d_s = f"{d:+.0%}" if d is not None else "—"
+            tag = {"exact": "OK  ", "relative": "~rel", "wrong": "MISS"}[po.bucket]
+            print(f"[{tag}] {po.piece:<24} off={ao_s:>5} inertia={an_s:>5} Δ={d_s:>5}{flag}")
+        except Exception as exc:
+            print(f"[ERR ] {label}: {type(exc).__name__}: {exc}", file=sys.stderr)
+
+    def _mean(xs: list[float]) -> float | None:
+        return round(sum(xs) / len(xs), 3) if xs else None
+
+    def _subset(pred) -> dict:
+        sub = [r for r in rows if pred(r) and r["off"] is not None and r["inertia"] is not None]
+        mo, mn = _mean([r["off"] for r in sub]), _mean([r["inertia"] for r in sub])
+        return {
+            "pieces": len(sub),
+            "mean_region_off": mo,
+            "mean_region_inertia": mn,
+            "mean_delta": round(mn - mo, 3) if (mo is not None and mn is not None) else None,
             "regressions": sum(1 for r in sub if r["delta"] is not None and r["delta"] < -0.001),
             "improvements": sum(1 for r in sub if r["delta"] is not None and r["delta"] > 0.001),
         }
@@ -757,6 +816,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--structural", action="store_true", help="score the structural key-area reduction (structural_keys #43) instead of the windowed track — the apples-to-apples target for analyst key-areas")
     ap.add_argument("--ab-disambiguate", action="store_true", help="run each piece with the tie-breaker off AND on; report the exact-rate delta (Finding B)")
     ap.add_argument("--ab-anchor", action="store_true", help="structural-only: score the home anchor under most_prevalent_region AND frame_weighted; report region-agreement deltas split by global-key bucket (brief-7 slice 2)")
+    ap.add_argument("--ab-inertia", action="store_true", help="structural-only: score region-frame agreement with key_inertia OFF and ON; report deltas split by global-key bucket — the gate for flipping key_inertia opt-in→default (brief-14)")
     ap.add_argument("--ab-profile", action="store_true", help="score the global key under two key profiles (--baseline vs --candidate); report net exact-rate delta + per-song flip list (brief-9 / CBMS)")
     ap.add_argument("--ab-profile-regions", action="store_true", help="response-10 fast-follow: --ab-profile PLUS windowed-region + structural-area frame-agreement under each profile")
     ap.add_argument("--baseline", default="kk-1982.1", help="baseline key profile_version for --ab-profile (default kk-1982.1)")
@@ -800,6 +860,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.ab_anchor:
         out = run_ab_anchor(producers, limit=args.limit, coalesce=args.coalesce, disambiguate=args.disambiguate, smooth=args.smooth)
         print("\n== A/B anchor_method (most_prevalent_region vs frame_weighted) ==")
+        print(json.dumps({k: v for k, v in out.items() if k != "pieces"}, indent=2))
+        if args.json:
+            args.json.write_text(json.dumps(out, indent=2))
+            print(f"wrote {args.json}")
+        return 0
+
+    if args.ab_inertia:
+        out = run_ab_inertia(producers, limit=args.limit, coalesce=args.coalesce, disambiguate=args.disambiguate, smooth=args.smooth)
+        print("\n== A/B key_inertia (off vs on) — structural region agreement ==")
         print(json.dumps({k: v for k, v in out.items() if k != "pieces"}, indent=2))
         if args.json:
             args.json.write_text(json.dumps(out, indent=2))
