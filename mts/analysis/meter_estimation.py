@@ -66,6 +66,7 @@ def infer_meter(
     sequence: "Sequence",
     *,
     profiles: "MeterProfileSet | None" = None,
+    phase_search: bool = False,
 ) -> MeterEstimationResult:
     """Rank candidate time signatures for *sequence* by metric fit.
 
@@ -75,6 +76,14 @@ def infer_meter(
     (``sequence.meter``) without mutating it. Raises ``ValueError`` on too few
     onsets or content with no metric information (uniform / flat) — the engine
     evidences, it does not guess.
+
+    ``phase_search`` (opt-in, off by default): score each candidate's metric
+    profile at its **best bar phase** rather than assuming bar lines start at beat
+    0. The period autocorrelation is already phase-invariant; this aligns the
+    *profile* fold too, so material whose downbeat is not at beat 0 (an
+    anacrusis, or a window that does not begin on a bar line — the local-meter
+    tracker's case) is read correctly. Default off keeps the phase-0 global
+    contract (and its golden) exactly.
     """
 
     if profiles is None:
@@ -117,7 +126,15 @@ def infer_meter(
         for onset, weight in weighted:
             folded[round((onset % bar_beats) / grid) % bar_slots] += weight
         period = _autocorrelation(signal, bar_slots)
-        profile = _pearson(folded, list(template))
+        if phase_search:
+            # Best alignment of the fold to the template over all bar phases — a
+            # rotation of the folded histogram (the period stays phase-invariant).
+            tmpl = list(template)
+            profile = max(
+                _pearson(folded[p:] + folded[:p], tmpl) for p in range(bar_slots)
+            )
+        else:
+            profile = _pearson(folded, list(template))
         score = period * max(profile, 0.0)
         candidates.append(MeterCandidate(
             numerator=numerator, denominator=denominator,

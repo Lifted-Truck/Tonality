@@ -698,10 +698,27 @@ list as new applications come into view.
     (Decision 7); both sub-scores are evidence. **Never overrides** the file's
     meter: the result carries the declared signature + `agrees_with_declared`,
     leaving the `MeterMap` untouched. Degenerate input (too few onsets / flat
-    signal) raises. **Deferred follow-ons:** change-point detection / local meter
-    (the windowed form, as local key tracking was to `infer_key`); anacrusis/
-    phase estimation; agogic (duration) weighting; opt-in wiring into
-    `midi_file_analysis`; the online form (gap 5).
+    signal) raises. **✅ Change-point / local meter — delivered 2026-06-28**
+    (`mts/temporal/meter_tracking.py`, `track_meter` / the `meter_tracking` tool):
+    the windowed form, exactly as `track_keys` is to `infer_key`. A window slides
+    over the sequence, each window's metric fit is ranked by the same versioned
+    prior, and consecutive same-best-meter windows merge into `MeterRegion`s
+    (beats+seconds extents, mean score/margin, per-window evidence); an
+    uninformative window (too sparse / no differential accent) makes no claim and
+    regions merge across it; raw per-window argmax, deterministic merge, no
+    smoothing in v1 (meter is slow-changing). Windows default larger than key
+    tracking's (16/4 beats) since period detection needs several bars; boundary
+    resolution is the hop grid. **This required solving the phase problem** that
+    naive windowing exposes (a meter change at an arbitrary beat aligns to neither
+    the sequence-start nor window-start grid): `infer_meter` gained an **additive,
+    opt-in `phase_search`** (default off → the global phase-0 contract + its golden
+    are unchanged) that scores each candidate's metric profile at its best bar
+    phase (the period autocorrelation is already phase-invariant); the tracker uses
+    it so off-downbeat windows read correctly. Validated on a synthetic 4/4→3/4
+    change (clean two-region split at the true boundary within hop resolution).
+    **Still deferred:** anacrusis/global phase estimation (the tracker's phase
+    search is per-window, not a reported downbeat offset); agogic (duration)
+    weighting; opt-in wiring into `midi_file_analysis`; the online form (gap 5).
 12. **Performed-input tolerance** (added 2026-06-12; theory-grounding
     review pass #1's headline finding — A1/A6 feed real MIDI to exactly
     these paths). The temporal analysis layer silently assumes

@@ -287,6 +287,46 @@ def meter_estimation(
     return infer_meter(sequence).to_dict()
 
 
+def meter_tracking(
+    events: list[list[float]],
+    window_beats: float = 16.0,
+    hop_beats: float = 4.0,
+    bpm: float = 120.0,
+) -> dict:
+    """Local meter tracking: time-signature regions through time — the windowed
+    form of meter_estimation, as key_tracking is to key_induction. A window
+    slides over the events; each window's onset/accent content is ranked by the
+    same metric-fit method (same versioned meter-grid prior), with a per-window
+    PHASE SEARCH so a window not starting on a bar line is still read correctly;
+    consecutive same-best-meter windows merge into regions (beats+seconds extents,
+    mean score/margin, per-window evidence). A window with too few onsets or no
+    differential accent makes no claim (regions merge across it). Meter needs
+    several bars of evidence, so windows default larger than key tracking's
+    (window_beats 16, hop_beats 4); boundary resolution is the hop grid. events:
+    each [onset_beats, duration_beats, midi_note] or [..., velocity] (velocity at
+    index 3 weights the accent). Raises if no window carries metric information."""
+    from ..temporal import Event, Sequence, track_meter
+
+    try:
+        parsed = tuple(
+            Event(
+                float(e[0]), float(e[1]),
+                Pitch.from_midi(int(e[2]),
+                                velocity=int(e[3]) if len(e) > 3 and e[3] is not None else None),
+            )
+            for e in events
+        )
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            "Each event must be [onset_beats, duration_beats, midi_note] with "
+            f"optional velocity (index 3): {exc}"
+        ) from exc
+    sequence = Sequence.from_events(parsed, bpm=float(bpm))
+    return track_meter(
+        sequence, window_beats=float(window_beats), hop_beats=float(hop_beats)
+    ).to_dict()
+
+
 def name_pcs_in_inferred_keys(
     pcs: list[int],
     pc_weights: list[float],
@@ -1188,6 +1228,7 @@ TOOLS = (
     key_induction,
     relative_key,
     meter_estimation,
+    meter_tracking,
     key_tracking,
     structural_keys,
     cadences,

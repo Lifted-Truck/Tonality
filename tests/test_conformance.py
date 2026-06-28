@@ -90,6 +90,21 @@ def _induction_merge_corpus():
     return [list(piece) for _ in range(8)]
 
 
+def _meter_change_events():
+    # 8 bars of 4/4 then 8 bars of 3/4 (accented); the local tracker splits them.
+    events = []
+    t = 0.0
+    for _ in range(8):
+        for beat, vel in enumerate((110, 50, 70, 50)):
+            events.append([t + beat, 0.5, 60, vel])
+        t += 4
+    for _ in range(8):
+        for beat, vel in enumerate((110, 50, 70)):
+            events.append([t + beat, 0.5, 60, vel])
+        t += 3
+    return events
+
+
 def _groove_loop():
     # Swung, accented loop: [onset, dur, midi, velocity] (groove event format).
     events = []
@@ -135,6 +150,8 @@ CASES: list[tuple[str, dict]] = [
                     for b in range(8) for o, v in ((0, 100), (1, 40), (2, 40))],
          "numerator": 4, "denominator": 4},
     ),
+    # local meter tracking: a 4/4 → 3/4 change split into regions (gap 11 follow-on).
+    ("meter_tracking", {"events": _meter_change_events(), "window_beats": 12.0, "hop_beats": 3.0}),
     # Eb-major-solo shape (Audiology brief-3 case): a relative near-tie the
     # tonal-hierarchy signals resolve to Eb major.
     ("relative_key", {"pc_weights": [2.0, 0, 2.0, 4.0, 0, 1.0, 0, 3.0, 1.0, 0, 3.0, 0]}),
