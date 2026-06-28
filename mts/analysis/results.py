@@ -336,6 +336,11 @@ class MeterEstimationResult:
     carry the file's claim and ``agrees_with_declared`` flags a disagreement,
     leaving the sequence's ``MeterMap`` untouched. ``grid_beats`` + the cited
     ``profile_version`` make the reading reproducible.
+
+    ``downbeat_offset_beats`` is the winning bar phase of the top candidate (the
+    anacrusis / global-phase estimate) — how far into the bar the downbeat sits,
+    in beats. It is populated only when ``infer_meter(..., phase_search=True)``;
+    the default phase-0 path reports ``None`` (it makes no phase claim).
     """
 
     candidates: list[MeterCandidate]   # best first
@@ -345,6 +350,7 @@ class MeterEstimationResult:
     agrees_with_declared: bool
     grid_beats: float
     profile_version: str
+    downbeat_offset_beats: float | None = None
 
     @property
     def best(self) -> MeterCandidate:

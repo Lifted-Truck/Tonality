@@ -253,6 +253,7 @@ def meter_estimation(
     bpm: float = 120.0,
     numerator: int = 4,
     denominator: int = 4,
+    phase_search: bool = False,
 ) -> dict:
     """Infer the time signature from note content — ranked candidate signatures
     with scores + margin, and a declared-vs-estimated disagreement flag. Each
@@ -263,7 +264,10 @@ def meter_estimation(
     overrides the file's meter — numerator/denominator set the declared meter
     and `agrees_with_declared` evidences against it. events: each [onset_beats,
     duration_beats, midi_note] or [..., velocity] (velocity at index 3 weights
-    the accent). Raises on too few onsets or content with no metric information."""
+    the accent). phase_search (default off): also search every bar phase and
+    report the top candidate's winning downbeat offset (the anacrusis / global
+    phase) as `downbeat_offset_beats` — `None` when off. Raises on too few onsets
+    or content with no metric information."""
     from ..analysis import infer_meter
     from ..temporal import Event, Sequence
 
@@ -284,7 +288,7 @@ def meter_estimation(
     sequence = Sequence.from_events(
         parsed, bpm=float(bpm), time_signature=(int(numerator), int(denominator))
     )
-    return infer_meter(sequence).to_dict()
+    return infer_meter(sequence, phase_search=bool(phase_search)).to_dict()
 
 
 def meter_tracking(
@@ -299,7 +303,9 @@ def meter_tracking(
     same metric-fit method (same versioned meter-grid prior), with a per-window
     PHASE SEARCH so a window not starting on a bar line is still read correctly;
     consecutive same-best-meter windows merge into regions (beats+seconds extents,
-    mean score/margin, per-window evidence). A window with too few onsets or no
+    mean score/margin, per-window evidence). The per-window phase search also
+    reports its winning bar phase as `downbeat_offset_beats` on each window and
+    aggregated per region (the local anacrusis estimate). A window with too few onsets or no
     differential accent makes no claim (regions merge across it). Meter needs
     several bars of evidence, so windows default larger than key tracking's
     (window_beats 16, hop_beats 4); boundary resolution is the hop grid. events:

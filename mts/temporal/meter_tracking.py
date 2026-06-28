@@ -16,8 +16,10 @@ is already a slow-changing signal — if a smoothing layer is ever needed its
 thresholds ship as a versioned prior, as on the key side). Per-region ``mean_margin``
 is the confidence signal to gate on.
 
-Windows are **phase 0** (bar lines from each window's start, as the global estimator
-assumes — anacrusis/phase estimation stays deferred) and **full-size** (a truncated
+Windows are based at each window's start (bar lines re-based to phase 0), but the
+per-window phase search now reports which bar phase actually aligned best as
+``MeterWindow.downbeat_offset_beats`` (the local anacrusis estimate), aggregated
+per region as ``MeterRegion.downbeat_offset_beats``. Windows are **full-size** (a truncated
 trailing window is an unrepresentative metric basis; the tail is covered by the last
 full window — only a sequence shorter than one window gets a single truncated one).
 Because meter detection needs several bars of period evidence, the default window is
@@ -51,6 +53,11 @@ class MeterWindow:
 
     ``numerator``/``denominator``/``score``/``margin`` are ``None`` for an
     uninformative window (too few onsets or no differential accent — no claim).
+
+    ``downbeat_offset_beats`` is the bar phase (relative to the window's own
+    start) that best aligned the winning candidate's metric profile — the local
+    anacrusis estimate the per-window phase search surfaces. ``None`` for an
+    uninformative window.
     """
 
     start_beats: float
@@ -60,6 +67,7 @@ class MeterWindow:
     denominator: int | None
     score: float | None
     margin: float | None
+    downbeat_offset_beats: float | None
 
     @property
     def is_informative(self) -> bool:
@@ -68,7 +76,12 @@ class MeterWindow:
 
 @dataclass(frozen=True)
 class MeterRegion:
-    """A maximal span over which the per-window best time signature is constant."""
+    """A maximal span over which the per-window best time signature is constant.
+
+    ``downbeat_offset_beats`` aggregates the region's per-window phase estimates:
+    the most frequent window offset (ties → smallest), i.e. the bar phase the
+    region's windows agree on relative to each window's own start. Deterministic.
+    """
 
     start_beats: float
     end_beats: float
@@ -79,6 +92,7 @@ class MeterRegion:
     mean_score: float
     mean_margin: float
     window_count: int
+    downbeat_offset_beats: float
 
     @property
     def duration_beats(self) -> float:
@@ -116,6 +130,19 @@ def _window_subsequence(sequence: Sequence, start: float, end: float) -> Sequenc
         if start - _EPS <= e.onset < end - _EPS
     ]
     return Sequence.from_events(windowed)
+
+
+def _modal_offset(group: list[MeterWindow]) -> float:
+    """The bar phase the region's windows agree on: most frequent per-window
+    offset, ties broken to the smallest value (deterministic). Every window in a
+    region is informative (so its ``downbeat_offset_beats`` is set)."""
+
+    offsets = [w.downbeat_offset_beats for w in group]
+    counts: dict[float, int] = {}
+    for off in offsets:
+        counts[off] = counts.get(off, 0) + 1
+    # max frequency, tie → smallest offset value
+    return max(counts, key=lambda off: (counts[off], -off))
 
 
 def track_meter(
@@ -165,7 +192,7 @@ def track_meter(
                 _window_subsequence(sequence, start, end), profiles=profiles, phase_search=True
             )
         except ValueError:
-            windows.append(MeterWindow(start, end, (start + end) / 2.0, None, None, None, None))
+            windows.append(MeterWindow(start, end, (start + end) / 2.0, None, None, None, None, None))
         else:
             best = ranking.candidates[0]
             windows.append(
@@ -177,6 +204,7 @@ def track_meter(
                     denominator=best.denominator,
                     score=best.score,
                     margin=ranking.margin,
+                    downbeat_offset_beats=ranking.downbeat_offset_beats,
                 )
             )
 
@@ -219,6 +247,7 @@ def track_meter(
                 mean_score=round(sum(scores) / len(scores), 6),
                 mean_margin=round(sum(margins) / len(margins), 6),
                 window_count=len(group),
+                downbeat_offset_beats=_modal_offset(group),
             )
         )
 

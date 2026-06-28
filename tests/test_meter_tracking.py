@@ -102,3 +102,39 @@ def test_phase_search_is_additive_to_infer_meter():
     # aligned-from-0 content: the top candidate is unchanged, profile no worse
     assert (searched.candidates[0].numerator, searched.candidates[0].denominator) == \
         (base.candidates[0].numerator, base.candidates[0].denominator)
+
+
+# --- per-window / per-region downbeat offset (anacrusis estimation) --------------
+
+
+def test_windows_and_regions_carry_zero_offset_when_aligned():
+    # Bar lines coincide with window starts (window/hop multiples of the bar):
+    # each window's downbeat sits at its own start → offset 0.0, never None for
+    # an informative window.
+    seq = Sequence.from_events(_accented_bars(0.0, (110, 50, 70, 50), 12))
+    res = track_meter(seq, window_beats=12.0, hop_beats=4.0)
+    for w in res.windows:
+        if w.is_informative:
+            assert w.downbeat_offset_beats == pytest.approx(0.0)
+    assert res.regions[0].downbeat_offset_beats == pytest.approx(0.0)
+
+
+def test_anacrusis_window_reports_displacement():
+    # Downbeat displaced 1 beat from the sequence start; windows start on beats
+    # 0,4,8,... so each window sees its downbeat one beat in → offset 1.0.
+    seq = Sequence.from_events(_accented_bars(1.0, (110, 50, 70, 50), 12))
+    res = track_meter(seq, window_beats=12.0, hop_beats=4.0)
+    informative = [w for w in res.windows if w.is_informative]
+    assert informative  # at least some claim
+    for w in informative:
+        assert (w.numerator, w.denominator) == (4, 4)
+        assert w.downbeat_offset_beats == pytest.approx(1.0)
+    assert res.regions[0].downbeat_offset_beats == pytest.approx(1.0)
+
+
+def test_offset_is_deterministic():
+    seq = Sequence.from_events(_accented_bars(1.0, (110, 50, 70, 50), 12))
+    a = track_meter(seq, window_beats=12.0, hop_beats=4.0).to_dict()
+    b = track_meter(seq, window_beats=12.0, hop_beats=4.0).to_dict()
+    assert a == b
+    assert a["regions"][0]["downbeat_offset_beats"] == pytest.approx(1.0)
