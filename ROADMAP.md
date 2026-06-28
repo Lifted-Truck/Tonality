@@ -716,9 +716,15 @@ list as new applications come into view.
     phase (the period autocorrelation is already phase-invariant); the tracker uses
     it so off-downbeat windows read correctly. Validated on a synthetic 4/4→3/4
     change (clean two-region split at the true boundary within hop resolution).
-    **Still deferred:** anacrusis/global phase estimation (the tracker's phase
-    search is per-window, not a reported downbeat offset); agogic (duration)
-    weighting; opt-in wiring into `midi_file_analysis`; the online form (gap 5).
+    **Wired into `midi_file_analysis`** (2026-06-28): opt-in
+    `include_meter_regions` surfaces the local meter track on a real SMF (parallel
+    to `include_key_regions`; default off → output unchanged), inferred from
+    onsets/accents independent of the file's declared meter map — so a consumer can
+    compare the two to catch a mis-tagged or changing meter. **Still deferred:**
+    anacrusis/global phase estimation (the tracker's phase search is per-window,
+    not a reported downbeat offset); agogic (duration) weighting; smoothing of the
+    boundary-window transient (a 1-window mixed-meter region at a change is honest
+    v1 behaviour — gate on `window_count`/`mean_margin`); the online form (gap 5).
 12. **Performed-input tolerance** (added 2026-06-12; theory-grounding
     review pass #1's headline finding — A1/A6 feed real MIDI to exactly
     these paths). The temporal analysis layer silently assumes
