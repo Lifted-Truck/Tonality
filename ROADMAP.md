@@ -829,9 +829,17 @@ list as new applications come into view.
     per-style corpus transition priors (the *historical* tags — the genuinely
     new data asset, per the research above); the fixed rule-of-octave +
     diatonic-tendency tables; subjective/corpus tags (Gjerdingen, Narmour, style
-    `idiom=*` labels); **VL-neighbour candidate generation** (chords reachable by
-    smooth voice-leading outside the functional vocabulary — unlocks chromatic
-    mediants as candidates); register-aware ranking.
+    `idiom=*` labels); **✅ VL-neighbour candidate generation — delivered
+    2026-06-28:** opt-in `vl_neighbours=True` (+ caller-set `vl_max_distance`,
+    default 3) on `recommend_next_chord` / `next_chord` *also* generates chords
+    reachable within the smoothness bound but **outside** the functional vocabulary,
+    so chromatic mediants etc. now arise as candidates (the `chromatic_mediant` tag,
+    previously implemented but never firing in the recommender, now fires — e.g. in
+    C major E-major surfaces, vl_distance 2, tagged `chromatic_mediant`+`vl_neighbour`,
+    role/roman honestly `None` as out-of-vocabulary). The `vl_neighbour` provenance
+    tag is weight-0 (informational, never scores); default off → existing output +
+    golden unchanged. Still deferred: register-aware ranking; the per-style corpus
+    transition priors (the *historical* tags).
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.

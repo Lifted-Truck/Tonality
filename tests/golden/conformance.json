@@ -7165,6 +7165,2342 @@
   },
   {
    "kwargs": {
+    "current": [
+     "C",
+     "maj"
+    ],
+    "mode": "major",
+    "tonic": "C",
+    "vl_neighbours": true
+   },
+   "result": {
+    "candidates": [
+     {
+      "cadence": null,
+      "color_shift": 1.869434,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root down a fifth",
+        "signal": "descending_fifth",
+        "weight": 2.0
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "minmaj7",
+      "rank": 1,
+      "role": null,
+      "root_interval": 5,
+      "root_pc": 5,
+      "score": 3.2,
+      "tags": [
+       "common_tone",
+       "descending_fifth",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 2.058295,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 1",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": null,
+        "signal": "parsimonious",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.2
+       }
+      ],
+      "modal_label": null,
+      "quality": "dim",
+      "rank": 2,
+      "role": null,
+      "root_interval": 1,
+      "root_pc": 1,
+      "score": 2.9,
+      "tags": [
+       "common_tone",
+       "parsimonious",
+       "smooth",
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 1
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "both tonic",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "voice-leading distance 1",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "L (leading-tone exchange: root moves a major third)",
+        "signal": "parsimonious",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.2
+       }
+      ],
+      "modal_label": "iii",
+      "quality": "min",
+      "rank": 3,
+      "role": "tonic",
+      "root_interval": 4,
+      "root_pc": 4,
+      "score": 2.9,
+      "tags": [
+       "common_tone",
+       "parsimonious",
+       "prolongation",
+       "smooth",
+       "vl_distance"
+      ],
+      "vl_distance": 1
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root down a fifth",
+        "signal": "descending_fifth",
+        "weight": 2.0
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "min",
+      "rank": 4,
+      "role": null,
+      "root_interval": 5,
+      "root_pc": 5,
+      "score": 2.9,
+      "tags": [
+       "common_tone",
+       "descending_fifth",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "both tonic",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "R (relative: root moves a minor third)",
+        "signal": "parsimonious",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": "vi",
+      "quality": "min",
+      "rank": 5,
+      "role": "tonic",
+      "root_interval": 9,
+      "root_pc": 9,
+      "score": 2.7,
+      "tags": [
+       "common_tone",
+       "parsimonious",
+       "prolongation",
+       "smooth",
+       "vl_distance"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 3,
+      "evidence": [
+       {
+        "detail": "resolves down a fifth to degree 5",
+        "signal": "applied_dominant",
+        "weight": 1.0
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "3 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.8999999999999999
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "7",
+      "rank": 6,
+      "role": null,
+      "root_interval": 0,
+      "root_pc": 0,
+      "score": 2.5,
+      "tags": [
+       "applied_dominant",
+       "common_tone",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 3,
+      "evidence": [
+       {
+        "detail": "both tonic",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "voice-leading distance 0",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "3 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.8999999999999999
+       }
+      ],
+      "modal_label": "I",
+      "quality": "maj",
+      "rank": 7,
+      "role": "tonic",
+      "root_interval": 0,
+      "root_pc": 0,
+      "score": 2.4,
+      "tags": [
+       "common_tone",
+       "prolongation",
+       "smooth"
+      ],
+      "vl_distance": 0
+     },
+     {
+      "cadence": null,
+      "color_shift": 3.547336,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 1",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "P (parallel: major\u2194minor on the same root)",
+        "signal": "parsimonious",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.2
+       }
+      ],
+      "modal_label": null,
+      "quality": "aug",
+      "rank": 8,
+      "role": null,
+      "root_interval": 0,
+      "root_pc": 0,
+      "score": 2.4,
+      "tags": [
+       "common_tone",
+       "parsimonious",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 1
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 1",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "P (parallel: major\u2194minor on the same root)",
+        "signal": "parsimonious",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.2
+       }
+      ],
+      "modal_label": null,
+      "quality": "min",
+      "rank": 9,
+      "role": null,
+      "root_interval": 0,
+      "root_pc": 0,
+      "score": 2.4,
+      "tags": [
+       "common_tone",
+       "parsimonious",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 1
+     },
+     {
+      "cadence": null,
+      "color_shift": 3.547336,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 1",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "L (leading-tone exchange: root moves a major third)",
+        "signal": "parsimonious",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.2
+       }
+      ],
+      "modal_label": null,
+      "quality": "aug",
+      "rank": 10,
+      "role": null,
+      "root_interval": 4,
+      "root_pc": 4,
+      "score": 2.4,
+      "tags": [
+       "common_tone",
+       "parsimonious",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 1
+     },
+     {
+      "cadence": null,
+      "color_shift": 3.547336,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 1",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "L (leading-tone exchange: root moves a major third)",
+        "signal": "parsimonious",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.2
+       }
+      ],
+      "modal_label": null,
+      "quality": "aug",
+      "rank": 11,
+      "role": null,
+      "root_interval": 8,
+      "root_pc": 8,
+      "score": 2.4,
+      "tags": [
+       "common_tone",
+       "parsimonious",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 1
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.556498,
+      "common_tones": 3,
+      "evidence": [
+       {
+        "detail": "both tonic",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "voice-leading distance 1",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "3 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.8999999999999999
+       },
+       {
+        "detail": "1 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.2
+       }
+      ],
+      "modal_label": "Imaj7",
+      "quality": "maj7",
+      "rank": 12,
+      "role": "tonic",
+      "root_interval": 0,
+      "root_pc": 0,
+      "score": 2.2,
+      "tags": [
+       "common_tone",
+       "prolongation",
+       "smooth",
+       "vl_distance"
+      ],
+      "vl_distance": 1
+     },
+     {
+      "cadence": null,
+      "color_shift": 2.058295,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "L (leading-tone exchange: root moves a major third)",
+        "signal": "parsimonious",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "dim",
+      "rank": 13,
+      "role": null,
+      "root_interval": 4,
+      "root_pc": 4,
+      "score": 2.2,
+      "tags": [
+       "common_tone",
+       "parsimonious",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.677443,
+      "common_tones": 3,
+      "evidence": [
+       {
+        "detail": "both tonic",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "3 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.8999999999999999
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": "vi7",
+      "quality": "min7",
+      "rank": 14,
+      "role": "tonic",
+      "root_interval": 9,
+      "root_pc": 9,
+      "score": 2.0,
+      "tags": [
+       "common_tone",
+       "prolongation",
+       "smooth",
+       "vl_distance"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.556498,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root down a fifth",
+        "signal": "descending_fifth",
+        "weight": 2.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": "IVmaj7",
+      "quality": "maj7",
+      "rank": 15,
+      "role": "predominant",
+      "root_interval": 5,
+      "root_pc": 5,
+      "score": 2.0,
+      "tags": [
+       "common_tone",
+       "descending_fifth",
+       "vl_distance"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "min7b5",
+      "rank": 16,
+      "role": null,
+      "root_interval": 1,
+      "root_pc": 1,
+      "score": 1.7,
+      "tags": [
+       "common_tone",
+       "smooth",
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.869434,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "minmaj7",
+      "rank": 17,
+      "role": null,
+      "root_interval": 1,
+      "root_pc": 1,
+      "score": 1.7,
+      "tags": [
+       "common_tone",
+       "smooth",
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root down a fifth",
+        "signal": "descending_fifth",
+        "weight": 2.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": "IV",
+      "quality": "maj",
+      "rank": 18,
+      "role": "predominant",
+      "root_interval": 5,
+      "root_pc": 5,
+      "score": 1.7,
+      "tags": [
+       "common_tone",
+       "descending_fifth",
+       "vl_distance"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.677443,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root down a fifth",
+        "signal": "descending_fifth",
+        "weight": 2.0
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "min7",
+      "rank": 19,
+      "role": null,
+      "root_interval": 5,
+      "root_pc": 5,
+      "score": 1.7,
+      "tags": [
+       "common_tone",
+       "descending_fifth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "min",
+      "rank": 20,
+      "role": null,
+      "root_interval": 1,
+      "root_pc": 1,
+      "score": 1.4,
+      "tags": [
+       "common_tone",
+       "smooth",
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "same-quality triads a third apart",
+        "signal": "chromatic_mediant",
+        "weight": 0.5
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "maj",
+      "rank": 21,
+      "role": null,
+      "root_interval": 4,
+      "root_pc": 4,
+      "score": 1.4,
+      "tags": [
+       "chromatic_mediant",
+       "common_tone",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 3.547336,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root up a fifth",
+        "signal": "ascending_fifth",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "aug",
+      "rank": 22,
+      "role": null,
+      "root_interval": 7,
+      "root_pc": 7,
+      "score": 1.4,
+      "tags": [
+       "ascending_fifth",
+       "common_tone",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "same-quality triads a third apart",
+        "signal": "chromatic_mediant",
+        "weight": 0.5
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "maj",
+      "rank": 23,
+      "role": null,
+      "root_interval": 8,
+      "root_pc": 8,
+      "score": 1.4,
+      "tags": [
+       "chromatic_mediant",
+       "common_tone",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 3.547336,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "aug",
+      "rank": 24,
+      "role": null,
+      "root_interval": 11,
+      "root_pc": 11,
+      "score": 1.4,
+      "tags": [
+       "common_tone",
+       "smooth",
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 2.058295,
+      "common_tones": 0,
+      "evidence": [
+       {
+        "detail": "root down a fifth",
+        "signal": "descending_fifth",
+        "weight": 2.0
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "dim",
+      "rank": 25,
+      "role": null,
+      "root_interval": 5,
+      "root_pc": 5,
+      "score": 1.4,
+      "tags": [
+       "descending_fifth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.869434,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "minmaj7",
+      "rank": 26,
+      "role": null,
+      "root_interval": 0,
+      "root_pc": 0,
+      "score": 1.2,
+      "tags": [
+       "common_tone",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.869434,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "minmaj7",
+      "rank": 27,
+      "role": null,
+      "root_interval": 4,
+      "root_pc": 4,
+      "score": 1.2,
+      "tags": [
+       "common_tone",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.556498,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "maj7",
+      "rank": 28,
+      "role": null,
+      "root_interval": 8,
+      "root_pc": 8,
+      "score": 1.2,
+      "tags": [
+       "common_tone",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "resolves down a fifth to degree 2",
+        "signal": "applied_dominant",
+        "weight": 1.0
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "7",
+      "rank": 29,
+      "role": null,
+      "root_interval": 9,
+      "root_pc": 9,
+      "score": 1.0,
+      "tags": [
+       "applied_dominant",
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 2.058295,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "dim",
+      "rank": 30,
+      "role": null,
+      "root_interval": 0,
+      "root_pc": 0,
+      "score": 0.9,
+      "tags": [
+       "common_tone",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": null,
+      "color_shift": 3.547336,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "voice-leading distance 2",
+        "signal": "smooth",
+        "weight": 1.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "2 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.4
+       }
+      ],
+      "modal_label": null,
+      "quality": "aug",
+      "rank": 31,
+      "role": null,
+      "root_interval": 3,
+      "root_pc": 3,
+      "score": 0.9,
+      "tags": [
+       "common_tone",
+       "smooth",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 2
+     },
+     {
+      "cadence": "half",
+      "color_shift": 0.0,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root up a fifth",
+        "signal": "ascending_fifth",
+        "weight": 0.5
+       },
+       {
+        "detail": "cadential formula on this transition",
+        "signal": "half",
+        "weight": 0.5
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": "V",
+      "quality": "maj",
+      "rank": 32,
+      "role": "dominant",
+      "root_interval": 7,
+      "root_pc": 7,
+      "score": 0.7,
+      "tags": [
+       "ascending_fifth",
+       "common_tone",
+       "half",
+       "vl_distance"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 4.017909,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "dim7",
+      "rank": 33,
+      "role": null,
+      "root_interval": 1,
+      "root_pc": 1,
+      "score": 0.5,
+      "tags": [
+       "common_tone",
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.677443,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "both tonic",
+        "signal": "prolongation",
+        "weight": 0.5
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": "iii7",
+      "quality": "min7",
+      "rank": 34,
+      "role": "tonic",
+      "root_interval": 4,
+      "root_pc": 4,
+      "score": 0.5,
+      "tags": [
+       "common_tone",
+       "prolongation",
+       "vl_distance"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 4.017909,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root up a fifth",
+        "signal": "ascending_fifth",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "dim7",
+      "rank": 35,
+      "role": null,
+      "root_interval": 7,
+      "root_pc": 7,
+      "score": 0.5,
+      "tags": [
+       "ascending_fifth",
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 4.017909,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "dim7",
+      "rank": 36,
+      "role": null,
+      "root_interval": 10,
+      "root_pc": 10,
+      "score": 0.5,
+      "tags": [
+       "common_tone",
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": "half",
+      "color_shift": 1.584391,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root up a fifth",
+        "signal": "ascending_fifth",
+        "weight": 0.5
+       },
+       {
+        "detail": "cadential formula on this transition",
+        "signal": "half",
+        "weight": 0.5
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "4 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.8
+       }
+      ],
+      "modal_label": "V7",
+      "quality": "7",
+      "rank": 37,
+      "role": "dominant",
+      "root_interval": 7,
+      "root_pc": 7,
+      "score": 0.5,
+      "tags": [
+       "ascending_fifth",
+       "common_tone",
+       "half",
+       "vl_distance"
+      ],
+      "vl_distance": 4
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.556498,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "maj7",
+      "rank": 38,
+      "role": null,
+      "root_interval": 1,
+      "root_pc": 1,
+      "score": 0.2,
+      "tags": [
+       "common_tone",
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.677443,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "min7",
+      "rank": 39,
+      "role": null,
+      "root_interval": 1,
+      "root_pc": 1,
+      "score": 0.2,
+      "tags": [
+       "common_tone",
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "same-quality triads a third apart",
+        "signal": "chromatic_mediant",
+        "weight": 0.5
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "maj",
+      "rank": 40,
+      "role": null,
+      "root_interval": 3,
+      "root_pc": 3,
+      "score": 0.2,
+      "tags": [
+       "chromatic_mediant",
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "same-quality triads a third apart",
+        "signal": "chromatic_mediant",
+        "weight": 0.5
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "maj",
+      "rank": 41,
+      "role": null,
+      "root_interval": 9,
+      "root_pc": 9,
+      "score": 0.2,
+      "tags": [
+       "chromatic_mediant",
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.677443,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "min7",
+      "rank": 42,
+      "role": null,
+      "root_interval": 0,
+      "root_pc": 0,
+      "score": -0.0,
+      "tags": [
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 4.017909,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "dim7",
+      "rank": 43,
+      "role": null,
+      "root_interval": 4,
+      "root_pc": 4,
+      "score": -0.0,
+      "tags": [
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "min7b5",
+      "rank": 44,
+      "role": null,
+      "root_interval": 6,
+      "root_pc": 6,
+      "score": -0.0,
+      "tags": [
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "min7b5",
+      "rank": 45,
+      "role": null,
+      "root_interval": 9,
+      "root_pc": 9,
+      "score": -0.0,
+      "tags": [
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.869434,
+      "common_tones": 2,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "2 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.6
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "minmaj7",
+      "rank": 46,
+      "role": null,
+      "root_interval": 9,
+      "root_pc": 9,
+      "score": -0.0,
+      "tags": [
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 0,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "maj",
+      "rank": 47,
+      "role": null,
+      "root_interval": 1,
+      "root_pc": 1,
+      "score": -0.1,
+      "tags": [
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 0,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "maj",
+      "rank": 48,
+      "role": null,
+      "root_interval": 11,
+      "root_pc": 11,
+      "score": -0.1,
+      "tags": [
+       "step",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.677443,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "5 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -1.0
+       }
+      ],
+      "modal_label": "ii7",
+      "quality": "min7",
+      "rank": 49,
+      "role": "predominant",
+      "root_interval": 2,
+      "root_pc": 2,
+      "score": -0.2,
+      "tags": [
+       "common_tone",
+       "step",
+       "vl_distance"
+      ],
+      "vl_distance": 5
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.556498,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "maj7",
+      "rank": 50,
+      "role": null,
+      "root_interval": 4,
+      "root_pc": 4,
+      "score": -0.3,
+      "tags": [
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "7",
+      "rank": 51,
+      "role": null,
+      "root_interval": 8,
+      "root_pc": 8,
+      "score": -0.3,
+      "tags": [
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.869434,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "minmaj7",
+      "rank": 52,
+      "role": null,
+      "root_interval": 8,
+      "root_pc": 8,
+      "score": -0.3,
+      "tags": [
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 2.058295,
+      "common_tones": 1,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "1 common tone(s)",
+        "signal": "common_tone",
+        "weight": 0.3
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "dim",
+      "rank": 53,
+      "role": null,
+      "root_interval": 9,
+      "root_pc": 9,
+      "score": -0.3,
+      "tags": [
+       "common_tone",
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 0,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "5 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -1.0
+       }
+      ],
+      "modal_label": "ii",
+      "quality": "min",
+      "rank": 54,
+      "role": "predominant",
+      "root_interval": 2,
+      "root_pc": 2,
+      "score": -0.5,
+      "tags": [
+       "step",
+       "vl_distance"
+      ],
+      "vl_distance": 5
+     },
+     {
+      "cadence": null,
+      "color_shift": 2.058295,
+      "common_tones": 0,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "5 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -1.0
+       }
+      ],
+      "modal_label": "viidim",
+      "quality": "dim",
+      "rank": 55,
+      "role": "dominant",
+      "root_interval": 11,
+      "root_pc": 11,
+      "score": -0.5,
+      "tags": [
+       "step",
+       "vl_distance"
+      ],
+      "vl_distance": 5
+     },
+     {
+      "cadence": null,
+      "color_shift": 0.0,
+      "common_tones": 0,
+      "evidence": [
+       {
+        "detail": "reachable by smooth voice-leading, outside the functional vocabulary",
+        "signal": "vl_neighbour",
+        "weight": 0.0
+       },
+       {
+        "detail": "3 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -0.6000000000000001
+       }
+      ],
+      "modal_label": null,
+      "quality": "min",
+      "rank": 56,
+      "role": null,
+      "root_interval": 8,
+      "root_pc": 8,
+      "score": -0.6,
+      "tags": [
+       "vl_distance",
+       "vl_neighbour"
+      ],
+      "vl_distance": 3
+     },
+     {
+      "cadence": null,
+      "color_shift": 1.584391,
+      "common_tones": 0,
+      "evidence": [
+       {
+        "detail": "root by step",
+        "signal": "step",
+        "weight": 0.5
+       },
+       {
+        "detail": "6 semitones of motion",
+        "signal": "vl_distance",
+        "weight": -1.2000000000000002
+       }
+      ],
+      "modal_label": "vii\u00f87",
+      "quality": "min7b5",
+      "rank": 57,
+      "role": "dominant",
+      "root_interval": 11,
+      "root_pc": 11,
+      "score": -0.7,
+      "tags": [
+       "step",
+       "vl_distance"
+      ],
+      "vl_distance": 6
+     }
+    ],
+    "context": {
+     "key_degrees": [
+      0,
+      2,
+      4,
+      5,
+      7,
+      9,
+      11
+     ],
+     "key_name": "major",
+     "margin": null,
+     "tonic_pc": 0
+    },
+    "current_quality": "maj",
+    "current_role": "tonic",
+    "current_roman": "I",
+    "current_root_pc": 0,
+    "weights_version": "succession.1"
+   },
+   "tool": "next_chord"
+  },
+  {
+   "kwargs": {
     "source_pcs": [
      0,
      4,
