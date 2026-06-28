@@ -327,6 +327,8 @@ def next_chord(
     mode: str = "major",
     history: list[list] | None = None,
     qualities: list[str] | None = None,
+    vl_neighbours: bool = False,
+    vl_max_distance: int = 3,
 ) -> dict:
     """Recommend ranked candidate next chords from a current chord in a key,
     each TAGGED with succession context (Decision 7 — plural + evidenced). Tags
@@ -341,8 +343,11 @@ def next_chord(
     name like 'maj', '7', 'min'). mode: 'major' or 'minor' (others raise —
     function is not guessed). history: optional preceding [[root, quality], ...]
     for cadential context. qualities: optional candidate-vocabulary override
-    (default = core triads + sevenths). The historical/corpus tags are a planned
-    follow-on (ROADMAP gap 14)."""
+    (default = core triads + sevenths). Set vl_neighbours=true to ALSO generate
+    voice-leading-neighbour candidates — chords reachable within vl_max_distance
+    semitones of total motion but outside the functional vocabulary, so chromatic
+    mediants surface (tagged vl_neighbour; role/roman null when out-of-vocabulary).
+    The historical/corpus tags are a planned follow-on (ROADMAP gap 14)."""
     from ..analysis import recommend_next_chord
 
     try:
@@ -363,6 +368,8 @@ def next_chord(
         mode=str(mode),
         history=hist,
         qualities=[str(q) for q in qualities] if qualities is not None else None,
+        vl_neighbours=bool(vl_neighbours),
+        vl_max_distance=int(vl_max_distance),
     ).to_dict()
 
 

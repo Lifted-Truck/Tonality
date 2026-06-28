@@ -179,6 +179,11 @@ CASES: list[tuple[str, dict]] = [
         {"current": ["G", "7"], "tonic": "C", "mode": "major",
          "history": [["D", "min"]]},
     ),
+    # vl_neighbours on: chromatic mediants etc. surface as candidates (gap 14).
+    (
+        "next_chord",
+        {"current": ["C", "maj"], "tonic": "C", "mode": "major", "vl_neighbours": True},
+    ),
     ("voice_leading_distance", {"source_pcs": [0, 4, 7], "target_pcs": [5, 9, 0]}),
     ("realized_voice_leading", {"source_midi": [60, 64, 67], "target_midi": [59, 62, 67]}),
     ("voice_pair_motion", {"events": _satb_events()}),

@@ -162,3 +162,53 @@ def test_deterministic_ordering():
     assert [(c.root_pc, c.quality, c.score, c.rank) for c in a.candidates] == [
         (c.root_pc, c.quality, c.score, c.rank) for c in b.candidates
     ]
+
+
+# --- VL-neighbour candidate generation (gap 14 follow-on) -----------------------
+
+
+def test_vl_neighbours_surface_chromatic_mediants():
+    # In C major, E major is a chromatic mediant — outside the diatonic functional
+    # vocabulary, so it never arises as a default candidate; vl_neighbours generates
+    # it (reachable by smooth voice-leading) and the chromatic_mediant tag fires.
+    base = recommend_next_chord((0, "maj"), tonic_pc=0, mode="major")
+    assert not any((c.root_pc, c.quality) == (4, "maj") for c in base.candidates)
+
+    rec = recommend_next_chord((0, "maj"), tonic_pc=0, mode="major", vl_neighbours=True)
+    e_major = [c for c in rec.candidates if (c.root_pc, c.quality) == (4, "maj")]
+    assert len(e_major) == 1
+    c = e_major[0]
+    assert "vl_neighbour" in c.tags          # provenance
+    assert "chromatic_mediant" in c.tags     # the tag that now fires
+    assert c.vl_distance <= 3
+    assert c.role is None and c.modal_label is None  # out-of-vocabulary, named honestly
+
+
+def test_vl_neighbour_provenance_tag_does_not_score():
+    # vl_neighbour is informational (weight 0) — it must not change a candidate's
+    # score vs. the same transition tagged via the functional path.
+    rec = recommend_next_chord((0, "maj"), tonic_pc=0, mode="major", vl_neighbours=True)
+    e_major = next(c for c in rec.candidates if (c.root_pc, c.quality) == (4, "maj"))
+    vln_ev = [e for e in e_major.evidence if e.signal == "vl_neighbour"]
+    assert len(vln_ev) == 1 and vln_ev[0].weight == 0.0
+
+
+def test_vl_neighbours_default_off_is_unchanged():
+    a = recommend_next_chord((0, "maj"), tonic_pc=0, mode="major")
+    b = recommend_next_chord((0, "maj"), tonic_pc=0, mode="major", vl_neighbours=False)
+    assert a.to_dict() == b.to_dict()
+
+
+def test_vl_max_distance_bounds_the_neighbourhood():
+    # A tighter bound yields fewer (or equal) generated candidates; a looser one more.
+    tight = recommend_next_chord((0, "maj"), tonic_pc=0, mode="major",
+                                 vl_neighbours=True, vl_max_distance=1)
+    loose = recommend_next_chord((0, "maj"), tonic_pc=0, mode="major",
+                                 vl_neighbours=True, vl_max_distance=4)
+    assert len(tight.candidates) <= len(loose.candidates)
+
+
+def test_vl_neighbours_deterministic():
+    a = recommend_next_chord((0, "maj"), tonic_pc=0, mode="major", vl_neighbours=True)
+    b = recommend_next_chord((0, "maj"), tonic_pc=0, mode="major", vl_neighbours=True)
+    assert a.to_dict() == b.to_dict()
