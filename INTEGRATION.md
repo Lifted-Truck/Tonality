@@ -187,6 +187,17 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
 - **Versioned priors.** Anything empirical (key profiles, naming weights,
   VL cardinality policy) is a versioned asset cited in results. Pin versions
   if you need byte-stable outputs across engine upgrades.
+- **Native-port consumers — the versioned-data export.** If you reimplement a
+  subset of the engine natively (no CPython; the Decision-10 consumer-port
+  corollary, e.g. a plugin), run `scripts/export_versioned_data.py` to emit a
+  bundle: a **`set_class_table`** with the table-driven combinatorics (prime
+  form, interval vector, DFT magnitudes, Z-partner, symmetry) precomputed for all
+  4096 pc-set masks — consume it as pure data instead of porting the mask-space
+  math — and a **`manifest`** naming every versioned prior/catalog + its version
+  string(s). The port computes the same answers from the same versioned data,
+  citing the same versions; the **golden conformance harness is the parity
+  oracle** (a port is faithful iff it reproduces the golden cases). The engine
+  stays the source of truth — regenerate after upgrades.
 - **Performed timing needs an explicit coalesce.** The temporal analyses
   (segmentation, metric placement, voice motion) treat onsets as exact:
   humanized/performed timing fragments segmentation into micro-segments and
