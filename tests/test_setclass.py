@@ -210,3 +210,57 @@ def test_set_class_data_lists_are_unshared():
     b = set_class_data(MAJOR_TRIAD)
     assert a.prime_form == b.prime_form
     assert a.prime_form is not b.prime_form
+
+
+# --- DFT phase + trichord chirality (Audiology brief-15) -------------------------
+
+def test_dft_phases_match_component_args():
+    from mts.core.setclass import dft_components, dft_phases
+    import cmath
+    mask = mask_from_pcs({0, 4, 7})
+    comps = dft_components(mask)
+    assert dft_phases(mask) == pytest.approx([cmath.phase(comps[k]) for k in range(1, 7)])
+
+
+def test_dft_phases_rotate_under_transposition_and_negate_under_inversion():
+    from mts.core.setclass import dft_phases
+    import math
+    maj = mask_from_pcs({0, 4, 7})
+    # T+2: arg(f_k) shifts by -2*pi*k*n/12 (n=2). Check f3.
+    maj_T2 = mask_from_pcs({2, 6, 9})
+    expected = (dft_phases(maj)[2] - 2 * math.pi * 3 * 2 / 12) % (2 * math.pi)
+    assert dft_phases(maj_T2)[2] % (2 * math.pi) == pytest.approx(expected)
+    # inversion about 0 ({0,4,7} -> {0,8,5}) negates every phase.
+    inv = mask_from_pcs({0, (-4) % 12, (-7) % 12})
+    for a, b in zip(dft_phases(inv), dft_phases(maj)):
+        assert a == pytest.approx(-b)
+
+
+def test_augmented_is_a_pure_3cycle_and_achiral():
+    from mts.core.setclass import dft_magnitudes
+    from mts.analysis.pcset_math import trichord_chirality
+    mask = mask_from_pcs({0, 4, 8})
+    mags = dft_magnitudes(mask)
+    assert mags[2] == pytest.approx(3.0) and mags[5] == pytest.approx(3.0)
+    assert all(mags[k] == pytest.approx(0.0) for k in (0, 1, 3, 4))
+    assert trichord_chirality(mask) == 0  # inversionally symmetric
+
+
+def test_trichord_chirality_separates_major_from_minor():
+    from mts.core.setclass import dft_magnitudes
+    from mts.analysis.pcset_math import trichord_chirality
+    maj, minor = mask_from_pcs({0, 4, 7}), mask_from_pcs({0, 3, 7})
+    # magnitudes can't tell them apart (the whole point) ...
+    assert dft_magnitudes(maj) == pytest.approx(dft_magnitudes(minor))
+    # ... but chirality does: major -2, minor +2 (inversion-odd).
+    assert trichord_chirality(maj) == -2
+    assert trichord_chirality(minor) == 2
+    # transposition-invariant: any major triad reads -2.
+    assert trichord_chirality(mask_from_pcs({2, 6, 9})) == -2
+
+
+def test_trichord_chirality_none_for_non_trichords():
+    from mts.analysis.pcset_math import trichord_chirality
+    assert trichord_chirality(mask_from_pcs({0, 4})) is None          # dyad
+    assert trichord_chirality(mask_from_pcs({0, 4, 7, 10})) is None   # dom7 tetrachord
+    assert trichord_chirality(mask_from_pcs({0, 3, 6, 10})) is None   # m7b5 (its mirror)

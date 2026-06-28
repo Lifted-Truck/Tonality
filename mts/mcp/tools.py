@@ -177,12 +177,26 @@ def scale_analysis(
 
 def set_class_info(pcs: list[int]) -> dict:
     """Set-class identity of a pc set: normal order, Rahn prime form, Z-partner,
-    DFT magnitudes, rotational symmetry."""
+    DFT magnitudes AND phases, rotational symmetry, trichord chirality.
+
+    `dft_magnitudes` (|f1..f6|) is the transposition- and inversion-invariant
+    interval-content fingerprint; `dft_phases` (arg f1..f6, radians) is NOT
+    invariant — it rotates under transposition and negates under inversion,
+    carrying the absolute-position/handedness info the magnitudes discard (colour
+    hue, chirality inputs — Audiology brief-15). `trichord_chirality` is the
+    inversion-odd step-gap handedness for 3-note sets (major −2 / minor +2 /
+    achiral 0), null for non-trichords. `prime_form`, `prime_form_mask`, and the
+    12-bit `mask` are all returned."""
+    from ..analysis.pcset_math import trichord_chirality
+    from ..core.setclass import dft_phases
+
     mask = mask_from_pcs({int(pc) % 12 for pc in pcs})
     if mask == 0:
         raise ValueError("set_class_info needs at least one pitch class.")
     data = dataclasses.asdict(set_class_data(mask))
+    data["dft_phases"] = list(dft_phases(mask))
     data["rotational_symmetry_order"] = mask_symmetry_order(mask)
+    data["trichord_chirality"] = trichord_chirality(mask)
     data["mask"] = mask
     return data
 
