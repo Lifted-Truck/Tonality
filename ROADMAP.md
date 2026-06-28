@@ -1894,11 +1894,17 @@ A4's plugin/device frame; side effects: WASM falls out nearly free.
       stays the parity oracle). Faithfulness is tested row-vs-engine. Requested
       by TERRANE brief-3 (its JUCE plugin); the lowest-cost half of the
       consumer-port corollary (Decision 10), independent of the sequencing fence.
-      **Deferred follow-ons:** embedding the priors/catalog content into the
-      bundle (vs naming them) + per-asset integrity hashes; the `doubling.1`
-      pairing policy as exported data (currently a documented algorithm);
-      committing the table artifact + a regenerate-and-diff guard if a consumer
-      wants it checked in.
+      *(Slice 2, delivered 2026-06-28:* `versioned_data_bundle()` — a
+      self-contained sibling of the manifest that **embeds each `data/*.json`
+      asset's parsed content + a per-asset sha256** of the file bytes, so a port
+      runs without the repo (manifest stays the thin naming index; the bundle is
+      a strict superset, never a second version listing to reconcile). The
+      `doubling.1` voice-leading cardinality policy is now **exported as data**
+      (`voice_leading_policies()` → id + description, in both manifest and
+      bundle) — `voice_leading.py` behaviour unchanged. The script emits
+      `bundle.json` alongside `manifest.json` + `set_class_table.json`.*)
+      **Deferred follow-ons:** committing the table artifact + a
+      regenerate-and-diff guard if a consumer wants it checked in.
 - [ ] Core identity layer (bitmask/set-class/symmetry/DFT) — `constexpr`
       tables over the 4096 universe; the cleanest layer, C++-native.
 - [ ] Analysis layer (parsers, naming + evidence, induction, VL, containment)
