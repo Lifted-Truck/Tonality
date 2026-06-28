@@ -1086,6 +1086,7 @@ def midi_file_analysis(
     smooth_key_regions: bool = False,
     profile_version: str | None = None,
     key_inertia: bool = False,
+    include_meter_regions: bool = False,
 ) -> dict:
     """Analyze a Standard MIDI File end-to-end: segment it, infer the global key,
     and emit the enriched dataset (per-segment identity, namings, placement).
@@ -1110,10 +1111,15 @@ def midi_file_analysis(
     profile_version selects the versioned key-profile set for both the global
     induction and the per-window tracking (default kk-1982.1; 'tkp-cbms.1' the
     opt-in Temperley-Kostka-Payne alternative — better-balanced for major keys,
-    A6 brief-9)."""
+    A6 brief-9). Set include_meter_regions=true to also infer the LOCAL meter from
+    note content (off by default): "meter_regions" carries the windowed
+    meter-tracking result (time-signature regions with beats+seconds extents and
+    per-window evidence; null if no window carries metric information). Inferred
+    from onsets/accents and independent of the file's declared meter map — compare
+    them to spot a mis-tagged or changing meter."""
     from ..analysis import candidate_context, disambiguate_relative_key
     from ..io.midi import sequence_from_midi_file
-    from ..temporal import coalesce, track_keys
+    from ..temporal import coalesce, track_keys, track_meter
 
     sequence = sequence_from_midi_file(path)
     profiles = _profiles(profile_version)
@@ -1144,6 +1150,13 @@ def midi_file_analysis(
         except ValueError:
             regions = None  # no window carried tonal information
 
+    meter_regions = None
+    if include_meter_regions:
+        try:
+            meter_regions = track_meter(sequence)
+        except ValueError:
+            meter_regions = None  # no window carried metric information
+
     dataset = dataset_from_sequence(
         sequence,
         analytical_context=context,
@@ -1156,6 +1169,8 @@ def midi_file_analysis(
         result["key_disambiguation"] = disambiguation.to_dict()
     if include_key_regions:
         result["key_regions"] = regions.to_dict() if regions is not None else None
+    if include_meter_regions:
+        result["meter_regions"] = meter_regions.to_dict() if meter_regions is not None else None
     return result
 
 
