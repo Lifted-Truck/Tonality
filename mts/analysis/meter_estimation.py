@@ -24,9 +24,10 @@ accent, leaves meter genuinely ambiguous — surfaced as a small ``margin``, and
 all-flat input raises rather than guesses.
 
 Slice 1 is **global** (whole-sequence), **phase 0** (bar lines from the sequence
-start, as ``MeterMap`` assumes). Deferred: change-point / local meter (the
-windowed form, as local key tracking was to ``infer_key``), anacrusis/phase
-estimation, agogic (duration) weighting, the online form (gap 5).
+start, as ``MeterMap`` assumes). The opt-in ``phase_search`` now also surfaces the
+winning bar phase as ``downbeat_offset_beats`` (anacrusis / global-phase estimate).
+Deferred: change-point / local meter is delivered (``mts/temporal/meter_tracking``);
+still open are agogic (duration) weighting and the online form (gap 5).
 """
 
 from __future__ import annotations
@@ -82,8 +83,11 @@ def infer_meter(
     0. The period autocorrelation is already phase-invariant; this aligns the
     *profile* fold too, so material whose downbeat is not at beat 0 (an
     anacrusis, or a window that does not begin on a bar line — the local-meter
-    tracker's case) is read correctly. Default off keeps the phase-0 global
-    contract (and its golden) exactly.
+    tracker's case) is read correctly. The winning bar phase of the top candidate
+    is surfaced as ``downbeat_offset_beats`` (the anacrusis / global-phase
+    estimate); it is ``None`` when ``phase_search`` is off. Default off keeps the
+    phase-0 global contract (and its golden) exactly — only the new field appears,
+    defaulting to ``None``.
     """
 
     if profiles is None:
@@ -113,7 +117,9 @@ def infer_meter(
     if max(signal) - min(signal) <= _EPS:
         raise ValueError("onset content carries no metric information (uniform signal).")
 
-    candidates: list[MeterCandidate] = []
+    # Each entry pairs a candidate with the bar phase (in beats) that best aligned
+    # its profile fold — the winning downbeat offset, surfaced for the top candidate.
+    scored_candidates: list[tuple[MeterCandidate, float]] = []
     for sig, template in profiles.profiles.items():
         num_s, den_s = sig.split("/")
         numerator, denominator = int(num_s), int(den_s)
@@ -126,24 +132,36 @@ def infer_meter(
         for onset, weight in weighted:
             folded[round((onset % bar_beats) / grid) % bar_slots] += weight
         period = _autocorrelation(signal, bar_slots)
+        best_phase = 0  # grid-slot rotation; phase-0 unless phase_search picks another
         if phase_search:
             # Best alignment of the fold to the template over all bar phases — a
             # rotation of the folded histogram (the period stays phase-invariant).
+            # The winning rotation ``p`` places the template's slot-0 (the
+            # downbeat) at the fold's slot ``p`` → the downbeat sits ``p`` grid
+            # slots into the bar. Ties resolve to the lowest phase (determinism).
             tmpl = list(template)
-            profile = max(
-                _pearson(folded[p:] + folded[:p], tmpl) for p in range(bar_slots)
+            profile, best_phase = max(
+                ((_pearson(folded[p:] + folded[:p], tmpl), p) for p in range(bar_slots)),
+                key=lambda sp: (sp[0], -sp[1]),
             )
         else:
             profile = _pearson(folded, list(template))
         score = period * max(profile, 0.0)
-        candidates.append(MeterCandidate(
-            numerator=numerator, denominator=denominator,
-            score=round(score, 6), period_score=round(period, 6),
-            profile_score=round(profile, 6),
+        scored_candidates.append((
+            MeterCandidate(
+                numerator=numerator, denominator=denominator,
+                score=round(score, 6), period_score=round(period, 6),
+                profile_score=round(profile, 6),
+            ),
+            best_phase * grid,  # winning bar phase in beats (the downbeat offset)
         ))
 
-    candidates.sort(key=lambda c: (-c.score, c.numerator, c.denominator))
+    scored_candidates.sort(key=lambda cp: (-cp[0].score, cp[0].numerator, cp[0].denominator))
+    candidates = [c for c, _ in scored_candidates]
     margin = candidates[0].score - candidates[1].score if len(candidates) > 1 else 0.0
+    # Only meaningful when phase_search aligned the fold; phase-0 path reports None
+    # so the default contract (and its golden) carries no offset claim.
+    downbeat_offset = round(scored_candidates[0][1], 6) if phase_search else None
 
     declared_sig = sequence.meter.changes[0].signature if sequence.meter.changes else None
     declared_num = declared_sig.numerator if declared_sig else None
@@ -159,6 +177,7 @@ def infer_meter(
         agrees_with_declared=agrees,
         grid_beats=grid,
         profile_version=profiles.version,
+        downbeat_offset_beats=downbeat_offset,
     )
 
 

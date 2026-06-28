@@ -102,6 +102,41 @@ def test_deterministic():
     assert a == b
 
 
+# --- phase search / downbeat offset (anacrusis estimation) --------------------------------
+
+
+def test_phase_off_reports_no_offset():
+    # The default phase-0 path makes no phase claim — the field is None and the
+    # numeric ranking is otherwise unchanged.
+    result = infer_meter(_seq(P_44))
+    assert result.downbeat_offset_beats is None
+
+
+def test_phase_search_recovers_zero_offset_when_aligned():
+    # Content whose downbeat already sits at beat 0: offset is 0.0, not None.
+    result = infer_meter(_seq(P_44), phase_search=True)
+    assert (result.best.numerator, result.best.denominator) == (4, 4)
+    assert result.downbeat_offset_beats == pytest.approx(0.0)
+
+
+@pytest.mark.parametrize("shift", [1.0, 2.0, 3.0])
+def test_phase_search_recovers_anacrusis_offset(shift):
+    # Displace a 4/4 accent pattern by `shift` beats: the downbeat is no longer at
+    # beat 0, and phase search reports the true displacement as the offset.
+    shifted = [(t + shift, w) for t, w in P_44]
+    result = infer_meter(_seq(shifted), phase_search=True)
+    assert (result.best.numerator, result.best.denominator) == (4, 4)
+    assert result.downbeat_offset_beats == pytest.approx(shift)
+
+
+def test_phase_search_offset_is_deterministic():
+    shifted = [(t + 1.0, w) for t, w in P_44]
+    a = infer_meter(_seq(shifted), phase_search=True).to_dict()
+    b = infer_meter(_seq(shifted), phase_search=True).to_dict()
+    assert a == b
+    assert a["downbeat_offset_beats"] == pytest.approx(1.0)
+
+
 def test_too_few_onsets_raises():
     with pytest.raises(ValueError, match="at least"):
         infer_meter(_seq([(0, 1), (1, 1)]))
