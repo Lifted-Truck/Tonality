@@ -1837,18 +1837,28 @@ A4's plugin/device frame; side effects: WASM falls out nearly free.
       (rel 1e-9 / abs 1e-12), plus a coverage ratchet (a new tool without a
       conformance case fails the suite). Doubles as regression armor today;
       intended output changes regenerate goldens in the same PR.
-- [ ] **Versioned-data export (pullable forward — A native consumer can use
-      it before the full port).** Stable-schema embeddable artifacts a
-      non-Python consumer loads and pins by version: the priors (key
-      profiles already JSON; naming weights; the `doubling.1` policy
-      constant) plus a *generated* precomputed table for the algorithmic
-      pieces (set-class prime forms / DFT magnitudes over the 4096 masks),
-      so a consumer can choose data-load *or* documented-algorithm
-      reimplementation. Requested by TERRANE brief-3 (its JUCE plugin), and
-      the lowest-cost half of the consumer-port corollary (Decision 10) —
-      this alone may suffice for a faithful native port, parity-checked
-      against the conformance goldens. Independent of the sequencing fence
-      (it exports current 12-TET data; no substrate commitment).
+- [x] **Versioned-data export (pullable forward — A native consumer can use
+      it before the full port).** *(Delivered 2026-06-26, slice 1:
+      `mts/io/export.py` + `scripts/export_versioned_data.py`.)*
+      `set_class_table()` precomputes the table-driven combinatorics for **all
+      4096 masks** (prime form / prime-form mask / normal order / interval
+      vector / DFT magnitudes / Z-partner / complement / rotational-symmetry
+      order + cardinality) — each row **mirrors the `set_class_info` MCP tool's
+      conformance-pinned shape, keyed by mask** (list position == mask, a direct
+      lookup), so a port consumes pure data instead of reimplementing the
+      mask-space math. `versioned_data_manifest()` indexes every `data/*.json`
+      prior/catalog with its **version string(s)** + the table schema — the one
+      document a port reads to know what to pin and cite. The script emits both
+      (manifest 1.6K; table 1.4M, generated on demand, **not committed** — the
+      engine is the source of truth, regenerate; the golden conformance harness
+      stays the parity oracle). Faithfulness is tested row-vs-engine. Requested
+      by TERRANE brief-3 (its JUCE plugin); the lowest-cost half of the
+      consumer-port corollary (Decision 10), independent of the sequencing fence.
+      **Deferred follow-ons:** embedding the priors/catalog content into the
+      bundle (vs naming them) + per-asset integrity hashes; the `doubling.1`
+      pairing policy as exported data (currently a documented algorithm);
+      committing the table artifact + a regenerate-and-diff guard if a consumer
+      wants it checked in.
 - [ ] Core identity layer (bitmask/set-class/symmetry/DFT) — `constexpr`
       tables over the 4096 universe; the cleanest layer, C++-native.
 - [ ] Analysis layer (parsers, naming + evidence, induction, VL, containment)
