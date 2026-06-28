@@ -581,9 +581,11 @@ list as new applications come into view.
    mid-progression V is just a dominant). A faithful consumer of the
    functional vocabulary (`theory/functions.py`), so major/minor only
    (`mode_supported=false` otherwise, no guessing) and it inherits that
-   vocabulary's coverage — the minor templates' missing bare-major-V-triad
-   is pinned as inherited behavior (flagged for a `theory/functions.py`
-   fix). MCP: `cadences` (#35). Feeds gap 14's cadential candidates.
+   vocabulary's coverage. **✅ Fixed (2026-06-26): the bare major-V triad** (the
+   harmonic-minor dominant, raised leading tone) is now in `TEMPLATES_MINOR`
+   degree 7 alongside V7 — so a bare V→i in minor reads as authentic in both
+   `cadences` and naming (it was previously recognized by neither). MCP:
+   `cadences` (#35). Feeds gap 14's cadential candidates.
 8. **Catalog containment query** (A6) — "which catalog scales/qualities
    contain this pc-set, at which roots." Ruled **engine-side** (exact
    combinatorics); the first concrete slice of the parked constraint-search
