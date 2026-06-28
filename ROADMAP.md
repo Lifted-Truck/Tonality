@@ -360,10 +360,19 @@ list as new applications come into view.
   Verified on the vendored corpus (region counts D911-09 6→5, -07 26→16, -21 20→9;
   home key preserved/strengthened; deterministic). **Pending:** A6 `--ab` validation
   (region/structural agreement under inertia) + the Bohemian Cases 1–2 acceptance
-  (needs A6's windowed-track dump — not vendored) before any default flip. The
-  scoping decisions that informed the build: DP (global, batch) — the causal/online
-  form joins gap 5; flat penalty not distance-weighted (distance-weighting makes
-  parallel flips *cheap*, the wrong direction). **Mandate recorded (brief-13):**
+  (needs A6's windowed-track dump — not vendored) before any default flip.
+  **✅ Acceptance confirmed (A6 brief-14, 2026-06-26 — `response-14.md`):** on
+  Bohemian, `key_inertia` on resolves both cases — Case 1: 9/9 spurious window-flips
+  gone (7/9 correct mode, 2 correctly held to their section key; 97→69 regions,
+  −29%); Case 2: the frame-weighted home flips B♭ minor → **B♭ major** (the
+  ambiguous closing inherits the prevailing mode). Soft-prior verified: home+global
+  both B♭ major and the reduction still splits 8→11 areas — the real B♭→E♭→A
+  modulations survive. **Still pending the default flip:** the SWD `--ab`
+  region/structural *regression* gate (A6 building a `key_inertia` A/B alongside
+  `--ab-anchor`/`--ab-profile`). The scoping decisions that informed the build: DP
+  (global, batch) — the causal/online form joins gap 5; flat penalty not
+  distance-weighted (distance-weighting makes parallel flips *cheap*, the wrong
+  direction). **Mandate recorded (brief-13):**
   key/mode/scale determination should live in and be hardened in the engine (the
   division-of-labor law) — a consumer report that turned out to be A6's beat-trim
   corrupting `structural_keys`'s input (engine read B♭ major on original beats)
