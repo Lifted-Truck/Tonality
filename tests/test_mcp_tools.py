@@ -423,6 +423,39 @@ def test_midi_file_analysis_per_region_context(tmp_path):
     assert len(tonics) == 1  # the old single-global-key conditioning
 
 
+def test_midi_file_analysis_meter_regions(tmp_path):
+    pytest.importorskip("mido")
+    from mts.core.pitch import Pitch
+    from mts.io.midi import sequence_to_midi_file
+    from mts.temporal import Event, Sequence
+
+    # 8 bars of 4/4 then 8 bars of 3/4 (accented), written through the SMF round-trip.
+    events, t = [], 0.0
+    for _ in range(8):
+        for beat, vel in enumerate((110, 50, 70, 50)):
+            events.append(Event(t + beat, 0.5, Pitch.from_midi(60, velocity=vel)))
+        t += 4
+    for _ in range(8):
+        for beat, vel in enumerate((110, 50, 70)):
+            events.append(Event(t + beat, 0.5, Pitch.from_midi(60, velocity=vel)))
+        t += 3
+    path = tmp_path / "meter_change.mid"
+    sequence_to_midi_file(Sequence.from_events(events), str(path))
+
+    result = _json_safe(tools.midi_file_analysis(
+        str(path), include_meter_regions=True,
+        infer_context=False, include_key_regions=False,
+    ))
+    regions = result["meter_regions"]["regions"]
+    sigs = [(r["numerator"], r["denominator"]) for r in regions]
+    # The change is detected: opens in 4/4, lands in 3/4. (A 1-window transient at
+    # the mixed boundary is honest v1 behaviour — no smoothing on the meter side.)
+    assert sigs[0] == (4, 4) and sigs[-1] == (3, 4)
+    assert (3, 4) in sigs and result["meter_regions"]["profile_version"] == "meter-grid.1"
+    # default off → the field is absent (existing output unchanged)
+    assert "meter_regions" not in tools.midi_file_analysis(str(path), infer_context=False)
+
+
 def test_piano_roll_view_end_to_end(tmp_path):
     import mido
 
