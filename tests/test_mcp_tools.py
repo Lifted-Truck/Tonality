@@ -67,6 +67,11 @@ def test_set_class_info():
     assert triad["chirality_sign"] == -1                       # major
     assert info["chirality_sign"] == 1                         # dom7 (mirror of m7b5)
     assert _json_safe(tools.set_class_info([0, 4, 8]))["chirality_sign"] == 0  # aug, achiral
+    # complete signed CONTINUOUS chirality (brief-16): sign * sqrt(R), real magnitude.
+    assert triad["chirality"] < 0                              # major
+    assert _json_safe(tools.set_class_info([0, 4, 8]))["chirality"] == 0.0  # aug, achiral
+    assert info["chirality"] == pytest.approx(
+        -_json_safe(tools.set_class_info([0, 3, 6, 10]))["chirality"])  # dom7 = -m7b5
 
 
 def test_interpretations_surface_equivalence():

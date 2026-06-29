@@ -325,3 +325,46 @@ def test_chirality_sign_values_and_blind_hexachord():
     assert general_chirality(hexachord) == 0.0          # bispectrum-blind
     assert chirality_sign(hexachord) != 0               # but classified
     assert chirality_sign(hexachord) == -chirality_sign(mirror)
+
+
+def test_chirality_continuous_passes_audiology_acceptance_harness():
+    # Audiology brief-16: chi = chirality_sign * sqrt(R) — complete signed CONTINUOUS
+    # chirality. A6's 4 acceptance checks, over all masks.
+    from mts.core.setclass import chirality, general_chirality, reflection_residual
+    from mts.analysis.pcset_math import reflection_axes
+    from mts.core.bitmask import invert_mask, pcs_from_mask
+    import math
+
+    maxR_achiral, minR_chiral = 0.0, 1e18
+    bad_complete = bad_invodd = 0
+    for mask in range(4096):
+        if bin(mask).count("1") < 2:
+            continue
+        c = chirality(mask)
+        achiral = len(reflection_axes(set(pcs_from_mask(mask)))) > 0
+        r = reflection_residual(mask)
+        (maxR_achiral := max(maxR_achiral, r)) if achiral else (minR_chiral := min(minR_chiral, r))
+        if (c == 0.0) != achiral:                       # 1) complete: 0 iff achiral
+            bad_complete += 1
+        if abs(chirality(invert_mask(mask)) + c) > 1e-9:  # 2) inversion-odd
+            bad_invodd += 1
+        if c != 0.0:                                    # |chi| == sqrt(R)
+            assert abs(abs(c) - math.sqrt(r)) < 1e-9
+    assert bad_complete == 0 and bad_invodd == 0
+    assert maxR_achiral < 1e-6        # achiral residual ~ 0
+    assert minR_chiral > 1.0          # wide gap (A6: chiral min ~1.35)
+
+
+def test_chirality_continuous_sign_convention():
+    from mts.core.setclass import chirality
+    maj = chirality(mask_from_pcs({0, 4, 7}))
+    minor = chirality(mask_from_pcs({0, 3, 7}))
+    assert maj < 0 < minor                                   # 3) major<0<minor
+    assert maj == pytest.approx(-minor)                      # mirror symmetry
+    # dom7 = -m7b5
+    assert chirality(mask_from_pcs({0, 4, 7, 10})) == pytest.approx(
+        -chirality(mask_from_pcs({0, 3, 6, 10})))
+    assert chirality(mask_from_pcs({0, 4, 8})) == 0.0        # augmented, achiral
+    # 4) the bispectrum-blind hexachord still gets a nonzero, mirror-opposite value
+    h = chirality(mask_from_pcs({0, 1, 3, 4, 5, 8}))
+    assert h != 0.0 and h == pytest.approx(-chirality(mask_from_pcs({0, 3, 4, 5, 7, 8})))
