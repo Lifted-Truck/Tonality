@@ -1,160 +1,146 @@
-# Tonality Music Theory Engine
+# Tonality
 
-A lightweight, scriptable theory sandbox that keeps its data local. The core library handles pitch-class math, scales, chord qualities, and functional mappings, while the CLI and Push grid renderer make it easy to explore results in the terminal.
+**A local-first music-theory engine for 12-TET pitch material — with an MCP endpoint.**
 
-## Highlights
+Tonality does the *exact* pitch-class arithmetic that humans and language models
+get wrong: set-class identity, exhaustive chord naming, symmetry, key induction,
+voice-leading, metric inference. It turns MIDI or symbolic notation into
+**enriched, reproducible datasets**, and exposes every analysis as an MCP tool so
+an AI agent can reason about music without doing the combinatorics itself.
 
-- **Comprehensive seed data** – JSON catalogues for scales (Push 3 set plus aliases), chord qualities (triads through altered 13ths), and functional harmony mappings.
-- **Push Grid renderer** – `mts/layouts/push_grid.py` drives a text-based Ableton Push layout with color coding, chord overlays, and flexible row offsets (fourths/thirds/sequential).
-- **Music-theory CLI** – `python -m mts.cli.push` previews the grid, lists available scales/qualities, and enforces in-scale validation with user-friendly warnings.
-- **Extensible core** – Dataclasses for chords, scales, and intervals let you script new workflows or hook into other apps without external services.
+It is a **foundation library**, not an end-user app. Your project keeps its UI,
+audio, and rendering; Tonality supplies the harmonic brain.
+
+> **The design law — division of labor.** Precise combinatorics live in the engine;
+> fuzzy, semantic, creative judgment lives in the caller. Its corollary —
+> *reduce, never invent* — means the engine never fabricates what you didn't give
+> it: no register without real notes, no key without evidence. Analyses that need
+> missing information **error; they don't guess.**
+
+---
+
+## What it can do
+
+Everything below is shipped, tested, and reachable from Python, the MCP endpoint,
+or as a JSON dataset. (Full capability schematic: **[INTEGRATION.md](INTEGRATION.md)**.)
+
+### Set-class & harmonic-color analysis
+Normal order, **Rahn prime form**, Z-relations, interval vectors, and the
+**6-D DFT "harmonic color"** embedding (|f₅| ≈ diatonicity, |f₆| ≈ whole-tone-ness)
+— plus DFT **phase** and a complete **chirality family**: scalars that capture a
+chord's *handedness*, cleanly separating major from minor and dom7 from m7♭5 where
+the interval vector alone cannot. (The complete signed chirality is a small research
+result derived in collaboration with a consumer project — see ROADMAP.)
+
+### Naming & contextual disambiguation
+Every structurally valid `(root, quality)` reading of a pitch-class set (C6 = Am7;
+dim7 names at four roots), then **the** chosen reading inside a key with ranked
+alternatives and per-signal evidence — flagging augmented sixths, secondary
+dominants, and Neapolitans instead of penalizing their chromaticism.
+
+### Key induction & tracking
+Ranked key candidates with scores and a top-two margin from any pc-weight vector;
+**windowed local key tracking** into modulation-aware regions; a tonicization-vs-
+modulation **structural key-area** reduction; opt-in **continuity priors** and a
+relative-major/minor tie-breaker. Empirical knobs ship as **versioned priors**,
+cited in every result.
+
+### Meter, rhythm & time
+Infer the time signature from note content (never overriding the file's), track it
+through **meter changes**, and recover the **downbeat phase** of an anacrusis.
+MIDI ingestion, segmentation, harmonic rhythm, voice-motion, melodic and rhythmic
+atoms, plus swing/groove feel.
+
+### Voice-leading & succession
+Exact minimal voice-leading distance between pc-sets (and over real voicings);
+**next-chord recommendations** tagged with functional, voice-leading, and color
+evidence; cadence detection (authentic / plagal / half / deceptive).
+
+### Representation — projections as *data*
+Render-agnostic numeric descriptions a visualizer can draw however it likes:
+**keyboard**, **piano-roll**, **clock/bracelet**, **Tonnetz**, **chord-network**
+(a "Cube Dance" voice-leading graph), **colour-content** wheels, and a
+voicing-continuous **tonal-orientation** angle. The library emits descriptions;
+pixels are an edge consumer's job.
+
+### Built for reproducibility
+Typed result objects (never ad-hoc dicts), a **golden conformance harness** that
+pins every tool's output, and a **versioned-data export** so a native port (no
+Python) can compute the same answers from the same data.
+
+---
+
+## Three ways in
+
+| Door | For | Entry point |
+|---|---|---|
+| **Python library** | scripting, embedding | `import mts` — pure functions over frozen dataclasses |
+| **MCP endpoint** | AI agents | **46 tools**, one per analysis; `python -m mts.mcp` (needs the `mcp` extra) |
+| **Dataset / JSON** | offline pipelines | versioned catalogs in `data/`, dataset records from MIDI |
+
+The core data model is two structures: an **identity key** (a pitch-class set as a
+12-bit bitmask — what you match and name on) and an optional **realization** (the
+actual pitches — what voicing, inversion, and register analysis read). You can
+always *reduce* a realization to a key; you can never *invent* register from a key
+without choosing a voicing — and choosing is a generative act, not an analytical one.
+
+---
 
 ## Quickstart
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install --upgrade pip
+pip install -e .            # MIDI parsing (mido) is included; add ".[mcp]" for the MCP server
 python examples/quickstart_engine_demo.py
 ```
 
-You’ll get a short report covering interval, chord, and layout objects sourced from the bundled JSON data.
-
-## Push Grid CLI
-
-Render a Push-style lattice directly in your terminal:
+You'll get a short report covering interval, chord, scale, and layout objects
+sourced from the bundled JSON catalogs. To analyze a chord from the terminal:
 
 ```bash
-python -m mts.cli.push \
-  --key Eb \
-  --scale Dorian \
-  --chord "Bb:maj9" \
-  --preset fourths \
-  --mode in_scale \
-  --degrees \
-  --color always
+python scripts/analyze_chord.py C maj7 --tonic C --json
 ```
 
-Key features:
+The `scripts/` folder bundles terminal tools over the analysis layer —
+`analyze_scale.py`, `analyze_chord.py`, `check_chord_scale_compat.py`,
+`build_scale_or_chord.py`, and `export_versioned_data.py`. Each self-documents via
+`-h/--help`.
 
-- Toggle layouts (`--preset fourths|thirds|sequential`) and anchoring (`--anchor fixed_C|fixed_root`).
-- Choose chromatic vs. in-scale views, hide out-of-key pads, and bias enharmonics with `--key-sig`.
-- Overlay chords by quality name or root/quality pair; strict in-scale checks warn or exit when tones fall outside the active scale.
-- Session-defined chord qualities announce a quick inversion/voicing summary as soon as they’re selected.
-- Discover available resources with `--list-scales`, `--list-qualities`, and the dynamic function catalog via `--list-functions` (add `--functions-feature altered_dominant`, `--functions-include-borrowed`, etc. to explore richer harmonic vocabularies).
+---
 
-Want a scripted tour? Run the sample:
+## Data & customization
 
-```bash
-python examples/push_grid_demo.py
-```
+Reference material is versioned JSON under `data/` — scales (modal/ethnic sets with
+alias support), chord qualities (triads through altered 13ths), functional-harmony
+tables, key/meter/scoring priors. Empirical values are versioned and cited; theory
+sets are never corpus-fit. Adjust the JSON, reload via `mts.io.loaders`, and the
+engine picks up the change. `mts/theory/functions.py` derives functional mappings
+procedurally from template rules.
 
-It shows multiple layout presets, spelling biases, and origin settings using the same grid engine that powers the CLI.
+---
 
-## Data & Customisation
+## Terminal Push grid (legacy)
 
-All reference material lives under `data/`:
+`mts/cli/push.py` renders a text-based Ableton Push lattice in the terminal
+(`python -m mts.cli.push --key Eb --scale Dorian --chord "Bb:maj9" --preset fourths`),
+with in-scale validation, layout presets, and enharmonic bias. It was Tonality's
+first visualization surface and remains a handy CLI, but **live Push visualization
+of chords and theory is now handled by consumer projects** (e.g. Audiology) that
+consume this engine through the integration channel — Tonality supplies the
+analysis; the consumer owns the surface. See `examples/push_grid_demo.py`.
 
-- `scales.json` – the full Push 3 roster plus modal/ethnic sets, now with alias support (e.g., “Aeolian” and “Natural Minor” map to the same entry).
-- `chord_qualities.json` – triads, sevenths, extensions, altered dominants, sus voicings, and more.
-- `functions_major.json` / `functions_minor.json` – expanded functional harmony tables capturing multiple chord options per degree with interval stacks.
-- `mts/theory/functions.py` – a procedural generator that derives functional mappings from template rules and scale definitions; experiment via `scripts/demo_function_generation.py` or the CLI’s `--list-functions` (which now prints both major and minor sets by default).
+---
 
-Adjust the JSON, reload via `mts.io.loaders`, and the CLI/Push grid pick up changes instantly.
+## Where to go next
 
-## Validation Utilities
-
-`scripts/validate_function_mappings.py` cross-checks functional mappings against Ionian/Aeolian masks (or whichever scales you configure) so you can spot borrowed/altered chords at a glance:
-
-```bash
-python3 scripts/validate_function_mappings.py
-```
-
-It reports any pitch-class mismatches along with the scale context used for comparison.
-
-## Analysis CLI Reference
-
-The `scripts/` folder bundles several terminal tools that piggy‑back on the analysis layer. Each command prints a short usage summary via `-h/--help`; the cheat‑sheet below lists the most important flags.
-
-### `scripts/analyze_scale.py`
-
-```
-python3 scripts/analyze_scale.py SCALE [options]
-```
-
-- `--list-scales`, `--list-qualities` print the available data sets and exit; positional `SCALE` is optional when listing.
-- `--tonic NOTE` spell the scale from a specific tonic (e.g., `--tonic Eb`).
-- `--spelling auto|sharps|flats` bias enharmonic naming (defaults to `auto`).
-- `--key-sig N` force a circle-of-fifths bias (-7..+7) when rendering note names.
-- `--no-note-names` suppresses spelled degrees even when a tonic is supplied.
-- `--json` dumps the complete analysis payload as pretty-printed JSON.
-
-### `scripts/analyze_chord.py`
-
-```
-python3 scripts/analyze_chord.py ROOT QUALITY [options]
-```
-
-- `--list-scales`, `--list-qualities` display catalog entries and exit; the root/quality arguments are optional when listing.
-- `--tonic NOTE` reports chord intervals relative to a tonal center.
-- `--spelling auto|sharps|flats` controls enharmonic preference for note names.
-- `--key-sig N` applies a circle-of-fifths bias when spelling notes (-7..+7).
-- `--interval-labels numeric|classical` switches between raw integers and P/M/m labels.
-- `--no-inversions`, `--no-voicings`, `--no-enharmonics` skip heavy sections you do not need.
-- `--json` emits the full analysis dictionary for downstream tooling.
-
-### `scripts/check_chord_scale_compat.py`
-
-```
-python3 scripts/check_chord_scale_compat.py [options]
-```
-
-- `--scale NAME` limit the overview to a single scale (defaults to every scale).
-- `--chord-quality NAME` test a specific quality against the selected scale.
-- `--tonic NOTE`, `--spelling`, `--key-sig` provide the same enharmonic controls as the other CLIs.
-- `--note-names` adds spelled chord tones alongside numeric root positions.
-- `--label-style numeric|classical` toggles between raw semitone offsets and traditional interval names.
-- `--list-scales`, `--list-qualities` enumerate available data and exit.
-- `--json` returns structured results for automation or GUI consumption.
-- Session-defined chord qualities automatically surface their interval fingerprint, a quick compatibility snapshot, and any detected functional roles the first time they appear.
-- When a chord is non-diatonic, the tool suggests modal-borrow sources and shows which pitch classes would be added or removed.
-
-### `scripts/build_scale_or_chord.py`
-
-```
-python3 scripts/build_scale_or_chord.py scale NAME 0,2,3,6
-python3 scripts/build_scale_or_chord.py chord NAME 0,3,7
-```
-
-- Subcommands: `scale` registers a manual scale (comma-separated pitch classes or `--mask`); `chord` registers a chord quality (comma-separated intervals or `--mask`).
-- `--name` is optional; omit it to let the engine assign a placeholder for the session.
-- `--match-only` lets you probe the catalog and see existing matches without registering a new object.
-- `--list-session` / `--clear-session` inspect or reset the in-memory registries (they persist to `~/.tonality_session.json` when writable).
-- `session --list/--clear` manages both scale and chord registries in one command.
-- `--summary brief|full|none` controls the post-registration chord summary. The brief report includes interval-class fingerprints, a ranked compatibility snapshot (top matches only), and detected functional roles.
-- Degree/interval inputs accept integers (`0-11`), note names (`C`, `F#`, `Bb`, etc.), or absolute pitches (`C3`, `Bb-1`, `60`).
-- Registered objects live in the in-memory session registries exposed by `mts.analysis`.
-
-See `mts/analysis/` for the Python interfaces behind these commands; the modules are designed so features can expand alongside the catalog data.
-
-## Time-aware analysis
-
-Temporal features live in `mts/temporal/` (events, sequences, tempo/meter maps,
-segmentation, harmonic rhythm), with MIDI ingestion in `mts/io/midi.py`. The
-older `mts.analysis.timeline` module is a **deprecated stub** kept only for a
-legacy workspace path — build against `mts/temporal/`.
-
-## Roadmap
-
-The canonical plan — build sequence, architecture decisions, target
-applications, and what is deferred or demoted — lives in
-**[ROADMAP.md](ROADMAP.md)**, the project's single source of truth for
-direction. Forward-looking statements anywhere else (including this README)
-defer to it. For contributor and agent workflow, see [CLAUDE.md](CLAUDE.md).
-
-## Integrating an external project?
-
-**[INTEGRATION.md](INTEGRATION.md)** is the capability schematic for outside
-consumers (synths, generators, visualizers, agents): what the engine can do
-today, the three integration doors (Python / MCP / dataset files), the
-contracts to design around, and what's coming that you should leave room for.
+- **[ROADMAP.md](ROADMAP.md)** — the single source of truth for direction: build
+  sequence, architecture decisions, target applications, what's deferred. Any
+  forward-looking statement (including this README) defers to it.
+- **[INTEGRATION.md](INTEGRATION.md)** — the capability schematic for outside
+  consumers: every shipped capability, the three integration doors, the contracts
+  to design around.
+- **[CLAUDE.md](CLAUDE.md)** — contributor and agent workflow, the architecture
+  layers, and the conventions.
+- **`integrations/`** — the cross-project exchange channel where consumer projects
+  (synths, generators, visualizers) trade briefs and responses with the engine.
