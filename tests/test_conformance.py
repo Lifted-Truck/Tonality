@@ -294,6 +294,7 @@ CASES: list[tuple[str, dict]] = [
         {"pcs": [0, 4, 7], "tonic": "C", "scale_name": "Ionian"},
     ),
     ("tonnetz_view", {"pcs": [0, 3, 6, 9]}),  # dim7 — symmetric, many edges
+    ("colour_content_view", {"pcs": [0, 4, 7]}),  # brief-15 colour resultants
     (
         "chord_network",
         {"chords": [["C", "maj"], ["C", "aug"], ["C", "min"], ["E", "min"], ["A", "min"]],

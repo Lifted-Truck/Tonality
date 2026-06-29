@@ -1739,8 +1739,17 @@ descriptor-track item below and Decision 9.)*
     cardinality, major<0/minor>0 (agrees with the trichord sign on triads), 0 for
     achiral sets, and **it separates dom7 ↔ m7♭5** (which the trichord scalar +
     `5·φ3−3·φ5` cannot). Near-zero dust snapped to `0.0`. Both chirality scalars are
-    now exposed (they diverge on ~29% of trichords; both valid). **✅ Complete
-    signed chirality — SOLVED 2026-06-28** (`core.chirality_sign`,
+    now exposed (they diverge on ~29% of trichords; both valid). **✅ Colour-content
+    descriptor (Ask 3, 2026-06-28):** `representation/colour_content.py`
+    (`colour_content_view`) — the two somatic-colour resultant vectors as
+    render-agnostic data: **interval-content** (root-blind, Tn-invariant — ic1..ic5
+    on an engine-fixed pentagon, tritone central, normalized so focus ∈ [0,1];
+    inversional pairs collapse) and **fifths-centroid** (root-aware, = `f5/n`). The
+    rim geometry is engine-fixed (the resultant angle *is* the determination); the
+    hue/OKLCH mapping stays A6's rendering. **Cross-validated against A6's
+    independent enumeration: all 4083 pc-sets land on exactly 185 distinct interval-
+    colour positions** (a regression fixture in the suite). **✅ Complete signed
+    chirality — SOLVED 2026-06-28** (`core.chirality_sign`,
     `set_class_info.chirality_sign`): a handedness in `{-1, 0, +1}`, **0 iff
     achiral**, inversion-odd, agreeing with `general_chirality` wherever that is
     nonzero (major = −1). Construction: the sign of the first nonzero member, in a
@@ -1751,10 +1760,10 @@ descriptor-track item below and Decision 9.)*
     trispectrum term resolves. `general_chirality` stays the smooth magnitude-bearing
     scalar (it false-zeros on a few exotic classes); `chirality_sign` is its complete
     sign-only companion. Verified exhaustively over all 4096 masks (a regression test
-    in the suite). **◻ Open follow-on:** a Representation-layer
-    **interval/colour-content descriptor** (the resultant-vector constructions;
-    hue/OKLCH stays A6's rendering) — next representation slice, will adopt A6's
-    4083-pc-set/185-wheel-position enumeration as a regression fixture.
+    in the suite). **◻ Next (A6 brief-16):** a complete *continuous* signed scalar
+    `chirality = chirality_sign · √R`, where `√R` is A6's best-fit reflection-axis
+    residual (`R = min_θ Σ|f_k|²·sin²(φ_k+kθ)`, a complete magnitude from the exposed
+    `f1..f6`) — verified against A6's acceptance harness, ships as one additive field.
   - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
     reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
     dominant-7 nodes with parsimonious voice-leading edges, augmented
