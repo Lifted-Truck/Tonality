@@ -10,8 +10,17 @@
 A native C++ core makes Tonality an **efficient generative tool** — the pitch-class
 combinatorics (set-class search, DFT, voice-leading, induction) run orders of
 magnitude faster and fit places CPython can't (plugins, embedded/Teensy, WASM).
-Decision 10: **port once, bind back** — one C++ core, Python bindings, every
-existing consumer keeps working through the bindings.
+
+**Dual implementation, golden-anchored** (Decision 10, revised 2026-06-29): the C++
+core becomes the **performance / generative / embedded main**, and the **Python
+implementation stays a fully-functional peer** — not a binding shim. Some consumers
+are better served by pure-Python Tonality (no native toolchain — agents, notebooks,
+scriptability, and the MCP live-signature introspection a pure port would lose). The
+two implementations are held to **one language-neutral spec** (the conformance
+golden), so they can't drift silently; Python remains the spec's source of truth
+(the golden is generated from it). Optional pybind11 bindings give Python consumers
+a *fast path into the C++ core* when they want it, without retiring the pure-Python
+engine.
 
 ## The parity contract (this is what makes it safe)
 
@@ -83,7 +92,9 @@ Sizing on record: core-only ≈ **3–5 weeks**; full parity ≈ 3–5 person-mo
   slice.
 - **pybind11 bindings deferred** — slice 1 ships the C++ core + the parity test
   runner (and optionally a tiny CLI). Bindings come once the core subset is green,
-  so "the Python package becomes a shim" is a later, separate step.
+  as an *optional fast path* into the C++ core; the pure-Python engine stays a
+  first-class peer (Decision 10, revised) — bindings are an addition, not a
+  replacement.
 - **Engine-side support already done:** the export + conformance harness. The only
   new engine-side work is *adding the chirality/phase fields to the export table*
   for slice 1b (small, additive).
