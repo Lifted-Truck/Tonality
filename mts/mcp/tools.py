@@ -1094,6 +1094,23 @@ def colour_content_view(pcs: list[int]) -> dict:
     return colour_content_descriptor([int(pc) for pc in pcs]).to_dict()
 
 
+def tonal_orientation_view(midi_notes: list[int], octave_decay: float = 1.0) -> dict:
+    """Register-aware tonal-orientation angle of a VOICING (Audiology brief-17):
+    a continuous fifths-space angle that varies with voicing (inversion, spread,
+    doublings) — map angle_radians → hue for a voicing-responsive colour. Each
+    sounding pitch is placed at its circle-of-fifths angle and summed with a
+    register weight (octave_decay per octave above the bass: 1.0 = uniform, <1
+    weights the bass more so inversion/spread shift the angle). Reduces to the
+    pc-level arg(f5) for a neutral closed voicing; rotates predictably under
+    transposition. midi_notes: the sounding MIDI pitches (register-REQUIRED — a
+    pc-set has no voicing to orient). Hue/OKLCH stays the consumer's rendering."""
+    from ..representation import tonal_orientation
+
+    return tonal_orientation(
+        [int(m) for m in midi_notes], octave_decay=float(octave_decay)
+    ).to_dict()
+
+
 def chord_network(chords: list[list], max_distance: int = 2) -> dict:
     """Voice-leading network over a chord vocabulary (Phase 5): nodes (each
     chord + pcs + rotational symmetry — augmented/dim hubs stand out by their
@@ -1316,6 +1333,7 @@ TOOLS = (
     bracelet_view,
     tonnetz_view,
     colour_content_view,
+    tonal_orientation_view,
     chord_network,
     realized_voice_leading,
     voicing_analysis,

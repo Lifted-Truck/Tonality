@@ -37,6 +37,7 @@ from .colour_content import (
     ColourResultant,
     colour_content_descriptor,
 )
+from .tonal_orientation import TonalOrientation, tonal_orientation
 from .chord_network import (
     ChordNetwork,
     ChordNetworkEdge,
@@ -60,6 +61,8 @@ __all__ = [
     "ColourContentDescriptor",
     "ColourResultant",
     "colour_content_descriptor",
+    "TonalOrientation",
+    "tonal_orientation",
     "TonnetzDescriptor",
     "TonnetzEdge",
     "TonnetzNode",

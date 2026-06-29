@@ -1772,6 +1772,20 @@ descriptor-track item below and Decision 9.)*
     chirality family is now complete: `trichord_chirality` (exact 3-note),
     `general_chirality` (smooth slice), `chirality_sign` (complete ±1/0),
     `chirality` (complete continuous).
+    **✅ Pitch-space tonal orientation — SHIPPED 2026-06-29 (A6 brief-17)**
+    (`representation/tonal_orientation.py`, `tonal_orientation_view`): the
+    **register-aware** sibling of the pc-level fifths centroid — a continuous
+    fifths-space angle for a *voicing* (Chew's spiral-array center-of-effect
+    projected to the fifths circle). Each sounding pitch placed at its
+    circle-of-fifths angle, summed with a register weight (`octave_decay` per octave
+    above the bass — caller's aesthetic knob, default 1.0 = uniform); the resultant's
+    argument is a **voicing-continuous** angle (inversion/spread/doublings move it).
+    Verified: reduces to `arg(f5)` for a neutral closed voicing, rotates predictably
+    under transposition, and (`octave_decay<1`) distinguishes inversions/spread.
+    Register-REQUIRED (a pc-set has no voicing to orient). Hue/OKLCH + the
+    absolute-register→lightness axis stay A6's rendering. The "shared canonical-frame
+    machinery with brief-16" the brief hypothesized does **not** exist — that sign
+    was combinatorial (bispectrum), not a geometric frame — so this is a fresh build.
   - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
     reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
     dominant-7 nodes with parsimonious voice-leading edges, augmented

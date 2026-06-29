@@ -295,6 +295,8 @@ CASES: list[tuple[str, dict]] = [
     ),
     ("tonnetz_view", {"pcs": [0, 3, 6, 9]}),  # dim7 — symmetric, many edges
     ("colour_content_view", {"pcs": [0, 4, 7]}),  # brief-15 colour resultants
+    # brief-17 voicing-continuous tonal orientation (register-aware, bass-weighted).
+    ("tonal_orientation_view", {"midi_notes": [60, 64, 67], "octave_decay": 0.5}),
     (
         "chord_network",
         {"chords": [["C", "maj"], ["C", "aug"], ["C", "min"], ["E", "min"], ["A", "min"]],
