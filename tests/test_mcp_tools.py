@@ -63,6 +63,10 @@ def test_set_class_info():
     triad = _json_safe(tools.set_class_info([0, 4, 7]))
     assert triad["trichord_chirality"] == -2  # major
     assert triad["general_chirality"] < 0     # major (sign agrees)
+    # complete signed chirality: -1/0/+1, 0 iff achiral (the brief-15 research result).
+    assert triad["chirality_sign"] == -1                       # major
+    assert info["chirality_sign"] == 1                         # dom7 (mirror of m7b5)
+    assert _json_safe(tools.set_class_info([0, 4, 8]))["chirality_sign"] == 0  # aug, achiral
 
 
 def test_interpretations_surface_equivalence():

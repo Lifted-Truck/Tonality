@@ -115,14 +115,70 @@ def general_chirality(mask: int) -> float:
     **major < 0 / minor > 0** (agreeing with :func:`trichord_chirality`'s sign on
     triads), and — unlike the trichord step-gap product — it **separates dom7 from
     m7♭5**. It is *not* identical to the step-gap chirality (they diverge in sign on
-    ~29% of trichords); both are valid, this is the n-note generalization. Known
-    residual: false-zeros on 28 exotic 5–7-note set classes (none musical); a
-    *complete* sign-consistent invariant is an open problem (brief-15). Near-zero
-    dust is snapped to ``0.0`` so the achiral test is exact.
+    ~29% of trichords); both are valid, this is the n-note generalization. This is
+    the **smooth** handedness scalar: it carries a magnitude but is a single slice,
+    so it false-zeros on a few exotic chiral set classes. For a *complete*
+    classification (zero **iff** achiral) use :func:`chirality_sign`. Near-zero dust
+    is snapped to ``0.0`` so the achiral test is exact.
     """
     components = dft_components(mask)
     value = (components[1] * components[2] * components[3].conjugate()).imag
     return round(value, 10) + 0.0  # +0.0 normalizes -0.0 → 0.0
+
+
+# Canonical inversion-odd slice family for chirality_sign, ORDERED. Each slice is a
+# bispectrum coefficient B(a,b)=f_a·f_b·conj(f_{a+b}) whose Im part is transposition-
+# invariant and inversion-odd. ``(1, 2)`` is first so the sign agrees with
+# ``general_chirality`` (= Im B(1,2)) wherever that is nonzero; the rest are the one
+# representative of each ±mirror pair (a,b)~(12−a,12−b), lexicographically. A single
+# trispectrum term f_1³·conj(f_3) is the final fallback — it is the *only* invariant
+# needed beyond the bispectrum, covering the lone bispectrum-blind chiral hexachord
+# [0,1,3,4,5,8] (which has f_2 = f_4 = 0). Verified complete over all 4096 masks.
+def _chirality_slices() -> list[tuple[int, int]]:
+    pairs: list[tuple[int, int]] = []
+    for a in range(1, 12):
+        for b in range(a, 12):
+            mirror = (min((12 - a) % 12, (12 - b) % 12), max((12 - a) % 12, (12 - b) % 12))
+            if (a, b) <= mirror:
+                pairs.append((a, b))
+    pairs.sort(key=lambda ab: (ab != (1, 2), ab))  # (1,2) first, then lexicographic
+    return pairs
+
+
+_CHIRALITY_SLICES = tuple(_chirality_slices())
+_CHIRALITY_EPS = 1e-7
+
+
+@lru_cache(maxsize=4096)
+def chirality_sign(mask: int) -> int:
+    """Complete handedness of a pitch-class set: ``-1`` / ``0`` / ``+1`` —
+    ``0`` **iff** the set is achiral (inversionally symmetric), ``−1`` for the
+    major-triad handedness and ``+1`` for its mirror.
+
+    The *complete signed chirality* posed as the open problem in Audiology brief-15.
+    :func:`general_chirality` (one bispectrum slice) carries a magnitude but
+    false-zeros on a few exotic chiral classes; this is its complete, sign-only
+    companion. Construction: take the sign of the first nonzero member, in a fixed
+    canonical order, of the inversion-odd slice family (:data:`_CHIRALITY_SLICES`
+    bispectrum slices + the ``f_1³·conj(f_3)`` trispectrum fallback). Every slice is
+    transposition-invariant and inversion-odd, so the result is transposition-
+    invariant, flips sign under inversion, and — verified exhaustively over all 4096
+    masks — is nonzero for **every** chiral set class (the trispectrum term supplies
+    the lone hexachord the bispectrum cannot see) and zero for every achiral one.
+    ``(1, 2)`` leads the order so the sign agrees with ``general_chirality`` wherever
+    that is nonzero. Major = ``−1`` by convention (matching the chirality scalars).
+    """
+
+    comp = dft_components(mask)  # f0..f6
+    f = list(comp) + [comp[12 - k].conjugate() for k in range(7, 12)]  # f7..f11
+    for a, b in _CHIRALITY_SLICES:
+        value = (f[a] * f[b] * f[(a + b) % 12].conjugate()).imag
+        if abs(value) > _CHIRALITY_EPS:
+            return -1 if value < 0 else 1
+    value = (f[1] ** 3 * f[3].conjugate()).imag  # trispectrum fallback (lone hexachord)
+    if abs(value) > _CHIRALITY_EPS:
+        return -1 if value < 0 else 1
+    return 0
 
 
 @lru_cache(maxsize=1)

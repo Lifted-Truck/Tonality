@@ -188,10 +188,14 @@ def set_class_info(pcs: list[int]) -> dict:
     achiral 0), null for non-trichords; `general_chirality` is the bispectrum-slice
     handedness `Im(f1·f2·conj(f3))` that works for ANY cardinality (transposition-
     invariant, inversion-odd; major<0 / minor>0; 0 for achiral sets; separates
-    dom7 from m7♭5 — which the trichord scalar cannot — Audiology brief-15).
-    `prime_form`, `prime_form_mask`, and the 12-bit `mask` are all returned."""
+    dom7 from m7♭5 — which the trichord scalar cannot — Audiology brief-15);
+    `chirality_sign` (-1/0/+1) is the COMPLETE handedness — 0 **iff** the set is
+    achiral, -1 for major's handedness / +1 for its mirror — the signed-chirality
+    research result (general_chirality carries a magnitude but false-zeros on a few
+    exotic classes; this never does). `prime_form`, `prime_form_mask`, and the
+    12-bit `mask` are all returned."""
     from ..analysis.pcset_math import trichord_chirality
-    from ..core.setclass import dft_phases, general_chirality
+    from ..core.setclass import chirality_sign, dft_phases, general_chirality
 
     mask = mask_from_pcs({int(pc) % 12 for pc in pcs})
     if mask == 0:
@@ -201,6 +205,7 @@ def set_class_info(pcs: list[int]) -> dict:
     data["rotational_symmetry_order"] = mask_symmetry_order(mask)
     data["trichord_chirality"] = trichord_chirality(mask)
     data["general_chirality"] = general_chirality(mask)
+    data["chirality_sign"] = chirality_sign(mask)
     data["mask"] = mask
     return data
 
