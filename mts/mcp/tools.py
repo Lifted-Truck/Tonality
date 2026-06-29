@@ -1065,6 +1065,22 @@ def tonnetz_view(pcs: list[int]) -> dict:
     return tonnetz_descriptor([int(pc) for pc in pcs]).to_dict()
 
 
+def colour_content_view(pcs: list[int]) -> dict:
+    """Render-agnostic colour-content descriptor (Audiology brief-15): the two
+    resultant vectors behind the somatic-colour wheels, as numeric data — map
+    each resultant's angle → hue, focus → saturation. `interval_content` is the
+    root-blind, transposition-INVARIANT interval-colour (ic1..ic5 on a fixed
+    pentagon, tritone central, normalized so focus ∈ [0,1]; inversional pairs
+    collapse — maj=min, dom7=m7♭5). `fifths_centroid` is the root-aware,
+    transposition-VARIANT circle-of-fifths centroid (= f5/n: angle arg(f5), focus
+    |f5|/n). The interval vector + the fixed `rim_layout` ride along. Unlike the
+    clock view the rim geometry is engine-fixed (the resultant angle IS the
+    determination). Register-less; hue/OKLCH stays the consumer's rendering."""
+    from ..representation import colour_content_descriptor
+
+    return colour_content_descriptor([int(pc) for pc in pcs]).to_dict()
+
+
 def chord_network(chords: list[list], max_distance: int = 2) -> dict:
     """Voice-leading network over a chord vocabulary (Phase 5): nodes (each
     chord + pcs + rotational symmetry — augmented/dim hubs stand out by their
@@ -1286,6 +1302,7 @@ TOOLS = (
     keyboard_view,
     bracelet_view,
     tonnetz_view,
+    colour_content_view,
     chord_network,
     realized_voice_leading,
     voicing_analysis,

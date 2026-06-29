@@ -14168,6 +14168,40 @@
   },
   {
    "kwargs": {
+    "pcs": [
+     0,
+     4,
+     7
+    ]
+   },
+   "result": {
+    "fifths_centroid": {
+     "angle_radians": 0.7853981633974483,
+     "focus": 0.6439505509,
+     "x": 0.4553418013,
+     "y": 0.4553418013
+    },
+    "interval_content": {
+     "angle_radians": -2.5132741228718345,
+     "focus": 0.5393446629,
+     "x": -0.4363389981,
+     "y": -0.3170188388
+    },
+    "interval_vector": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0
+    ],
+    "rim_layout": "pentagon: ic1..ic5 at 2\u03c0(k-1)/5 from +x; tritone (ic6) central (no direction)",
+    "spec_level": "identity_only"
+   },
+   "tool": "colour_content_view"
+  },
+  {
+   "kwargs": {
     "chords": [
      [
       "C",

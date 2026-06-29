@@ -1732,13 +1732,19 @@ descriptor-track item below and Decision 9.)*
     TnI-invariant `SetClassData`) and **`trichord_chirality`** (`(a−b)(b−c)(c−a)`
     step-gap product: major −2 / minor +2 / achiral 0 / `null` for non-trichords —
     additive golden change only). `|f5|` consonance was already `dft_magnitudes[4]`;
-    prime form + bitmask already returned (Ask 2 confirmed). **◻ Open follow-ons:**
-    a Representation-layer **interval/colour-content descriptor** (the resultant-
-    vector constructions; hue/OKLCH stays A6's rendering) — next representation
-    slice, will adopt A6's 199-interval-vector/185-wheel-position enumeration as a
-    regression fixture; and a **general n-note chirality** (the trichord scalar
-    returns `null` past 3 notes because the general inversion-odd invariant is
-    unsolved — the dom7/m7♭5 mirror pair is the test case; invited as its own brief).
+    prime form + bitmask already returned (Ask 2 confirmed). **✅ Colour-content
+    descriptor (Ask 3, 2026-06-28):** `representation/colour_content.py`
+    (`colour_content_view`) — the two somatic-colour resultant vectors as
+    render-agnostic data: **interval-content** (root-blind, Tn-invariant — ic1..ic5
+    on an engine-fixed pentagon, tritone central, normalized so focus ∈ [0,1];
+    inversional pairs collapse) and **fifths-centroid** (root-aware, = `f5/n`). The
+    rim geometry is engine-fixed (the resultant angle *is* the determination); the
+    hue/OKLCH mapping stays A6's rendering. **Cross-validated against A6's
+    independent enumeration: all 4083 pc-sets land on exactly 185 distinct interval-
+    colour positions** (a regression fixture in the suite). **◻ Open follow-ons:**
+    a **general n-note chirality** (the trichord scalar returns `null` past 3 notes
+    because the general inversion-odd invariant is unsolved — the dom7/m7♭5 mirror
+    pair is the test case; invited as its own brief).
   - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
     reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
     dominant-7 nodes with parsimonious voice-leading edges, augmented
