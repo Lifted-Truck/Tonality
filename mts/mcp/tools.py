@@ -192,10 +192,13 @@ def set_class_info(pcs: list[int]) -> dict:
     `chirality_sign` (-1/0/+1) is the COMPLETE handedness — 0 **iff** the set is
     achiral, -1 for major's handedness / +1 for its mirror — the signed-chirality
     research result (general_chirality carries a magnitude but false-zeros on a few
-    exotic classes; this never does). `prime_form`, `prime_form_mask`, and the
-    12-bit `mask` are all returned."""
+    exotic classes; this never does). `chirality` is the complete signed CONTINUOUS
+    scalar (Audiology brief-16) = chirality_sign · √R, R the best-fit reflection-axis
+    residual: 0 iff achiral, inversion-odd, major<0/minor>0, dom7 = -m7♭5, with a
+    real magnitude (|chirality| = √R orders sets by how chiral they are).
+    `prime_form`, `prime_form_mask`, and the 12-bit `mask` are all returned."""
     from ..analysis.pcset_math import trichord_chirality
-    from ..core.setclass import chirality_sign, dft_phases, general_chirality
+    from ..core.setclass import chirality, chirality_sign, dft_phases, general_chirality
 
     mask = mask_from_pcs({int(pc) % 12 for pc in pcs})
     if mask == 0:
@@ -206,6 +209,7 @@ def set_class_info(pcs: list[int]) -> dict:
     data["trichord_chirality"] = trichord_chirality(mask)
     data["general_chirality"] = general_chirality(mask)
     data["chirality_sign"] = chirality_sign(mask)
+    data["chirality"] = chirality(mask)
     data["mask"] = mask
     return data
 

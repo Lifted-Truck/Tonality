@@ -1760,10 +1760,18 @@ descriptor-track item below and Decision 9.)*
     trispectrum term resolves. `general_chirality` stays the smooth magnitude-bearing
     scalar (it false-zeros on a few exotic classes); `chirality_sign` is its complete
     sign-only companion. Verified exhaustively over all 4096 masks (a regression test
-    in the suite). **◻ Next (A6 brief-16):** a complete *continuous* signed scalar
-    `chirality = chirality_sign · √R`, where `√R` is A6's best-fit reflection-axis
-    residual (`R = min_θ Σ|f_k|²·sin²(φ_k+kθ)`, a complete magnitude from the exposed
-    `f1..f6`) — verified against A6's acceptance harness, ships as one additive field.
+    in the suite). **✅ Complete *continuous* signed chirality — SHIPPED 2026-06-29
+    (A6 brief-16)** (`core.chirality` / `core.reflection_residual`,
+    `set_class_info.chirality`): `chirality = chirality_sign · √R`, with `√R` =
+    A6's best-fit reflection-axis residual (`R = min_θ Σ|f_k|²·sin²(φ_k+kθ)`,
+    minimized by grid-bracket + golden-section refine; complete magnitude from the
+    exposed `f1..f6`). My `chirality_sign` (sign) + A6's `√R` (magnitude) — a
+    parallel-derivation synthesis: `0` iff achiral, inversion-odd, major<0/minor>0,
+    `dom7 = −m7♭5`, with a real magnitude ordering sets by *how* chiral. Verified
+    against A6's full acceptance harness over all 4096 masks. The brief-15/16
+    chirality family is now complete: `trichord_chirality` (exact 3-note),
+    `general_chirality` (smooth slice), `chirality_sign` (complete ±1/0),
+    `chirality` (complete continuous).
   - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
     reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
     dominant-7 nodes with parsimonious voice-leading edges, augmented
