@@ -283,3 +283,45 @@ def test_general_chirality_separates_what_the_trichord_scalar_cannot():
     dom7, m7b5 = mask_from_pcs({0, 4, 7, 10}), mask_from_pcs({0, 3, 6, 10})
     assert general_chirality(dom7) == pytest.approx(-general_chirality(m7b5))
     assert general_chirality(dom7) != 0.0
+
+
+def test_chirality_sign_is_a_complete_signed_invariant():
+    # The signed-chirality research result (Audiology brief-15 open problem): a
+    # handedness in {-1, 0, +1} that is 0 IFF achiral, inversion-odd, and agrees
+    # with general_chirality wherever that is nonzero. Verified over ALL masks.
+    from mts.core.setclass import chirality_sign, general_chirality
+    from mts.analysis.pcset_math import reflection_axes
+    from mts.core.bitmask import invert_mask, pcs_from_mask
+
+    bad_complete = bad_invodd = bad_agree = 0
+    for mask in range(4096):
+        if bin(mask).count("1") < 2:
+            continue
+        s = chirality_sign(mask)
+        achiral = len(reflection_axes(set(pcs_from_mask(mask)))) > 0
+        if (s == 0) != achiral:            # complete: zero iff achiral
+            bad_complete += 1
+        if chirality_sign(invert_mask(mask)) != -s:   # inversion-odd
+            bad_invodd += 1
+        g = general_chirality(mask)        # backward-consistent sign
+        if g != 0.0 and (g < 0) != (s < 0):
+            bad_agree += 1
+    assert bad_complete == 0   # no chiral set escapes, no achiral set false-fires
+    assert bad_invodd == 0
+    assert bad_agree == 0
+
+
+def test_chirality_sign_values_and_blind_hexachord():
+    from mts.core.setclass import chirality_sign
+    assert chirality_sign(mask_from_pcs({0, 4, 7})) == -1   # major
+    assert chirality_sign(mask_from_pcs({0, 3, 7})) == 1    # minor
+    assert chirality_sign(mask_from_pcs({0, 4, 8})) == 0    # augmented (achiral)
+    assert chirality_sign(mask_from_pcs({0, 4, 7, 10})) == 1   # dom7 (general_chirality +)
+    # the lone bispectrum-blind chiral hexachord: general_chirality false-zeros,
+    # chirality_sign (trispectrum fallback) still classifies it, opposite to its mirror.
+    from mts.core.setclass import general_chirality
+    hexachord = mask_from_pcs({0, 1, 3, 4, 5, 8})
+    mirror = mask_from_pcs({(-p) % 12 for p in (0, 1, 3, 4, 5, 8)})
+    assert general_chirality(hexachord) == 0.0          # bispectrum-blind
+    assert chirality_sign(hexachord) != 0               # but classified
+    assert chirality_sign(hexachord) == -chirality_sign(mirror)

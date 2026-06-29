@@ -1739,15 +1739,22 @@ descriptor-track item below and Decision 9.)*
     cardinality, major<0/minor>0 (agrees with the trichord sign on triads), 0 for
     achiral sets, and **it separates dom7 ↔ m7♭5** (which the trichord scalar +
     `5·φ3−3·φ5` cannot). Near-zero dust snapped to `0.0`. Both chirality scalars are
-    now exposed (they diverge on ~29% of trichords; both valid). **◻ Open
-    follow-ons:** a Representation-layer **interval/colour-content descriptor** (the
-    resultant-vector constructions; hue/OKLCH stays A6's rendering) — next
-    representation slice, will adopt A6's 4083-pc-set/185-wheel-position enumeration
-    as a regression fixture; and the **complete signed chirality** — a single
-    bispectrum slice has 28 exotic-5–7-note false-zeros, the norm `‖Im(B(a,b))‖` is
-    complete (0 iff achiral) but unsigned; reconciling completeness with a globally
-    consistent sign is the open research problem (a sign from a canonical best-fit
-    reflection axis is the candidate approach).
+    now exposed (they diverge on ~29% of trichords; both valid). **✅ Complete
+    signed chirality — SOLVED 2026-06-28** (`core.chirality_sign`,
+    `set_class_info.chirality_sign`): a handedness in `{-1, 0, +1}`, **0 iff
+    achiral**, inversion-odd, agreeing with `general_chirality` wherever that is
+    nonzero (major = −1). Construction: the sign of the first nonzero member, in a
+    fixed canonical order, of the inversion-odd slice family — the bispectrum slices
+    `Im(B(a,b))` plus **one trispectrum term `Im(f1³·conj(f3))`**. Research finding:
+    the bispectrum alone is complete for **350 of 351** set classes — the *only*
+    blind spot is the chiral hexachord `[0,1,3,4,5,8]` (`f2=f4=0`), which the
+    trispectrum term resolves. `general_chirality` stays the smooth magnitude-bearing
+    scalar (it false-zeros on a few exotic classes); `chirality_sign` is its complete
+    sign-only companion. Verified exhaustively over all 4096 masks (a regression test
+    in the suite). **◻ Open follow-on:** a Representation-layer
+    **interval/colour-content descriptor** (the resultant-vector constructions;
+    hue/OKLCH stays A6's rendering) — next representation slice, will adopt A6's
+    4083-pc-set/185-wheel-position enumeration as a regression fixture.
   - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
     reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
     dominant-7 nodes with parsimonious voice-leading edges, augmented
