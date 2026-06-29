@@ -1732,7 +1732,14 @@ descriptor-track item below and Decision 9.)*
     TnI-invariant `SetClassData`) and **`trichord_chirality`** (`(a−b)(b−c)(c−a)`
     step-gap product: major −2 / minor +2 / achiral 0 / `null` for non-trichords —
     additive golden change only). `|f5|` consonance was already `dft_magnitudes[4]`;
-    prime form + bitmask already returned (Ask 2 confirmed). **✅ Colour-content
+    prime form + bitmask already returned (Ask 2 confirmed). **✅ General chirality
+    (brief-15 refile, 2026-06-28):** `set_class_info.general_chirality` =
+    `Im(f1·f2·conj(f3))` (core `general_chirality(mask)`), the bispectrum-slice
+    `Im(B(1,2))` A6 derived — transposition-invariant, inversion-odd, works for ANY
+    cardinality, major<0/minor>0 (agrees with the trichord sign on triads), 0 for
+    achiral sets, and **it separates dom7 ↔ m7♭5** (which the trichord scalar +
+    `5·φ3−3·φ5` cannot). Near-zero dust snapped to `0.0`. Both chirality scalars are
+    now exposed (they diverge on ~29% of trichords; both valid). **✅ Colour-content
     descriptor (Ask 3, 2026-06-28):** `representation/colour_content.py`
     (`colour_content_view`) — the two somatic-colour resultant vectors as
     render-agnostic data: **interval-content** (root-blind, Tn-invariant — ic1..ic5
@@ -1741,10 +1748,12 @@ descriptor-track item below and Decision 9.)*
     rim geometry is engine-fixed (the resultant angle *is* the determination); the
     hue/OKLCH mapping stays A6's rendering. **Cross-validated against A6's
     independent enumeration: all 4083 pc-sets land on exactly 185 distinct interval-
-    colour positions** (a regression fixture in the suite). **◻ Open follow-ons:**
-    a **general n-note chirality** (the trichord scalar returns `null` past 3 notes
-    because the general inversion-odd invariant is unsolved — the dom7/m7♭5 mirror
-    pair is the test case; invited as its own brief).
+    colour positions** (a regression fixture in the suite). **◻ Open follow-on:**
+    the **complete signed chirality** — a single bispectrum slice has 28 exotic-5–7-
+    note false-zeros, the norm `‖Im(B(a,b))‖` is complete (0 iff achiral) but
+    unsigned; reconciling completeness with a globally consistent sign is the open
+    research problem (a sign from a canonical best-fit reflection axis is the
+    candidate approach).
   - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
     reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
     dominant-7 nodes with parsimonious voice-leading edges, augmented

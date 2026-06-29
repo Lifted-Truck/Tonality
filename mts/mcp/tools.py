@@ -185,10 +185,13 @@ def set_class_info(pcs: list[int]) -> dict:
     carrying the absolute-position/handedness info the magnitudes discard (colour
     hue, chirality inputs — Audiology brief-15). `trichord_chirality` is the
     inversion-odd step-gap handedness for 3-note sets (major −2 / minor +2 /
-    achiral 0), null for non-trichords. `prime_form`, `prime_form_mask`, and the
-    12-bit `mask` are all returned."""
+    achiral 0), null for non-trichords; `general_chirality` is the bispectrum-slice
+    handedness `Im(f1·f2·conj(f3))` that works for ANY cardinality (transposition-
+    invariant, inversion-odd; major<0 / minor>0; 0 for achiral sets; separates
+    dom7 from m7♭5 — which the trichord scalar cannot — Audiology brief-15).
+    `prime_form`, `prime_form_mask`, and the 12-bit `mask` are all returned."""
     from ..analysis.pcset_math import trichord_chirality
-    from ..core.setclass import dft_phases
+    from ..core.setclass import dft_phases, general_chirality
 
     mask = mask_from_pcs({int(pc) % 12 for pc in pcs})
     if mask == 0:
@@ -197,6 +200,7 @@ def set_class_info(pcs: list[int]) -> dict:
     data["dft_phases"] = list(dft_phases(mask))
     data["rotational_symmetry_order"] = mask_symmetry_order(mask)
     data["trichord_chirality"] = trichord_chirality(mask)
+    data["general_chirality"] = general_chirality(mask)
     data["mask"] = mask
     return data
 

@@ -264,3 +264,22 @@ def test_trichord_chirality_none_for_non_trichords():
     assert trichord_chirality(mask_from_pcs({0, 4})) is None          # dyad
     assert trichord_chirality(mask_from_pcs({0, 4, 7, 10})) is None   # dom7 tetrachord
     assert trichord_chirality(mask_from_pcs({0, 3, 6, 10})) is None   # m7b5 (its mirror)
+
+
+def test_general_chirality_separates_what_the_trichord_scalar_cannot():
+    # Audiology brief-15: Im(f1*f2*conj(f3)) — bispectrum-slice handedness for ANY
+    # cardinality, the n-note generalization of trichord_chirality.
+    from mts.core.setclass import general_chirality
+    maj, minor = mask_from_pcs({0, 4, 7}), mask_from_pcs({0, 3, 7})
+    # sign agrees with the trichord convention on triads (major < 0 < minor) ...
+    assert general_chirality(maj) < 0 < general_chirality(minor)
+    # ... transposition-invariant (unlike phase) ...
+    assert general_chirality(mask_from_pcs({2, 6, 9})) == general_chirality(maj)
+    # ... 0 for every inversionally-symmetric set ...
+    for achiral in ({0, 4, 8}, {0, 3, 6, 9}, {0, 2, 4, 6, 8, 10}, {0, 1, 2}):
+        assert general_chirality(mask_from_pcs(achiral)) == 0.0
+    # ... and it separates the dom7 / m7b5 mirror pair (trichord_chirality is None
+    # for both — they are tetrachords), with opposite signs.
+    dom7, m7b5 = mask_from_pcs({0, 4, 7, 10}), mask_from_pcs({0, 3, 6, 10})
+    assert general_chirality(dom7) == pytest.approx(-general_chirality(m7b5))
+    assert general_chirality(dom7) != 0.0
