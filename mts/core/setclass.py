@@ -102,6 +102,29 @@ def dft_phases(mask: int) -> tuple[float, float, float, float, float, float]:
     return tuple(cmath.phase(components[k]) for k in range(1, 7))
 
 
+@lru_cache(maxsize=4096)
+def general_chirality(mask: int) -> float:
+    """``Im(f_1 · f_2 · conj(f_3))`` — a bispectrum-slice handedness scalar
+    (Audiology brief-15) defined for **any** cardinality.
+
+    The bispectrum ``B(a,b) = f_a · f_b · conj(f_{a+b})`` is the canonical
+    shift-invariant phase descriptor; ``Im(B)`` is transposition-invariant and
+    **inversion-odd**. The full symmetric sum vanishes identically (each term
+    cancels its conjugate partner), so this reports the single slice ``Im(B(1,2))``:
+    ``0`` for every inversionally-symmetric set, opposite-signed for mirror pairs,
+    **major < 0 / minor > 0** (agreeing with :func:`trichord_chirality`'s sign on
+    triads), and — unlike the trichord step-gap product — it **separates dom7 from
+    m7♭5**. It is *not* identical to the step-gap chirality (they diverge in sign on
+    ~29% of trichords); both are valid, this is the n-note generalization. Known
+    residual: false-zeros on 28 exotic 5–7-note set classes (none musical); a
+    *complete* sign-consistent invariant is an open problem (brief-15). Near-zero
+    dust is snapped to ``0.0`` so the achiral test is exact.
+    """
+    components = dft_components(mask)
+    value = (components[1] * components[2] * components[3].conjugate()).imag
+    return round(value, 10) + 0.0  # +0.0 normalizes -0.0 → 0.0
+
+
 @lru_cache(maxsize=1)
 def _z_table() -> dict[int, int]:
     """Map each Z-related prime-form mask to its partner's prime-form mask.

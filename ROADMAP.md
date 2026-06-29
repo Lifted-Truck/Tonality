@@ -1732,13 +1732,22 @@ descriptor-track item below and Decision 9.)*
     TnI-invariant `SetClassData`) and **`trichord_chirality`** (`(a−b)(b−c)(c−a)`
     step-gap product: major −2 / minor +2 / achiral 0 / `null` for non-trichords —
     additive golden change only). `|f5|` consonance was already `dft_magnitudes[4]`;
-    prime form + bitmask already returned (Ask 2 confirmed). **◻ Open follow-ons:**
-    a Representation-layer **interval/colour-content descriptor** (the resultant-
-    vector constructions; hue/OKLCH stays A6's rendering) — next representation
-    slice, will adopt A6's 199-interval-vector/185-wheel-position enumeration as a
-    regression fixture; and a **general n-note chirality** (the trichord scalar
-    returns `null` past 3 notes because the general inversion-odd invariant is
-    unsolved — the dom7/m7♭5 mirror pair is the test case; invited as its own brief).
+    prime form + bitmask already returned (Ask 2 confirmed). **✅ General chirality
+    (brief-15 refile, 2026-06-28):** `set_class_info.general_chirality` =
+    `Im(f1·f2·conj(f3))` (core `general_chirality(mask)`), the bispectrum-slice
+    `Im(B(1,2))` A6 derived — transposition-invariant, inversion-odd, works for ANY
+    cardinality, major<0/minor>0 (agrees with the trichord sign on triads), 0 for
+    achiral sets, and **it separates dom7 ↔ m7♭5** (which the trichord scalar +
+    `5·φ3−3·φ5` cannot). Near-zero dust snapped to `0.0`. Both chirality scalars are
+    now exposed (they diverge on ~29% of trichords; both valid). **◻ Open
+    follow-ons:** a Representation-layer **interval/colour-content descriptor** (the
+    resultant-vector constructions; hue/OKLCH stays A6's rendering) — next
+    representation slice, will adopt A6's 4083-pc-set/185-wheel-position enumeration
+    as a regression fixture; and the **complete signed chirality** — a single
+    bispectrum slice has 28 exotic-5–7-note false-zeros, the norm `‖Im(B(a,b))‖` is
+    complete (0 iff achiral) but unsigned; reconciling completeness with a globally
+    consistent sign is the open research problem (a sign from a canonical best-fit
+    reflection axis is the candidate approach).
   - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
     reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
     dominant-7 nodes with parsimonious voice-leading edges, augmented
