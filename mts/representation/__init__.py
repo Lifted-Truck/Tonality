@@ -32,6 +32,11 @@ from .tonnetz import (
     TonnetzNode,
     tonnetz_descriptor,
 )
+from .colour_content import (
+    ColourContentDescriptor,
+    ColourResultant,
+    colour_content_descriptor,
+)
 from .chord_network import (
     ChordNetwork,
     ChordNetworkEdge,
@@ -52,6 +57,9 @@ __all__ = [
     "BraceletDescriptor",
     "BraceletPosition",
     "bracelet_descriptor",
+    "ColourContentDescriptor",
+    "ColourResultant",
+    "colour_content_descriptor",
     "TonnetzDescriptor",
     "TonnetzEdge",
     "TonnetzNode",

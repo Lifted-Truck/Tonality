@@ -1739,15 +1739,21 @@ descriptor-track item below and Decision 9.)*
     cardinality, major<0/minor>0 (agrees with the trichord sign on triads), 0 for
     achiral sets, and **it separates dom7 ↔ m7♭5** (which the trichord scalar +
     `5·φ3−3·φ5` cannot). Near-zero dust snapped to `0.0`. Both chirality scalars are
-    now exposed (they diverge on ~29% of trichords; both valid). **◻ Open
-    follow-ons:** a Representation-layer **interval/colour-content descriptor** (the
-    resultant-vector constructions; hue/OKLCH stays A6's rendering) — next
-    representation slice, will adopt A6's 4083-pc-set/185-wheel-position enumeration
-    as a regression fixture; and the **complete signed chirality** — a single
-    bispectrum slice has 28 exotic-5–7-note false-zeros, the norm `‖Im(B(a,b))‖` is
-    complete (0 iff achiral) but unsigned; reconciling completeness with a globally
-    consistent sign is the open research problem (a sign from a canonical best-fit
-    reflection axis is the candidate approach).
+    now exposed (they diverge on ~29% of trichords; both valid). **✅ Colour-content
+    descriptor (Ask 3, 2026-06-28):** `representation/colour_content.py`
+    (`colour_content_view`) — the two somatic-colour resultant vectors as
+    render-agnostic data: **interval-content** (root-blind, Tn-invariant — ic1..ic5
+    on an engine-fixed pentagon, tritone central, normalized so focus ∈ [0,1];
+    inversional pairs collapse) and **fifths-centroid** (root-aware, = `f5/n`). The
+    rim geometry is engine-fixed (the resultant angle *is* the determination); the
+    hue/OKLCH mapping stays A6's rendering. **Cross-validated against A6's
+    independent enumeration: all 4083 pc-sets land on exactly 185 distinct interval-
+    colour positions** (a regression fixture in the suite). **◻ Open follow-on:**
+    the **complete signed chirality** — a single bispectrum slice has 28 exotic-5–7-
+    note false-zeros, the norm `‖Im(B(a,b))‖` is complete (0 iff achiral) but
+    unsigned; reconciling completeness with a globally consistent sign is the open
+    research problem (a sign from a canonical best-fit reflection axis is the
+    candidate approach).
   - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
     reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
     dominant-7 nodes with parsimonious voice-leading edges, augmented
