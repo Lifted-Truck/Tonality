@@ -14205,6 +14205,24 @@
   },
   {
    "kwargs": {
+    "midi_notes": [
+     60,
+     64,
+     67
+    ],
+    "octave_decay": 0.5
+   },
+   "result": {
+    "angle_radians": 0.7128368358,
+    "focus": 0.6343932567,
+    "note_count": 3,
+    "octave_decay": 0.5,
+    "spec_level": "registered"
+   },
+   "tool": "tonal_orientation_view"
+  },
+  {
+   "kwargs": {
     "chords": [
      [
       "C",
