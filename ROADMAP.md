@@ -997,27 +997,42 @@ windowed batch form; A4's *online* requirement remains with gap 5.
    continuous harmonic control signals — see Phase 5), never sound. Which
    synthesis stack a consumer uses (DDSP, RAVE, analog modeling, …) is a
    per-project choice made in *their* repo.
-10. **C++ is the engine's eventual home — port once, bind back.** (Decided
-    2026-06-12 with Julian.) When the 12-TET conception is established, the
-    engine migrates to a C++ core with Python bindings (pybind11-class) —
-    **not** a second parallel implementation (two implementations drift;
-    a fork is the failure mode). Motivations on record: A4's plugin/device
-    frame cannot ship a CPython runtime (the one consumer the Python engine
-    structurally cannot serve in-process); an embedded profile (below)
-    needs it; a C++ core compiles to WASM nearly for free, incidentally
-    reopening the declined browser-door commitment as a side effect rather
-    than a promise. Sequencing fence: port **after** the 12-TET surface is
-    frozen — Phase 6 renegotiates "the mask is the key", so porting before
-    it means porting the substrate twice. The migration's spec anchor is
-    the **golden-file conformance harness** (delivered 2026-06-12,
-    `tests/test_conformance.py` + `tests/golden/conformance.json`): one
-    deterministic call per MCP tool, full-JSON comparison with float
-    tolerances (rel 1e-9), language-neutral by construction — a C++ engine
-    reproducing the goldens is conformant. The harness doubles today as
-    regression armor: any output change fails it; intended changes
-    regenerate goldens in the same PR, making output drift reviewable.
-    Versioned priors and catalogs are JSON and ship to both
+10. **C++ is the performance home — dual implementation, golden-anchored.**
+    (Decided 2026-06-12; **revised 2026-06-29 with Julian** — see the revision
+    note.) A C++ core becomes the engine's **performance / generative / embedded
+    main**, while the **Python implementation stays a fully-functional peer** (not
+    a binding shim). Both are held to one language-neutral spec — the conformance
+    golden. Motivations on record: A4's plugin/device frame cannot ship a CPython
+    runtime (the one consumer the Python engine structurally cannot serve
+    in-process); an embedded profile (below) needs it; a C++ core compiles to WASM
+    nearly for free, incidentally reopening the declined browser-door commitment as
+    a side effect rather than a promise. Sequencing fence: port **after** the 12-TET
+    surface is frozen — Phase 6 renegotiates "the mask is the key", so porting
+    before it means porting the substrate twice (and **port by stability** — only
+    the frozen subset is ever dual; see Phase 8 / [CPP_PORT.md](CPP_PORT.md)). The
+    migration's spec anchor is the **golden-file conformance harness** (delivered
+    2026-06-12, `tests/test_conformance.py` + `tests/golden/conformance.json`): one
+    deterministic call per MCP tool, full-JSON comparison with float tolerances
+    (rel 1e-9), language-neutral by construction — a C++ engine reproducing the
+    goldens is conformant. The harness doubles today as regression armor: any output
+    change fails it; intended changes regenerate goldens in the same PR, making
+    output drift reviewable. Versioned priors and catalogs are JSON and ship to both
     implementations verbatim. See Phase 8.
+
+    **Revision note (2026-06-29):** the original decision said "**not** a second
+    parallel implementation (two implementations drift; a fork is the failure
+    mode)" and that "the Python package becomes a shim." Reversed deliberately:
+    some consumers are better served by **pure-Python** Tonality (no native
+    toolchain — agents, notebooks, scriptability, and the MCP live-signature
+    introspection a pure C++ port would *lose*), so Python is kept first-class. The
+    drift fear that motivated "not parallel" is now mitigated by machinery that
+    didn't exist in June: (a) the **conformance golden is CI for both** — neither
+    can ship a parity-breaking change, so a golden-anchored pair can't drift
+    silently (the failure mode was an *unanchored* fork); (b) **port-by-stability**
+    bounds the dual surface to the frozen core — the churning analysis layer lives
+    in Python only until it freezes, so no two copies of moving code; (c) **Python
+    remains the spec's source of truth** (the golden is generated from it), so a
+    disagreement has a defined arbiter, not a fork.
     *Consumer-port corollary (2026-06-13, ruled from TERRANE brief-3 —
     its VST3/AU JUCE plugin can ship neither CPython nor a sidecar):*
     **a consumer MAY maintain a faithful native port of the subset it
@@ -1932,12 +1947,15 @@ frame, recorded here so A2/A3 decompose onto named work):**
   shipped as versioned priors (Phase 3.5 pattern) so generation under a profile
   stays reproducible.
 
-### Phase 8 (future) — C++ core migration (Decision 10)
-Port once, bind back: a single C++ core with Python bindings replaces the
-Python implementation; every existing consumer keeps working through the
-bindings. **Sequencing fence: after the 12-TET surface is frozen** (Phase 6
-renegotiates the substrate — porting first means porting twice). Driver:
-A4's plugin/device frame; side effects: WASM falls out nearly free.
+### Phase 8 (future) — C++ core, dual implementation (Decision 10, revised 2026-06-29)
+A C++ core becomes the **performance / generative / embedded main**; the **Python
+implementation stays a fully-functional peer** (pure-`pip` deploy, scriptability,
+live MCP introspection), both held to the one conformance golden. **Sequencing
+fence: after the 12-TET surface is frozen** (Phase 6 renegotiates the substrate —
+porting first means porting twice), and **port by stability** — only the frozen
+core is ever dual; the churning analysis layer stays Python-only until it freezes.
+Driver: A4's plugin/device frame; side effects: WASM falls out nearly free. Build +
+acceptance plan: **[CPP_PORT.md](CPP_PORT.md)**.
 
 - [x] **Step 0 — conformance harness** (delivered 2026-06-12, with the
       decision): `tests/test_conformance.py` + `tests/golden/conformance.json`
@@ -1993,7 +2011,9 @@ A4's plugin/device frame; side effects: WASM falls out nearly free.
       struct + JSON serialization (the single biggest line-item).
 - [ ] Temporal layer (sequence, segmentation, tracking, atoms, swing).
 - [ ] MIDI I/O (SMF lib or ~500-line hand-rolled reader/writer; mido retired).
-- [ ] Python bindings (pybind11-class); the Python package becomes a shim.
+- [ ] Python bindings (pybind11-class) for the C++ core — an *additional* fast
+      path consumers can opt into; the pure-Python implementation remains a
+      first-class peer (Decision 10, revised 2026-06-29), not a shim.
 - [ ] Tool surfaces: stdio MCP + HTTP bridge with hand-maintained (or
       generated) schemas — the introspect-live-signatures property is the
       one Python nicety that does not survive.
