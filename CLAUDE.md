@@ -149,3 +149,8 @@ via a reviewed PR.
   prefer PRs for substantive work).
 - End commit messages with the co-author trailer for the model that wrote them.
 - SSH auth is configured (`~/.ssh/id_ed25519_github`).
+- **Acceptance block on substantive PRs** (the build-then-review contract): every
+  PR that adds or changes a capability states, near the top, *what it should do*
+  and *the exact cases/fixtures that prove it* — so review is coherent against
+  intent, not just a diff. For port slices, the acceptance block is literally
+  "reproduces these conformance cases / fixture rows." Trivial fixes are exempt.

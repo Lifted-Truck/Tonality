@@ -1975,6 +1975,17 @@ A4's plugin/device frame; side effects: WASM falls out nearly free.
       `bundle.json` alongside `manifest.json` + `set_class_table.json`.*)
       **Deferred follow-ons:** committing the table artifact + a
       regenerate-and-diff guard if a consumer wants it checked in.
+- **Port plan drafted (2026-06-29 — [CPP_PORT.md](CPP_PORT.md), under review).**
+      Decision: **port by stability, not wholesale** — slice 1 is exactly the
+      identity-layer subset the export table already covers (`SET_CLASS_TABLE_FIELDS`),
+      graded by reproducing the exported fixtures + the conformance golden (the
+      mechanical parity gate). DFT phase + the chirality family are slice 1b
+      (fast-follow once they settle + are added to the export). Analysis/temporal/
+      bindings stay behind the freeze fence. Likely a separate `tonality-core` repo
+      consuming this repo's fixtures; pybind11 bindings deferred past the core
+      subset. **Status: plan-first — no agent spawned pending Julian's review of
+      CPP_PORT.md's open questions** (repo location, bindings timing, embedded/WASM
+      constraint, chirality timing).
 - [ ] Core identity layer (bitmask/set-class/symmetry/DFT) — `constexpr`
       tables over the 4096 universe; the cleanest layer, C++-native.
 - [ ] Analysis layer (parsers, naming + evidence, induction, VL, containment)
