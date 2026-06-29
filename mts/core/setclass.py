@@ -88,6 +88,20 @@ def dft_magnitudes(mask: int) -> tuple[float, float, float, float, float, float]
     return tuple(abs(components[k]) for k in range(1, 7))
 
 
+@lru_cache(maxsize=4096)
+def dft_phases(mask: int) -> tuple[float, float, float, float, float, float]:
+    """arg(f_1)..arg(f_6) in radians (−π, π] — the DFT phases.
+
+    Unlike the magnitudes, phase is **not** a set-class invariant: it rotates
+    under transposition (by −2πk·n/12 for f_k under T_n) and **negates** under
+    inversion. That is exactly what makes it useful — it carries the
+    absolute-position / handedness information the magnitudes discard (colour hue,
+    major/minor chirality). Reported for the literal mask, not a canonical form.
+    """
+    components = dft_components(mask)
+    return tuple(cmath.phase(components[k]) for k in range(1, 7))
+
+
 @lru_cache(maxsize=1)
 def _z_table() -> dict[int, int]:
     """Map each Z-related prime-form mask to its partner's prime-form mask.

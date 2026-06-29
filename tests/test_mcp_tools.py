@@ -52,6 +52,12 @@ def test_set_class_info():
     info = _json_safe(tools.set_class_info([0, 4, 7, 10]))
     assert info["prime_form"] == [0, 2, 5, 8]
     assert len(info["dft_magnitudes"]) == 6
+    # brief-15: phase + chirality exposed; prime_form + bitmask confirmed present.
+    assert len(info["dft_phases"]) == 6
+    assert "prime_form_mask" in info and info["mask"] == sum(1 << p for p in (0, 4, 7, 10))
+    assert info["trichord_chirality"] is None  # a tetrachord
+    triad = _json_safe(tools.set_class_info([0, 4, 7]))
+    assert triad["trichord_chirality"] == -2  # major
 
 
 def test_interpretations_surface_equivalence():

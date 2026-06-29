@@ -1930,6 +1930,14 @@
      1.9318516525781355,
      2.0
     ],
+    "dft_phases": [
+     1.3089969389957468,
+     1.0471975511965976,
+     0.7853981633974474,
+     -1.7609219301413628,
+     0.26179938779914935,
+     2.204983219101824e-15
+    ],
     "mask": 1169,
     "normal_order": [
      4,
@@ -1945,6 +1953,7 @@
     ],
     "prime_form_mask": 293,
     "rotational_symmetry_order": 12,
+    "trichord_chirality": null,
     "z_partner_prime_form": null
    },
    "tool": "set_class_info"

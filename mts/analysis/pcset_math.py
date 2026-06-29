@@ -40,6 +40,26 @@ def interval_vector(pcs: Iterable[int]) -> list[int]:
 
 
 @lru_cache(maxsize=4096)
+def trichord_chirality(mask: int) -> int | None:
+    """Step-gap chirality of a trichord: ``(a−b)(b−c)(c−a)`` over the three
+    circular step-gaps ``a,b,c`` (``a+b+c = 12``); ``None`` for any non-trichord.
+
+    Rotation-invariant (the product is cyclic) and **inversion-odd** (it flips
+    sign under inversion), so it cleanly separates a chord from its mirror where
+    the inversion-invariant ``dft_magnitudes`` cannot: major ``{0,4,7}`` → −2,
+    minor ``{0,3,7}`` → +2, and any achiral (inversionally-symmetric) trichord →
+    0. The general n-note generalization is an open problem (Audiology brief-15).
+    """
+
+    pcs = pcs_from_mask(mask)
+    if len(pcs) != 3:
+        return None
+    p0, p1, p2 = pcs  # ascending
+    a, b, c = p1 - p0, p2 - p1, (p0 + 12) - p2  # circular step-gaps, sum 12
+    return (a - b) * (b - c) * (c - a)
+
+
+@lru_cache(maxsize=4096)
 def _reflection_axes_for_mask(mask: int) -> tuple[ReflectionAxis, ...]:
     pcs = set(pcs_from_mask(mask))
     axes: list[ReflectionAxis] = []
