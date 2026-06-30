@@ -27,7 +27,7 @@ from collections.abc import Iterable
 from ..analysis.pcset_math import interval_vector, reflection_axes
 from ..core.bitmask import mask_from_pcs
 from ..core.scale import Scale
-from ..core.symmetry import mask_symmetry_order
+from ..core.symmetry import rotational_period
 
 
 @dataclass(frozen=True)
@@ -58,7 +58,7 @@ class BraceletDescriptor:
     positions: list[BraceletPosition]
     interval_vector: list[int]
     reflection_axes: list[BraceletAxis]
-    rotational_order: int  # 1 = no rotational symmetry; n divides 12
+    rotational_period: int  # smallest self-mapping rotation; 12 = no symmetry, aug=4, dim7=3
     tonic_pc: int | None
     scale_name: str | None
     scale_degrees: list[int] | None
@@ -110,7 +110,7 @@ def bracelet_descriptor(
             BraceletAxis(type=axis.type, center=axis.center)
             for axis in reflection_axes(active)
         ],
-        rotational_order=mask_symmetry_order(mask),
+        rotational_period=rotational_period(mask),
         tonic_pc=tonic_pc,
         scale_name=scale.name if scale is not None else None,
         scale_degrees=list(scale.degrees) if scale is not None else None,

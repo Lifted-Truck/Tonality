@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from collections.abc import Iterable
 
 from .bitmask import mask_from_pcs, validate_pc
-from .symmetry import mask_symmetry_order
+from .symmetry import rotational_period
 
 
 @dataclass(frozen=True)
@@ -34,8 +34,8 @@ class Scale:
         return Scale.from_degrees(f"{self.name}+{semitones}", transposed_degrees, self.aliases)
 
     @property
-    def symmetry_order(self) -> int:
-        return mask_symmetry_order(self.mask)
+    def rotational_period(self) -> int:
+        return rotational_period(self.mask)
 
     def pcs(self) -> list[int]:
         return list(self.degrees)

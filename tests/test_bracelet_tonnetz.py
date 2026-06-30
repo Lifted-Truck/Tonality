@@ -28,9 +28,9 @@ def test_bracelet_interval_vector_and_rotational_order():
     # augmented triad: interval vector <0,0,3,0,0,0>, rotational order 4
     aug = bracelet_descriptor([0, 4, 8])
     assert aug.interval_vector == [0, 0, 0, 3, 0, 0]
-    assert aug.rotational_order == 4  # maps to itself every 4 semitones
+    assert aug.rotational_period == 4  # maps to itself every 4 semitones
     # major triad is asymmetric under rotation
-    assert bracelet_descriptor([0, 4, 7]).rotational_order == 12
+    assert bracelet_descriptor([0, 4, 7]).rotational_period == 12
 
 
 def test_bracelet_reflection_axes():

@@ -38,7 +38,7 @@ from ..core.chord import Chord
 from ..core.enharmonics import pc_from_name
 from ..core.pitch import Pitch
 from ..core.realization import Realization
-from ..core.symmetry import mask_symmetry_order
+from ..core.symmetry import rotational_period
 from ..dataset.builders import dataset_from_sequence
 from ..io.loaders import load_chord_qualities, load_key_profiles, load_scales
 
@@ -177,7 +177,11 @@ def scale_analysis(
 
 def set_class_info(pcs: list[int]) -> dict:
     """Set-class identity of a pc set: normal order, Rahn prime form, Z-partner,
-    DFT magnitudes AND phases, rotational symmetry, trichord chirality.
+    DFT magnitudes AND phases, rotational period, trichord chirality.
+
+    `rotational_period` is the smallest self-mapping transposition (12 = no
+    rotational symmetry; augmented → 4, dim7 → 3 — renamed from the misleading
+    `rotational_symmetry_order` 2026-06-30; value unchanged).
 
     `dft_magnitudes` (|f1..f6|) is the transposition- and inversion-invariant
     interval-content fingerprint; `dft_phases` (arg f1..f6, radians) is NOT
@@ -205,7 +209,7 @@ def set_class_info(pcs: list[int]) -> dict:
         raise ValueError("set_class_info needs at least one pitch class.")
     data = dataclasses.asdict(set_class_data(mask))
     data["dft_phases"] = list(dft_phases(mask))
-    data["rotational_symmetry_order"] = mask_symmetry_order(mask)
+    data["rotational_period"] = rotational_period(mask)
     data["trichord_chirality"] = trichord_chirality(mask)
     data["general_chirality"] = general_chirality(mask)
     data["chirality_sign"] = chirality_sign(mask)
@@ -1113,8 +1117,8 @@ def tonal_orientation_view(midi_notes: list[int], octave_decay: float = 1.0) -> 
 
 def chord_network(chords: list[list], max_distance: int = 2) -> dict:
     """Voice-leading network over a chord vocabulary (Phase 5): nodes (each
-    chord + pcs + rotational symmetry — augmented/dim hubs stand out by their
-    symmetry order) and undirected edges between chords whose voice-leading
+    chord + pcs + rotational period — augmented/dim hubs stand out by their
+    low period) and undirected edges between chords whose voice-leading
     distance is <= max_distance, each edge carrying distance, common-tone
     count, and root interval. The render-agnostic form of the Cube-Dance
     parsimony mandala; every edge is the engine's exact voice_leading

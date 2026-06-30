@@ -31,7 +31,7 @@ class ReflectionAxis:
 @dataclass(frozen=True)
 class SymmetryData:
     """Rotational and reflective symmetry properties of a scale or chord."""
-    rotational_order: int
+    rotational_period: int
     rotational_steps: list[int]
     achiral: bool
     reflection_axes: list[ReflectionAxis]
@@ -172,13 +172,13 @@ class ChordInterpretations:
 
     Identity-level and register-free: this enumerates how a *set* can be named,
     surfacing enharmonic/structural equivalence (every root at which the set
-    matches a catalog quality). ``rotational_symmetry`` explains why symmetric
+    matches a catalog quality). ``rotational_period`` explains why symmetric
     chords repeat. Roots are restricted to tones present in the set.
     """
     pcs: list[int]
     mask: int
     cardinality: int
-    rotational_symmetry: int
+    rotational_period: int
     interpretations: list[ChordInterpretation]
 
     def to_dict(self) -> dict:

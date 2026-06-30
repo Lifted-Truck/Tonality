@@ -34,7 +34,7 @@ from ..analysis.voice_leading import voice_leading
 from ..core.bitmask import mask_from_pcs
 from ..core.chord import Chord
 from ..core.quality import ChordQuality
-from ..core.symmetry import mask_symmetry_order
+from ..core.symmetry import rotational_period
 
 
 @dataclass(frozen=True)
@@ -47,7 +47,7 @@ class ChordNetworkNode:
     pcs: list[int]
     mask: int
     cardinality: int
-    symmetry_order: int  # rotational order; <12 marks a symmetric "hub" (aug=4, dim7=3)
+    rotational_period: int  # rotational period; <12 marks a symmetric "hub" (aug=4, dim7=3)
 
 
 @dataclass(frozen=True)
@@ -103,7 +103,7 @@ def chord_network_descriptor(
                 pcs=list(pcs),
                 mask=mask_from_pcs(pcs),
                 cardinality=len(set(pcs)),
-                symmetry_order=mask_symmetry_order(mask_from_pcs(pcs)),
+                rotational_period=rotational_period(mask_from_pcs(pcs)),
             )
         )
     if not nodes:

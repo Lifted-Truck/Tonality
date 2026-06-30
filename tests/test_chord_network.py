@@ -23,9 +23,9 @@ def test_nodes_carry_pcs_and_symmetry_order():
     net = chord_network_descriptor(_vocab((0, "maj"), (0, "aug")))
     assert net.spec_level == "identity_only"
     c, c_aug = net.nodes
-    assert c.pcs == [0, 4, 7] and c.symmetry_order == 12
+    assert c.pcs == [0, 4, 7] and c.rotational_period == 12
     # the augmented triad is a symmetric hub (maps to itself every 4 semitones)
-    assert c_aug.pcs == [0, 4, 8] and c_aug.symmetry_order == 4
+    assert c_aug.pcs == [0, 4, 8] and c_aug.rotational_period == 4
 
 
 # --- edges == the voice-leading relation --------------------------------------------------
@@ -113,5 +113,5 @@ def test_to_dict_is_json_ready():
         chord_network_descriptor(_vocab((0, "maj"), (0, "aug")), max_distance=1).to_dict()
     ))
     assert payload["max_distance"] == 1
-    assert payload["nodes"][1]["symmetry_order"] == 4
+    assert payload["nodes"][1]["rotational_period"] == 4
     assert payload["edges"][0]["distance"] == 1

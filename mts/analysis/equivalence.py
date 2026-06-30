@@ -24,7 +24,7 @@ from collections.abc import Iterable, Mapping
 
 from ..core.bitmask import mask_from_pcs, rotate_mask
 from ..core.quality import ChordQuality
-from ..core.symmetry import mask_symmetry_order
+from ..core.symmetry import rotational_period
 from .results import ChordInterpretation, ChordInterpretations
 
 
@@ -77,7 +77,7 @@ def interpret_chord(
         pcs=pc_set,
         mask=mask,
         cardinality=len(pc_set),
-        rotational_symmetry=mask_symmetry_order(mask),
+        rotational_period=rotational_period(mask),
         interpretations=interpretations,
     )
 
