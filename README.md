@@ -1,21 +1,39 @@
 # Tonality
 
-**A local-first music-theory engine for 12-TET pitch material — with an MCP endpoint.**
+**A music-theory engine that *derives* its harmonic knowledge rather than storing it — and, where the theory admits more than one reading, returns them ranked and evidenced.**
 
-Tonality does the *exact* pitch-class arithmetic that humans and language models
-get wrong: set-class identity, exhaustive chord naming, symmetry, key induction,
-voice-leading, metric inference. It turns MIDI or symbolic notation into
-**enriched, reproducible datasets**, and exposes every analysis as an MCP tool so
-an AI agent can reason about music without doing the combinatorics itself.
+Tonality is a local-first theory core for twelve-tone equal temperament. It exists
+less to *describe* a passage than to be **queried** by the things that make and
+transform music — synthesizers, generative sequencers, visualizers, and agents.
+Where most theory libraries hand back a single confident label, Tonality takes the
+opposite posture: surface every candidate the theory admits, rank them by fit, and
+show the evidence behind each. It is a **foundation library**, not an end-user app —
+Python, no external services, no network; the catalogs are data you can read and
+edit, the analysis is code you can audit.
 
-It is a **foundation library**, not an end-user app. Your project keeps its UI,
-audio, and rendering; Tonality supplies the harmonic brain.
+## The doctrine
 
-> **The design law — division of labor.** Precise combinatorics live in the engine;
-> fuzzy, semantic, creative judgment lives in the caller. Its corollary —
-> *reduce, never invent* — means the engine never fabricates what you didn't give
-> it: no register without real notes, no key without evidence. Analyses that need
-> missing information **error; they don't guess.**
+Three rules organize everything in the engine.
+
+**Reduce, never invent.** Harmonic knowledge is *derived* from primitives and
+explicit rules, not stored as answers the engine can't show its work for. Functional
+harmony, chord–scale relationships, and borrowing are computed from interval
+structure and scale definitions — the legacy static lookup tables were removed — so
+behind every result there is a derivation, not a table someone typed once. The
+corollary (the division of labor): precise combinatorics live in the engine, fuzzy
+and creative judgment in the caller, and the engine **never fabricates** what you
+didn't give it — no register without real notes, no key without evidence. Analyses
+that need missing information **error; they don't guess.**
+
+**Plural, ranked, evidenced.** Where the theory admits more than one reading, the
+engine returns more than one — ordered by fit, each carrying the evidence
+(interval-class fingerprints, pitch-class membership, functional role) that justifies
+its rank. A confident wrong answer is treated as worse than a surfaced uncertainty.
+(Deterministic facts — a set-class fingerprint, a voice-leading distance — are
+reported as the single values they are; it is *interpretation* that comes plural.)
+
+**Built to be consumed, not just read.** Every result is a typed structure for a
+downstream caller. The terminal tools are a window onto the engine, not the point of it.
 
 ---
 
@@ -23,6 +41,15 @@ audio, and rendering; Tonality supplies the harmonic brain.
 
 Everything below is shipped, tested, and reachable from Python, the MCP endpoint,
 or as a JSON dataset. (Full capability schematic: **[INTEGRATION.md](INTEGRATION.md)**.)
+
+### Functional harmony, *derived*
+Functional roles, chord–scale compatibility, and modal **borrowing** are computed
+from interval structure and scale definitions — not stored tables (the static ones
+were removed). Multiple chord options per scale degree, each with its interval stack,
+fall out of the derivation; a non-diatonic chord names its candidate borrow-source
+and the exact pitch classes it adds or removes; and a validation pass
+(`scripts/validate_function_mappings.py`) cross-checks the derived mappings against
+scale masks — the engine checking its own work.
 
 ### Set-class & harmonic-color analysis
 Normal order, **Rahn prime form**, Z-relations, interval vectors, and the
