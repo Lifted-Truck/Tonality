@@ -19,9 +19,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-qt = [
-    "PySide6>=6.8.0.2,<6.11",
-]
 mcp = [
     "mcp>=1.2",
 ]
@@ -29,6 +26,13 @@ validation = [
     # Corpus accuracy harness (validation/) — parses RomanText ground truth and
     # renders scores to MIDI. Optional dev/test extra, never a runtime dep.
     "music21>=9",
+]
+dev = [
+    # Test + coverage tooling. The conformance golden is the spec both
+    # implementations are graded against (Decision 10); line coverage of the
+    # Python reference matters most for the core identity layer the C++ port mirrors.
+    "pytest>=8",
+    "coverage>=7",
 ]
 
 [tool.pytest.ini_options]

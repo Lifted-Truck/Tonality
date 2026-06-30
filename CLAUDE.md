@@ -11,8 +11,9 @@ Today it recognizes and contextualizes scales, chords, and pitch-class sets.
 **The destination is a foundation library with an MCP endpoint** so AI agents can
 analyze music and turn varied notations into enriched, contextualized datasets.
 It is *not* an end-user app. When a decision trades off "cleaner library API" vs.
-"nicer GUI," favor the library. The Qt GUI and audio layers are **deferred**, not
-active (see ROADMAP "Demoted").
+"nicer GUI," favor the library. The GUI and audio layers are **out of scope** (the
+prototype Qt GUI was removed 2026-06-29 — recoverable from git history; see ROADMAP
+"Demoted"). Rendering belongs to consumer projects, not this repo.
 
 The engine's reason to exist: it does the exact pitch-class arithmetic that LLMs
 are bad at (interval vectors, exhaustive subset search, symmetry). Keep that
@@ -58,7 +59,7 @@ analysis/    Enrichment engine: specs (parser), *_analysis, comparisons, summari
   ↓
 temporal/    Time layer (Phase 2): Event/Sequence + tempo/meter; window → realization → key.
              Segmentation, harmonic rhythm, local key tracking, voice identity/motion,
-             melodic + rhythmic atoms. (analysis/timeline.py is a DEPRECATED stub.)
+             melodic + rhythmic atoms.
   ↓
 rules/       Rulesets (Phase 4.6): declarative JSON rules over the atom vocabulary;
              strict total validation + deterministic conformance evaluator +
@@ -116,8 +117,7 @@ not inside the worktree. Keep the full `tests/` suite green on every commit
 - **Ignore `build/`** — it is a stale generated copy of `mts/` (now gitignored).
   Never edit it; never trust search hits inside it.
 - `.tonality_session.json` is user session state, not source. Gitignored.
-- `analysis/timeline.py` is a DEPRECATED stub (superseded by `mts/temporal/`).
-  `io/midi.py` parses Standard MIDI Files via **mido** (a runtime dependency);
+- `io/midi.py` parses Standard MIDI Files via **mido** (a runtime dependency);
   only `events_from_live_midi` is still `NotImplementedError` (streaming is out of
   scope). `mido` is required — `pip install` it into the venv.
 

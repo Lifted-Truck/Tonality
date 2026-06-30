@@ -1,10 +1,10 @@
-"""Workspace scaffolding for coordinating scale, chord, and timeline state.
+"""Workspace scaffolding for coordinating scale and chord state.
 
 This module provides a central object that can be shared across CLIs/GUI layers.
-It keeps track of the currently selected scale, chord, and timeline events while
-exposing helper methods that reuse the existing analyzers.  The implementation is
-intentional scaffolding—each method documents TODOs so future features can land
-without reshaping the rest of the codebase.
+It keeps track of the currently selected scale and chord while exposing helper
+methods that reuse the existing analyzers.  The implementation is intentional
+scaffolding—each method documents TODOs so future features can land without
+reshaping the rest of the codebase.
 
 Each ``Workspace`` owns its own ``SessionCatalog`` so that multiple workspaces
 can coexist with independent user-registered scales and chords.
@@ -19,11 +19,8 @@ from typing import Any, Callable, Iterable, Mapping
 from .analysis import (
     ScaleAnalysisRequest,
     ChordAnalysisRequest,
-    TimelineAnalysisRequest,
     analyze_scale,
     analyze_chord,
-    analyze_timeline,
-    TimedEvent,
 )
 from .analysis.builders import (
     ManualScaleBuilder,
@@ -52,7 +49,6 @@ class Workspace:
 
     scale: Scale | None = None
     chord: Chord | None = None
-    timeline_events: list[TimedEvent] = field(default_factory=list)
     context_scope: str = "abstract"
     context_tokens: tuple[str, ...] = field(default_factory=tuple)
     context_absolute_midi: tuple[int, ...] = field(default_factory=tuple)
@@ -144,23 +140,10 @@ class Workspace:
         _, chords = self.refresh_catalogs()
         return match_chord(intervals, chords)
 
-    # --- Timeline utilities ----------------------------------------------
-
-    def set_timeline(self, events: Iterable[TimedEvent]) -> None:
-        self.timeline_events = list(events)
-        self._notify("timeline", list(self.timeline_events))
-
-    def analyze_timeline(self, **kwargs) -> dict[str, object]:
-        if not self.timeline_events:
-            raise ValueError("No timeline events registered.")
-        request = TimelineAnalysisRequest(events=self.timeline_events, **kwargs)
-        return analyze_timeline(request)
-
     def clear(self) -> None:
-        """Clear the workspace selections (scale/chord/timeline)."""
+        """Clear the workspace selections (scale/chord)."""
         self.scale = None
         self.chord = None
-        self.timeline_events.clear()
         self.context_scope = "abstract"
         self.context_tokens = tuple()
         self.context_absolute_midi = tuple()
@@ -168,7 +151,6 @@ class Workspace:
         update_context_with_chord_root(self.display_context, None)
         self._notify("scale", None)
         self._notify("chord", None)
-        self._notify("timeline", [])
         self._notify("context", self._context_payload())
 
     # --- Session management ----------------------------------------------

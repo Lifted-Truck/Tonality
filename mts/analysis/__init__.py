@@ -23,12 +23,6 @@ from .voice_leading import POLICY_DOUBLING_V1, voice_leading, voice_leading_real
 from .errors import SpecificationError, require_realization
 from ..core.realization import Realization
 from ..core.spec_level import Registral, SpecLevel, Transpositional
-from .timeline import (
-    TimedEvent,
-    TimelineAnalysisRequest,
-    analyze_timeline,
-    generate_sequence,
-)
 from .summaries import ChordBrief, chord_brief
 from ..core.pitch import Pitch, parse_pitch_token, ParsedPitch
 from .builders import (
@@ -95,8 +89,6 @@ from .results import (
 __all__ = [
     "ScaleAnalysisRequest",
     "ChordAnalysisRequest",
-    "TimelineAnalysisRequest",
-    "TimedEvent",
     "Pitch",
     "ParsedPitch",
     "ChordBrief",
@@ -159,8 +151,6 @@ __all__ = [
     "NamingEvidence",
     "NamingUnderKey",
     "RankedInterpretation",
-    "analyze_timeline",
-    "generate_sequence",
     "parse_pitch_token",
     "chord_brief",
     "parse_chord_spec",
