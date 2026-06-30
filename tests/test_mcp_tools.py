@@ -344,7 +344,7 @@ def test_chord_network_voice_leading_graph():
         [["C", "maj"], ["C", "aug"], ["E", "min"]], max_distance=1))
     assert result["spec_level"] == "identity_only"
     aug = next(n for n in result["nodes"] if n["quality"] == "aug")
-    assert aug["symmetry_order"] == 4  # the hub signal
+    assert aug["rotational_period"] == 4  # the hub signal
     # C major connects to both at distance 1
     assert len(result["edges"]) == 2
     assert all(e["distance"] == 1 for e in result["edges"])

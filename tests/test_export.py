@@ -12,7 +12,7 @@ import json
 from mts.analysis.pcset_math import set_class_data
 from mts.analysis.voice_leading import POLICY_DOUBLING_V1
 from mts.core.bitmask import interval_vector_from_mask
-from mts.core.symmetry import mask_symmetry_order
+from mts.core.symmetry import rotational_period
 from mts.io.export import (
     EXPORT_SCHEMA_VERSION,
     SET_CLASS_TABLE_FIELDS,
@@ -44,7 +44,7 @@ def test_rows_are_faithful_to_the_engine():
         assert row["z_partner_prime_form"] == engine["z_partner_prime_form"]
         assert row["complement_prime_form"] == engine["complement_prime_form"]
         assert row["interval_vector"] == list(interval_vector_from_mask(mask))
-        assert row["rotational_symmetry_order"] == mask_symmetry_order(mask)
+        assert row["rotational_period"] == rotational_period(mask)
         assert row["cardinality"] == bin(mask).count("1")
 
 

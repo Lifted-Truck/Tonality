@@ -15,7 +15,7 @@ from dataclasses import dataclass
 
 from ..core.chord import Chord
 from ..core.realization import Realization
-from ..core.symmetry import mask_symmetry_order, rotational_steps
+from ..core.symmetry import rotational_period, rotational_steps
 from .errors import require_realization
 from .pcset_math import interval_vector as _interval_vector
 from .pcset_math import reflection_axes as _reflection_axes
@@ -72,7 +72,7 @@ def _symmetry_data(chord: Chord) -> SymmetryData:
     pcs = set(chord.pcs)
     if not pcs:
         return SymmetryData(
-            rotational_order=0,
+            rotational_period=0,
             rotational_steps=[],
             achiral=False,
             reflection_axes=[],
@@ -80,7 +80,7 @@ def _symmetry_data(chord: Chord) -> SymmetryData:
     mask = chord.mask
     reflection_axes = _reflection_axes(pcs)
     return SymmetryData(
-        rotational_order=mask_symmetry_order(mask),
+        rotational_period=rotational_period(mask),
         rotational_steps=list(rotational_steps(mask)),
         achiral=bool(reflection_axes),
         reflection_axes=reflection_axes,

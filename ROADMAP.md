@@ -1791,7 +1791,7 @@ descriptor-track item below and Decision 9.)*
     dominant-7 nodes with parsimonious voice-leading edges, augmented
     triads as connective hubs). **Delivered (2026-06-13):**
     `representation/chord_network.py` `chord_network_descriptor(chords,
-    max_distance=)` — nodes (chord + pcs + rotational `symmetry_order`, the
+    max_distance=)` — nodes (chord + pcs + `rotational_period`, the
     hub signal) and undirected edges between chords within a voice-leading
     distance, each carrying distance + common-tone count + root interval.
     Every edge *is* the engine's `voice_leading.distance` relation (the
@@ -1952,8 +1952,8 @@ A4's plugin/device frame; side effects: WASM falls out nearly free.
       `mts/io/export.py` + `scripts/export_versioned_data.py`.)*
       `set_class_table()` precomputes the table-driven combinatorics for **all
       4096 masks** (prime form / prime-form mask / normal order / interval
-      vector / DFT magnitudes / Z-partner / complement / rotational-symmetry
-      order + cardinality) — each row **mirrors the `set_class_info` MCP tool's
+      vector / DFT magnitudes / Z-partner / complement / rotational period
+      + cardinality) — each row **mirrors the `set_class_info` MCP tool's
       conformance-pinned shape, keyed by mask** (list position == mask, a direct
       lookup), so a port consumes pure data instead of reimplementing the
       mask-space math. `versioned_data_manifest()` indexes every `data/*.json`

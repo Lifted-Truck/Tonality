@@ -1518,7 +1518,7 @@
        "type": "between"
       }
      ],
-     "rotational_order": 12,
+     "rotational_period": 12,
      "rotational_steps": [
       12
      ]
@@ -1893,7 +1893,7 @@
        "type": "pitch"
       }
      ],
-     "rotational_order": 12,
+     "rotational_period": 12,
      "rotational_steps": [
       12
      ]
@@ -1955,7 +1955,7 @@
      8
     ],
     "prime_form_mask": 293,
-    "rotational_symmetry_order": 12,
+    "rotational_period": 12,
     "trichord_chirality": null,
     "z_partner_prime_form": null
    },
@@ -1995,7 +1995,7 @@
      7,
      9
     ],
-    "rotational_symmetry": 12
+    "rotational_period": 12
    },
    "tool": "interpretations"
   },
@@ -13995,7 +13995,7 @@
      }
     ],
     "reflection_axes": [],
-    "rotational_order": 12,
+    "rotational_period": 12,
     "scale_degrees": [
      0,
      2,
@@ -14291,7 +14291,7 @@
       ],
       "quality": "maj",
       "root_pc": 0,
-      "symmetry_order": 12
+      "rotational_period": 12
      },
      {
       "cardinality": 3,
@@ -14304,7 +14304,7 @@
       ],
       "quality": "aug",
       "root_pc": 0,
-      "symmetry_order": 4
+      "rotational_period": 4
      },
      {
       "cardinality": 3,
@@ -14317,7 +14317,7 @@
       ],
       "quality": "min",
       "root_pc": 0,
-      "symmetry_order": 12
+      "rotational_period": 12
      },
      {
       "cardinality": 3,
@@ -14330,7 +14330,7 @@
       ],
       "quality": "min",
       "root_pc": 4,
-      "symmetry_order": 12
+      "rotational_period": 12
      },
      {
       "cardinality": 3,
@@ -14343,7 +14343,7 @@
       ],
       "quality": "min",
       "root_pc": 9,
-      "symmetry_order": 12
+      "rotational_period": 12
      }
     ],
     "spec_level": "identity_only"

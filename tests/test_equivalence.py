@@ -11,7 +11,7 @@ def _pairs(pcs):
 
 def test_symmetric_dim7_names_at_four_roots():
     result = interpret_chord([0, 3, 6, 9])
-    assert result.rotational_symmetry == 3
+    assert result.rotational_period == 3
     assert {(i.root_pc, i.quality) for i in result.interpretations} == {
         (0, "dim7"), (3, "dim7"), (6, "dim7"), (9, "dim7"),
     }
@@ -19,7 +19,7 @@ def test_symmetric_dim7_names_at_four_roots():
 
 def test_symmetric_augmented_names_at_three_roots():
     result = interpret_chord([0, 4, 8])
-    assert result.rotational_symmetry == 4
+    assert result.rotational_period == 4
     assert {(i.root_pc, i.quality) for i in result.interpretations} == {
         (0, "aug"), (4, "aug"), (8, "aug"),
     }
@@ -39,7 +39,7 @@ def test_german_sixth_surfaces_as_dominant():
 
 def test_plain_triad_has_single_interpretation():
     result = interpret_chord([0, 4, 7])
-    assert result.rotational_symmetry == 12
+    assert result.rotational_period == 12
     assert [(i.root_pc, i.quality) for i in result.interpretations] == [(0, "maj")]
 
 

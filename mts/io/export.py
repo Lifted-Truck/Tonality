@@ -52,7 +52,7 @@ SET_CLASS_TABLE_FIELDS = (
     "dft_magnitudes",
     "z_partner_prime_form",
     "complement_prime_form",
-    "rotational_symmetry_order",
+    "rotational_period",
 )
 
 
@@ -68,7 +68,7 @@ def set_class_table() -> list[dict[str, Any]]:
 
     from ..analysis.pcset_math import set_class_data
     from ..core.bitmask import interval_vector_from_mask
-    from ..core.symmetry import mask_symmetry_order
+    from ..core.symmetry import rotational_period
 
     table: list[dict[str, Any]] = []
     for mask in range(4096):
@@ -76,7 +76,7 @@ def set_class_table() -> list[dict[str, Any]]:
         entry["mask"] = mask
         entry["cardinality"] = bin(mask).count("1")
         entry["interval_vector"] = list(interval_vector_from_mask(mask))
-        entry["rotational_symmetry_order"] = mask_symmetry_order(mask)
+        entry["rotational_period"] = rotational_period(mask)
         table.append({field: entry[field] for field in SET_CLASS_TABLE_FIELDS})
     return table
 

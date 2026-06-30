@@ -84,13 +84,13 @@ def _modal_rotations(scale: Scale) -> list[ModeRotation]:
 def _symmetry_data(scale: Scale, step_pattern: list[int]) -> SymmetryData:
     if not step_pattern:
         return SymmetryData(
-            rotational_order=0,
+            rotational_period=0,
             rotational_steps=[],
             achiral=False,
             reflection_axes=[],
         )
     mask = scale.mask
-    rotational_order = scale.symmetry_order
+    rotational_period = scale.rotational_period
     reversed_pattern = list(reversed(step_pattern))
     achiral = any(
         reversed_pattern[shift:] + reversed_pattern[:shift] == step_pattern
@@ -98,7 +98,7 @@ def _symmetry_data(scale: Scale, step_pattern: list[int]) -> SymmetryData:
     )
     reflection_axes = _reflection_axes(set(scale.degrees))
     return SymmetryData(
-        rotational_order=rotational_order,
+        rotational_period=rotational_period,
         rotational_steps=list(rotational_steps(mask)),
         achiral=achiral,
         reflection_axes=reflection_axes,
