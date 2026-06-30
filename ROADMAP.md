@@ -1786,6 +1786,13 @@ descriptor-track item below and Decision 9.)*
     absolute-register→lightness axis stay A6's rendering. The "shared canonical-frame
     machinery with brief-16" the brief hypothesized does **not** exist — that sign
     was combinatorial (bispectrum), not a geometric frame — so this is a fresh build.
+    **A6 brief-18 (consumer confirmation):** keep relative-to-bass weighting — the
+    `absolute` mode is **declined by the consumer** (absolute register → lightness,
+    not hue); the engine default `octave_decay` stays 1.0 (A6 renders at 0.5, their
+    choice; no API change). And the **geometric-frame sign follow-up is dropped** —
+    `tonal_orientation` covers the continuous voiced-hue angle and the combinatorial
+    `chirality` is complete for the harmony map, so the brief-15→18 Chord-Anatomy arc
+    is fully settled both sides (A6 consuming `chirality` + `tonal_orientation_view`).
   - *chord-network / voice-leading graph* (added 2026-06-13 from Julian's
     reference — a "Cube Dance"-family chord mandala: major/minor/augmented/
     dominant-7 nodes with parsimonious voice-leading edges, augmented
