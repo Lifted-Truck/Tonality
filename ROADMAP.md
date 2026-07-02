@@ -1469,6 +1469,29 @@ MCP-portable object flowing both directions. Intertwined with Phase 4.5 — soft
 rules and corpus statistics are the same object (weighted constraints with
 provenance).
 
+*Vision re-articulated + gap review (2026-07-01, Julian):* the destination is a
+**symbolic language for musical patterns, abstractable across genres, rulesets,
+specific songs, and education systems at different levels of specificity**,
+plus the programmatic system that translates music to and from it and imposes
+rulesets on existing compositions. Mapped onto shipped work: the language = the
+DSL over the atom vocabulary · music→language = induction · levels of
+specificity = the `specialize`/`combine` DAG (genre → pedagogy → composer →
+piece), with versioned provenance · language→music = generation coupling
+(Phase 7) **plus conformance repair** — imposing a ruleset on an *existing*
+piece is minimal-edit transformation, a third operation distinct from both
+evaluation and from-scratch generation, previously unrecorded; now a named
+Phase 7 extension. The review surfaced four gaps, folded in below as the
+**named-ruleset library**, the **harmony/progression rule family**, and the
+**pattern layer** (+ conformance repair in Phase 7). Doctrine note holding it
+together (Decision 8): "abstracted from genres" never means the engine knows
+what a genre *is* — it means the language is expressive enough that a genre's
+habits can be written down, checked, and induced in it; the semantic leap
+stays in the caller. **Sequencing decision:** (1) ruleset library first
+(cheapest; stress-tests the DSL and is expected to hit the missing harmony
+family + phrase scope immediately), (2) harmony family, (3) conformance
+repair's narrowest slice, (4) the pattern layer last (largest design lift,
+to be informed by what 1–3 teach about the DSL's seams).
+
 - [ ] **Workstream 0 — vocabulary prerequisites** (per the Decision 8
       corollary, these are first-class engine capabilities in their own right,
       wanted independent of rulesets):
@@ -1674,6 +1697,59 @@ provenance).
         (`interval_class∈0..11`) and the `where`×consequent cross-product are
         the explosion vectors (bucket / mine consequents only inside
         surviving contexts).
+- [ ] **Named ruleset library** (added 2026-07-01 — gap D of the vision
+      review). The infrastructure treats rulesets as versioned priors, but
+      `data/` ships no actual catalog: no `species-counterpoint.1`, no
+      `common-practice.1`. Hand-author the first citable rulesets —
+      **species counterpoint first** (the lineage this phase already cites;
+      expressible largely in the shipped voice-motion + melody families),
+      then a common-practice harmony set once the harmony family below
+      exists. Three payoffs: (1) the cheapest possible **stress test of DSL
+      expressiveness** (expected to hit the missing harmony family and the
+      deferred phrase/global scope within the first ruleset — those hits are
+      the deliverable, not a failure); (2) **induction ground truth** — "does
+      `induce_rules` on a Palestrina corpus recover the species rules?" is
+      the natural acceptance test for the whole extraction half; (3)
+      "education systems" from the vision become concrete: a pedagogy is a
+      curated, citable ruleset file (and pedagogical *progression* — first
+      species, second species… — is a `specialize` chain). Authoring is
+      caller-side translation per Decision 8; the engine ships the validated
+      artifact with source citations.
+- [ ] **Harmony/progression rule family** (added 2026-07-01 — gap B; the
+      binding vocabulary gap for genre-level rulesets). The DSL's three
+      families are voice motion, melody, rhythm — so "V resolves to I",
+      "no ♭VII in this style", "avoid the deceptive resolution at a final
+      cadence" are **inexpressible today**, even though the analysis
+      vocabulary exists (`theory/functions.py` roman numerals + roles,
+      `detect_cadences`, chord dataset records). Genre is carried by
+      harmonic idiom more than by any current family. Build follows the
+      exact WS0 pattern (field/enum registries mirroring the typed results;
+      per-item + adjacent-pair checks over a chord stream — items = named
+      progression steps carrying roman/role/degree/root-motion, cadence
+      events as fields). Substrate note: this is the recorded "evaluation
+      over dataset records" follow-on in the evaluator item — the chord
+      stream derives from segmentation/dataset records rather than raw
+      atom streams. Per the Decision 8 corollary, this vocabulary expansion
+      is a first-class investment; induction inherits the new family for
+      free (mineable categorical fields).
+- [ ] **Pattern layer — sequential patterns/schemata as first-class objects**
+      (added 2026-07-01 — gap C; the largest design lift, sequenced last).
+      Constraints say what is *forbidden/required*; patterns say what is
+      *characteristic* — a genre language needs both. Wanted: a serializable
+      pattern object — motif, schema (Prinner, 12-bar blues, a clave),
+      progression n-gram — i.e. a sequential template with a **declared
+      abstraction level**, reusing the identity-lattice idea at pattern
+      grain: pitch-exact / degree-relative / contour-only on the pitch axis
+      × rhythm-exact / rhythm-free on the time axis (reduce, never invent —
+      a pattern declares its level and matching respects it). Patterns and
+      rules meet by construction: a high-support pattern projects to a soft
+      `require` (the Phase 4.5 intertwining made concrete), and pattern
+      *induction* extends the existing miner to sequential mining
+      (PrefixSpan/SPADE family) under the same Fisher + BH-FDR rigor and
+      versioned scoring priors. The deferred free-scope axis (phrase /
+      global / aggregate) is this item's DSL-side landing spot. Design
+      round deliberately deferred until the library + harmony family +
+      repair slices have exposed the DSL's seams.
 - [ ] **Generation coupling** (lands with Phase 7): rulesets are the
       constraint/cost input to generative search — hard rules prune, soft
       rules score. This *is* Phase 7's "qualitative characteristics"
@@ -1938,6 +2014,23 @@ frame, recorded here so A2/A3 decompose onto named work):**
   range, polyphony, idiomatic spacing per class: bass/pad/lead/counter-melody),
   shipped as versioned priors (Phase 3.5 pattern) so generation under a profile
   stays reproducible.
+- **Conformance repair — ruleset imposition on existing material** (added
+  2026-07-01; gap A of the Phase 4.6 vision review — the operation was
+  previously unrecorded). Given a piece and a ruleset: find a **minimal set of
+  edits** that eliminates hard violations and improves the soft score while
+  preserving everything the ruleset does not speak to. A third operation,
+  distinct from evaluation (analysis: score, don't touch) and from-scratch
+  realization (generate under constraints): constrained search over *edits to
+  existing material*, with the Phase 4.6 evaluator as the oracle and edit
+  distance as the objective. Generative per the cardinal rule (edits invent
+  pitches/register). More tractable than full realization and the operation
+  that makes impose-a-ruleset tangible ("this folk melody under species
+  rules"); it is also A2's ruleset-driven generalization (a scale re-map or
+  re-voicing is a special-case repair). **First slice stays narrow:**
+  single-dimension repair — e.g. re-pitch NHTs to fix melodic-rule
+  violations, or move one voice to break parallel fifths — before any joint
+  multi-dimension search. Ranked plural output with the violated-rule →
+  edit trace as evidence (Decision 7 shape).
 
 ### Phase 8 (future) — C++ core migration (Decision 10)
 Port once, bind back: a single C++ core with Python bindings replaces the
