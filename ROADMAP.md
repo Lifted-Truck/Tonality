@@ -2182,9 +2182,22 @@ acceptance plan: **[CPP_PORT.md](CPP_PORT.md)**.
       (fast-follow once they settle + are added to the export). Analysis/temporal/
       bindings stay behind the freeze fence. Likely a separate `tonality-core` repo
       consuming this repo's fixtures; pybind11 bindings deferred past the core
-      subset. **Status: plan-first — no agent spawned pending Julian's review of
-      CPP_PORT.md's open questions** (repo location, bindings timing, embedded/WASM
-      constraint, chirality timing).
+      subset. **Status: greenlit 2026-07-03 — scaffold + thread contract
+      delivered ([port/PORT.md](port/PORT.md)); Julian spawns the port agent.**
+      CPP_PORT.md's open questions resolved as defaults, recorded in PORT.md:
+      separate sibling repo (`tonality-core`), no bindings in slice 1,
+      embedded/WASM as free side-effects not constraints, slice 1b (chirality)
+      held until A6's questions settle a quiet cycle. **Accountability protocol
+      (decided 2026-07-03):** two-sided and mechanical — Tonality-side,
+      `port/pin.json` fingerprints the ported surface (table + fields + schema
+      version + ported conformance cases) and `tests/test_port_pin.py` fails
+      the suite (and thus the Stop hook) whenever the live engine drifts from
+      the pin, forcing pin-regen + a notice in `integrations/tonality-core/`
+      in the same PR; port-side, a refresh-fixtures script diffs vendored
+      fixtures against a fresh export and re-runs parity on any change. Rides
+      the existing pytest hook by design — no new hook plumbing; binds every
+      agent/CI on any machine. The port agent never edits `mts/`; engine asks
+      arrive as briefs on the integrations channel.
 - [ ] Core identity layer (bitmask/set-class/symmetry/DFT) — `constexpr`
       tables over the 4096 universe; the cleanest layer, C++-native.
 - [ ] Analysis layer (parsers, naming + evidence, induction, VL, containment)
