@@ -2345,6 +2345,18 @@ workstreams so they can be scheduled and checked off independently.
       load-bearing the BY-NC-SA boundary is), the `example.com` homepage,
       the stale description, missing console entry points for
       `mts.mcp`/`mts.mcp.bridge`, and `.coverage` joining `.gitignore`.
+      *(Delivered 2026-07-03 except the license file:* `data/` → `mts/data/`
+      with `DATA_DIR = parents[1]` + declared package-data, pinned by
+      `tests/test_packaging.py` — including an installed-copy simulation
+      (package tree alone, no repo root) that loads catalogs and runs an MCP
+      tool; description/homepage/authors fixed; `tonality-mcp` +
+      `tonality-bridge` console scripts declared; `.coverage` gitignored.
+      **The one open leg: the repo license is Julian's decision** — the false
+      MIT classifier is *removed* rather than replaced, and the classifier +
+      LICENSE file should land together once he picks. The `sys.path` script
+      hacks and the stale-venv workaround become removable once the venv gets
+      an editable install of the now-correctly-packaged library — small
+      follow-on, needs a permission-gated `pip install -e`.)*
 - [ ] **RE-2 — Wrong-output bugs (all verified by execution).** These emit
       incorrect enrichment to A1/A6 today: **(a)** deceptive cadences are
       undetectable in minor (`cadence.py` requires `relative_root == 9` +

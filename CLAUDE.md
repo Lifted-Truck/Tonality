@@ -76,7 +76,7 @@ mcp/         Thin adapter (Phase 4): one tool per analysis entry point. tools.py
              extra (`python -m mts.mcp`). Intelligence stays below this line.
 ```
 
-`io/` loads catalogs from `data/*.json`. `theory/functions.py` generates functional
+`io/` loads catalogs from `mts/data/*.json` (inside the package, so installed copies work). `theory/functions.py` generates functional
 harmony. `workspace.py` is a stateful session facade (one `SessionCatalog` each —
 keep it lean; it is *a* entry point, not *the* API).
 

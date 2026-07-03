@@ -5,13 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mts"
 version = "0.1.0"
-description = "Minimal music theory scaffolding"
-authors = [{name = "Tonality"}]
+description = "Tonality: a local-first music-theory engine for 12-TET pitch material — exact set-class/scale/chord combinatorics with evidence, plus an MCP endpoint for AI agents"
+authors = [{name = "Julian Smith"}]
 readme = "README.md"
 requires-python = ">=3.10"
+# NOTE: no license classifier on purpose — the previous "MIT" classifier was
+# unaccompanied by any LICENSE file and undecided; the project license is
+# Julian's call (tracked in ROADMAP RE-1). Add license + file together.
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
@@ -45,5 +47,14 @@ testpaths = ["tests"]
 include = ["mts*"]
 exclude = ["tests*", "audit*"]
 
+[tool.setuptools.package-data]
+mts = ["data/*.json"]
+
+[project.scripts]
+# The MCP endpoint needs the optional extra: pip install 'mts[mcp]' (the
+# import is guarded with that message). The bridge is stdlib-only.
+tonality-mcp = "mts.mcp.server:main"
+tonality-bridge = "mts.mcp.bridge:main"
+
 [project.urls]
-Homepage = "https://example.com"
+Homepage = "https://github.com/Lifted-Truck/Tonality"

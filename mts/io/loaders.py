@@ -21,7 +21,9 @@ from ..theory.functions import (
     generate_functions_for_scale,
 )
 
-DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+# Catalogs/priors ship inside the package (mts/data/) so an *installed* copy
+# works — parents[1] is the mts package dir, valid in a checkout and a wheel.
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
 # Parsed base catalogs, cached per (path, mtime). Catalog objects are frozen
 # dataclasses, so sharing them across the dicts returned to callers is safe;

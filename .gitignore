@@ -22,3 +22,6 @@ venv/
 
 # agent worktrees (ephemeral)
 .claude/worktrees/
+
+# Coverage data (dev extra)
+.coverage
