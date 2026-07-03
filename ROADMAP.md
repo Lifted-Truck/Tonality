@@ -2203,6 +2203,196 @@ and disposals:
 
 Next pass: at the next phase boundary (post-DSL v1).
 
+## Standing review — rigor & efficiency (pass #1 run 2026-07-02)
+
+The theory-grounding review asks *what the engine silently assumes about
+music*; this sibling review asks *whether the code does what the recorded
+contracts say, and does it without waste*. Pass #1 was a structured walk of
+every layer (five parallel deep reads: `core/`, `analysis/`, `temporal/`,
+`rules/`+`representation/`+`context/`, `mcp/`+`io/`+infra), each asking three
+questions per module: is the output **correct** (rigor), is the work
+**necessary** (efficiency), and does the implementation still match the
+doctrine this file records (paradigm). Findings marked *(verified)* were
+confirmed by executing the code; the rest are code-read findings with
+file:line evidence (the full report lives in the review conversation; what
+follows is the durable record). Findings are grouped into six named
+workstreams so they can be scheduled and checked off independently.
+
+- [ ] **RE-1 — Packaging: the library only works from a checkout.** The
+      most foundational gap for a "foundation library": `io/loaders.py`
+      computes `DATA_DIR` as `parents[2]` of the module (the repo root), and
+      `pyproject.toml` packages only `mts*` with no package-data — so an
+      *installed* copy raises `FileNotFoundError` on every catalog load,
+      which every MCP tool depends on. (This is also why every script
+      carries a `sys.path` hack, and the cause of the stale-venv workaround.)
+      Fix: move `data/` inside the package (or `importlib.resources`) +
+      declare package data. Same PR sweeps the metadata rot: the **MIT
+      classifier with no LICENSE file in the repo** (a live hazard given how
+      load-bearing the BY-NC-SA boundary is), the `example.com` homepage,
+      the stale description, missing console entry points for
+      `mts.mcp`/`mts.mcp.bridge`, and `.coverage` joining `.gitignore`.
+- [ ] **RE-2 — Wrong-output bugs (all verified by execution).** These emit
+      incorrect enrichment to A1/A6 today: **(a)** deceptive cadences are
+      undetectable in minor (`cadence.py` requires `relative_root == 9` +
+      role `tonic`; minor's submediant is pc 8 / `predominant` — doubly
+      blocked); **(b)** bVII→i in minor is labeled *authentic* with
+      fabricated "leading-tone resolving to tonic" evidence — a direct
+      evidence-honesty violation (it's a subtonic/backdoor shape); **(c)**
+      figured bass is assigned by cardinality alone, never checking
+      tertian-ness (C6 root position gets "7", add9 gets "7"/"6/5") — wrong
+      figures instead of `None`; **(d)** `ChordIntervalSummary`
+      span/interval fields are computed from absolute pcs, so the same
+      identity shape reports different spans at different roots — invented
+      register inside a documented pure-identity analysis (cardinal-rule
+      violation); **(e)** `inverted_interval_class_histogram` is provably
+      always identical to the normal histogram (the interval matrix is
+      symmetric under negation mod 12) — a dead-equal result field; **(f)**
+      `colour_content_descriptor` consumes its input iterable twice, so a
+      generator argument silently yields an all-zero interval vector next to
+      correct mask fields.
+- [ ] **RE-3 — Silent-loss / silent-no-op fixes (the itemize-losses
+      doctrine, applied).** **(a)** MIDI ingestion loses notes without
+      report: a second `note_on` for the same `(channel, note)` overwrites
+      the open note; dangling note-ons at end-of-track vanish; a
+      sub-half-tick note round-trips to note_off-before-note_on and is
+      dropped on re-read — `coalesce` itemizes every drop, MIDI reads must
+      too. **(b)** `apply_groove`'s `voice` parameter is accepted,
+      documented, and completely ignored (and the MCP tool passes it
+      through). **(c)** `key_inertia` silently discards
+      `disambiguate_relative` when both flags are set (inertia re-decodes
+      from raw score vectors), and region `mean_score`/`mean_margin` average
+      raw-argmax stats even when inertia/smoothing changed the region's
+      label — the advertised gating signal can describe the *wrong key*.
+      **(d)** Rules: `description` escapes strict total validation (`null`
+      passes and round-trips as the string `"None"`);
+      `hard_rules_hold=True` when zero hard rules were applicable ("held"
+      conflated with "never tested"); induction's merge pass compares a raw
+      p-value against the FDR q-threshold (more lenient than the singleton
+      test). **(e)** Input-policy inconsistencies across core: `Pitch` is
+      the one unvalidated primitive (contradictory `midi`/`pc`/`octave`
+      constructs fine); `parse_pitch_token` accepts `"-3"` as pc 9;
+      `Scale.from_degrees`/`Quality` mod-12 *before* validating (silent
+      wrap) where `mask_from_pcs` raises; `mask_from_text` guesses
+      binary-vs-decimal (`"10"` → mask 2). **(f)** `rotational_steps`
+      returns a `(12,)` sentinel for asymmetric sets that leaks into results
+      as a false symmetry claim; the empty-set convention disagrees between
+      core and analysis. **(g)** Smaller kin, same shape: `Event.sounds_at`
+      epsilon asymmetry (a barely-legal event sounds nowhere), voice-motion
+      classifying motion across rests unmarked, `changes_per_bar` counting
+      segments not changes, session persistence swallowing corrupt entries,
+      `load_function_mappings` dropping `role_subtype`, the
+      `include_nondiatic` API typo, and `structural_key.py`'s module
+      docstring still stating the *pre*-brief-11 discriminator.
+- [ ] **RE-4 — MCP surface unification (Phase 4 hygiene, coordinated).**
+      **(a)** Four incompatible positional event conventions live on the
+      tool surface (index 3 = string voice in `structural_keys` — whose
+      declared schema says `list[list[float]]` — but velocity in the meter
+      tools, voice again in `_flex_events` consumers, velocity-with-voice-
+      at-4 in the groove tools; `key_tracking` hard-rejects 4-element events
+      entirely). Rule one canonical event form for *all* temporal tools;
+      additive migration with consumer notices, per the CBMS-flip pattern.
+      **(b)** `midi_file_analysis` and `piano_roll_view` are multi-step
+      pipelines whose result shapes exist only as hand-built dicts in the
+      MCP layer — intelligence above the line, against Decision 5 and the
+      typed-results convention; consequently they are the only two tools
+      with no conformance golden. Move the pipelines into
+      `analysis/`/`dataset/` as typed entry points; tools become one-liners;
+      goldens follow (closes the 44-of-46 ratchet gap — and note the tool
+      count is 46, not the 43 stale docs cite). **(c)** Five tools serialize
+      via `dataclasses.asdict` because their results lack `to_dict()`
+      (`parse_chord`, `voicing_suggestions`, `quality_comparison`,
+      `quality_brief`, `set_class_info`) — shapes drift by construction, and
+      `export.py` re-implements `set_class_info`'s shape with nothing
+      enforcing the mirror. **(d)** `midi_file_analysis`/`piano_roll_view`
+      swallow *every* `ValueError` as "no tonal/metric information" — the
+      engine needs a typed insufficient-information exception so real input
+      errors stop being conflated with honest absence. **(e)** Bridge
+      hardening: `Access-Control-Allow-Origin: *` + preflight means any web
+      page can invoke path-taking tools on loopback — token or origin
+      allowlist (A6 coordinates); and engine `TypeError`s are misreported as
+      HTTP 400 client errors.
+- [ ] **RE-5 — Hot-path efficiency pass (mechanical,
+      conformance-protected).** All output-identical by construction, so
+      the golden harness is the reviewer: **(a)** `rotate_mask` /
+      `invert_mask` are 12-iteration Python loops and the hottest primitives
+      in the library (per-root in compatibility/containment, per-tone in
+      `interpret_chord`, ×24 in `prime_form_mask`) — the branchless form is
+      three int ops; **(b)** `load_function_mappings` is the *only* uncached
+      loader and regenerates the full functional table inside per-candidate
+      loops (measured ≈2.1 ms per `recommend_next_chord`, mostly redundant;
+      `summaries.py` already wraps it in a private lru_cache — the fix
+      belongs in the loader, mtime-keyed like the other twelve); **(c)**
+      `interpret_chord` rebuilds its catalog mask-index every call, on the
+      per-segment path from temporal segmentation — cache it on the catalog;
+      **(d)** quadratic temporal scans (segmentation's per-boundary
+      `sounding_at`, voice-motion's per-moment-pair position recompute,
+      `track_keys`/`track_meter` re-scanning and re-sorting all events per
+      window) all become single sweeps over the already-sorted events;
+      **(e)** the pair-keyed `pcset_math` caches are sized 4096 over a
+      mask-*pair* key space (`voice_leading` already uses 16384); **(f)**
+      lesser: `parse_ruleset` parses every rule twice and MCP re-validates
+      per call, `versioned_data_bundle` parses every asset twice, the twelve
+      near-identical ~40-line loader blocks collapse into one generic
+      mtime-keyed helper. Side benefit: simpler table-driven code is exactly
+      what ports cleanly in Phase 8.
+- [ ] **RE-6 — Doctrine-drift cleanup (the GUI-era residue).** **(a)**
+      `layouts/push_grid.py` is an in-library ANSI renderer (escape tables,
+      `isatty()` color policy, spelled labels, no spec level) — the exact
+      thing Phase 5 was created to replace; the grid *descriptor* moves to
+      `representation/`, the painting to the CLI edge (`cli/push.py` stays
+      the example consumer, per Demoted). `layouts/piano.py` is a dead
+      placeholder referencing the removed GUI — delete. **(b)**
+      `analysis/builders.py` still holds the forbidden module-level mutable
+      registry (`_DEFAULT_SESSION` + `SESSION_*` aliases, with import-time
+      disk I/O under a bare `except`): sessionless catalog loads merge it,
+      so in-process registration leaks into every MCP call of a long-lived
+      server — the one consumer where isolation matters most. It also
+      creates the `io ↔ analysis` import cycle that forces ~15 lazy imports
+      across nine analysis modules; moving `SessionCatalog` below `io/`
+      untangles both. **(c)** `workspace.py` keeps listener/notification
+      plumbing, "GUI layers" framing, wrong return annotations, and a stale
+      TODO claiming MIDI ingestion is unimplemented. **(d)** API
+      consistency: `.pcs` is a method on `Scale`, a field on `Chord`, a
+      property on `Realization` (naming.py carries a literal `callable()`
+      probe to cope); the symmetry/chirality family is split across three
+      modules with achirality computed two independent ways; rank starts at
+      0 in naming but 1 in succession; frozen result dataclasses carry
+      mutable list fields in `temporal/` where `StructuralKeyResult`
+      correctly uses tuples. **(e)** Dead code with teeth:
+      `chord_degree_labels` (unused *and* semantically wrong — returns
+      spelled names from core and mis-handles absolute-pc scales),
+      `Chord.spelled`, `transpose_pcs`, `Event.tags`, unreachable
+      enharmonics branches, plus stale docstrings ("Analysis toolkit
+      *stubs*… future *GUI* integrations") and forward-looking TODO blocks
+      that violate this file's own link-the-ROADMAP rule.
+
+**Calibration — verified solid, on record so it isn't relitigated:** layer
+hygiene is clean everywhere checked (no upward imports; analysis never
+reaches temporal/mcp/representation at runtime); the cardinal rule is
+honored in the register-dependent paths (`analyze_voicing`,
+`voice_leading_realized` raise on identity-only input); the
+lru-cache-over-4096-masks pattern *is* the precomputed set-class table done
+right, and the Rahn prime-form-as-min-mask argument checks out; the VL
+non-crossing pairing matches the cited Tymoczko construction and is
+brute-force validated; the key-tracking priors contract holds (raw
+per-window evidence preserved; priors opt-in, versioned, cited) apart from
+the RE-3(c) interaction; the golden conformance harness and the mtime-keyed
+loader caching are well built.
+
+**Sequencing decision (2026-07-02):** (1) **RE-1** first — it blocks
+everything downstream of "library" and is a small diff; (2) **RE-2 + RE-3**
+next — wrong output and silent loss reach consumers today, and each item is
+a small, well-fenced, golden-policed fix; (3) **RE-4** as one coordinated
+additive change with consumer notices (the event-format rule is the
+breaking-risk item, so it gets the CBMS-style migration treatment); (4)
+**RE-5** as a mechanical pass once RE-4's typed pipelines exist (so the new
+entry points are measured, not the old dict assemblies); (5) **RE-6**
+last — highest churn, zero consumer-visible behavior. Intended output
+changes regenerate goldens in the same PR, per the harness contract.
+Cadence: re-run alongside the theory-grounding review at each phase
+boundary; the two reviews are complementary instruments (assumptions vs
+contracts) and should stay separate passes.
+
 ## Demoted / deferred (built for the old "app" frame)
 
 - `gui/` (Qt) and the audio backend — not on the library/MCP path. Don't delete;
