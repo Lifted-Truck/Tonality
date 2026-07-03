@@ -70,3 +70,12 @@ def test_spec_level_and_validation_and_serialisation():
     assert colour_content_descriptor([0, 4, 7]).to_dict() == d.to_dict()  # deterministic
     with pytest.raises(ValueError, match="at least one pitch class"):
         colour_content_descriptor([])
+
+
+def test_generator_input_matches_list_input():
+    # RE-2f: the input iterable used to be consumed twice, so a generator
+    # argument silently produced an all-zero interval vector.
+    from_list = colour_content_descriptor([0, 4, 7])
+    from_gen = colour_content_descriptor(iter([0, 4, 7]))
+    assert from_gen.interval_vector == from_list.interval_vector == [0, 0, 1, 1, 1, 0]
+    assert from_gen == from_list

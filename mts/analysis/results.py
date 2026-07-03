@@ -92,7 +92,13 @@ class ScaleIntervalSummary:
 
 @dataclass(frozen=True)
 class ChordIntervalSummary:
-    """Interval statistics for a chord."""
+    """Interval statistics for a chord — **root-relative and therefore
+    transposition-invariant** (a pure-identity analysis must report the same
+    summary for the same shape at every root). ``span_semitones`` is the
+    largest interval from the root within one octave of the root-position
+    layout; ``span_compact`` is the tightest one-octave rotation of that
+    layout; ``interval_pairs`` are pairwise intervals of the root-relative
+    pcs."""
     cardinality: int
     distinct_pcs: int
     interval_vector: list[int]
@@ -108,8 +114,11 @@ class Inversion:
     """One inversion of a chord (root rotated to each chord tone).
 
     ``position_index`` is the inversion number (0 = root position). ``figured_bass``
-    is the conventional shorthand for triads and seventh chords (e.g. ``6``,
-    ``6/4``, ``6/5``); ``None`` for cardinalities without a standard figure.
+    is the conventional shorthand for **tertian** triads and seventh chords
+    (e.g. ``6``, ``6/4``, ``6/5``); ``None`` for non-tertian chords (maj6,
+    add9, sus…) and cardinalities without a standard figure — the figures name
+    positions of a stack of thirds, so anything else gets no figure rather
+    than a wrong one.
     """
     root_pc: int
     intervals: list[int]
@@ -647,8 +656,10 @@ class ChordAnalysisResult:
     intervals_relative_to_root: list[int]
     interval_matrix: list[list[int]]
     interval_class_histogram: dict[int, int]
+    # (RE-2e) There is deliberately no inverted_interval_class_histogram: the
+    # interval matrix is symmetric under negation mod 12, so it was provably
+    # always identical to interval_class_histogram — a dead-equal field.
     inverted_interval_matrix: list[list[int]]
-    inverted_interval_class_histogram: dict[int, int]
     interval_vector: list[int]
     interval_summary: ChordIntervalSummary
     symmetry: SymmetryData

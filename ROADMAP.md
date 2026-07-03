@@ -2376,6 +2376,22 @@ workstreams so they can be scheduled and checked off independently.
       `colour_content_descriptor` consumes its input iterable twice, so a
       generator argument silently yields an all-zero interval vector next to
       correct mask fields.
+      *(Delivered 2026-07-03, all six, each with a regression test:*
+      **(a)** deceptive keys on the mode's submediant *degree* (vi/9 major,
+      VI/8 minor), not the arrival role; **(b)** authentic requires a true
+      dominant degree (7 or 11) — the subtonic bVII emits no cadence event
+      and the degree rulings are recorded in `cadence.py`'s docstring;
+      **(c)** figures gated on tertian-ness (successive thirds from the
+      root), shared by `analyze_chord` and `analyze_voicing` — non-tertian
+      chords report `None`; **(d)** `interval_summary` computed root-relative
+      (transposition-invariant; C-rooted values unchanged); **(e)** the
+      dead-equal field removed from `ChordAnalysisResult` (golden regenerated
+      — the only golden change); **(f)** input materialized once. Consumer
+      notices filed: `integrations/audiology/notice-re2-chord-analysis-
+      corrections.md` (figures/summary/removed field/colour input) and
+      `integrations/terrane/notice-re2-cadence-corrections.md` (minor-mode
+      cadences), the latter flagging "named subtonic cadence type?" as an
+      open vocabulary door if TERRANE wants it.)*
 - [ ] **RE-3 — Silent-loss / silent-no-op fixes (the itemize-losses
       doctrine, applied).** **(a)** MIDI ingestion loses notes without
       report: a second `note_on` for the same `(channel, note)` overwrites
