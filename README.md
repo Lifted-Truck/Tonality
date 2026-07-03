@@ -103,7 +103,7 @@ Python) can compute the same answers from the same data.
 |---|---|---|
 | **Python library** | scripting, embedding | `import mts` — pure functions over frozen dataclasses |
 | **MCP endpoint** | AI agents | **46 tools**, one per analysis; `python -m mts.mcp` (needs the `mcp` extra) |
-| **Dataset / JSON** | offline pipelines | versioned catalogs in `data/`, dataset records from MIDI |
+| **Dataset / JSON** | offline pipelines | versioned catalogs in `mts/data/`, dataset records from MIDI |
 
 The core data model is two structures: an **identity key** (a pitch-class set as a
 12-bit bitmask — what you match and name on) and an optional **realization** (the
@@ -138,7 +138,7 @@ The `scripts/` folder bundles terminal tools over the analysis layer —
 
 ## Data & customization
 
-Reference material is versioned JSON under `data/` — scales (modal/ethnic sets with
+Reference material is versioned JSON under `mts/data/` — scales (modal/ethnic sets with
 alias support), chord qualities (triads through altered 13ths), functional-harmony
 tables, key/meter/scoring priors. Empirical values are versioned and cited; theory
 sets are never corpus-fit. Adjust the JSON, reload via `mts.io.loaders`, and the

@@ -31,7 +31,7 @@ Notes:
 
 ## 2. Read-only / additive only
 
-- **No edits to `mts/`, `data/`, `scripts/`, `tests/`, `ROADMAP.md`, `CLAUDE.md`.**
+- **No edits to `mts/` (incl. `mts/data/`), `scripts/`, `tests/`, `ROADMAP.md`, `CLAUDE.md`.**
   Those belong to the dev loop. The audit only writes under `audit/` and files issues.
 - No `git checkout`/`reset`/`pull`/`branch -d`/`push --force` on shared refs; never
   touch the dev loop's branches, open PRs, or `main`.
@@ -117,7 +117,7 @@ equivalences** (allowlist), and only flag *new/undocumented* footprint collision
 
 ## 8. Quick "don'ts" recap
 - Don't run in the dev checkout — use a worktree.
-- Don't edit `mts/`/`data/`/`tests/`/`scripts/`/docs — issues + `audit/checks/` only.
+- Don't edit `mts/` (incl. `mts/data/`)/`tests/`/`scripts/`/docs — issues + `audit/checks/` only.
 - Don't put audit checks in `tests/`.
 - Don't file known gaps (ROADMAP) or in-flight-PR areas as bugs.
 - Don't `git add -A` — scope every add.
