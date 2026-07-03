@@ -1,9 +1,11 @@
 # Tonality C++ Core — Port Plan (draft for review)
 
-> Status: **planning** (no agent spawned yet). This is the build + acceptance plan
-> for the Phase 8 / Decision-10 C++ core migration, scoped for a parallel effort.
-> Direction of record lives in [ROADMAP.md](ROADMAP.md) Phase 8; this doc is the
-> concrete *how*. Julian reviews this before any C++ work starts.
+> Status: **greenlit 2026-07-03**. This is the build + acceptance plan for the
+> Phase 8 / Decision-10 C++ core migration, scoped for a parallel effort.
+> Direction of record lives in [ROADMAP.md](ROADMAP.md) Phase 8. The "open
+> questions" below are resolved as defaults, and the repo scaffolding + the
+> two-thread accountability protocol live in **[port/PORT.md](port/PORT.md)**
+> — the port agent's first read.
 
 ## Why
 

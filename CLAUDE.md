@@ -143,6 +143,18 @@ checks in **`audit/checks/`** — which is *excluded* from the dev suite via
 not put audit checks in `tests/`**; promote a proven invariant into `tests/` only
 via a reviewed PR.
 
+## Parallel port thread (C++)
+
+A separate **port thread** builds the C++ core (Decision 10: dual implementation)
+in a sibling repo, `tonality-core`. Its contract is **[port/PORT.md](port/PORT.md)**.
+What the dev loop must know: **`port/pin.json`** fingerprints the ported surface
+(the set-class export table + the ported conformance cases), and
+`tests/test_port_pin.py` fails whenever the engine drifts from it. If your change
+trips that test intentionally, rerun `scripts/update_port_pin.py`, commit the new
+pin in the same PR, and file a notice in `integrations/tonality-core/` so the port
+refreshes its vendored fixtures. The port agent never edits `mts/`; its engine
+asks arrive as briefs on the integrations channel.
+
 ## Git workflow
 
 - Work on a branch; `main` has branch protection (push succeeds via bypass, but
