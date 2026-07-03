@@ -535,6 +535,26 @@ list as new applications come into view.
   4.6 induction consumer** ("derive the idiom from the affinity matrix");
   a sibling instrument is noted as a likely second consumer of the same
   doors.
+- **A8 — AURICLE** *(added 2026-07-03 from its RFC brief, relayed —
+  `integrations/auricle/`; local repo: synthetic-worlds/auricle)*. A grain
+  manipulator VST (C++): grain quantization, a modal resonator bank with
+  voice-leading glides, and a chroma mask, all driven from one harmonic
+  authority. The TERRANE consumer class again — real-time, can ship no
+  CPython — but with a sharper proposal: consume **compiled harmony
+  contracts** (versioned JSON artifacts freezing pc sets, voicings, and
+  voice-leading transition maps) rather than a native port, so the client
+  needs *no* Tonality runtime at all. Its RFC is the origin of **Decision 11**
+  (contracts as object code) and **gaps 16–17**; TERRANE and wend (a
+  harmonic-decision serializer in the same ecosystem) are recorded as
+  prospective consumers of the same format.
+  *Capabilities:* voice-leading assignment map over concrete voicings
+  ✅ shipped (`voice_leading_realized`, gap 6 — the brief's §4.1 assumed it
+  missing; verified present, brute-force-tested, corpus-validated 285/285) ·
+  cardinality-mismatch policy ✅ shipped as data (`doubling.1`, exported in
+  manifest/bundle; voice birth/death recorded as a round-2 design point) ·
+  contract schema/validator/emitter — **gap 16 below** · constrained voicing
+  enumeration/ranking — **gap 17 below** · division-of-labor table + bounded
+  client fallbacks ✅ endorsed (the consumer-port-corollary shape, Decision 10).
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
@@ -933,6 +953,47 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     capability this program would score, and it shares the measure-before-believe
     discipline (the literature's closure methods are validated on non-modulating
     repertoire; transfer to lieder is unproven).
+16. **Compiled harmony contracts** (added 2026-07-03 from the A8 AURICLE RFC;
+    TERRANE + wend prospective) — a Tonality-owned, versioned, schema-validated
+    JSON artifact that freezes theory decisions (pc sets, concrete voicings,
+    voice-leading transition maps, quantization policy) so real-time clients
+    consume harmony with **zero runtime dependency** on Tonality. Deliverables:
+    `contracts/harmony.schema.json` (versioned in-repo) · a `contracts` module
+    below the MCP line — `validate(doc)` (schema + semantic checks: **voicing ⊆
+    pcs enforced as the cardinal rule in artifact form** — a realization must
+    reduce to its stated identity; transition endpoint resolution; voiceMap
+    index bounds) and `emit(states, transitions, policy)` (canonical
+    serialization, sorted keys, stamped `tonalityVersion` — riding the existing
+    `mts/io/export.py` versioning discipline, not a parallel one) · thin MCP
+    wrappers per Decision 5. The `voiceMap` serializes the *already-shipped*
+    `voice_leading_realized` mapping (gap 6), translated from (source_midi,
+    target_midi) value pairs to the contract's (fromIdx, toIdx) index
+    convention; cardinality mismatch cites `doubling.1` (voice birth/death is a
+    recorded round-2 design point, a second named policy if a consumer makes
+    the case). An `evidence` block carries rankings/margins/derivations as
+    provenance — ignored by runtimes, preserved for audit. `edo` field reserved
+    (12 fixed in v1); no EDO work. Acceptance (adopted from the brief):
+    malformed-contract corpus rejected with documented error classes; golden
+    contracts round-trip byte-identically; voiceMap cost equals the
+    independently computed distance of the returned assignment (the underlying
+    metric is already brute-force-pinned); one cross-repo end-to-end fixture —
+    chord list in → contract out → AURICLE's vendored validator passes it
+    unmodified. AURICLE's draft schema/validator are the starting point,
+    adapted not adopted; namespace + field names are Tonality's call.
+17. **Constrained voicing enumeration + ranking** (added 2026-07-03, A8; the
+    **registered+rootless voicing-template corner** of the identity lattice
+    made operational) — given a pc set, a voice count N, and register/spacing
+    constraints, return ranked candidate voicings with margins. Two halves on
+    opposite sides of the cardinal rule, same split as groove (gap 10):
+    *Ranking* (analysis) — the ranking authority already owns its metric
+    (`voice_leading_realized` + `doubling.1`); deterministic order, margins
+    explicit, ties surfaced not hidden. *Enumeration* (generative) — a thin,
+    **explicitly generative** layer producing candidates under the constraints;
+    deterministic, any random component seed-explicit. Accepted under Decision
+    11's scope rule (multi-client benefit: A8's resonator voicings, TERRANE's
+    harmonic states, the Phase 7 generative work all want it). Client-supplied
+    voicings remain valid ranking input regardless; this gap lags gap 16
+    without blocking it (hand-authored voicings are valid contracts).
 
 ## Decisions on record (the "why", so we don't relitigate)
 
@@ -1056,6 +1117,26 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     **stable-schema versioned-data export** (priors + a generated set-class/
     DFT table artifact) is the concrete deliverable this implies — recorded
     in Phase 8.
+11. **Contracts as object code — Tonality is the compiler for real-time
+    consumers.** (Decided 2026-07-03 with Julian, from the A8 AURICLE RFC.)
+    Real-time clients (VST/JUCE class) cannot call Python and must be
+    deterministic; without a Tonality-owned artifact format each grows its own
+    dialect — the Audiology divergence repeated per consumer. So Tonality owns
+    **compiled contract formats**: versioned, schema-validated, deterministic
+    JSON artifacts that freeze theory decisions for consumption without any
+    runtime dependency (first instance: the harmony contract, gap 16).
+    Analysis/authoring stays in Tonality; clients get a frozen, diffable,
+    version-controlled document; the plural/ranked/evidenced discipline
+    travels in the artifact as a provenance block runtimes ignore. This
+    *complements* Decision 10, not competes: contracts serve consumers whose
+    harmonic material is decided ahead of time; the C++ core serves consumers
+    who need the engine live.
+    **Scope rule (recorded with this decision, Julian 2026-07-03):** add to
+    Tonality anything that may benefit **multiple clients** in the future,
+    provided it doesn't break the cardinal rules. Generative capabilities are
+    in scope under this rule *as* generative — explicitly labeled, never
+    disguised as analysis (the groove-apply precedent; applied first to
+    voicing enumeration, gap 17).
 
 ## Build sequence
 
