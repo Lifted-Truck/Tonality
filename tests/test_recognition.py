@@ -73,3 +73,33 @@ def test_voicing_shapes_is_the_shared_vocabulary():
     shapes = voicing_shapes([0, 4, 7, 11])  # maj7 intervals
     assert shapes["closed"] == (0, 4, 7, 11)
     assert "drop2" in shapes and "shell" in shapes
+
+
+# --- RE-2c: figures are gated on tertian-ness, not cardinality alone ---------
+
+def test_non_tertian_four_note_chords_get_no_figure():
+    # maj6 (0,4,7,9) and majadd9 (0,2,4,7) are four-note but NOT stacks of
+    # thirds — they used to receive seventh-chord figures ("7", "6/5", ...).
+    for name in ("maj6", "majadd9"):
+        invs = _inversions(name)
+        assert all(i.figured_bass is None for i in invs), name
+        assert invs[0].position_name == "root position"
+
+
+def test_sus_triads_get_no_figure():
+    # sus4 (0,5,7) is three-note but not tertian — "5/3"/"6"/"6/4" would be wrong.
+    invs = _inversions("sus4")
+    assert all(i.figured_bass is None for i in invs)
+
+
+def test_dim7_is_tertian_and_keeps_its_figures():
+    invs = _inversions("dim7")  # (0,3,6,9): stacked minor thirds
+    assert [i.figured_bass for i in invs] == ["7", "6/5", "4/3", "4/2"]
+
+
+def test_non_tertian_voicing_recognition_reports_no_figure():
+    # analyze_voicing shares the gate: a voiced C6 in root position gets a
+    # position name but no figured bass.
+    a = analyze_voicing(Realization.from_midi([48, 52, 55, 57], root_pc=0))  # C E G A
+    assert a.position_name == "root position"
+    assert a.figured_bass is None

@@ -92,7 +92,10 @@ def colour_content_descriptor(pcs: Iterable[int]) -> ColourContentDescriptor:
     on an empty set — there is no colour without content.
     """
 
-    mask = mask_from_pcs({int(pc) % 12 for pc in pcs})
+    # Materialize once — a generator argument would be exhausted by the first
+    # pass and silently yield an all-zero interval vector on the second.
+    pcs = [int(pc) % 12 for pc in pcs]
+    mask = mask_from_pcs(set(pcs))
     if mask == 0:
         raise ValueError("colour_content_descriptor needs at least one pitch class.")
 

@@ -31,6 +31,26 @@ def test_chord_analysis_accepts_note_names():
     assert result["set_class"]["prime_form"] == [0, 1, 5, 8]
 
 
+def test_chord_analysis_interval_summary_is_transposition_invariant():
+    # RE-2d: the summary used to be computed from absolute pcs, so the same
+    # shape reported different spans at different roots (invented register
+    # inside a pure-identity analysis).
+    c = _json_safe(tools.chord_analysis("C", "maj"))["interval_summary"]
+    a = _json_safe(tools.chord_analysis("A", "maj"))["interval_summary"]
+    assert c == a
+    assert c["span_semitones"] == 7 and c["interval_pairs"] == [3, 4, 7]
+
+
+def test_chord_analysis_has_no_inverted_histogram():
+    # RE-2e: the interval matrix is symmetric under negation mod 12, so the
+    # inverted histogram was provably always identical to the normal one —
+    # a dead-equal field, removed rather than shipped forever.
+    result = _json_safe(tools.chord_analysis("C", "maj7"))
+    assert "inverted_interval_class_histogram" not in result
+    assert "interval_class_histogram" in result
+    assert "inverted_interval_matrix" in result  # the matrix itself stays
+
+
 def test_parse_chord_round_trips_notation():
     result = _json_safe(tools.parse_chord("C3[0,4,7]"))
     assert result["root_pc"] == 0

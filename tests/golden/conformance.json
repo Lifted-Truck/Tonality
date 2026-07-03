@@ -1431,12 +1431,6 @@
       "root_pc": 11
      }
     ],
-    "inverted_interval_class_histogram": {
-     "1": 2,
-     "3": 2,
-     "4": 4,
-     "5": 4
-    },
     "inverted_interval_matrix": [
      [
       0,
