@@ -70,7 +70,9 @@ class ConformanceReport:
 
     ruleset_name: str
     ruleset_version: str
-    hard_rules_hold: bool
+    # None when NO hard rule was applicable (RE-3d): "held" used to be claimed
+    # vacuously — same shape as soft_score's "no soft signal" convention.
+    hard_rules_hold: bool | None
     hard_violation_count: int
     soft_score: float | None  # weight-averaged conformance of applicable soft rules
     results: list[RuleResult]
@@ -259,7 +261,7 @@ def evaluate(
     return ConformanceReport(
         ruleset_name=ruleset.name,
         ruleset_version=ruleset.version,
-        hard_rules_hold=all(r.holds for r in hard),
+        hard_rules_hold=all(r.holds for r in hard) if hard else None,
         hard_violation_count=hard_violations,
         soft_score=soft_score,
         results=results,

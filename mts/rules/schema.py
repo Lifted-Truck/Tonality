@@ -271,6 +271,10 @@ def validation_errors(payload: object) -> list[str]:
     for key in ("name", "version"):
         if not isinstance(payload.get(key), str) or not payload.get(key, "").strip():
             errors.append(f"{key}: required, a non-empty string")
+    # description escaped strict total validation (RE-3d): null coerced to the
+    # string "None" and round-tripped as data. Optional, but a string when present.
+    if "description" in payload and not isinstance(payload["description"], str):
+        errors.append("description: must be a string when present")
     rules = payload.get("rules")
     if not isinstance(rules, list) or not rules:
         errors.append("rules: required, a non-empty list")
@@ -301,7 +305,8 @@ def parse_ruleset(payload: object) -> Ruleset:
     return Ruleset(
         name=payload["name"],
         version=payload["version"],
-        description=str(payload.get("description", "")),
+        # validated above: absent or a str — no coercion (str(None) == "None")
+        description=payload.get("description", ""),
         rules=rules,
     )
 

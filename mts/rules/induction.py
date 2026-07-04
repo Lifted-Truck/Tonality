@@ -407,7 +407,11 @@ def induce_ruleset(
                 records.extend(_singleton(m) for m in members)
                 continue
             p = _fisher_one_sided(a, b, c, d, right_tail=right_tail)
-            if p > prior.fdr_q:  # merge not significant on its own — keep singletons
+            # RE-3d: the merged rule must be at least as significant as the
+            # weakest member it replaces (matching the q assigned below).
+            # Comparing raw p against the FDR q-threshold was *more lenient*
+            # than the singleton test (a member's p ≤ its q ≤ fdr_q).
+            if p > max(m["p"] for m in members):
                 records.extend(_singleton(m) for m in members)
                 continue
             q = max(m["q"] for m in members)  # ≥ as significant as the weakest replaced
