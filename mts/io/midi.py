@@ -16,6 +16,8 @@ Live/streaming MIDI is out of scope; this handles files.
 
 from __future__ import annotations
 
+import dataclasses
+from dataclasses import dataclass
 from typing import Iterable
 
 import mido
@@ -35,10 +37,58 @@ _EPS = 1e-9
 _DEFAULT_BPM = 120.0
 
 
-def sequence_from_midi_file(path: str) -> Sequence:
-    """Parse a Standard MIDI File into a temporal :class:`Sequence`."""
+@dataclass(frozen=True)
+class MidiReadLoss:
+    """One note the reader could not carry into the sequence intact.
+
+    ``kind`` is one of: ``"restruck_note_truncated"`` (a second ``note_on``
+    for an already-open ``(channel, note)`` — the first note is **kept**,
+    closed at the re-strike, and the truncation reported), ``"dangling_note_on"``
+    (still open at end of track — dropped: inventing a duration would be a
+    guess), ``"zero_duration"`` (paired but no positive length — dropped).
+    """
+
+    kind: str
+    track: int
+    channel: int
+    note: int
+    onset_beats: float
+    detail: str
+
+    def to_dict(self) -> dict:
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
+class MidiReadResult:
+    """The parsed sequence plus every loss, itemized (the coalesce pattern:
+    a lossy read reports what it lost, never silently)."""
+
+    sequence: Sequence
+    losses: list[MidiReadLoss]
+
+    def to_dict(self) -> dict:
+        """Losses only — the sequence itself is not JSON; callers re-export
+        events as they need them."""
+        return {"losses": [loss.to_dict() for loss in self.losses]}
+
+
+def read_midi_file(path: str) -> MidiReadResult:
+    """Parse a Standard MIDI File with **itemized losses** (the canonical read)."""
 
     return _sequence_from_mido(mido.MidiFile(path))
+
+
+def sequence_from_midi_file(path: str) -> Sequence:
+    """Parse a Standard MIDI File into a temporal :class:`Sequence`.
+
+    Convenience wrapper that discards the loss report — use
+    :func:`read_midi_file` when you need to know what a malformed or
+    truncated file lost (re-struck notes, dangling note-ons, zero-length
+    pairs).
+    """
+
+    return read_midi_file(path).sequence
 
 
 def events_from_midi_file(path: str) -> list[Event]:
@@ -145,7 +195,7 @@ def midi_file_from_sequence(
     return midi
 
 
-def _sequence_from_mido(midi: "mido.MidiFile") -> Sequence:
+def _sequence_from_mido(midi: "mido.MidiFile") -> MidiReadResult:
     """Walk tracks individually (not ``merge_tracks``) so track identity
     survives: each (track, channel) pair becomes a voice label ``t{n}c{n}``
     (Phase 4.6 Workstream 0 — voice identity; SMF type 1 keeps one part per
@@ -153,12 +203,44 @@ def _sequence_from_mido(midi: "mido.MidiFile") -> Sequence:
     walking also pairs note_on/note_off within their own track — a stray
     note_off in another track can no longer close a note it didn't open.
     Tempo/meter meta is collected from every track.
+
+    Nothing is lost silently (RE-3a): re-struck notes are closed at the
+    re-strike (kept, truncation reported); dangling note-ons and zero-length
+    pairs are dropped **and itemized** in the returned losses.
     """
 
     ticks_per_beat = midi.ticks_per_beat or 480
     events: list[Event] = []
+    losses: list[MidiReadLoss] = []
     tempo_changes: list[tuple[float, float]] = []
     time_signatures: list[tuple[float, int, int]] = []
+
+    def close_note(
+        track_index: int, channel: int, note: int, onset: float, velocity: int, end: float
+    ) -> bool:
+        """Emit the event if it has positive length; itemize otherwise."""
+        duration = end - onset
+        if duration > _EPS:
+            events.append(
+                Event(
+                    onset=onset,
+                    duration=duration,
+                    pitch=Pitch.from_midi(note, velocity=velocity, channel=channel),
+                    voice=f"t{track_index}c{channel}",
+                )
+            )
+            return True
+        losses.append(
+            MidiReadLoss(
+                kind="zero_duration",
+                track=track_index,
+                channel=channel,
+                note=note,
+                onset_beats=onset,
+                detail=f"note_off at beat {end} leaves no positive duration; dropped",
+            )
+        )
+        return False
 
     for track_index, track in enumerate(midi.tracks):
         open_notes: dict[tuple[int, int], tuple[float, int]] = {}
@@ -168,33 +250,62 @@ def _sequence_from_mido(midi: "mido.MidiFile") -> Sequence:
             beat = abs_tick / ticks_per_beat
 
             if msg.type == "note_on" and msg.velocity > 0:
-                open_notes[(msg.channel, msg.note)] = (beat, msg.velocity)
+                key = (msg.channel, msg.note)
+                already_open = open_notes.get(key)
+                if already_open is not None:
+                    # Re-strike: the writer deliberately re-triggers held notes
+                    # (offs sort before ons at a tick), so the reader keeps the
+                    # first note, closes it here, and reports the truncation —
+                    # it used to be silently overwritten out of existence.
+                    onset, velocity = already_open
+                    kept = close_note(
+                        track_index, msg.channel, msg.note, onset, velocity, beat
+                    )
+                    if kept:
+                        losses.append(
+                            MidiReadLoss(
+                                kind="restruck_note_truncated",
+                                track=track_index,
+                                channel=msg.channel,
+                                note=msg.note,
+                                onset_beats=onset,
+                                detail=(
+                                    f"note re-struck at beat {beat} while open; "
+                                    "first note kept, closed at the re-strike"
+                                ),
+                            )
+                        )
+                open_notes[key] = (beat, msg.velocity)
             elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
                 started = open_notes.pop((msg.channel, msg.note), None)
                 if started is not None:
                     onset, velocity = started
-                    duration = beat - onset
-                    if duration > _EPS:
-                        events.append(
-                            Event(
-                                onset=onset,
-                                duration=duration,
-                                pitch=Pitch.from_midi(
-                                    msg.note, velocity=velocity, channel=msg.channel
-                                ),
-                                voice=f"t{track_index}c{msg.channel}",
-                            )
-                        )
+                    close_note(track_index, msg.channel, msg.note, onset, velocity, beat)
             elif msg.type == "set_tempo":
                 tempo_changes.append((beat, mido.tempo2bpm(msg.tempo)))
             elif msg.type == "time_signature":
                 time_signatures.append((beat, msg.numerator, msg.denominator))
 
-    return Sequence.from_events(
+        for (channel, note), (onset, _velocity) in sorted(open_notes.items()):
+            # Inventing a duration for a note the file never closed would be a
+            # guess; drop it, but never silently.
+            losses.append(
+                MidiReadLoss(
+                    kind="dangling_note_on",
+                    track=track_index,
+                    channel=channel,
+                    note=note,
+                    onset_beats=onset,
+                    detail="note_on with no note_off by end of track; dropped",
+                )
+            )
+
+    sequence = Sequence.from_events(
         events,
         tempo=_build_tempo_map(tempo_changes),
         meter=_build_meter_map(time_signatures),
     )
+    return MidiReadResult(sequence=sequence, losses=losses)
 
 
 def _build_tempo_map(changes: list[tuple[float, float]]) -> TempoMap:
