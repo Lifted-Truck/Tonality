@@ -1185,6 +1185,18 @@ def midi_file_analysis(
     from ..io.midi import read_midi_file
     from ..temporal import coalesce, track_keys, track_meter
 
+    if key_inertia and disambiguate_relative_keys:
+        # Raise here, not inside the try/except around track_keys (which maps
+        # ValueError to "no tonal information") — the flag conflict must be
+        # loud (RE-3c), never silently absorbed.
+        raise ValueError(
+            "key_inertia does not compose with disambiguate_relative_keys for "
+            "the windowed tracking: the inertia path re-decodes from raw score "
+            "vectors, so the relative-key tie-break cannot reach it. Choose one "
+            "(the global-key disambiguation alone is fine — drop key_inertia, "
+            "or drop disambiguate_relative_keys)."
+        )
+
     midi_read = read_midi_file(path)
     sequence = midi_read.sequence
     profiles = _profiles(profile_version)

@@ -6572,7 +6572,7 @@
      {
       "end_beats": 3.3,
       "end_seconds": 1.65,
-      "mean_margin": 0.03663565867239127,
+      "mean_margin": -0.03663565867239127,
       "mean_score": 0.7478735227799502,
       "mode": "minor",
       "start_beats": 0.0,
@@ -6884,8 +6884,8 @@
      {
       "end_beats": 36.0,
       "end_seconds": 18.0,
-      "mean_margin": 0.2398100950322979,
-      "mean_score": 0.7458597829005817,
+      "mean_margin": 0.22844243875437048,
+      "mean_score": 0.7361455815937794,
       "mode": "major",
       "start_beats": 0.0,
       "start_seconds": 0.0,
