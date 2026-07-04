@@ -272,6 +272,7 @@ class GrooveApplyResult:
     seed: int | None
     moved_events: int
     max_onset_shift_beats: float
+    voice: str | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -284,6 +285,7 @@ class GrooveApplyResult:
             "seed": self.seed,
             "moved_events": self.moved_events,
             "max_onset_shift_beats": self.max_onset_shift_beats,
+            "voice": self.voice,
         }
 
 
@@ -322,8 +324,10 @@ def apply_groove(
     (requires ``seed`` when > 0); ``velocity`` is a signed scale on the accent
     contour (negative reverses); ``amount`` ∈ [0,1] is a global multiplier on
     all feel (timing + random + velocity). Onsets shift; **durations are
-    preserved** (Live moves note starts). ``voice`` restricts the slot lookup's
-    grid to one part if given — the whole sequence is still re-emitted.
+    preserved** (Live moves note starts). ``voice`` restricts the groove to one
+    part: only that voice's events are transformed; every other event passes
+    through untouched (the whole sequence is still re-emitted). *(RE-3b: this
+    parameter was previously accepted, documented, and completely ignored.)*
     """
 
     if random > _EPS and seed is None:
@@ -343,6 +347,9 @@ def apply_groove(
     moved = 0
     max_shift = 0.0
     for event in sequence.events:
+        if voice is not None and event.voice != voice:
+            new_events.append(event)  # other parts pass through untouched
+            continue
         t_in = event.onset
         g = _round_half_up(t_in / base) * base
         t_q = t_in + quantize * (g - t_in)
@@ -387,6 +394,7 @@ def apply_groove(
         seed=seed,
         moved_events=moved,
         max_onset_shift_beats=max_shift,
+        voice=voice,
     )
 
 

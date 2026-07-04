@@ -242,3 +242,38 @@ def test_template_to_dict_from_dict_round_trip():
     tmpl = extract_groove(loop, base_unit_beats=0.5, loop_length_beats=2.0)
     restored = GrooveTemplate.from_dict(tmpl.to_dict())
     assert restored == tmpl
+
+
+# --- RE-3b: the voice parameter actually restricts the groove ---------------------------
+
+
+def test_voice_restricts_the_groove_to_one_part():
+    # Two parts on the same offbeat grid; groove only the drums.
+    drums = [Event(b + 0.5, 0.5, Pitch.from_midi(36, velocity=80), voice="drums")
+             for b in range(4)]
+    keys = [Event(b + 0.5, 0.5, Pitch.from_midi(60, velocity=80), voice="keys")
+            for b in range(4)]
+    seq = Sequence.from_events(drums + keys)
+    swung = _swung_loop(0.6)  # template with offbeat slots pushed late
+    tmpl = extract_groove(swung, base_unit_beats=0.5, loop_length_beats=2.0)
+
+    result = apply_groove(seq, tmpl, voice="drums")
+    assert result.voice == "drums"  # the applied scope is cited in the result
+    drum_onsets = sorted(e.onset for e in result.sequence.events if e.voice == "drums")
+    key_onsets = sorted(e.onset for e in result.sequence.events if e.voice == "keys")
+    assert key_onsets == [0.5, 1.5, 2.5, 3.5]  # untouched — used to be grooved too
+    assert drum_onsets != [0.5, 1.5, 2.5, 3.5]  # the named part moved
+    # and the change counters only count the grooved part
+    assert result.moved_events <= len(drums)
+
+
+def test_voice_none_grooves_everything():
+    events = [Event(b + 0.5, 0.5, Pitch.from_midi(60, velocity=80), voice="keys")
+              for b in range(4)]
+    seq = Sequence.from_events(events)
+    tmpl = extract_groove(_swung_loop(0.6), base_unit_beats=0.5, loop_length_beats=2.0)
+    all_grooved = apply_groove(seq, tmpl)
+    only_other = apply_groove(seq, tmpl, voice="absent-part")
+    assert all_grooved.moved_events > 0
+    assert only_other.moved_events == 0  # nothing matches the named voice
+    assert [e.onset for e in only_other.sequence.events] == [0.5, 1.5, 2.5, 3.5]

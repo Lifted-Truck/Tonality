@@ -69,5 +69,14 @@ def test_harmonic_rhythm_metrics():
     hr = harmonic_rhythm(_progression())
     assert hr.segment_count == 3
     assert hr.mean_duration_beats == 4.0
-    assert hr.changes_per_bar == 1.0  # 12 beats / 4 (4/4) = 3 bars, 3 changes
+    # RE-3g: 3 segments = 2 *changes* (boundaries), over 12 beats / 4 = 3 bars.
+    # The old value counted segments, so a one-chord piece "changed" nonzero.
+    assert hr.changes_per_bar == 2 / 3
     assert hr.mean_duration_seconds == 2.0  # 4 beats @ 120bpm
+
+
+def test_one_chord_piece_has_zero_changes():
+    seq = Sequence.from_events([_ev(60, 0, 8)], bpm=120)  # 2 bars of one harmony
+    hr = harmonic_rhythm(seq)
+    assert hr.segment_count == 1
+    assert hr.changes_per_bar == 0.0

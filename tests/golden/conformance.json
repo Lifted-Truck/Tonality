@@ -10173,8 +10173,10 @@
     "transitions": [
      {
       "a_from_midi": 64,
+      "a_rested_between": false,
       "a_to_midi": 62,
       "b_from_midi": 48,
+      "b_rested_between": false,
       "b_to_midi": 50,
       "from_beat": 0.0,
       "interval_class_from": 8,
@@ -10188,8 +10190,10 @@
      },
      {
       "a_from_midi": 64,
+      "a_rested_between": false,
       "a_to_midi": 62,
       "b_from_midi": 72,
+      "b_rested_between": false,
       "b_to_midi": 69,
       "from_beat": 0.0,
       "interval_class_from": 8,
@@ -10203,8 +10207,10 @@
      },
      {
       "a_from_midi": 64,
+      "a_rested_between": false,
       "a_to_midi": 62,
       "b_from_midi": 55,
+      "b_rested_between": false,
       "b_to_midi": 57,
       "from_beat": 0.0,
       "interval_class_from": 3,
@@ -10218,8 +10224,10 @@
      },
      {
       "a_from_midi": 48,
+      "a_rested_between": false,
       "a_to_midi": 50,
       "b_from_midi": 72,
+      "b_rested_between": false,
       "b_to_midi": 69,
       "from_beat": 0.0,
       "interval_class_from": 0,
@@ -10233,8 +10241,10 @@
      },
      {
       "a_from_midi": 48,
+      "a_rested_between": false,
       "a_to_midi": 50,
       "b_from_midi": 55,
+      "b_rested_between": false,
       "b_to_midi": 57,
       "from_beat": 0.0,
       "interval_class_from": 7,
@@ -10248,8 +10258,10 @@
      },
      {
       "a_from_midi": 72,
+      "a_rested_between": false,
       "a_to_midi": 69,
       "b_from_midi": 55,
+      "b_rested_between": false,
       "b_to_midi": 57,
       "from_beat": 0.0,
       "interval_class_from": 7,
@@ -10895,7 +10907,8 @@
     "random": 0.0,
     "seed": null,
     "timing": 1.0,
-    "velocity": 1.0
+    "velocity": 1.0,
+    "voice": null
    },
    "tool": "apply_groove"
   },

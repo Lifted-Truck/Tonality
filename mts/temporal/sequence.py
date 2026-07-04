@@ -55,9 +55,17 @@ class Event:
         return self.onset + self.duration
 
     def sounds_at(self, beat: float) -> bool:
-        """True if the event is sounding at ``beat`` (half-open [onset, offset))."""
+        """True if the event is sounding at ``beat`` (half-open [onset, offset)).
 
-        return self.onset - _EPS <= beat < self.offset - _EPS
+        The epsilon is inclusion tolerance at the *owned* (onset) boundary
+        only. The old form subtracted it from the offset too, which shifted
+        the whole window left: an event "sounded" before its onset while a
+        beat strictly inside it (within eps of the offset) reported silent —
+        so an event barely longer than eps had a mostly-dead interior
+        (RE-3g). A beat exactly at the offset belongs to the successor.
+        """
+
+        return self.onset - _EPS <= beat < self.offset
 
 
 @dataclass(frozen=True)

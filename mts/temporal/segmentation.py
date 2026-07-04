@@ -101,8 +101,10 @@ def segment(sequence: Sequence) -> list[Segment]:
 def harmonic_rhythm(sequence: Sequence) -> HarmonicRhythm:
     """Compute harmonic-rhythm metrics from the segmented identity stream.
 
-    ``changes_per_bar`` uses the time signature in effect at the start (constant
-    meter assumed for this single scalar metric).
+    ``changes_per_bar`` counts harmony *changes* — segment boundaries, i.e.
+    ``segment_count - 1`` (RE-3g: it used to count segments, so a one-chord
+    piece reported a nonzero "change" rate). Uses the time signature in
+    effect at the start (constant meter assumed for this single scalar).
     """
 
     segments = segment(sequence)
@@ -117,7 +119,8 @@ def harmonic_rhythm(sequence: Sequence) -> HarmonicRhythm:
     beats_per_bar = sequence.meter.changes[0].signature.beats_per_bar
     total_beats = sequence.duration_beats
     total_bars = total_beats / beats_per_bar if beats_per_bar > 0 else 0.0
-    changes_per_bar = count / total_bars if total_bars > _EPS else 0.0
+    changes = max(0, count - 1)
+    changes_per_bar = changes / total_bars if total_bars > _EPS else 0.0
 
     return HarmonicRhythm(
         segment_count=count,
