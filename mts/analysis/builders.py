@@ -452,13 +452,31 @@ def degrees_from_mask(mask: int) -> list[int]:
 
 
 def mask_from_text(text: str) -> int:
-    """Parse a decimal or binary mask string."""
+    """Parse a decimal or binary mask string — without guessing.
+
+    Binary is read from a ``0b`` prefix or a full 12-character 0/1 string
+    (unambiguous: a decimal mask never has 12 digits). A shorter 0/1-only
+    string like ``"10"`` is ambiguous (binary 2 or decimal 10?) and raises
+    instead of silently picking one; write ``0b10`` or a non-0/1 decimal.
+    Values above 4095 raise instead of being silently truncated to 12 bits.
+    """
     stripped = text.strip().lower()
-    base = 2 if stripped.startswith("0b") or set(stripped) <= {"0", "1"} else 10
     if stripped.startswith("0b"):
-        stripped = stripped[2:]
-    value = int(stripped, base)
-    return value & ((1 << 12) - 1)
+        value = int(stripped[2:], 2)
+    elif stripped and set(stripped) <= {"0", "1"}:
+        if len(stripped) == 12:
+            value = int(stripped, 2)
+        else:
+            raise ValueError(
+                f"Ambiguous mask text {text!r}: could be binary or decimal. "
+                "Use a '0b' prefix for binary (e.g. '0b10') or a full "
+                "12-character bit string."
+            )
+    else:
+        value = int(stripped, 10)
+    if not 0 <= value < (1 << 12):
+        raise ValueError(f"Mask out of range: {value} (must be 0..4095).")
+    return value
 
 
 # ---------------------------------------------------------------------------

@@ -24,12 +24,12 @@ class ChordQuality:
         tensions: Iterable[int] | None = None,
         aliases: Iterable[str] | None = None,
     ) -> "ChordQuality":
-        normalized_intervals = tuple(sorted({int(iv) % 12 for iv in intervals}))
-        normalized_tensions = tuple(sorted({int(tv) % 12 for tv in (tensions or [])}))
-        for iv in normalized_intervals:
-            validate_pc(iv)
-        for tv in normalized_tensions:
-            validate_pc(tv)
+        # Validate BEFORE normalizing: the old `% 12` wrapped out-of-range
+        # intervals silently, so the validate_pc pass below could never fire.
+        normalized_intervals = tuple(sorted({validate_pc(int(iv)) for iv in intervals}))
+        normalized_tensions = tuple(
+            sorted({validate_pc(int(tv)) for tv in (tensions or [])})
+        )
         # De-duplicate aliases preserving order; drop blanks.
         normalized_aliases = tuple(
             dict.fromkeys(str(a).strip() for a in (aliases or []) if str(a).strip())

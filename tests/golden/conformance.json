@@ -1513,9 +1513,7 @@
       }
      ],
      "rotational_period": 12,
-     "rotational_steps": [
-      12
-     ]
+     "rotational_steps": []
     },
     "tonic_context": {
      "relative_pcs": [
@@ -1888,9 +1886,7 @@
       }
      ],
      "rotational_period": 12,
-     "rotational_steps": [
-      12
-     ]
+     "rotational_steps": []
     },
     "tonic_pc": 2
    },

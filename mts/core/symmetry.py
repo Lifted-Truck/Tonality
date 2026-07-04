@@ -29,6 +29,9 @@ def rotational_period(mask: int) -> int:
 
 @lru_cache(maxsize=4096)
 def rotational_steps(mask: int) -> tuple[int, ...]:
-    """Transpositions in 1..11 that map the mask onto itself, or (12,) if none."""
-    steps = tuple(step for step in range(1, 12) if rotate_mask(mask, step) == mask)
-    return steps or (12,)
+    """Transpositions in 1..11 that map the mask onto itself; **empty when the
+    set has no nontrivial rotational symmetry**. (The old ``(12,)`` sentinel
+    leaked into results as a false symmetry claim — every set maps to itself
+    at 12, so listing it only for asymmetric sets asserted the opposite of
+    what it meant.)"""
+    return tuple(step for step in range(1, 12) if rotate_mask(mask, step) == mask)
