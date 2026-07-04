@@ -160,29 +160,43 @@ _POSITION_NAMES = [
 ]
 
 # Conventional figured-bass shorthand, keyed by (cardinality, inversion index).
-# Defined for tertian triads and seventh chords; other cardinalities get no figure.
+# Defined for TERTIAN triads and seventh chords only — the figures name
+# positions of a stack of thirds, so a non-tertian chord (maj6, add9, sus…)
+# gets no figure rather than a wrong one.
 _FIGURED_BASS: dict[int, dict[int, str]] = {
     3: {0: "5/3", 1: "6", 2: "6/4"},
     4: {0: "7", 1: "6/5", 2: "4/3", 3: "4/2"},
 }
 
 
-def _inversion_naming(cardinality: int, index: int) -> tuple[str, str | None]:
+def _is_tertian(chord: Chord) -> bool:
+    """True when the chord's root-position pcs stack in thirds (3 or 4
+    semitones between successive tones) — the precondition for the
+    conventional figured-bass shorthand."""
+
+    stack = sorted({(pc - chord.root_pc) % 12 for pc in chord.pcs})
+    return all(b - a in (3, 4) for a, b in zip(stack, stack[1:]))
+
+
+def _inversion_naming(
+    cardinality: int, index: int, tertian: bool
+) -> tuple[str, str | None]:
     """Return (position_name, figured_bass) for an inversion index."""
 
     position = _POSITION_NAMES[index] if index < len(_POSITION_NAMES) else f"inversion {index}"
-    figured = _FIGURED_BASS.get(cardinality, {}).get(index)
+    figured = _FIGURED_BASS.get(cardinality, {}).get(index) if tertian else None
     return position, figured
 
 
 def _generate_inversions(chord: Chord) -> list[Inversion]:
     pcs = list(chord.pcs)
     cardinality = len(pcs)
+    tertian = _is_tertian(chord)
     inversions: list[Inversion] = []
     for idx, root_pc in enumerate(pcs):
         rotated = pcs[idx:] + pcs[:idx]
         intervals = [((pc - root_pc) % 12) for pc in rotated]
-        position_name, figured_bass = _inversion_naming(cardinality, idx)
+        position_name, figured_bass = _inversion_naming(cardinality, idx, tertian)
         inversions.append(
             Inversion(
                 root_pc=root_pc,
@@ -224,7 +238,12 @@ def analyze_voicing(realization: Realization | None) -> VoicingAnalysis:
         bass_interval = (bass.pc - root) % 12
         if bass_interval in chord_intervals:
             inversion_index = chord_intervals.index(bass_interval)
-            position_name, figured_bass = _inversion_naming(len(chord_intervals), inversion_index)
+            tertian = all(
+                b - a in (3, 4) for a, b in zip(chord_intervals, chord_intervals[1:])
+            )
+            position_name, figured_bass = _inversion_naming(
+                len(chord_intervals), inversion_index, tertian
+            )
         # Match the actual spacing (distinct pitches, min-anchored) against the
         # shared voicing vocabulary; first match in registry order wins.
         distinct_midi = sorted(set(midi))
@@ -268,7 +287,6 @@ def analyze_chord(request: ChordAnalysisRequest) -> ChordAnalysisResult:
     pairwise_matrix = _interval_matrix(pcs)
     inverted_matrix = _invert_matrix(pairwise_matrix)
     intervals_flat = [iv for row in pairwise_matrix for iv in row if iv != 0]
-    inverted_flat = [iv for row in inverted_matrix for iv in row if iv != 0]
 
     tonic_context: TonicContext | None = None
     if request.tonic_pc is not None:
@@ -288,9 +306,11 @@ def analyze_chord(request: ChordAnalysisRequest) -> ChordAnalysisResult:
         interval_matrix=pairwise_matrix,
         interval_class_histogram=_interval_class_histogram(intervals_flat),
         inverted_interval_matrix=inverted_matrix,
-        inverted_interval_class_histogram=_interval_class_histogram(inverted_flat),
         interval_vector=_interval_vector(pcs),
-        interval_summary=_interval_summary(pcs),
+        # Root-relative on purpose: this is a pure-identity analysis, so the
+        # summary must be transposition-invariant (absolute pcs made the same
+        # shape report different spans at different roots — invented register).
+        interval_summary=_interval_summary(_intervals_relative_to_root(request.chord)),
         symmetry=_symmetry_data(request.chord),
         tonnetz=_tonnetz_analysis(request.chord),
         tonic_context=tonic_context,

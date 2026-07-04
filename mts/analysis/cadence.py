@@ -25,6 +25,15 @@ templates list **V7** (and richer dominants) but not the bare **major V
 triad**, so a bare major-V→i in minor is not recognized; use V7 (the
 representative minor-key cadential dominant). Widening the minor vocabulary
 is a `theory/functions.py` change, not a cadence change.
+
+Two degree rulings (RE-2, 2026-07-03): **authentic** requires a true dominant
+*degree* — V (pc 7) or the leading tone (pc 11); the subtonic **bVII carries
+the dominant role in minor but is not an authentic approach** (a backdoor/
+subtonic shape — it contains no leading tone, and the engine will not claim
+one). **Deceptive** keys on the mode's submediant *degree* (vi/pc 9 in major,
+VI/pc 8 in minor), not on the arrival's role — minor's submediant is a
+predominant in the vocabulary, and requiring role "tonic" made deceptive
+cadences undetectable in minor.
 """
 
 from __future__ import annotations
@@ -125,11 +134,25 @@ def detect_cadences(
     last_index = len(annotated) - 1
     cadences: list[CadenceEvent] = []
 
+    # The submediant degree is mode-specific: vi (pc 9) in major, VI (pc 8) in
+    # minor — and its *role* differs too (tonic substitute in major, predominant
+    # in minor), so deceptive detection keys on the degree, not the role.
+    submediant_pc = 9 if mode_key == "major" else 8
+
     for approach, arrival in zip(annotated, annotated[1:]):
         is_final = arrival.index == last_index
         on_tonic_degree = arrival.relative_root == 0 and arrival.role == "tonic"
 
-        if approach.role == "dominant" and on_tonic_degree:
+        # Authentic requires a true dominant *degree*: V (pc 7) or the leading
+        # tone (pc 11). The subtonic bVII (pc 10) carries the dominant role in
+        # the minor vocabulary but contains no leading tone — bVII→i is a
+        # backdoor/subtonic shape, not an authentic cadence, and claiming
+        # "leading-tone resolving to tonic" for it would fabricate evidence.
+        if (
+            approach.role == "dominant"
+            and approach.relative_root in (7, 11)
+            and on_tonic_degree
+        ):
             kind = "V" if approach.relative_root == 7 else "leading-tone"
             cadences.append(
                 _event("authentic", approach, arrival, is_final,
@@ -138,12 +161,12 @@ def detect_cadences(
         elif (
             approach.role == "dominant"
             and approach.relative_root == 7
-            and arrival.relative_root == 9
-            and arrival.role == "tonic"
+            and arrival.relative_root == submediant_pc
+            and arrival.role is not None
         ):
             cadences.append(
                 _event("deceptive", approach, arrival, is_final,
-                       ["dominant V resolving deceptively to submediant (vi)"])
+                       [f"dominant V resolving deceptively to submediant ({arrival.roman})"])
             )
         elif (
             approach.relative_root == 5

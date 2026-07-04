@@ -118,3 +118,37 @@ def test_to_dict_is_json_ready():
     assert payload["cadences"][0]["type"] == "authentic"
     assert payload["cadences"][0]["evidence"]
     assert payload["chords"][0]["roman"] == "V"
+
+
+# --- RE-2 corrections (2026-07-03): minor deceptive + subtonic honesty ---------------------
+
+
+def test_minor_deceptive_cadence_v_to_submediant():
+    # V7 -> F major in A minor: minor's submediant is pc 8 ("bVI",
+    # role predominant), so deceptive detection keys on the submediant
+    # *degree*, not on an arrival role of "tonic" (that requirement made
+    # deceptive cadences undetectable in minor).
+    result = detect_cadences([(4, "7"), (5, "maj")], tonic_pc=9, mode="minor")
+    assert _types(result) == [("deceptive", 1)]
+    cad = result.cadences[0]
+    assert (cad.approach.roman, cad.arrival.roman) == ("V7", "bVI")
+    assert any("submediant (bVI)" in e for e in cad.evidence)
+
+
+def test_subtonic_bvii_to_i_is_not_an_authentic_cadence():
+    # G major -> A minor in A minor: bVII carries the dominant *role* in the
+    # minor vocabulary but contains no leading tone — it used to be labeled
+    # authentic with fabricated "leading-tone resolving to tonic" evidence.
+    # No cadence type claims the backdoor shape; the annotation stays honest.
+    result = detect_cadences([(7, "maj"), (9, "min")], tonic_pc=9, mode="minor")
+    assert result.cadences == []
+    assert [c.roman for c in result.chords] == ["bVII", "i"]
+    assert result.chords[0].role == "dominant"  # the role table is unchanged
+
+
+def test_leading_tone_authentic_is_still_detected():
+    # vii° -> I keeps its honest leading-tone evidence (pc 11 is a true
+    # dominant degree; only the subtonic pc 10 was excluded).
+    result = detect_cadences([(11, "dim"), (0, "maj")], tonic_pc=0, mode="major")
+    assert _types(result) == [("authentic", 1)]
+    assert any("leading-tone" in e for e in result.cadences[0].evidence)
