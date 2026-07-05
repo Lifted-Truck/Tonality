@@ -11,17 +11,19 @@ change — kept).
 
 The lever ``smooth_key_regions`` lacked is **functional context**: a tonicization
 can be a *confident* window, so confidence-gating can't remove it — but "is the
-excursion's tonic a diatonic degree of the parent?" can. The discriminator is
-**relatedness AND (brevity OR return)**: a *related but sustained and
-non-returning* span is a real modulation to a related key (kept); duration is
-what separates "tonicization of V" from "modulation to the dominant".
+excursion's tonic a diatonic degree of the parent?" can. The discriminator
+(revised with A6 brief-11) is **brief OR (related AND returns)**: only a
+*sustained* region (>= ``min_modulation_beats``, the phrase-length floor) can
+establish a new structural key; a brief excursion is a tonicization — diatonic,
+or (when unrelated) a brief *chromatic* one. Duration is what separates
+"tonicization of V" from "modulation to the dominant".
 
 A derived reduction — it **never overrides**; the raw local ``KeyTrackingResult``
 rides along as evidence, and the global ``infer_key`` reading is recorded so
 anchor-vs-global is visible. Slice 1: whole-sequence batch, single deterministic
-pass, one level (excursions tested against the current structural key only),
-diatonic relatedness (chromatic tonicizations deferred). Thresholds are a
-versioned prior, set by theory — never fit to a (BY-NC-SA) validation corpus.
+pass, one level (excursions tested against the current structural key only).
+Thresholds are a versioned prior, set by theory — never fit to a (BY-NC-SA)
+validation corpus.
 """
 
 from __future__ import annotations

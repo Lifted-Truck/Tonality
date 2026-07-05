@@ -213,3 +213,62 @@ def test_chord_brief_contains_expected_components():
     assert "ic" in brief.interval_fingerprint
     assert brief.compatible_scales
     assert isinstance(brief.compatible_scales, list)
+
+
+# --- RE-3g: loads itemize what they skip; nothing vanishes silently ----------------------
+
+
+def test_corrupt_session_file_is_reported_not_swallowed(tmp_path):
+    from mts.analysis.builders import SessionCatalog
+
+    path = tmp_path / "corrupt.json"
+    path.write_text("{not json", encoding="utf-8")
+    report = SessionCatalog().load(path)
+    assert report.file_found is True
+    assert report.file_error is not None and "unreadable" in report.file_error
+    assert report.scales_loaded == report.chords_loaded == 0
+
+
+def test_bad_entries_are_itemized_and_good_ones_still_load(tmp_path):
+    import json as _json
+
+    from mts.analysis.builders import SessionCatalog
+
+    path = tmp_path / "session.json"
+    path.write_text(_json.dumps({
+        "scales": [
+            {"name": "Good", "degrees": [0, 2, 4]},
+            {"name": "Bad", "degrees": ["Zz", 4]},   # unparseable degree token
+            {"degrees": [0, 1]},                        # nameless
+        ],
+        "chords": [{"name": "GoodChord", "intervals": [0, 4, 7]}],
+    }), encoding="utf-8")
+    catalog = SessionCatalog()
+    report = catalog.load(path)
+    assert "Good" in catalog.scales and "GoodChord" in catalog.chords
+    assert report.scales_loaded == 1 and report.chords_loaded == 1
+    assert [(s["kind"], s["name"]) for s in report.skipped] == [
+        ("scale", "Bad"), ("scale", None),
+    ]
+    assert report.file_error is None
+    report.to_dict()  # JSON-ready
+
+
+def test_missing_session_file_is_a_clean_empty_report(tmp_path):
+    from mts.analysis.builders import SessionCatalog
+
+    report = SessionCatalog().load(tmp_path / "absent.json")
+    assert report.file_found is False and report.file_error is None
+    assert report.skipped == []
+
+
+def test_function_mappings_carry_role_subtype():
+    # RE-3g: the generator emits role_subtype; the loader used to drop it.
+    from mts.io.loaders import load_function_mappings
+
+    mappings = load_function_mappings("major")
+    assert all(hasattr(m, "role_subtype") for m in mappings)
+    subtypes = {m.role_subtype for m in mappings}
+    assert None in subtypes  # plain functions carry no subtype
+    # the tonic-prolongation variants survive the load
+    assert any(s is not None for s in subtypes)
