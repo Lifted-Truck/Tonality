@@ -82,13 +82,9 @@ def _modal_rotations(scale: Scale) -> list[ModeRotation]:
 
 
 def _symmetry_data(scale: Scale, step_pattern: list[int]) -> SymmetryData:
-    if not step_pattern:
-        return SymmetryData(
-            rotational_period=0,
-            rotational_steps=[],
-            achiral=False,
-            reflection_axes=[],
-        )
+    # No empty-set special case: core's convention applies (the empty set is
+    # trivially invariant — period 1, every step; the old hardcoded period 0
+    # disagreed with core and the exported set-class table).
     mask = scale.mask
     rotational_period = scale.rotational_period
     reversed_pattern = list(reversed(step_pattern))

@@ -2425,6 +2425,35 @@ workstreams so they can be scheduled and checked off independently.
       `load_function_mappings` dropping `role_subtype`, the
       `include_nondiatic` API typo, and `structural_key.py`'s module
       docstring still stating the *pre*-brief-11 discriminator.
+      *(Delivered 2026-07-04, all of a–g, each with regression tests:*
+      **(a)** `read_midi_file → MidiReadResult` itemizes every loss
+      (re-struck notes now KEPT, closed at the re-strike + reported;
+      dangling/zero-length dropped + reported); `midi_file_analysis` +
+      `piano_roll_view` carry an always-present `midi_read_losses` key.
+      **(b)** `apply_groove` honors `voice` (other parts pass through;
+      scope cited on the result). **(c)** `track_keys` raises on
+      `key_inertia × disambiguate_relative` (the tie-break could never reach
+      the inertia path — was silently discarded; MCP validates up front), and
+      region `mean_score`/`mean_margin` are measured against the region's own
+      label (raw-argmax regions unchanged; relabeled windows go honestly
+      negative). **(d)** ruleset `description` validated (null no longer
+      round-trips as `"None"`); `hard_rules_hold` is `None` when no hard rule
+      was applicable; the merge pass requires the merged p ≤ the weakest
+      member's p. **(e)** one input policy: `Pitch` validates its
+      three-encodings-of-one-value fields; `parse_pitch_token` rejects
+      negatives; `Scale.from_degrees`/`Quality.from_intervals` validate
+      before mod-12; `mask_from_text` never guesses binary-vs-decimal and
+      never truncates. **(f)** `rotational_steps` drops the `(12,)` sentinel
+      (empty = asymmetric); analysis empty-set special cases removed — core's
+      convention (trivially invariant, matching export row 0) applies.
+      **(g)** `sounds_at` epsilon is onset-inclusion tolerance only (interior
+      no longer dead); voice motion across a rest marked per voice
+      (`a/b_rested_between`); `changes_per_bar` counts boundaries;
+      `SessionCatalog.load` returns an itemized `SessionLoadReport`;
+      `FunctionMapping.role_subtype` carried through; `include_nondiatonic`
+      typo fixed (Python API rename, no alias); `structural_key.py` docstring
+      states the brief-11 discriminator. Consumer notice:
+      `integrations/audiology/notice-re3-silent-loss-fixes.md`.)*
 - [ ] **RE-4 — MCP surface unification (Phase 4 hygiene, coordinated).**
       **(a)** Four incompatible positional event conventions live on the
       tool surface (index 3 = string voice in `structural_keys` — whose

@@ -13,13 +13,29 @@ _NOTE_RE = re.compile(r"^([A-Ga-g][#b]{0,2})(-?\d+)?$")
 
 @dataclass(frozen=True)
 class Pitch:
-    """Absolute pitch with optional performance metadata."""
+    """Absolute pitch with optional performance metadata.
+
+    The three positional fields are one value in three encodings, and the
+    constructor enforces their consistency — a contradictory triple (e.g.
+    ``midi=60, pc=5``) is an input error, not a representable pitch. Prefer
+    ``from_midi`` / ``from_components``, which derive the redundant fields.
+    """
 
     midi: int
     pc: int
     octave: int
     velocity: int | None = None
     channel: int | None = None
+
+    def __post_init__(self) -> None:
+        expected_pc = self.midi % 12
+        expected_octave = self.midi // 12 - 1  # MIDI convention (C4 == 60)
+        if self.pc != expected_pc or self.octave != expected_octave:
+            raise ValueError(
+                f"Inconsistent Pitch: midi={self.midi} implies pc={expected_pc}, "
+                f"octave={expected_octave}; got pc={self.pc}, octave={self.octave}. "
+                "Use Pitch.from_midi or Pitch.from_components."
+            )
 
     @classmethod
     def from_midi(
@@ -74,8 +90,14 @@ def parse_pitch_token(token: str) -> ParsedPitch:
     except ValueError:
         value = None
     if value is not None:
+        if value < 0:
+            # "-3" used to silently wrap to pc 9 — an input error, not a pc.
+            raise ValueError(
+                f"Negative pitch token {token!r}: pitch classes are 0-11 and "
+                "MIDI numbers are >= 12; negative values have no reading."
+            )
         if value <= 11:
-            return ParsedPitch(pc=value % 12, pitch=None, token=stripped, is_note_token=False)
+            return ParsedPitch(pc=value, pitch=None, token=stripped, is_note_token=False)
         pitch = Pitch.from_midi(value)
         return ParsedPitch(pc=pitch.pc, pitch=pitch, token=stripped, is_note_token=False)
 

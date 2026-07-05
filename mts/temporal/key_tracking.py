@@ -238,6 +238,12 @@ def track_keys(
     parsimony-plus-continuity principle), substantially reducing over-segmentation.
     Composes with ``smoothing`` (inertia first, then region hysteresis) and largely
     subsumes it. Operates on the windowed track only — ``infer_key`` is untouched.
+
+    ``key_inertia`` does **not** compose with ``disambiguate_relative`` (RE-3c):
+    the inertia path re-decodes from the raw per-window score vectors, so the
+    per-window tie-break could never reach it — the combination used to be
+    accepted and the tie-break silently discarded. It now raises: continuity is
+    itself a tie-breaking policy for relative-key near-ties; choose one.
     """
 
     if window_beats <= _EPS:
@@ -246,6 +252,13 @@ def track_keys(
         raise ValueError("hop_beats must be positive.")
     if not sequence.events:
         raise ValueError("track_keys needs a sequence with events.")
+    if key_inertia and disambiguate_relative:
+        raise ValueError(
+            "key_inertia does not compose with disambiguate_relative: the "
+            "inertia path re-decodes from raw score vectors, so the per-window "
+            "relative-key tie-break cannot reach it (it used to be silently "
+            "discarded). Continuity is itself a tie-breaking policy — choose one."
+        )
 
     if profiles is None:
         from ..io.loaders import load_key_profiles
@@ -324,15 +337,16 @@ def track_keys(
 
     # Group consecutive informative windows by (possibly smoothed) label;
     # uninformative windows between same-key groups do not split them.
-    groups: list[tuple[tuple[int, str], list[KeyWindow]]] = []
-    for window, label in zip(informative, labels):
+    groups: list[tuple[tuple[int, str], list[KeyWindow], list[dict]]] = []
+    for window, scores, label in zip(informative, info_scores, labels):
         if groups and groups[-1][0] == label:
             groups[-1][1].append(window)
+            groups[-1][2].append(scores)
         else:
-            groups.append((label, [window]))
+            groups.append((label, [window], [scores]))
 
     regions: list[KeyRegion] = []
-    for index, (label, group) in enumerate(groups):
+    for index, (label, group, group_scores) in enumerate(groups):
         if index == 0:
             start_beats = group[0].start_beats
         else:
@@ -341,6 +355,18 @@ def track_keys(
             end_beats = duration  # full-size windows leave no claimed tail
         else:
             end_beats = (group[-1].center_beats + groups[index + 1][1][0].center_beats) / 2.0
+        # Region stats are measured against the region's OWN label (RE-3c):
+        # each window contributes its score *for that key* and its margin of
+        # that key over the best other candidate. For a raw-argmax region this
+        # is exactly the old top-score / top-two-margin; for a window that
+        # inertia/smoothing relabeled, the margin goes negative — the
+        # advertised gating signal now describes the key the region claims,
+        # not the raw argmax the relabeling overrode.
+        label_scores = [scores[label] for scores in group_scores]
+        label_margins = [
+            scores[label] - max(v for state, v in scores.items() if state != label)
+            for scores in group_scores
+        ]
         regions.append(
             KeyRegion(
                 start_beats=start_beats,
@@ -349,8 +375,8 @@ def track_keys(
                 end_seconds=sequence.seconds_at(end_beats),
                 tonic_pc=label[0],
                 mode=label[1],
-                mean_score=sum(w.score for w in group) / len(group),
-                mean_margin=sum(w.margin for w in group) / len(group),
+                mean_score=sum(label_scores) / len(group),
+                mean_margin=sum(label_margins) / len(group),
                 window_count=len(group),
             )
         )

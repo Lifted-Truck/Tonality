@@ -49,6 +49,9 @@ class FunctionMapping:
     intervals: tuple[int, ...]
     role: str
     modal_label: str
+    # RE-3g: the generator emits this (e.g. tonic-prolongation variants); the
+    # loader used to drop it on the floor.
+    role_subtype: str | None = None
     tags: tuple[str, ...] = ()
 
 
@@ -830,7 +833,7 @@ def load_function_mappings(
         chord_qualities,
         templates=template_collection,
         enabled_features=feature_set,
-        include_nondiatic=include_flag,
+        include_nondiatonic=include_flag,
     )
 
     return [
@@ -840,6 +843,7 @@ def load_function_mappings(
             intervals=item.intervals,
             role=item.role,
             modal_label=item.modal_label,
+            role_subtype=item.role_subtype,
             tags=item.tags,
         )
         for item in generated

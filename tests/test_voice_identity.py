@@ -140,3 +140,32 @@ def test_note_pairing_stays_within_its_track(tmp_path):
     events = sequence_from_midi_file(str(path)).events
     assert len(events) == 1
     assert events[0].duration == pytest.approx(2.0)  # not cut short at beat 1
+
+
+# --- RE-3g: motion across a rest is marked, and sounds_at owns its interior --------------
+
+
+def test_direct_motion_is_not_marked_as_rested():
+    seq = _two_voices([(60, 0, 1), (62, 1, 1)], [(67, 0, 1), (69, 1, 1)])
+    (t,) = voice_motion(seq).transitions
+    assert (t.a_rested_between, t.b_rested_between) == (False, False)
+
+
+def test_motion_across_a_rest_is_marked_per_voice():
+    # voice a: note ends at 0.5, rests, re-enters at 1.0; voice b moves
+    # directly (its note reaches the next moment exactly — no rest).
+    seq = _two_voices([(60, 0, 0.5), (62, 1, 1)], [(67, 0, 1), (69, 1, 1)])
+    (t,) = voice_motion(seq).transitions
+    assert t.motion == "parallel"  # still classified — but with the rest marked
+    assert t.a_rested_between is True
+    assert t.b_rested_between is False
+
+
+def test_barely_legal_event_sounds_in_its_interior():
+    # RE-3g sounds_at: the old epsilon-shifted window left the last eps of
+    # every event dead — an event barely longer than eps sounded (almost)
+    # nowhere inside itself, and "sounded" before its own onset.
+    e = _ev(60, 1.0, 2e-9)
+    assert e.sounds_at(1.0)  # its onset
+    assert e.sounds_at(1.0 + 1e-9)  # its interior (used to be False)
+    assert not e.sounds_at(1.0 + 2e-9)  # its offset belongs to the successor

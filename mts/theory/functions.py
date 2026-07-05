@@ -844,7 +844,7 @@ def generate_functions_for_scale(
     *,
     templates: Sequence[FunctionTemplate],
     enabled_features: Iterable[str],
-    include_nondiatic: bool = True,
+    include_nondiatonic: bool = True,
 ) -> list[GeneratedFunction]:
     """
     Build functional mappings for a scale using the supplied template collection.
@@ -863,7 +863,7 @@ def generate_functions_for_scale(
             chord_pcs = _chord_pcs(template.degree % 12, quality.intervals)
             chord_mask = mask_from_pcs(chord_pcs)
             diatonic = is_subset(chord_mask, scale_mask)
-            if not diatonic and not include_nondiatic:
+            if not diatonic and not include_nondiatonic:
                 continue
 
             tags = set(variant.tags)

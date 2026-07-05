@@ -38,6 +38,30 @@ from .specs import ChordSpec, ScopeLiteral
 # SessionCatalog
 # ---------------------------------------------------------------------------
 
+
+@dataclass(frozen=True)
+class SessionLoadReport:
+    """What a session-file load actually did — losses itemized (RE-3g).
+
+    A corrupt file or a bad entry used to be swallowed silently, so a user's
+    registered scales/chords could vanish between sessions with no trace.
+    ``file_error`` is set when the file existed but could not be parsed
+    (nothing loaded); ``skipped`` itemizes per-entry failures
+    (``{"kind", "name", "reason"}``).
+    """
+
+    path: str
+    file_found: bool
+    file_error: str | None
+    scales_loaded: int
+    chords_loaded: int
+    skipped: list[dict]
+
+    def to_dict(self) -> dict:
+        import dataclasses
+
+        return dataclasses.asdict(self)
+
 @dataclass
 class SessionCatalog:
     """Mutable registry for user-defined scales and chords within a session.
@@ -72,77 +96,106 @@ class SessionCatalog:
 
     # --- Persistence --------------------------------------------------------
 
-    def load(self, path: Path) -> None:
-        """Populate this catalog from a JSON session file."""
+    def load(self, path: Path) -> SessionLoadReport:
+        """Populate this catalog from a JSON session file.
+
+        Returns a :class:`SessionLoadReport` — a corrupt file or a bad entry
+        is never swallowed silently (RE-3g); everything skipped is itemized.
+        """
+        skipped: list[dict] = []
+        scales_loaded = 0
+        chords_loaded = 0
+
+        def report(file_found: bool, file_error: str | None) -> SessionLoadReport:
+            return SessionLoadReport(
+                path=str(path),
+                file_found=file_found,
+                file_error=file_error,
+                scales_loaded=scales_loaded,
+                chords_loaded=chords_loaded,
+                skipped=skipped,
+            )
+
         if not path.exists():
-            return
+            return report(False, None)
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-        except Exception:
-            return
+        except Exception as exc:
+            return report(True, f"unreadable session file: {exc}")
+        if not isinstance(data, dict):
+            return report(True, f"session file is not a JSON object: {type(data).__name__}")
         for entry in data.get("scales", []):
             name = entry.get("name")
             degrees = entry.get("degrees", [])
-            if name:
-                try:
-                    scale_builder = ManualScaleBuilder(name=name, degrees=list(degrees))
-                    scale = scale_builder.to_scale()
-                except Exception:
-                    continue
-                self.scales[scale.name] = scale
-                context_payload: dict[str, object] = {
-                    "scope": entry.get("context", "abstract"),
-                    "tokens": entry.get("tokens", []),
-                }
-                absolute_midi = entry.get("absolute_midi", [])
-                if absolute_midi:
-                    context_payload["absolute_midi"] = list(absolute_midi)
-                self.scale_context[scale.name] = context_payload
+            if not name:
+                skipped.append({"kind": "scale", "name": None, "reason": "entry has no name"})
+                continue
+            try:
+                scale_builder = ManualScaleBuilder(name=name, degrees=list(degrees))
+                scale = scale_builder.to_scale()
+            except Exception as exc:
+                skipped.append({"kind": "scale", "name": name, "reason": str(exc)})
+                continue
+            self.scales[scale.name] = scale
+            scales_loaded += 1
+            context_payload: dict[str, object] = {
+                "scope": entry.get("context", "abstract"),
+                "tokens": entry.get("tokens", []),
+            }
+            absolute_midi = entry.get("absolute_midi", [])
+            if absolute_midi:
+                context_payload["absolute_midi"] = list(absolute_midi)
+            self.scale_context[scale.name] = context_payload
         for entry in data.get("chords", []):
             name = entry.get("name")
             intervals = entry.get("intervals", [])
             tensions = entry.get("tensions", [])
-            if name:
-                try:
-                    chord_builder = ManualChordBuilder(
-                        name=name,
-                        intervals=list(intervals),
-                        tensions=tuple(tensions),
-                    )
-                    quality = chord_builder.to_quality()
-                except Exception:
-                    continue
-                self.chords[quality.name] = quality
-                context_payload = {
-                    "scope": entry.get("context", "abstract"),
-                    "tokens": entry.get("tokens", []),
-                }
-                absolute_midi = entry.get("absolute_midi", [])
-                if absolute_midi:
-                    context_payload["absolute_midi"] = list(absolute_midi)
-                self.chord_context[quality.name] = context_payload
-                scope = context_payload.get("scope", "abstract")
-                tokens = tuple(context_payload.get("tokens", []))
-                absolute_pitches = (
-                    tuple(Pitch.from_midi(midi) for midi in absolute_midi)
-                    if absolute_midi
-                    else ()
+            if not name:
+                skipped.append({"kind": "chord", "name": None, "reason": "entry has no name"})
+                continue
+            try:
+                chord_builder = ManualChordBuilder(
+                    name=name,
+                    intervals=list(intervals),
+                    tensions=tuple(tensions),
                 )
-                if absolute_pitches:
-                    base_midi = absolute_pitches[0].midi
-                    voicing = tuple(p.midi - base_midi for p in absolute_pitches)
-                else:
-                    voicing = tuple(quality.intervals)
-                spec = ChordSpec(
-                    label=name,
-                    scope=cast(ScopeLiteral, scope),
-                    intervals=tuple(quality.intervals),
-                    tokens=tokens,
-                    absolute=absolute_pitches,
-                    tensions=tuple(getattr(quality, "tensions", ()) or ()),
-                    voicing=voicing,
-                ).with_quality(quality.name, matches=[quality.name])
-                self.chord_specs[quality.name] = spec
+                quality = chord_builder.to_quality()
+            except Exception as exc:
+                skipped.append({"kind": "chord", "name": name, "reason": str(exc)})
+                continue
+            self.chords[quality.name] = quality
+            chords_loaded += 1
+            context_payload = {
+                "scope": entry.get("context", "abstract"),
+                "tokens": entry.get("tokens", []),
+            }
+            absolute_midi = entry.get("absolute_midi", [])
+            if absolute_midi:
+                context_payload["absolute_midi"] = list(absolute_midi)
+            self.chord_context[quality.name] = context_payload
+            scope = context_payload.get("scope", "abstract")
+            tokens = tuple(context_payload.get("tokens", []))
+            absolute_pitches = (
+                tuple(Pitch.from_midi(midi) for midi in absolute_midi)
+                if absolute_midi
+                else ()
+            )
+            if absolute_pitches:
+                base_midi = absolute_pitches[0].midi
+                voicing = tuple(p.midi - base_midi for p in absolute_pitches)
+            else:
+                voicing = tuple(quality.intervals)
+            spec = ChordSpec(
+                label=name,
+                scope=cast(ScopeLiteral, scope),
+                intervals=tuple(quality.intervals),
+                tokens=tokens,
+                absolute=absolute_pitches,
+                tensions=tuple(getattr(quality, "tensions", ()) or ()),
+                voicing=voicing,
+            ).with_quality(quality.name, matches=[quality.name])
+            self.chord_specs[quality.name] = spec
+        return report(True, None)
 
     def save(self, path: Path) -> None:
         """Persist this catalog to disk as JSON."""
@@ -452,13 +505,31 @@ def degrees_from_mask(mask: int) -> list[int]:
 
 
 def mask_from_text(text: str) -> int:
-    """Parse a decimal or binary mask string."""
+    """Parse a decimal or binary mask string — without guessing.
+
+    Binary is read from a ``0b`` prefix or a full 12-character 0/1 string
+    (unambiguous: a decimal mask never has 12 digits). A shorter 0/1-only
+    string like ``"10"`` is ambiguous (binary 2 or decimal 10?) and raises
+    instead of silently picking one; write ``0b10`` or a non-0/1 decimal.
+    Values above 4095 raise instead of being silently truncated to 12 bits.
+    """
     stripped = text.strip().lower()
-    base = 2 if stripped.startswith("0b") or set(stripped) <= {"0", "1"} else 10
     if stripped.startswith("0b"):
-        stripped = stripped[2:]
-    value = int(stripped, base)
-    return value & ((1 << 12) - 1)
+        value = int(stripped[2:], 2)
+    elif stripped and set(stripped) <= {"0", "1"}:
+        if len(stripped) == 12:
+            value = int(stripped, 2)
+        else:
+            raise ValueError(
+                f"Ambiguous mask text {text!r}: could be binary or decimal. "
+                "Use a '0b' prefix for binary (e.g. '0b10') or a full "
+                "12-character bit string."
+            )
+    else:
+        value = int(stripped, 10)
+    if not 0 <= value < (1 << 12):
+        raise ValueError(f"Mask out of range: {value} (must be 0..4095).")
+    return value
 
 
 # ---------------------------------------------------------------------------
@@ -478,9 +549,11 @@ def is_session_chord(name: str, session: SessionCatalog | None = None) -> bool:
 def load_session_catalog(
     path: Path | None = None,
     session: SessionCatalog | None = None,
-) -> None:
-    """Load a session JSON file into *session* (default: module default)."""
-    (session if session is not None else _DEFAULT_SESSION).load(path or SESSION_FILE)
+) -> SessionLoadReport:
+    """Load a session JSON file into *session* (default: module default).
+
+    Returns the itemized :class:`SessionLoadReport` (RE-3g)."""
+    return (session if session is not None else _DEFAULT_SESSION).load(path or SESSION_FILE)
 
 
 def save_session_catalog(

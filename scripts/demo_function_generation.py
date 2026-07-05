@@ -50,7 +50,7 @@ def main() -> None:
         qualities,
         templates=fn.TEMPLATES_MAJOR,
         enabled_features=DEFAULT_FEATURES_MAJOR,
-        include_nondiatic=False,
+        include_nondiatonic=False,
     )
 
     major_extended_features = set(DEFAULT_FEATURES_MAJOR) | {
@@ -63,7 +63,7 @@ def main() -> None:
         qualities,
         templates=fn.TEMPLATES_MAJOR,
         enabled_features=major_extended_features,
-        include_nondiatic=True,
+        include_nondiatonic=True,
     )
 
     minor_aeolian = generate_functions_for_scale(
@@ -71,7 +71,7 @@ def main() -> None:
         qualities,
         templates=fn.TEMPLATES_MINOR,
         enabled_features=set(DEFAULT_FEATURES_MINOR) - {FEATURE_LEADING_TONE},
-        include_nondiatic=False,
+        include_nondiatonic=False,
     )
 
     minor_harmonic = generate_functions_for_scale(
@@ -80,7 +80,7 @@ def main() -> None:
         templates=fn.TEMPLATES_MINOR,
         enabled_features=set(DEFAULT_FEATURES_MINOR)
         | {FEATURE_ALTERED_DOMINANT, FEATURE_RAISED_SIXTH},
-        include_nondiatic=True,
+        include_nondiatonic=True,
     )
 
     _print_functions("Ionian (diatonic feature set)", major_basic)

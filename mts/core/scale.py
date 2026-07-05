@@ -20,7 +20,9 @@ class Scale:
     def from_degrees(
         cls, name: str, degrees: Iterable[int], aliases: Iterable[str] | None = None
     ) -> "Scale":
-        normalized = tuple(sorted({validate_pc(int(pc) % 12) for pc in degrees}))
+        # Validate BEFORE normalizing: a degree of 12 or -1 is an input error,
+        # not a pc to silently wrap (mask_from_pcs raises; so does this).
+        normalized = tuple(sorted({validate_pc(int(pc)) for pc in degrees}))
         mask = mask_from_pcs(normalized)
         alias_values = tuple(sorted({str(alias).strip() for alias in (aliases or []) if str(alias).strip()}))
         return cls(name=name, degrees=normalized, mask=mask, aliases=alias_values)

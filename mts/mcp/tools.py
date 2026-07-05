@@ -1182,10 +1182,23 @@ def midi_file_analysis(
     from onsets/accents and independent of the file's declared meter map — compare
     them to spot a mis-tagged or changing meter."""
     from ..analysis import candidate_context, disambiguate_relative_key
-    from ..io.midi import sequence_from_midi_file
+    from ..io.midi import read_midi_file
     from ..temporal import coalesce, track_keys, track_meter
 
-    sequence = sequence_from_midi_file(path)
+    if key_inertia and disambiguate_relative_keys:
+        # Raise here, not inside the try/except around track_keys (which maps
+        # ValueError to "no tonal information") — the flag conflict must be
+        # loud (RE-3c), never silently absorbed.
+        raise ValueError(
+            "key_inertia does not compose with disambiguate_relative_keys for "
+            "the windowed tracking: the inertia path re-decodes from raw score "
+            "vectors, so the relative-key tie-break cannot reach it. Choose one "
+            "(the global-key disambiguation alone is fine — drop key_inertia, "
+            "or drop disambiguate_relative_keys)."
+        )
+
+    midi_read = read_midi_file(path)
+    sequence = midi_read.sequence
     profiles = _profiles(profile_version)
     coalesce_meta = None
     if coalesce_window_beats is not None:
@@ -1227,6 +1240,9 @@ def midi_file_analysis(
         key_regions=regions if (per_region_context and infer_context) else None,
     )
     result = {"key": keys.to_dict(), "dataset": dataset.to_dict()}
+    # Itemized read losses (RE-3a): always present, usually empty — a
+    # malformed/truncated file loses notes loudly, never silently.
+    result["midi_read_losses"] = [loss.to_dict() for loss in midi_read.losses]
     if coalesce_meta is not None:
         result["coalesce"] = coalesce_meta
     if disambiguation is not None:
@@ -1258,11 +1274,12 @@ def piano_roll_view(
     short low-confidence key-band blips (both off by default). Numeric only —
     labels/colors are the renderer's business."""
     from ..analysis import candidate_context, disambiguate_relative_key
-    from ..io.midi import sequence_from_midi_file
+    from ..io.midi import read_midi_file
     from ..representation import piano_roll_descriptor
     from ..temporal import coalesce, track_keys
 
-    sequence = sequence_from_midi_file(path)
+    midi_read = read_midi_file(path)
+    sequence = midi_read.sequence
     if coalesce_window_beats is not None:
         sequence = coalesce(
             sequence, onset_window_beats=float(coalesce_window_beats)
@@ -1291,12 +1308,16 @@ def piano_roll_view(
         except ValueError:
             context = None  # no tonal information — intrinsic naming only
 
-    return piano_roll_descriptor(
+    result = piano_roll_descriptor(
         sequence,
         analytical_context=context,
         key_regions=regions,
         chord_overlays=chord_overlays,
     ).to_dict()
+    # Itemized read losses (RE-3a): a rectangle that never appears should be
+    # explained, not invisible.
+    result["midi_read_losses"] = [loss.to_dict() for loss in midi_read.losses]
+    return result
 
 
 TOOLS = (

@@ -69,14 +69,10 @@ def _interval_class_histogram(intervals: list[int]) -> dict[int, int]:
 
 
 def _symmetry_data(chord: Chord) -> SymmetryData:
+    # No empty-set special case: core's convention applies (the empty set is
+    # trivially invariant — period 1, every step; the old hardcoded period 0
+    # disagreed with core and the exported set-class table).
     pcs = set(chord.pcs)
-    if not pcs:
-        return SymmetryData(
-            rotational_period=0,
-            rotational_steps=[],
-            achiral=False,
-            reflection_axes=[],
-        )
     mask = chord.mask
     reflection_axes = _reflection_axes(pcs)
     return SymmetryData(

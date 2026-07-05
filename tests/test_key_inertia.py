@@ -108,3 +108,37 @@ def test_inertia_prior_is_versioned():
     assert load_key_inertia("key-inertia.1") is prior
     with pytest.raises(ValueError, match="Unknown key-inertia version"):
         load_key_inertia("no-such-version")
+
+
+# --- RE-3c: the flag conflict is loud; region stats describe the region's key ------------
+
+
+def test_inertia_rejects_disambiguate_relative():
+    # The inertia path re-decodes from raw score vectors, so the per-window
+    # relative-key tie-break can never reach it — the combination used to be
+    # accepted and the tie-break silently discarded.
+    seq = _noisy_sequence()
+    with pytest.raises(ValueError, match="does not compose"):
+        track_keys(seq, key_inertia=True, disambiguate_relative=True)
+
+
+def test_region_stats_are_measured_against_the_region_label():
+    # With smoothing/inertia off and no disambiguation, every region label is
+    # the raw argmax, so mean_margin must equal the old top-two margin —
+    # i.e. strictly positive and identical to the windows' own margins.
+    seq = _noisy_sequence()
+    result = track_keys(seq)
+    for region in result.regions:
+        assert region.mean_margin > 0
+    # With disambiguation on, a tie-broken region reports its correlation
+    # margin FOR THE KEY IT CLAIMS — negative when the raw correlation
+    # preferred the relative (the honest gating signal; it used to average
+    # the raw-argmax stats and could describe the wrong key).
+    tie_broken = track_keys(seq, disambiguate_relative=True)
+    changed = [
+        (raw.tonic_pc, raw.mode) != (tb.tonic_pc, tb.mode)
+        for raw, tb in zip(result.windows, tie_broken.windows)
+        if raw.is_informative
+    ]
+    if any(changed):  # only assert the sign flip where a relabel happened
+        assert any(r.mean_margin < 0 for r in tie_broken.regions)

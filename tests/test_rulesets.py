@@ -154,7 +154,8 @@ def test_soft_rule_conformance_frequency():
     assert len(result.violations) == 1
     assert result.conformance == pytest.approx(0.5)
     assert report.soft_score == pytest.approx(0.5)
-    assert report.hard_rules_hold is True  # no applicable hard rules
+    # RE-3d: no applicable hard rules → None ("never tested"), not a vacuous True
+    assert report.hard_rules_hold is None
 
 
 def test_nht_rules_need_harmony_no_harmony_no_claim():
@@ -164,7 +165,9 @@ def test_nht_rules_need_harmony_no_harmony_no_claim():
     without = evaluate(_ruleset(rule), line)
     assert without.results[0].applicable is False
     assert "no harmony, no claim" in without.results[0].reason
-    assert without.hard_rules_hold is True  # nothing applicable was violated
+    # RE-3d: the one hard rule was not applicable — True would conflate
+    # "tested and clean" with "never tested"; the report says None.
+    assert without.hard_rules_hold is None
     with_harmony = evaluate(_ruleset(rule), line, harmony=[(0.0, 4.0, (0, 4, 7))])
     assert with_harmony.results[0].applicable is True
     assert with_harmony.results[0].holds is True  # D is a passing tone, not free
@@ -220,3 +223,21 @@ def test_report_is_json_ready():
     payload = json.loads(json.dumps(report.to_dict()))
     assert payload["ruleset_name"] == "test"
     assert payload["results"][0]["violations"][0]["evidence"]["interval_class_to"] == 7
+
+
+# --- RE-3d: description is validated, never coerced --------------------------------------
+
+
+def test_null_description_is_a_validation_error_not_the_string_none():
+    payload = _ruleset(NO_PARALLEL_PERFECTS)
+    payload["description"] = None  # used to round-trip as the string "None"
+    assert any("description" in e for e in validation_errors(payload))
+    with pytest.raises(RulesetValidationError):
+        parse_ruleset(payload)
+
+
+def test_absent_description_defaults_to_empty_and_string_passes():
+    assert parse_ruleset(_ruleset(NO_PARALLEL_PERFECTS)).description == ""
+    payload = _ruleset(NO_PARALLEL_PERFECTS)
+    payload["description"] = "species counterpoint, first pass"
+    assert parse_ruleset(payload).description == "species counterpoint, first pass"

@@ -88,3 +88,70 @@ def test_tempo_change_is_captured(tmp_path):
 def test_live_midi_not_implemented():
     with pytest.raises(NotImplementedError):
         list(events_from_live_midi(object()))
+
+
+# --- RE-3a: reads itemize every loss (the coalesce doctrine) -----------------
+
+
+def _read(path):
+    from mts.io.midi import read_midi_file
+
+    return read_midi_file(str(path))
+
+
+def test_restruck_note_is_kept_and_truncation_reported(tmp_path):
+    # note_on C, then a second note_on C one beat later while still open,
+    # then note_off two beats in. The first note used to vanish silently.
+    mid = mido.MidiFile(ticks_per_beat=480)
+    track = mido.MidiTrack()
+    mid.tracks.append(track)
+    track.append(mido.Message("note_on", note=60, velocity=64, time=0))
+    track.append(mido.Message("note_on", note=60, velocity=80, time=480))  # re-strike
+    track.append(mido.Message("note_off", note=60, velocity=0, time=480))
+    path = tmp_path / "restrike.mid"
+    mid.save(str(path))
+
+    result = _read(path)
+    onsets = sorted((e.onset, e.duration) for e in result.sequence.events)
+    assert onsets == [(0.0, 1.0), (1.0, 1.0)]  # BOTH notes survive
+    kinds = [loss.kind for loss in result.losses]
+    assert kinds == ["restruck_note_truncated"]
+    assert result.losses[0].note == 60 and result.losses[0].onset_beats == 0.0
+
+
+def test_dangling_note_on_is_dropped_and_reported(tmp_path):
+    mid = mido.MidiFile(ticks_per_beat=480)
+    track = mido.MidiTrack()
+    mid.tracks.append(track)
+    track.append(mido.Message("note_on", note=60, velocity=64, time=0))
+    track.append(mido.Message("note_off", note=60, velocity=0, time=480))
+    track.append(mido.Message("note_on", note=64, velocity=64, time=0))  # never closed
+    path = tmp_path / "dangling.mid"
+    mid.save(str(path))
+
+    result = _read(path)
+    assert [e.pitch.midi for e in result.sequence.events] == [60]
+    assert [loss.kind for loss in result.losses] == ["dangling_note_on"]
+    assert result.losses[0].note == 64
+
+
+def test_zero_duration_pair_is_dropped_and_reported(tmp_path):
+    mid = mido.MidiFile(ticks_per_beat=480)
+    track = mido.MidiTrack()
+    mid.tracks.append(track)
+    track.append(mido.Message("note_on", note=60, velocity=64, time=0))
+    track.append(mido.Message("note_off", note=60, velocity=0, time=0))  # same tick
+    path = tmp_path / "zero.mid"
+    mid.save(str(path))
+
+    result = _read(path)
+    assert result.sequence.events == ()
+    assert [loss.kind for loss in result.losses] == ["zero_duration"]
+
+
+def test_clean_file_reports_no_losses(tmp_path):
+    path = _write_cmaj(tmp_path / "clean.mid")
+    result = _read(path)
+    assert result.losses == []
+    assert len(result.sequence.events) == 3
+    assert result.to_dict() == {"losses": []}
