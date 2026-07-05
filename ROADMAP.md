@@ -155,7 +155,13 @@ list as new applications come into view.
   browser door ✅ shipped (gap 9 below; `mts.mcp.bridge`, the local HTTP
   bridge — was the blocking question) · named consumer of the **Phase 5
   representation layer** (keyboard + piano-roll descriptors; its three
-  surfaces are ready render targets).
+  surfaces are ready render targets) · **CHROMA pitch-training module
+  (brief-19, 2026-06-30 — design handshake, triaged 2026-07-04,
+  `response-19.md`)**: the shared pc/interval **catalog contract** + a
+  deterministic pitch-answer scorer — both accepted as **gap 18** (the second
+  Decision-11 contract instance); the aggregate confusion classifier declined
+  (behavioural aggregation, A6-side); 12-TET explicitly confirmed as the
+  product contract.
   *Validation milestone (brief-3, 2026-06-13 — `integrations/audiology/`):* A6
   ran the **A1 pipeline on a hard real-world file** (a 16-track, ~7-min
   performed *Bohemian Rhapsody* transcription) and confirmed it makes the
@@ -994,6 +1000,28 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     harmonic states, the Phase 7 generative work all want it). Client-supplied
     voicings remain valid ranking input regardless; this gap lags gap 16
     without blocking it (hand-authored voicings are valid contracts).
+18. **Catalog contract + pitch-answer scorer** (added 2026-07-04 from A6
+    brief-19 — CHROMA, the first music-education module; design handshake in
+    `integrations/audiology/response-19.md`). The second **Decision 11**
+    contract instance: a versioned, canonically-emitted `catalog contract v1`
+    — the 12 pitch classes with canonical names/spellings (lifted from
+    `core/enharmonics.py`'s code-resident tables into data) + the interval
+    definitions (`mts/data/intervals.json`, gaining an explicit
+    `interval_class` field) — riding the `export.py` versioning/sha256
+    discipline. **First slice: version strings on the unversioned catalogs**
+    (`intervals.json`, the pc table; then `scales.json`/`chord_qualities.json`
+    for the sibling modules — the export manifest currently records
+    `versions: null` for them honestly). Plus `score(target_pc, response_pc)`
+    — pure identity-layer arithmetic: `correct`, `error_magnitude` (interval
+    class, 0..6), `relationship` both directed (semitones-up + catalog
+    interval name) and undirected (interval_class — A6's P4/P5 contamination
+    signature is ic 5 by construction). Deliverable includes the **full
+    144-row test-vector table as a data artifact** — vendored, it is CHROMA's
+    CI scoring oracle (cross-repo fixture, the gap-16 pattern). Boundary
+    rulings on record: the aggregate confusion classifier is behavioural
+    aggregation (A6-side, same line as the anchoring index); 12-TET explicit
+    (`edo` reserved at 12, no microtonal work). Not yet scheduled — gated on
+    A6's module-contract sketch surviving its second module, per the brief.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
