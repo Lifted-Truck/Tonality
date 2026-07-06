@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import Iterable, Mapping, Any
 
 from .chord_analysis import ChordAnalysisRequest, analyze_chord
@@ -34,8 +33,8 @@ class ChordBrief:
         return lines
 
 
-@lru_cache(maxsize=None)
 def _function_mappings(mode: str) -> list[Any]:
+    # The loader is cached now (RE-5b) — the local lru_cache workaround is gone.
     from ..io.loaders import load_function_mappings
 
     return load_function_mappings(mode)

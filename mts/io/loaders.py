@@ -40,6 +40,9 @@ _KEY_INERTIA_CACHE: tuple[Path, int, tuple["KeyInertiaPriors", ...]] | None = No
 _SCORING_PRIORS_CACHE: tuple[Path, int, tuple["ScoringPrior", ...]] | None = None
 _METER_PROFILES_CACHE: tuple[Path, int, tuple["MeterProfileSet", ...]] | None = None
 _STRUCTURAL_KEY_CACHE: tuple[Path, int, tuple["StructuralKeyPriors", ...]] | None = None
+# (source_mtimes, {args_key: mappings}) — the function-mapping generator cache
+# (RE-5b), keyed by scales.json + chord_qualities.json mtimes.
+_FUNCTION_MAPPINGS_CACHE: tuple[tuple[int, int], dict[tuple, list]] | None = None
 
 
 @dataclass(frozen=True)
@@ -828,6 +831,23 @@ def load_function_mappings(
 
     include_flag = default_include_borrowed if include_borrowed is None else include_borrowed
 
+    # Cache the default-templates path (the only uncached loader — RE-5b). The
+    # full functional table used to regenerate inside per-candidate loops
+    # (~2.1 ms per recommend_next_chord). Keyed by the args that shape the
+    # output, guarded by the two source files' mtimes like the twelve other
+    # loaders. Custom `templates` bypass the cache (rare, tests/CLI only).
+    cache_key: tuple | None = None
+    if templates is None:
+        global _FUNCTION_MAPPINGS_CACHE
+        source_mtime = (
+            (DATA_DIR / "scales.json").stat().st_mtime_ns,
+            (DATA_DIR / "chord_qualities.json").stat().st_mtime_ns,
+        )
+        cache_key = (mode_key, include_flag, frozenset(feature_set))
+        cached = _FUNCTION_MAPPINGS_CACHE
+        if cached is not None and cached[0] == source_mtime and cache_key in cached[1]:
+            return cached[1][cache_key]
+
     generated = generate_functions_for_scale(
         scale,
         chord_qualities,
@@ -836,7 +856,7 @@ def load_function_mappings(
         include_nondiatonic=include_flag,
     )
 
-    return [
+    mappings = [
         FunctionMapping(
             degree_pc=item.degree_pc,
             chord_quality=item.chord_quality,
@@ -848,3 +868,8 @@ def load_function_mappings(
         )
         for item in generated
     ]
+    if cache_key is not None:
+        if _FUNCTION_MAPPINGS_CACHE is None or _FUNCTION_MAPPINGS_CACHE[0] != source_mtime:
+            _FUNCTION_MAPPINGS_CACHE = (source_mtime, {})
+        _FUNCTION_MAPPINGS_CACHE[1][cache_key] = mappings
+    return mappings
