@@ -8,7 +8,7 @@ from ..io.loaders import load_scales, load_chord_qualities, load_function_mappin
 from ..core.chord import Chord
 from ..core.quality import ChordQuality
 from ..core.enharmonics import pc_from_name
-from ..layouts.push_grid import PushGrid
+from .push_grid import PushGrid
 from ..theory import functions as fn_defs
 from ..analysis import ChordAnalysisRequest, analyze_chord
 from ..analysis.voicings import suggest_voicings

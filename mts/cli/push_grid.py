@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
-from .push3 import Push3Layout
+from ..representation.push_layout import Push3Layout
 from ..core.bitmask import validate_pc, mask_from_pcs
 from ..core.enharmonics import name_for_pc  # <— use centralized policy
 
