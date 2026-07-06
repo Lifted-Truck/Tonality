@@ -43,6 +43,9 @@ _STRUCTURAL_KEY_CACHE: tuple[Path, int, tuple["StructuralKeyPriors", ...]] | Non
 # (source_mtimes, {args_key: mappings}) — the function-mapping generator cache
 # (RE-5b), keyed by scales.json + chord_qualities.json mtimes.
 _FUNCTION_MAPPINGS_CACHE: tuple[tuple[int, int], dict[tuple, list]] | None = None
+# (key, index) — chord-quality mask index (RE-5c), keyed by base-catalog
+# identity + default-session chord fingerprint.
+_CHORD_MASK_INDEX_CACHE: tuple[tuple, dict[int, tuple]] | None = None
 
 
 @dataclass(frozen=True)
@@ -780,6 +783,40 @@ def load_chord_qualities(session: SessionCatalog | None = None) -> dict[str, Cho
             if manual.name not in qualities:
                 qualities[manual.name] = manual
     return qualities
+
+
+def chord_qualities_by_mask(
+    session: SessionCatalog | None = None,
+) -> dict[int, tuple[ChordQuality, ...]]:
+    """Chord qualities indexed by mask, one entry per canonical name (aliases
+    collapsed) — the lookup `interpret_chord` needs per root (RE-5c).
+
+    Cached on the *base* catalog object (itself mtime-cached) plus a fingerprint
+    of the default session's chords, so the per-segment `interpret_chord` path
+    stops rebuilding this index (and copying the whole catalog dict) every call.
+    """
+    global _CHORD_MASK_INDEX_CACHE
+    _session = session if session is not None else _DEFAULT_SESSION
+    base = _base_chord_qualities()
+    session_fingerprint = tuple(sorted(_session.chords)) if _session.chords else ()
+    key = (id(base), session_fingerprint)
+    cached = _CHORD_MASK_INDEX_CACHE
+    if cached is not None and cached[0] == key:
+        return cached[1]
+
+    by_mask: dict[int, list[ChordQuality]] = {}
+    seen_names: set[str] = set()
+    # Base first (its .values() include alias entries → dedup by name), then any
+    # session chords whose name isn't already taken — matching load_chord_qualities.
+    for source in (base.values(), _session.chords.values() if _session.chords else ()):
+        for quality in source:
+            if quality.name in seen_names:
+                continue
+            seen_names.add(quality.name)
+            by_mask.setdefault(quality.mask, []).append(quality)
+    index = {mask: tuple(qs) for mask, qs in by_mask.items()}
+    _CHORD_MASK_INDEX_CACHE = (key, index)
+    return index
 
 
 def load_function_mappings(

@@ -20,7 +20,7 @@ names with aliases attached.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 
 from ..core.bitmask import mask_from_pcs, rotate_mask
 from ..core.quality import ChordQuality
@@ -45,19 +45,21 @@ def interpret_chord(
         raise ValueError("interpret_chord needs at least one pitch class.")
 
     if catalog is None:
-        from ..io.loaders import load_chord_qualities
+        # Default path (per-segment hot loop): the mask index is cached on the
+        # catalog, so this rebuilds nothing (RE-5c).
+        from ..io.loaders import chord_qualities_by_mask
 
-        catalog = load_chord_qualities()
-
-    # De-duplicate alias keys down to one quality per canonical name, indexed
-    # by mask: one pass over the catalog instead of a full scan per root.
-    by_mask: dict[int, list[ChordQuality]] = {}
-    seen_names: set[str] = set()
-    for quality in catalog.values():
-        if quality.name in seen_names:
-            continue
-        seen_names.add(quality.name)
-        by_mask.setdefault(quality.mask, []).append(quality)
+        by_mask: Mapping[int, Sequence[ChordQuality]] = chord_qualities_by_mask()
+    else:
+        # Custom catalog: build the index inline (dedup aliases by name).
+        built: dict[int, list[ChordQuality]] = {}
+        seen_names: set[str] = set()
+        for quality in catalog.values():
+            if quality.name in seen_names:
+                continue
+            seen_names.add(quality.name)
+            built.setdefault(quality.mask, []).append(quality)
+        by_mask = built
 
     mask = mask_from_pcs(pc_set)
     interpretations: list[ChordInterpretation] = []
