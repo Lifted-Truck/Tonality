@@ -152,9 +152,11 @@ def test_non_object_json_body_is_400(base_url):
 # --- browser usability ---------------------------------------------------------------
 
 
-def test_cors_header_on_responses(base_url):
+def test_cors_header_echoes_allowed_origins_only(base_url):
+    # RE-4e allowlist: the wildcard is gone — an allowed browser origin gets
+    # itself echoed back; a no-Origin caller gets no CORS header at all.
     _, headers, _ = _request(f"{base_url}/tools")
-    assert headers["Access-Control-Allow-Origin"] == "*"
+    assert headers.get("Access-Control-Allow-Origin") is None
 
 
 def test_options_preflight(base_url):
@@ -189,3 +191,78 @@ def test_engine_internal_typeerror_is_a_500(base_url, monkeypatch):
     assert status == 500
     assert body["error_type"] == "TypeError"
     assert "engine bug" in body["error"]
+
+
+# --- RE-4e follow-through: the origin allowlist (A6's design answer) ---------------------
+
+
+def _request_with_origin(url, origin, payload=None):
+    data = None if payload is None else json.dumps(payload).encode()
+    request = urllib.request.Request(url, data=data)
+    if data is not None:
+        request.add_header("Content-Type", "application/json")
+    request.add_header("Origin", origin)
+    try:
+        with urllib.request.urlopen(request) as response:
+            return response.status, response.headers, json.loads(response.read() or b"null")
+    except urllib.error.HTTPError as error:
+        return error.code, error.headers, json.loads(error.read())
+
+
+def test_no_origin_callers_are_allowed(base_url):
+    # curl / CLIs / server-side middleware send no Origin — A6's two flows.
+    status, headers, _ = _request(f"{base_url}/tools")
+    assert status == 200
+    assert headers.get("Access-Control-Allow-Origin") is None  # no CORS needed
+
+
+def test_localhost_origins_allowed_at_any_port(base_url):
+    for origin in ("http://localhost:5173", "http://localhost:4321",
+                   "http://127.0.0.1:8080", "https://localhost:443"):
+        status, headers, _ = _request_with_origin(f"{base_url}/tools", origin)
+        assert status == 200, origin
+        # the specific origin is echoed (not *), with Vary: Origin
+        assert headers.get("Access-Control-Allow-Origin") == origin
+        assert "Origin" in (headers.get("Vary") or "")
+
+
+def test_foreign_origin_is_actively_rejected_and_tool_not_executed(base_url):
+    status, _, body = _request_with_origin(
+        f"{base_url}/call/chord_analysis", "https://evil.example",
+        {"root": "C", "quality": "maj"},
+    )
+    assert status == 403
+    assert body["error_type"] == "OriginNotAllowed"
+    assert "--allow-origin" in body["error"]  # actionable
+
+
+def test_allow_origin_flag_admits_custom_schemes():
+    # A6's packaged-app escape hatch: tauri://localhost via --allow-origin.
+    server = make_server(port=0, extra_origins={"tauri://localhost"})
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        host, port = server.server_address[:2]
+        url = f"http://{host}:{port}/tools"
+        status, headers, _ = _request_with_origin(url, "tauri://localhost")
+        assert status == 200
+        assert headers.get("Access-Control-Allow-Origin") == "tauri://localhost"
+        status, _, _ = _request_with_origin(url, "tauri://other")
+        assert status == 403  # exact match only
+    finally:
+        server.shutdown()
+
+
+def test_open_cors_restores_the_wildcard():
+    server = make_server(port=0, open_cors=True)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        host, port = server.server_address[:2]
+        status, headers, _ = _request_with_origin(
+            f"http://{host}:{port}/tools", "https://anything.example"
+        )
+        assert status == 200
+        assert headers.get("Access-Control-Allow-Origin") == "*"
+    finally:
+        server.shutdown()

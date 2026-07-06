@@ -214,7 +214,7 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
    `GET /tools` (name, doc, params per tool); invoke with
    `POST /call/<tool_name>` and a JSON object of keyword arguments →
    `{"ok": true, "result": ...}`. Bad input is a 400 carrying the engine's
-   actionable message; CORS is open (the boundary is loopback, not origin).
+   actionable message; CORS is an **origin allowlist** (loopback web origins at any port + no-Origin callers allowed by default; `--allow-origin` extends it for packaged-app schemes, `--open-cors` disables it — RE-4e, mechanism chosen by A6).
    Same signatures and `to_dict()` shapes as the MCP endpoint — the bridge
    is glue, not a second API (ruled 2026-06-11; shipped as ROADMAP gap 9).
    Hosted endpoints remain declined (local-first); a WASM core remains an
