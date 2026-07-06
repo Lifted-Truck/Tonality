@@ -2239,6 +2239,18 @@ acceptance plan: **[CPP_PORT.md](CPP_PORT.md)**.
       (`voice_leading_policies()` → id + description, in both manifest and
       bundle) — `voice_leading.py` behaviour unchanged. The script emits
       `bundle.json` alongside `manifest.json` + `set_class_table.json`.*)
+      *(Slice 3, delivered 2026-07-05 — **export.2, the slice-1b family**:
+      table rows gain `dft_phases` + `trichord_chirality` +
+      `general_chirality` + `chirality_sign` + `chirality` +
+      `reflection_residual`, computed through the same core functions
+      `set_class_info` calls — and `reflection_residual` joins
+      `set_class_info` too, preserving the tool/table mirror. Trigger: A6
+      declared the briefs-15–17 chirality surface settled
+      (`integrations/audiology/note-chirality-settled.md`), satisfying the
+      slice-1b hold; asked by the port thread's first brief
+      (`integrations/tonality-core/brief.md`). The port pin tripped and was
+      regenerated in the same PR with the notice, per the protocol —
+      the pin's first live firing.)*
       **Deferred follow-ons:** committing the table artifact + a
       regenerate-and-diff guard if a consumer wants it checked in.
 - **Port plan drafted (2026-06-29 — [CPP_PORT.md](CPP_PORT.md), under review).**

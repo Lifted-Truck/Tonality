@@ -64,15 +64,17 @@ conformance case within tolerance. `constexpr` tables over the 4096 universe —
 is the cleanest, most C++-native layer, and it's genuinely frozen (mod-12
 combinatorics don't change even if Phase 6 renegotiates the substrate).
 
-### Slice 1b — DFT phase + the chirality family (fast-follow, once it settles)
+### Slice 1b — DFT phase + the chirality family (UNBLOCKED 2026-07-05)
 
-`dft_phases`, `general_chirality`, `chirality_sign`, `reflection_residual`,
-`chirality`. Pure mod-12 DFT math, but **newer** (shipped this week) and A6 may
-still iterate (the absolute-weighting / geometric-sign questions are open). Port
-after one quiet cycle, and **add these fields to the export table first** so the
-same fixture-diff acceptance applies. (The `reflection_residual` minimizer is the
-one numerically-sensitive piece — port the grid-bracket + golden-section refine
-exactly, or accept it under the float tolerance.)
+`dft_phases`, `trichord_chirality`, `general_chirality`, `chirality_sign`,
+`chirality`, `reflection_residual`. The hold condition is satisfied: A6
+declared the briefs-15–17 surface settled
+(`integrations/audiology/note-chirality-settled.md`), and the fields joined
+the export table as **export.2** (the same fixture-diff acceptance as slice 1
+now applies — byte-for-byte on the extended table + the full-field
+`set_class_info` case). The `reflection_residual` minimizer remains the one
+numerically-sensitive piece — the port reproduces the grid-bracket +
+golden-section refine exactly, per its own brief.
 
 ### Deferred (behind the fence)
 

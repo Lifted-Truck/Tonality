@@ -1,7 +1,7 @@
 {
-  "export_schema_version": "export.1",
-  "pinned_at_commit": "4f0a1b370856a5ed2d4fc201dae794b74e821641",
-  "ported_conformance_cases_sha256": "10eba99b3ca0a538d2331a77667d2bae9416909e0ab3e357163f104fb2daf212",
+  "export_schema_version": "export.2",
+  "pinned_at_commit": "6cf1bd50ed21b57d1a139bf4729f7baae0240719",
+  "ported_conformance_cases_sha256": "421e5f61329bcbbf4fd48afb5b258cd1acd035087679cec391d4b4d0b38cc3b5",
   "ported_conformance_tools": [
     "set_class_info"
   ],
@@ -15,8 +15,14 @@
     "dft_magnitudes",
     "z_partner_prime_form",
     "complement_prime_form",
-    "rotational_period"
+    "rotational_period",
+    "dft_phases",
+    "trichord_chirality",
+    "general_chirality",
+    "chirality_sign",
+    "chirality",
+    "reflection_residual"
   ],
-  "set_class_table_sha256": "eae4cd8bf67a70450042a96c759745f67ae756489b98a295af9c2892efcaf61a",
-  "surface": "port.slice-1"
+  "set_class_table_sha256": "91576bc2005310867e954c9625aff661227e6837b3cfcc94ec5b75ceb0f26bba",
+  "surface": "port.slice-1b"
 }
