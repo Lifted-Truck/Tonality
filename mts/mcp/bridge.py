@@ -15,12 +15,19 @@ Endpoints:
 - ``GET  /tools/<name>`` descriptor for one tool
 - ``POST /call/<name>``  invoke a tool; body is a JSON object of keyword
   arguments. Success: ``{"ok": true, "result": ...}``. Failure: 400 with
-  ``{"ok": false, "error": ..., "error_type": ...}`` for bad input
-  (``ValueError``/``TypeError``), 404 for unknown tools, 500 otherwise.
+  ``{"ok": false, "error": ..., "error_type": ...}`` for bad input — a
+  ``ValueError`` from the engine, or a ``TypeError`` from *binding* the
+  kwargs (unknown/missing arguments); 404 for unknown tools; 500 otherwise,
+  **including a TypeError raised inside the engine** (an engine bug is not
+  the client's fault — RE-4e).
 
 CORS is wide open (``Access-Control-Allow-Origin: *``) because the server
 binds loopback by default — the boundary is the host, not the origin.
 Local-first: this is not a hosted endpoint and must not become one.
+(RE-4e records that loopback + open CORS still lets any web page the user
+visits invoke path-taking tools; the tightening mechanism — origin
+allowlist vs token — is a design call A6 coordinates, on the integrations
+channel. Behavior is unchanged until that call lands.)
 """
 
 from __future__ import annotations
@@ -129,10 +136,19 @@ class BridgeHandler(BaseHTTPRequestHandler):
         if not isinstance(kwargs, dict):
             self._send_error(400, "Request body must be a JSON object of keyword arguments.", "TypeError")
             return
+        # Bind the signature BEFORE calling (RE-4e): a TypeError from binding
+        # is the caller's (unknown/missing kwargs → 400), but a TypeError
+        # raised *inside* the engine is an engine bug and must report as 500 —
+        # the old blanket `except TypeError → 400` blamed the client for both.
+        try:
+            inspect.signature(fn).bind(**kwargs)
+        except TypeError as exc:
+            self._send_error(400, f"Bad arguments for {name!r}: {exc}", "TypeError")
+            return
         try:
             result = fn(**kwargs)
             self._send(200, {"ok": True, "result": result})
-        except (ValueError, TypeError) as exc:
+        except ValueError as exc:
             self._send_error(400, str(exc), type(exc).__name__)
         except Exception as exc:  # noqa: BLE001 - bridge must answer, not die
             self._send_error(500, f"{type(exc).__name__}: {exc}", type(exc).__name__)
