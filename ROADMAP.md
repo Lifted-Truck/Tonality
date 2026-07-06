@@ -671,8 +671,10 @@ list as new applications come into view.
    loopback-bound at `127.0.0.1:8012` by default. `GET /tools` introspects
    every tool (name, doc, params from the live signatures — new tools appear
    automatically); `POST /call/<name>` invokes with JSON kwargs; engine
-   `ValueError`s surface as 400s with their actionable messages; CORS open
-   because the boundary is loopback, not origin. The tool signatures and
+   `ValueError`s surface as 400s with their actionable messages; CORS is an
+   origin allowlist since RE-4e (was: open, because the boundary is loopback —
+   the allowlist keeps loopback web origins + no-Origin callers free and
+   rejects foreign pages; mechanism chosen by A6). The tool signatures and
    `to_dict()` shapes remain the only contract — consumers who stood up
    interim bridges swap by changing a URL.
 10. **Groove extract / apply** (added 2026-06-12, prompted by Julian —
@@ -2579,9 +2581,13 @@ workstreams so they can be scheduled and checked off independently.
       now an enforced test. **(d)** `InsufficientInformation(ValueError)` at
       the four honest-absence sites; the pipelines catch only it — real input
       errors propagate. **(e)** bridge binds kwargs before invoking (binding
-      `TypeError` → 400, engine `TypeError` → 500); the CORS mechanism is a
-      filed design call (`notice-bridge-hardening-design-call.md`), behavior
-      unchanged until A6 answers. Consumer notice:
+      `TypeError` → 400, engine `TypeError` → 500); the CORS mechanism landed
+      2026-07-06 per A6's answer (`ack-re4-and-cors-answer.md`): **origin
+      allowlist** — loopback web origins (any port) + no-Origin callers by
+      default, foreign origins actively 403'd (not merely denied the header —
+      a disallowed page must not execute tools), `--allow-origin` for
+      packaged-app schemes (their flagged Tauri/Electron future),
+      `--open-cors` the explicit wildcard. Consumer notice:
       `notice-re4-mcp-unification.md`.)*
 - [ ] **RE-5 — Hot-path efficiency pass (mechanical,
       conformance-protected).** All output-identical by construction, so

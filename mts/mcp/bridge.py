@@ -21,13 +21,21 @@ Endpoints:
   **including a TypeError raised inside the engine** (an engine bug is not
   the client's fault — RE-4e).
 
-CORS is wide open (``Access-Control-Allow-Origin: *``) because the server
-binds loopback by default — the boundary is the host, not the origin.
+CORS is an **origin allowlist** (RE-4e, mechanism chosen by A6 — see
+``integrations/audiology/ack-re4-and-cors-answer.md``). Default policy:
+
+- requests with **no** ``Origin`` header are allowed (curl, CLIs, server-side
+  callers — CORS is a browser concept);
+- browser origins are allowed when the host is loopback (``localhost`` /
+  ``127.0.0.1`` / ``[::1]``, any port, http/https) — the wildcard port is
+  load-bearing for Vite-class dev servers;
+- anything else is **actively rejected with 403** (not just denied the CORS
+  header — a disallowed page must not execute tools), unless added via
+  ``--allow-origin <origin>`` (repeatable; exact match — the escape hatch for
+  packaged-app schemes like ``tauri://localhost``) or ``--open-cors``
+  (restores the old wildcard explicitly).
+
 Local-first: this is not a hosted endpoint and must not become one.
-(RE-4e records that loopback + open CORS still lets any web page the user
-visits invoke path-taking tools; the tightening mechanism — origin
-allowlist vs token — is a design call A6 coordinates, on the integrations
-channel. Behavior is unchanged until that call lands.)
 """
 
 from __future__ import annotations
@@ -36,13 +44,33 @@ import argparse
 import inspect
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
 
 from .tools import TOOLS
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8012
 
+_LOOPBACK_HOSTS = {"localhost", "127.0.0.1", "[::1]", "::1"}
+
 _TOOL_MAP = {fn.__name__: fn for fn in TOOLS}
+
+
+def origin_allowed(
+    origin: str | None,
+    *,
+    extra_origins: frozenset[str] = frozenset(),
+    open_cors: bool = False,
+) -> bool:
+    """The RE-4e allowlist: no-Origin callers and loopback web origins pass;
+    everything else needs an explicit ``--allow-origin`` entry (exact match)
+    or ``--open-cors``."""
+    if origin is None or open_cors:
+        return True
+    if origin in extra_origins:
+        return True
+    parts = urlsplit(origin)
+    return parts.scheme in ("http", "https") and (parts.hostname or "") in _LOOPBACK_HOSTS
 
 
 def describe_tool(fn) -> dict:
@@ -83,12 +111,50 @@ class BridgeHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):  # noqa: A002 - stdlib signature
         pass  # a library-embedded local server should not spam stderr
 
+    def _cors_headers(self) -> list[tuple[str, str]]:
+        origin = self.headers.get("Origin")
+        if origin is None:
+            return []
+        if getattr(self.server, "open_cors", False):
+            return [("Access-Control-Allow-Origin", "*")]
+        # allowed (the caller gated on _origin_ok): echo the specific origin
+        return [("Access-Control-Allow-Origin", origin), ("Vary", "Origin")]
+
+    def _origin_ok(self) -> bool:
+        return origin_allowed(
+            self.headers.get("Origin"),
+            extra_origins=getattr(self.server, "extra_origins", frozenset()),
+            open_cors=getattr(self.server, "open_cors", False),
+        )
+
+    def _reject_origin(self) -> None:
+        # Active rejection (RE-4e): a disallowed page must not execute tools —
+        # denying only the CORS header would still run the call server-side.
+        body = json.dumps(
+            {
+                "ok": False,
+                "error": (
+                    f"Origin {self.headers.get('Origin')!r} is not allowed. The "
+                    "bridge allows loopback web origins and no-Origin callers by "
+                    "default; start it with --allow-origin <origin> to extend, "
+                    "or --open-cors to disable the allowlist."
+                ),
+                "error_type": "OriginNotAllowed",
+            }
+        ).encode("utf-8")
+        self.send_response(403)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def _send(self, status: int, payload: dict | list) -> None:
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        for name, value in self._cors_headers():
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(body)
 
@@ -96,13 +162,20 @@ class BridgeHandler(BaseHTTPRequestHandler):
         self._send(status, {"ok": False, "error": message, "error_type": error_type})
 
     def do_OPTIONS(self) -> None:  # CORS preflight
+        if not self._origin_ok():
+            self._reject_origin()
+            return
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", "*")
+        for name, value in self._cors_headers():
+            self.send_header(name, value)
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
     def do_GET(self) -> None:
+        if not self._origin_ok():
+            self._reject_origin()
+            return
         if self.path == "/":
             self._send(200, _service_info())
         elif self.path == "/tools":
@@ -118,6 +191,9 @@ class BridgeHandler(BaseHTTPRequestHandler):
             self._send_error(404, f"Unknown path {self.path!r}.", "NotFound")
 
     def do_POST(self) -> None:
+        if not self._origin_ok():
+            self._reject_origin()
+            return
         if not self.path.startswith("/call/"):
             self._send_error(404, f"Unknown path {self.path!r}. POST /call/<tool_name>.", "NotFound")
             return
@@ -154,10 +230,18 @@ class BridgeHandler(BaseHTTPRequestHandler):
             self._send_error(500, f"{type(exc).__name__}: {exc}", type(exc).__name__)
 
 
-def make_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
+def make_server(
+    host: str = DEFAULT_HOST,
+    port: int = DEFAULT_PORT,
+    *,
+    extra_origins: frozenset[str] | set[str] = frozenset(),
+    open_cors: bool = False,
+) -> ThreadingHTTPServer:
     """Build the bridge server (not yet serving; call ``serve_forever``)."""
     server = ThreadingHTTPServer((host, port), BridgeHandler)
     server.daemon_threads = True
+    server.extra_origins = frozenset(extra_origins)  # type: ignore[attr-defined]
+    server.open_cors = bool(open_cors)  # type: ignore[attr-defined]
     return server
 
 
@@ -165,8 +249,27 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Tonality local HTTP bridge (gap 9).")
     parser.add_argument("--host", default=DEFAULT_HOST, help="bind address (default: loopback)")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"port (default: {DEFAULT_PORT})")
+    parser.add_argument(
+        "--allow-origin",
+        action="append",
+        default=[],
+        metavar="ORIGIN",
+        help="allow an extra web origin, exact match (repeatable; e.g. "
+        "tauri://localhost). Loopback http(s) origins and no-Origin callers "
+        "are always allowed.",
+    )
+    parser.add_argument(
+        "--open-cors",
+        action="store_true",
+        help="disable the origin allowlist entirely (the pre-RE-4e wildcard).",
+    )
     args = parser.parse_args(argv)
-    server = make_server(args.host, args.port)
+    server = make_server(
+        args.host,
+        args.port,
+        extra_origins=frozenset(args.allow_origin),
+        open_cors=args.open_cors,
+    )
     host, port = server.server_address[:2]
     print(f"Tonality HTTP bridge: http://{host}:{port} ({len(TOOLS)} tools; GET /tools to discover)")
     try:
