@@ -289,7 +289,7 @@ def relative_key(pc_weights: list[float]) -> dict:
 
 
 def meter_estimation(
-    events: list[list[float]],
+    events: list[list],
     bpm: float = 120.0,
     numerator: int = 4,
     denominator: int = 4,
@@ -317,7 +317,7 @@ def meter_estimation(
 
 
 def meter_tracking(
-    events: list[list[float]],
+    events: list[list],
     window_beats: float = 16.0,
     hop_beats: float = 4.0,
     bpm: float = 120.0,
@@ -430,7 +430,7 @@ def next_chord(
 
 
 def key_tracking(
-    events: list[list[float]],
+    events: list[list],
     window_beats: float = 8.0,
     hop_beats: float = 2.0,
     bpm: float = 120.0,
@@ -474,7 +474,7 @@ def key_tracking(
 
 
 def structural_keys(
-    events: list[list[float]],
+    events: list[list],
     window_beats: float = 8.0,
     hop_beats: float = 2.0,
     bpm: float = 120.0,
@@ -531,7 +531,7 @@ def voice_pair_motion(events: list[list]) -> dict:
 
 
 def melodic_analysis(
-    events: list[list[float]],
+    events: list[list],
     harmony: list[list] | None = None,
 ) -> dict:
     """Melodic atoms for one monophonic line: signed intervals, step/skip/leap
@@ -553,7 +553,7 @@ def melodic_analysis(
 
 
 def rhythmic_analysis(
-    events: list[list[float]],
+    events: list[list],
     numerator: int = 4,
     denominator: int = 4,
 ) -> dict:
@@ -573,7 +573,7 @@ def rhythmic_analysis(
 
 
 def swing_analysis(
-    events: list[list[float]],
+    events: list[list],
     numerator: int = 4,
     denominator: int = 4,
 ) -> dict:
@@ -1100,77 +1100,20 @@ def midi_file_analysis(
     per-window evidence; null if no window carries metric information). Inferred
     from onsets/accents and independent of the file's declared meter map — compare
     them to spot a mis-tagged or changing meter."""
-    from ..analysis import candidate_context, disambiguate_relative_key
-    from ..io.midi import read_midi_file
-    from ..temporal import coalesce, track_keys, track_meter
+    from ..dataset.pipelines import analyze_midi_file
 
-    if key_inertia and disambiguate_relative_keys:
-        # Raise here, not inside the try/except around track_keys (which maps
-        # ValueError to "no tonal information") — the flag conflict must be
-        # loud (RE-3c), never silently absorbed.
-        raise ValueError(
-            "key_inertia does not compose with disambiguate_relative_keys for "
-            "the windowed tracking: the inertia path re-decodes from raw score "
-            "vectors, so the relative-key tie-break cannot reach it. Choose one "
-            "(the global-key disambiguation alone is fine — drop key_inertia, "
-            "or drop disambiguate_relative_keys)."
-        )
-
-    midi_read = read_midi_file(path)
-    sequence = midi_read.sequence
-    profiles = _profiles(profile_version)
-    coalesce_meta = None
-    if coalesce_window_beats is not None:
-        cleaned = coalesce(sequence, onset_window_beats=float(coalesce_window_beats))
-        sequence = cleaned.sequence
-        coalesce_meta = cleaned.to_dict()
-    keys = infer_key(sequence, profiles=profiles)
-    best = keys.best
-    disambiguation = None
-    if disambiguate_relative_keys:
-        disambiguation = disambiguate_relative_key(keys)
-        if disambiguation.applied and not disambiguation.is_ambiguous:
-            best = disambiguation.chosen
-    context = candidate_context(best) if infer_context else None
-
-    regions = None
-    if include_key_regions or (per_region_context and infer_context):
-        try:
-            regions = track_keys(
-                sequence,
-                disambiguate_relative=bool(disambiguate_relative_keys),
-                smoothing=bool(smooth_key_regions),
-                profiles=profiles,
-                key_inertia=bool(key_inertia),
-            )
-        except InsufficientInformation:
-            regions = None  # honest absence: no window carried tonal information
-
-    meter_regions = None
-    if include_meter_regions:
-        try:
-            meter_regions = track_meter(sequence)
-        except InsufficientInformation:
-            meter_regions = None  # honest absence: no window carried metric information
-
-    dataset = dataset_from_sequence(
-        sequence,
-        analytical_context=context,
-        key_regions=regions if (per_region_context and infer_context) else None,
-    )
-    result = {"key": keys.to_dict(), "dataset": dataset.to_dict()}
-    # Itemized read losses (RE-3a): always present, usually empty — a
-    # malformed/truncated file loses notes loudly, never silently.
-    result["midi_read_losses"] = [loss.to_dict() for loss in midi_read.losses]
-    if coalesce_meta is not None:
-        result["coalesce"] = coalesce_meta
-    if disambiguation is not None:
-        result["key_disambiguation"] = disambiguation.to_dict()
-    if include_key_regions:
-        result["key_regions"] = regions.to_dict() if regions is not None else None
-    if include_meter_regions:
-        result["meter_regions"] = meter_regions.to_dict() if meter_regions is not None else None
-    return result
+    return analyze_midi_file(
+        path,
+        infer_context=bool(infer_context),
+        include_key_regions=bool(include_key_regions),
+        coalesce_window_beats=coalesce_window_beats,
+        per_region_context=bool(per_region_context),
+        disambiguate_relative_keys=bool(disambiguate_relative_keys),
+        smooth_key_regions=bool(smooth_key_regions),
+        profiles=_profiles(profile_version),
+        key_inertia=bool(key_inertia),
+        include_meter_regions=bool(include_meter_regions),
+    ).to_dict()
 
 
 def piano_roll_view(
@@ -1192,51 +1135,16 @@ def piano_roll_view(
     midi_file_analysis under the same flag); smooth_key_regions=true absorbs
     short low-confidence key-band blips (both off by default). Numeric only —
     labels/colors are the renderer's business."""
-    from ..analysis import candidate_context, disambiguate_relative_key
-    from ..io.midi import read_midi_file
-    from ..representation import piano_roll_descriptor
-    from ..temporal import coalesce, track_keys
+    from ..dataset.pipelines import piano_roll_view_from_file
 
-    midi_read = read_midi_file(path)
-    sequence = midi_read.sequence
-    if coalesce_window_beats is not None:
-        sequence = coalesce(
-            sequence, onset_window_beats=float(coalesce_window_beats)
-        ).sequence
-
-    regions = None
-    context = None
-    if track_local_keys:
-        try:
-            regions = track_keys(
-                sequence,
-                disambiguate_relative=bool(disambiguate_relative_keys),
-                smoothing=bool(smooth_key_regions),
-            )
-        except InsufficientInformation:
-            regions = None  # honest absence: no window carried tonal information
-    if regions is None and chord_overlays:
-        try:
-            best = infer_key(sequence)
-            chosen = best.best
-            if disambiguate_relative_keys:
-                rel = disambiguate_relative_key(best)
-                if rel.applied and not rel.is_ambiguous:
-                    chosen = rel.chosen
-            context = candidate_context(chosen)
-        except InsufficientInformation:
-            context = None  # honest absence — intrinsic naming only
-
-    result = piano_roll_descriptor(
-        sequence,
-        analytical_context=context,
-        key_regions=regions,
-        chord_overlays=chord_overlays,
+    return piano_roll_view_from_file(
+        path,
+        chord_overlays=bool(chord_overlays),
+        track_local_keys=bool(track_local_keys),
+        coalesce_window_beats=coalesce_window_beats,
+        disambiguate_relative_keys=bool(disambiguate_relative_keys),
+        smooth_key_regions=bool(smooth_key_regions),
     ).to_dict()
-    # Itemized read losses (RE-3a): a rectangle that never appears should be
-    # explained, not invisible.
-    result["midi_read_losses"] = [loss.to_dict() for loss in midi_read.losses]
-    return result
 
 
 TOOLS = (

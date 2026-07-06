@@ -15360,6 +15360,3688 @@
     "interval_fingerprint": "ic4:4, ic5:4, ic1:2"
    },
    "tool": "quality_brief"
+  },
+  {
+   "kwargs": {
+    "include_meter_regions": true,
+    "path": "$FIXTURES/pipeline.mid"
+   },
+   "result": {
+    "dataset": {
+     "analytical_context": {
+      "key_degrees": [
+       0,
+       2,
+       4,
+       5,
+       7,
+       9,
+       11
+      ],
+      "key_name": "Ionian",
+      "margin": null,
+      "tonic_pc": 7
+     },
+     "display_context": null,
+     "records": [
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 0
+          }
+         ],
+         "mask": 145,
+         "pcs": [
+          0,
+          4,
+          7
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 0 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 0",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "I (tonic, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "tonic",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 0
+          },
+          "rank": 0,
+          "root_degree": 0,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 0
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.34600237490160324,
+        "tonic_pc": 0
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 145,
+        "pcs": [
+         0,
+         4,
+         7
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 0,
+       "kind": "segment",
+       "placement": {
+        "bar": 0,
+        "beat": 0.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 0.0,
+        "onset_seconds": 0.0
+       },
+       "realization": {
+        "midi": [
+         60,
+         64,
+         67
+        ],
+        "voicing": {
+         "bass_midi": 60,
+         "bass_pc": 0,
+         "distinct_pcs": [
+          0,
+          4,
+          7
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 145,
+         "midi": [
+          60,
+          64,
+          67
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 5
+          }
+         ],
+         "mask": 545,
+         "pcs": [
+          0,
+          5,
+          9
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 5 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 5",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "IV (predominant, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "predominant",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 5
+          },
+          "rank": 0,
+          "root_degree": 3,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 0
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.34600237490160324,
+        "tonic_pc": 0
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 545,
+        "pcs": [
+         0,
+         5,
+         9
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 1,
+       "kind": "segment",
+       "placement": {
+        "bar": 0,
+        "beat": 2.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 2.0,
+        "onset_seconds": 1.0
+       },
+       "realization": {
+        "midi": [
+         65,
+         69,
+         72
+        ],
+        "voicing": {
+         "bass_midi": 65,
+         "bass_pc": 5,
+         "distinct_pcs": [
+          0,
+          5,
+          9
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 545,
+         "midi": [
+          65,
+          69,
+          72
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          }
+         ],
+         "mask": 2180,
+         "pcs": [
+          2,
+          7,
+          11
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 7 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 7",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "V (dominant, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "dominant",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          },
+          "rank": 0,
+          "root_degree": 4,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 0
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.34600237490160324,
+        "tonic_pc": 0
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 2180,
+        "pcs": [
+         2,
+         7,
+         11
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 2,
+       "kind": "segment",
+       "placement": {
+        "bar": 1,
+        "beat": 0.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 4.0,
+        "onset_seconds": 2.0
+       },
+       "realization": {
+        "midi": [
+         67,
+         71,
+         74
+        ],
+        "voicing": {
+         "bass_midi": 67,
+         "bass_pc": 7,
+         "distinct_pcs": [
+          2,
+          7,
+          11
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 2180,
+         "midi": [
+          67,
+          71,
+          74
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 0
+          }
+         ],
+         "mask": 145,
+         "pcs": [
+          0,
+          4,
+          7
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 0 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 0",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "I (tonic, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "tonic",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 0
+          },
+          "rank": 0,
+          "root_degree": 0,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 0
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.34600237490160324,
+        "tonic_pc": 0
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 145,
+        "pcs": [
+         0,
+         4,
+         7
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 3,
+       "kind": "segment",
+       "placement": {
+        "bar": 1,
+        "beat": 2.0,
+        "duration_beats": 4.0,
+        "duration_seconds": 2.0,
+        "onset_beats": 6.0,
+        "onset_seconds": 3.0
+       },
+       "realization": {
+        "midi": [
+         60,
+         64,
+         67
+        ],
+        "voicing": {
+         "bass_midi": 60,
+         "bass_pc": 0,
+         "distinct_pcs": [
+          0,
+          4,
+          7
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 145,
+         "midi": [
+          60,
+          64,
+          67
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 5
+          }
+         ],
+         "mask": 545,
+         "pcs": [
+          0,
+          5,
+          9
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 5 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 5",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "IV (predominant, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "predominant",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 5
+          },
+          "rank": 0,
+          "root_degree": 3,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 0
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.34600237490160324,
+        "tonic_pc": 0
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 545,
+        "pcs": [
+         0,
+         5,
+         9
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 4,
+       "kind": "segment",
+       "placement": {
+        "bar": 2,
+        "beat": 2.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 10.0,
+        "onset_seconds": 5.0
+       },
+       "realization": {
+        "midi": [
+         65,
+         69,
+         72
+        ],
+        "voicing": {
+         "bass_midi": 65,
+         "bass_pc": 5,
+         "distinct_pcs": [
+          0,
+          5,
+          9
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 545,
+         "midi": [
+          65,
+          69,
+          72
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          }
+         ],
+         "mask": 2180,
+         "pcs": [
+          2,
+          7,
+          11
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 7 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 7",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "V (dominant, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "dominant",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          },
+          "rank": 0,
+          "root_degree": 4,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 0
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.34600237490160324,
+        "tonic_pc": 0
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 2180,
+        "pcs": [
+         2,
+         7,
+         11
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 5,
+       "kind": "segment",
+       "placement": {
+        "bar": 3,
+        "beat": 0.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 12.0,
+        "onset_seconds": 6.0
+       },
+       "realization": {
+        "midi": [
+         67,
+         71,
+         74
+        ],
+        "voicing": {
+         "bass_midi": 67,
+         "bass_pc": 7,
+         "distinct_pcs": [
+          2,
+          7,
+          11
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 2180,
+         "midi": [
+          67,
+          71,
+          74
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 0
+          }
+         ],
+         "mask": 145,
+         "pcs": [
+          0,
+          4,
+          7
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 0 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 5",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "IV (predominant, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "predominant",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 0
+          },
+          "rank": 0,
+          "root_degree": 3,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 7
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.05782339681552402,
+        "tonic_pc": 7
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 145,
+        "pcs": [
+         0,
+         4,
+         7
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 6,
+       "kind": "segment",
+       "placement": {
+        "bar": 3,
+        "beat": 2.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 14.0,
+        "onset_seconds": 7.0
+       },
+       "realization": {
+        "midi": [
+         60,
+         64,
+         67
+        ],
+        "voicing": {
+         "bass_midi": 60,
+         "bass_pc": 0,
+         "distinct_pcs": [
+          0,
+          4,
+          7
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 145,
+         "midi": [
+          60,
+          64,
+          67
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 2
+          }
+         ],
+         "mask": 580,
+         "pcs": [
+          2,
+          6,
+          9
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 2 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 7",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "V (dominant, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "dominant",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 2
+          },
+          "rank": 0,
+          "root_degree": 4,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 7
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.05782339681552402,
+        "tonic_pc": 7
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 580,
+        "pcs": [
+         2,
+         6,
+         9
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 7,
+       "kind": "segment",
+       "placement": {
+        "bar": 4,
+        "beat": 0.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 16.0,
+        "onset_seconds": 8.0
+       },
+       "realization": {
+        "midi": [
+         62,
+         66,
+         69
+        ],
+        "voicing": {
+         "bass_midi": 62,
+         "bass_pc": 2,
+         "distinct_pcs": [
+          2,
+          6,
+          9
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 580,
+         "midi": [
+          62,
+          66,
+          69
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          }
+         ],
+         "mask": 2180,
+         "pcs": [
+          2,
+          7,
+          11
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 7 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 0",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "I (tonic, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "tonic",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          },
+          "rank": 0,
+          "root_degree": 0,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 7
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.05782339681552402,
+        "tonic_pc": 7
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 2180,
+        "pcs": [
+         2,
+         7,
+         11
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 8,
+       "kind": "segment",
+       "placement": {
+        "bar": 4,
+        "beat": 2.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 18.0,
+        "onset_seconds": 9.0
+       },
+       "realization": {
+        "midi": [
+         67,
+         71,
+         74
+        ],
+        "voicing": {
+         "bass_midi": 67,
+         "bass_pc": 7,
+         "distinct_pcs": [
+          2,
+          7,
+          11
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 2180,
+         "midi": [
+          67,
+          71,
+          74
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 2
+          }
+         ],
+         "mask": 580,
+         "pcs": [
+          2,
+          6,
+          9
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 2 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 7",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "V (dominant, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "dominant",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 2
+          },
+          "rank": 0,
+          "root_degree": 4,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 7
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.05782339681552402,
+        "tonic_pc": 7
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 580,
+        "pcs": [
+         2,
+         6,
+         9
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 9,
+       "kind": "segment",
+       "placement": {
+        "bar": 5,
+        "beat": 0.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 20.0,
+        "onset_seconds": 10.0
+       },
+       "realization": {
+        "midi": [
+         62,
+         66,
+         69
+        ],
+        "voicing": {
+         "bass_midi": 62,
+         "bass_pc": 2,
+         "distinct_pcs": [
+          2,
+          6,
+          9
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 580,
+         "midi": [
+          62,
+          66,
+          69
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          }
+         ],
+         "mask": 2180,
+         "pcs": [
+          2,
+          7,
+          11
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 7 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 0",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "I (tonic, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "tonic",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          },
+          "rank": 0,
+          "root_degree": 0,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 7
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.05782339681552402,
+        "tonic_pc": 7
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 2180,
+        "pcs": [
+         2,
+         7,
+         11
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 10,
+       "kind": "segment",
+       "placement": {
+        "bar": 5,
+        "beat": 2.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 22.0,
+        "onset_seconds": 11.0
+       },
+       "realization": {
+        "midi": [
+         67,
+         71,
+         74
+        ],
+        "voicing": {
+         "bass_midi": 67,
+         "bass_pc": 7,
+         "distinct_pcs": [
+          2,
+          7,
+          11
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 2180,
+         "midi": [
+          67,
+          71,
+          74
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 2
+          }
+         ],
+         "mask": 580,
+         "pcs": [
+          2,
+          6,
+          9
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 2 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 7",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "V (dominant, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "dominant",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 2
+          },
+          "rank": 0,
+          "root_degree": 4,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 7
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.05782339681552402,
+        "tonic_pc": 7
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 580,
+        "pcs": [
+         2,
+         6,
+         9
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 11,
+       "kind": "segment",
+       "placement": {
+        "bar": 6,
+        "beat": 0.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 24.0,
+        "onset_seconds": 12.0
+       },
+       "realization": {
+        "midi": [
+         62,
+         66,
+         69
+        ],
+        "voicing": {
+         "bass_midi": 62,
+         "bass_pc": 2,
+         "distinct_pcs": [
+          2,
+          6,
+          9
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 580,
+         "midi": [
+          62,
+          66,
+          69
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          }
+         ],
+         "mask": 2180,
+         "pcs": [
+          2,
+          7,
+          11
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 7 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 0",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "I (tonic, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "tonic",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          },
+          "rank": 0,
+          "root_degree": 0,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 7
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.05782339681552402,
+        "tonic_pc": 7
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 2180,
+        "pcs": [
+         2,
+         7,
+         11
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 12,
+       "kind": "segment",
+       "placement": {
+        "bar": 6,
+        "beat": 2.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 26.0,
+        "onset_seconds": 13.0
+       },
+       "realization": {
+        "midi": [
+         67,
+         71,
+         74
+        ],
+        "voicing": {
+         "bass_midi": 67,
+         "bass_pc": 7,
+         "distinct_pcs": [
+          2,
+          7,
+          11
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 2180,
+         "midi": [
+          67,
+          71,
+          74
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 2
+          }
+         ],
+         "mask": 580,
+         "pcs": [
+          2,
+          6,
+          9
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 2 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 7",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "V (dominant, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "dominant",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 2
+          },
+          "rank": 0,
+          "root_degree": 4,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 7
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.05782339681552402,
+        "tonic_pc": 7
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 580,
+        "pcs": [
+         2,
+         6,
+         9
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 13,
+       "kind": "segment",
+       "placement": {
+        "bar": 7,
+        "beat": 0.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 28.0,
+        "onset_seconds": 14.0
+       },
+       "realization": {
+        "midi": [
+         62,
+         66,
+         69
+        ],
+        "voicing": {
+         "bass_midi": 62,
+         "bass_pc": 2,
+         "distinct_pcs": [
+          2,
+          6,
+          9
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 580,
+         "midi": [
+          62,
+          66,
+          69
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      },
+      {
+       "analysis": {
+        "chord": null,
+        "in_key": null,
+        "interpretations": {
+         "cardinality": 3,
+         "interpretations": [
+          {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          }
+         ],
+         "mask": 2180,
+         "pcs": [
+          2,
+          7,
+          11
+         ],
+         "rotational_period": 12
+        },
+        "naming": {
+         "alternatives": [],
+         "chosen": {
+          "evidence": [
+           {
+            "detail": "realized bass pc 7 is the candidate root",
+            "signal": "bass_is_root",
+            "weight": 1.5
+           },
+           {
+            "detail": "root-supported: perfect fifth above the root",
+            "signal": "quality_canonicality",
+            "weight": 0.25
+           },
+           {
+            "detail": "root is scale degree pc 0",
+            "signal": "root_diatonic",
+            "weight": 1.0
+           },
+           {
+            "detail": "I (tonic, major)",
+            "signal": "functional_fit",
+            "weight": 2.0
+           },
+           {
+            "detail": "every chord tone is in the key",
+            "signal": "all_tones_diatonic",
+            "weight": 1.0
+           }
+          ],
+          "function_category": null,
+          "functional_role": "tonic",
+          "interpretation": {
+           "aliases": [
+            "major",
+            "M"
+           ],
+           "quality": "maj",
+           "root_pc": 7
+          },
+          "rank": 0,
+          "root_degree": 0,
+          "score": 5.75
+         },
+         "context": {
+          "key_degrees": [
+           0,
+           2,
+           4,
+           5,
+           7,
+           9,
+           11
+          ],
+          "key_name": "Ionian",
+          "margin": null,
+          "tonic_pc": 7
+         },
+         "is_ambiguous": false,
+         "weights_version": "naming-rules.1"
+        },
+        "scale": null
+       },
+       "analytical_context": {
+        "key_degrees": [
+         0,
+         2,
+         4,
+         5,
+         7,
+         9,
+         11
+        ],
+        "key_name": "Ionian",
+        "margin": 0.05782339681552402,
+        "tonic_pc": 7
+       },
+       "display": null,
+       "display_context": null,
+       "identity": {
+        "cardinality": 3,
+        "mask": 2180,
+        "pcs": [
+         2,
+         7,
+         11
+        ],
+        "spec_level": "interval shape"
+       },
+       "index": 14,
+       "kind": "segment",
+       "placement": {
+        "bar": 7,
+        "beat": 2.0,
+        "duration_beats": 2.0,
+        "duration_seconds": 1.0,
+        "onset_beats": 30.0,
+        "onset_seconds": 15.0
+       },
+       "realization": {
+        "midi": [
+         67,
+         71,
+         74
+        ],
+        "voicing": {
+         "bass_midi": 67,
+         "bass_pc": 7,
+         "distinct_pcs": [
+          2,
+          7,
+          11
+         ],
+         "doublings": [],
+         "figured_bass": null,
+         "intervals_from_bass": [
+          0,
+          4,
+          7
+         ],
+         "inversion_index": null,
+         "mask": 2180,
+         "midi": [
+          67,
+          71,
+          74
+         ],
+         "openness": "closed",
+         "position_name": null,
+         "root_pc": null,
+         "rooted": false,
+         "spec_level": "voicing template",
+         "spread_semitones": 7,
+         "voicing_type": null
+        }
+       },
+       "schema_version": "1.0",
+       "source": null
+      }
+     ],
+     "schema_version": "1.0",
+     "temporal": {
+      "harmonic_rhythm": {
+       "changes_per_bar": 1.75,
+       "durations_beats": [
+        2.0,
+        2.0,
+        2.0,
+        4.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+       ],
+       "mean_duration_beats": 2.1333333333333333,
+       "mean_duration_seconds": 1.0666666666666667,
+       "segment_count": 15
+      },
+      "tempo_bpm": 120.0,
+      "time_signature": "4/4"
+     }
+    },
+    "key": {
+     "candidates": [
+      {
+       "mode": "major",
+       "score": 0.958354850344119,
+       "tonic_pc": 7
+      },
+      {
+       "mode": "major",
+       "score": 0.7383299711063597,
+       "tonic_pc": 0
+      },
+      {
+       "mode": "major",
+       "score": 0.6114835353505962,
+       "tonic_pc": 2
+      },
+      {
+       "mode": "minor",
+       "score": 0.5290326313493975,
+       "tonic_pc": 7
+      },
+      {
+       "mode": "minor",
+       "score": 0.5050799952776066,
+       "tonic_pc": 4
+      },
+      {
+       "mode": "minor",
+       "score": 0.38663703895410517,
+       "tonic_pc": 11
+      },
+      {
+       "mode": "minor",
+       "score": 0.3853168149186521,
+       "tonic_pc": 9
+      },
+      {
+       "mode": "minor",
+       "score": 0.3770182638386615,
+       "tonic_pc": 2
+      },
+      {
+       "mode": "minor",
+       "score": 0.34589869728869693,
+       "tonic_pc": 0
+      },
+      {
+       "mode": "major",
+       "score": 0.3437774994872846,
+       "tonic_pc": 5
+      },
+      {
+       "mode": "major",
+       "score": 0.11774697838447494,
+       "tonic_pc": 10
+      },
+      {
+       "mode": "major",
+       "score": 0.056962603144266835,
+       "tonic_pc": 9
+      },
+      {
+       "mode": "minor",
+       "score": -0.0673314258081051,
+       "tonic_pc": 6
+      },
+      {
+       "mode": "major",
+       "score": -0.12229670707011922,
+       "tonic_pc": 3
+      },
+      {
+       "mode": "major",
+       "score": -0.2598805025240034,
+       "tonic_pc": 4
+      },
+      {
+       "mode": "minor",
+       "score": -0.2674396688960591,
+       "tonic_pc": 5
+      },
+      {
+       "mode": "major",
+       "score": -0.458794640660373,
+       "tonic_pc": 11
+      },
+      {
+       "mode": "minor",
+       "score": -0.4931979789585292,
+       "tonic_pc": 1
+      },
+      {
+       "mode": "major",
+       "score": -0.5255846577656315,
+       "tonic_pc": 8
+      },
+      {
+       "mode": "minor",
+       "score": -0.5275238038803084,
+       "tonic_pc": 8
+      },
+      {
+       "mode": "minor",
+       "score": -0.5403488373675663,
+       "tonic_pc": 3
+      },
+      {
+       "mode": "minor",
+       "score": -0.6331417267165517,
+       "tonic_pc": 10
+      },
+      {
+       "mode": "major",
+       "score": -0.6820953245517961,
+       "tonic_pc": 6
+      },
+      {
+       "mode": "major",
+       "score": -0.7780036052451782,
+       "tonic_pc": 1
+      }
+     ],
+     "margin": 0.22002487923775937,
+     "pc_weights": [
+      12.0,
+      0.0,
+      20.0,
+      0.0,
+      8.0,
+      4.0,
+      8.0,
+      20.0,
+      0.0,
+      12.0,
+      0.0,
+      12.0
+     ],
+     "profile_version": "tkp-cbms.1"
+    },
+    "key_regions": {
+     "disambiguate_relative": false,
+     "hop_beats": 2.0,
+     "inertia_version": null,
+     "profile_version": "tkp-cbms.1",
+     "regions": [
+      {
+       "end_beats": 13.0,
+       "end_seconds": 6.5,
+       "mean_margin": 0.34600237490160324,
+       "mean_score": 0.9585525065514954,
+       "mode": "major",
+       "start_beats": 0.0,
+       "start_seconds": 0.0,
+       "tonic_pc": 0,
+       "window_count": 5
+      },
+      {
+       "end_beats": 32.0,
+       "end_seconds": 16.0,
+       "mean_margin": 0.05782339681552402,
+       "mean_score": 0.8361491143056564,
+       "mode": "major",
+       "start_beats": 13.0,
+       "start_seconds": 6.5,
+       "tonic_pc": 7,
+       "window_count": 8
+      }
+     ],
+     "smoothing_version": null,
+     "window_beats": 8.0,
+     "windows": [
+      {
+       "center_beats": 4.0,
+       "end_beats": 8.0,
+       "margin": 0.34600237490160324,
+       "mode": "major",
+       "score": 0.9585525065514955,
+       "start_beats": 0.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 6.0,
+       "end_beats": 10.0,
+       "margin": 0.34600237490160324,
+       "mode": "major",
+       "score": 0.9585525065514955,
+       "start_beats": 2.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 8.0,
+       "end_beats": 12.0,
+       "margin": 0.34600237490160324,
+       "mode": "major",
+       "score": 0.9585525065514955,
+       "start_beats": 4.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 10.0,
+       "end_beats": 14.0,
+       "margin": 0.34600237490160324,
+       "mode": "major",
+       "score": 0.9585525065514955,
+       "start_beats": 6.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 12.0,
+       "end_beats": 16.0,
+       "margin": 0.34600237490160324,
+       "mode": "major",
+       "score": 0.9585525065514955,
+       "start_beats": 8.0,
+       "tonic_pc": 0
+      },
+      {
+       "center_beats": 14.0,
+       "end_beats": 18.0,
+       "margin": 0.021814988317376938,
+       "mode": "major",
+       "score": 0.8206401968845958,
+       "start_beats": 10.0,
+       "tonic_pc": 7
+      },
+      {
+       "center_beats": 16.0,
+       "end_beats": 20.0,
+       "margin": 0.34600237490160324,
+       "mode": "major",
+       "score": 0.9585525065514955,
+       "start_beats": 12.0,
+       "tonic_pc": 7
+      },
+      {
+       "center_beats": 18.0,
+       "end_beats": 22.0,
+       "margin": 0.022021940171634835,
+       "mode": "major",
+       "score": 0.863713447613977,
+       "start_beats": 14.0,
+       "tonic_pc": 7
+      },
+      {
+       "center_beats": 20.0,
+       "end_beats": 24.0,
+       "margin": 0.014549574226715434,
+       "mode": "major",
+       "score": 0.8092573526790366,
+       "start_beats": 16.0,
+       "tonic_pc": 7
+      },
+      {
+       "center_beats": 22.0,
+       "end_beats": 26.0,
+       "margin": 0.014549574226715434,
+       "mode": "major",
+       "score": 0.8092573526790366,
+       "start_beats": 18.0,
+       "tonic_pc": 7
+      },
+      {
+       "center_beats": 24.0,
+       "end_beats": 28.0,
+       "margin": 0.014549574226715434,
+       "mode": "major",
+       "score": 0.8092573526790366,
+       "start_beats": 20.0,
+       "tonic_pc": 7
+      },
+      {
+       "center_beats": 26.0,
+       "end_beats": 30.0,
+       "margin": 0.014549574226715434,
+       "mode": "major",
+       "score": 0.8092573526790366,
+       "start_beats": 22.0,
+       "tonic_pc": 7
+      },
+      {
+       "center_beats": 28.0,
+       "end_beats": 32.0,
+       "margin": 0.014549574226715434,
+       "mode": "major",
+       "score": 0.8092573526790366,
+       "start_beats": 24.0,
+       "tonic_pc": 7
+      }
+     ]
+    },
+    "meter_regions": {
+     "hop_beats": 4.0,
+     "profile_version": "meter-grid.1",
+     "regions": [
+      {
+       "denominator": 4,
+       "downbeat_offset_beats": 0.0,
+       "end_beats": 32.0,
+       "end_seconds": 16.0,
+       "mean_margin": 0.046359,
+       "mean_score": 0.808913,
+       "numerator": 4,
+       "start_beats": 0.0,
+       "start_seconds": 0.0,
+       "window_count": 5
+      }
+     ],
+     "window_beats": 16.0,
+     "windows": [
+      {
+       "center_beats": 8.0,
+       "denominator": 4,
+       "downbeat_offset_beats": 0.0,
+       "end_beats": 16.0,
+       "margin": 0.046359,
+       "numerator": 4,
+       "score": 0.808913,
+       "start_beats": 0.0
+      },
+      {
+       "center_beats": 12.0,
+       "denominator": 4,
+       "downbeat_offset_beats": 0.0,
+       "end_beats": 20.0,
+       "margin": 0.046359,
+       "numerator": 4,
+       "score": 0.808913,
+       "start_beats": 4.0
+      },
+      {
+       "center_beats": 16.0,
+       "denominator": 4,
+       "downbeat_offset_beats": 0.0,
+       "end_beats": 24.0,
+       "margin": 0.046359,
+       "numerator": 4,
+       "score": 0.808913,
+       "start_beats": 8.0
+      },
+      {
+       "center_beats": 20.0,
+       "denominator": 4,
+       "downbeat_offset_beats": 0.0,
+       "end_beats": 28.0,
+       "margin": 0.046359,
+       "numerator": 4,
+       "score": 0.808913,
+       "start_beats": 12.0
+      },
+      {
+       "center_beats": 24.0,
+       "denominator": 4,
+       "downbeat_offset_beats": 0.0,
+       "end_beats": 32.0,
+       "margin": 0.046359,
+       "numerator": 4,
+       "score": 0.808913,
+       "start_beats": 16.0
+      }
+     ]
+    },
+    "midi_read_losses": []
+   },
+   "tool": "midi_file_analysis"
+  },
+  {
+   "kwargs": {
+    "path": "$FIXTURES/pipeline.mid"
+   },
+   "result": {
+    "chord_regions": [
+     {
+      "end_beats": 2.0,
+      "end_seconds": 1.0,
+      "functional_role": "tonic",
+      "index": 0,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.34600237490160324,
+      "mask": 145,
+      "pcs": [
+       0,
+       4,
+       7
+      ],
+      "quality": "maj",
+      "root_pc": 0,
+      "start_beats": 0.0,
+      "start_seconds": 0.0,
+      "tonic_pc": 0
+     },
+     {
+      "end_beats": 4.0,
+      "end_seconds": 2.0,
+      "functional_role": "predominant",
+      "index": 1,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.34600237490160324,
+      "mask": 545,
+      "pcs": [
+       0,
+       5,
+       9
+      ],
+      "quality": "maj",
+      "root_pc": 5,
+      "start_beats": 2.0,
+      "start_seconds": 1.0,
+      "tonic_pc": 0
+     },
+     {
+      "end_beats": 6.0,
+      "end_seconds": 3.0,
+      "functional_role": "dominant",
+      "index": 2,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.34600237490160324,
+      "mask": 2180,
+      "pcs": [
+       2,
+       7,
+       11
+      ],
+      "quality": "maj",
+      "root_pc": 7,
+      "start_beats": 4.0,
+      "start_seconds": 2.0,
+      "tonic_pc": 0
+     },
+     {
+      "end_beats": 10.0,
+      "end_seconds": 5.0,
+      "functional_role": "tonic",
+      "index": 3,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.34600237490160324,
+      "mask": 145,
+      "pcs": [
+       0,
+       4,
+       7
+      ],
+      "quality": "maj",
+      "root_pc": 0,
+      "start_beats": 6.0,
+      "start_seconds": 3.0,
+      "tonic_pc": 0
+     },
+     {
+      "end_beats": 12.0,
+      "end_seconds": 6.0,
+      "functional_role": "predominant",
+      "index": 4,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.34600237490160324,
+      "mask": 545,
+      "pcs": [
+       0,
+       5,
+       9
+      ],
+      "quality": "maj",
+      "root_pc": 5,
+      "start_beats": 10.0,
+      "start_seconds": 5.0,
+      "tonic_pc": 0
+     },
+     {
+      "end_beats": 14.0,
+      "end_seconds": 7.0,
+      "functional_role": "dominant",
+      "index": 5,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.34600237490160324,
+      "mask": 2180,
+      "pcs": [
+       2,
+       7,
+       11
+      ],
+      "quality": "maj",
+      "root_pc": 7,
+      "start_beats": 12.0,
+      "start_seconds": 6.0,
+      "tonic_pc": 0
+     },
+     {
+      "end_beats": 16.0,
+      "end_seconds": 8.0,
+      "functional_role": "predominant",
+      "index": 6,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.05782339681552402,
+      "mask": 145,
+      "pcs": [
+       0,
+       4,
+       7
+      ],
+      "quality": "maj",
+      "root_pc": 0,
+      "start_beats": 14.0,
+      "start_seconds": 7.0,
+      "tonic_pc": 7
+     },
+     {
+      "end_beats": 18.0,
+      "end_seconds": 9.0,
+      "functional_role": "dominant",
+      "index": 7,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.05782339681552402,
+      "mask": 580,
+      "pcs": [
+       2,
+       6,
+       9
+      ],
+      "quality": "maj",
+      "root_pc": 2,
+      "start_beats": 16.0,
+      "start_seconds": 8.0,
+      "tonic_pc": 7
+     },
+     {
+      "end_beats": 20.0,
+      "end_seconds": 10.0,
+      "functional_role": "tonic",
+      "index": 8,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.05782339681552402,
+      "mask": 2180,
+      "pcs": [
+       2,
+       7,
+       11
+      ],
+      "quality": "maj",
+      "root_pc": 7,
+      "start_beats": 18.0,
+      "start_seconds": 9.0,
+      "tonic_pc": 7
+     },
+     {
+      "end_beats": 22.0,
+      "end_seconds": 11.0,
+      "functional_role": "dominant",
+      "index": 9,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.05782339681552402,
+      "mask": 580,
+      "pcs": [
+       2,
+       6,
+       9
+      ],
+      "quality": "maj",
+      "root_pc": 2,
+      "start_beats": 20.0,
+      "start_seconds": 10.0,
+      "tonic_pc": 7
+     },
+     {
+      "end_beats": 24.0,
+      "end_seconds": 12.0,
+      "functional_role": "tonic",
+      "index": 10,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.05782339681552402,
+      "mask": 2180,
+      "pcs": [
+       2,
+       7,
+       11
+      ],
+      "quality": "maj",
+      "root_pc": 7,
+      "start_beats": 22.0,
+      "start_seconds": 11.0,
+      "tonic_pc": 7
+     },
+     {
+      "end_beats": 26.0,
+      "end_seconds": 13.0,
+      "functional_role": "dominant",
+      "index": 11,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.05782339681552402,
+      "mask": 580,
+      "pcs": [
+       2,
+       6,
+       9
+      ],
+      "quality": "maj",
+      "root_pc": 2,
+      "start_beats": 24.0,
+      "start_seconds": 12.0,
+      "tonic_pc": 7
+     },
+     {
+      "end_beats": 28.0,
+      "end_seconds": 14.0,
+      "functional_role": "tonic",
+      "index": 12,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.05782339681552402,
+      "mask": 2180,
+      "pcs": [
+       2,
+       7,
+       11
+      ],
+      "quality": "maj",
+      "root_pc": 7,
+      "start_beats": 26.0,
+      "start_seconds": 13.0,
+      "tonic_pc": 7
+     },
+     {
+      "end_beats": 30.0,
+      "end_seconds": 15.0,
+      "functional_role": "dominant",
+      "index": 13,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.05782339681552402,
+      "mask": 580,
+      "pcs": [
+       2,
+       6,
+       9
+      ],
+      "quality": "maj",
+      "root_pc": 2,
+      "start_beats": 28.0,
+      "start_seconds": 14.0,
+      "tonic_pc": 7
+     },
+     {
+      "end_beats": 32.0,
+      "end_seconds": 16.0,
+      "functional_role": "tonic",
+      "index": 14,
+      "is_ambiguous": false,
+      "key_name": "Ionian",
+      "margin": 0.05782339681552402,
+      "mask": 2180,
+      "pcs": [
+       2,
+       7,
+       11
+      ],
+      "quality": "maj",
+      "root_pc": 7,
+      "start_beats": 30.0,
+      "start_seconds": 15.0,
+      "tonic_pc": 7
+     }
+    ],
+    "duration_beats": 32.0,
+    "duration_seconds": 16.0,
+    "high_midi": 74,
+    "key_bands": [
+     {
+      "end_beats": 13.0,
+      "end_seconds": 6.5,
+      "mean_margin": 0.34600237490160324,
+      "mode": "major",
+      "start_beats": 0.0,
+      "start_seconds": 0.0,
+      "tonic_pc": 0
+     },
+     {
+      "end_beats": 32.0,
+      "end_seconds": 16.0,
+      "mean_margin": 0.05782339681552402,
+      "mode": "major",
+      "start_beats": 13.0,
+      "start_seconds": 6.5,
+      "tonic_pc": 7
+     }
+    ],
+    "low_midi": 60,
+    "midi_read_losses": [],
+    "notes": [
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 60,
+      "onset_beats": 0.0,
+      "onset_seconds": 0.0,
+      "pc": 0,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 64,
+      "onset_beats": 0.0,
+      "onset_seconds": 0.0,
+      "pc": 4,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 0.0,
+      "onset_seconds": 0.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 65,
+      "onset_beats": 2.0,
+      "onset_seconds": 1.0,
+      "pc": 5,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 69,
+      "onset_beats": 2.0,
+      "onset_seconds": 1.0,
+      "pc": 9,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 72,
+      "onset_beats": 2.0,
+      "onset_seconds": 1.0,
+      "pc": 0,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 4.0,
+      "onset_seconds": 2.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 71,
+      "onset_beats": 4.0,
+      "onset_seconds": 2.0,
+      "pc": 11,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 74,
+      "onset_beats": 4.0,
+      "onset_seconds": 2.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 60,
+      "onset_beats": 6.0,
+      "onset_seconds": 3.0,
+      "pc": 0,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 64,
+      "onset_beats": 6.0,
+      "onset_seconds": 3.0,
+      "pc": 4,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 6.0,
+      "onset_seconds": 3.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 60,
+      "onset_beats": 8.0,
+      "onset_seconds": 4.0,
+      "pc": 0,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 64,
+      "onset_beats": 8.0,
+      "onset_seconds": 4.0,
+      "pc": 4,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 8.0,
+      "onset_seconds": 4.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 65,
+      "onset_beats": 10.0,
+      "onset_seconds": 5.0,
+      "pc": 5,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 69,
+      "onset_beats": 10.0,
+      "onset_seconds": 5.0,
+      "pc": 9,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 72,
+      "onset_beats": 10.0,
+      "onset_seconds": 5.0,
+      "pc": 0,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 12.0,
+      "onset_seconds": 6.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 71,
+      "onset_beats": 12.0,
+      "onset_seconds": 6.0,
+      "pc": 11,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 74,
+      "onset_beats": 12.0,
+      "onset_seconds": 6.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 60,
+      "onset_beats": 14.0,
+      "onset_seconds": 7.0,
+      "pc": 0,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 64,
+      "onset_beats": 14.0,
+      "onset_seconds": 7.0,
+      "pc": 4,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 14.0,
+      "onset_seconds": 7.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 62,
+      "onset_beats": 16.0,
+      "onset_seconds": 8.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 66,
+      "onset_beats": 16.0,
+      "onset_seconds": 8.0,
+      "pc": 6,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 69,
+      "onset_beats": 16.0,
+      "onset_seconds": 8.0,
+      "pc": 9,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 18.0,
+      "onset_seconds": 9.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 71,
+      "onset_beats": 18.0,
+      "onset_seconds": 9.0,
+      "pc": 11,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 74,
+      "onset_beats": 18.0,
+      "onset_seconds": 9.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 62,
+      "onset_beats": 20.0,
+      "onset_seconds": 10.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 66,
+      "onset_beats": 20.0,
+      "onset_seconds": 10.0,
+      "pc": 6,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 69,
+      "onset_beats": 20.0,
+      "onset_seconds": 10.0,
+      "pc": 9,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 22.0,
+      "onset_seconds": 11.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 71,
+      "onset_beats": 22.0,
+      "onset_seconds": 11.0,
+      "pc": 11,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 74,
+      "onset_beats": 22.0,
+      "onset_seconds": 11.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 62,
+      "onset_beats": 24.0,
+      "onset_seconds": 12.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 66,
+      "onset_beats": 24.0,
+      "onset_seconds": 12.0,
+      "pc": 6,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 69,
+      "onset_beats": 24.0,
+      "onset_seconds": 12.0,
+      "pc": 9,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 26.0,
+      "onset_seconds": 13.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 71,
+      "onset_beats": 26.0,
+      "onset_seconds": 13.0,
+      "pc": 11,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 74,
+      "onset_beats": 26.0,
+      "onset_seconds": 13.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 62,
+      "onset_beats": 28.0,
+      "onset_seconds": 14.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 66,
+      "onset_beats": 28.0,
+      "onset_seconds": 14.0,
+      "pc": 6,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 69,
+      "onset_beats": 28.0,
+      "onset_seconds": 14.0,
+      "pc": 9,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 67,
+      "onset_beats": 30.0,
+      "onset_seconds": 15.0,
+      "pc": 7,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 71,
+      "onset_beats": 30.0,
+      "onset_seconds": 15.0,
+      "pc": 11,
+      "velocity": 80,
+      "voice": "t0c0"
+     },
+     {
+      "duration_beats": 2.0,
+      "duration_seconds": 1.0,
+      "midi": 74,
+      "onset_beats": 30.0,
+      "onset_seconds": 15.0,
+      "pc": 2,
+      "velocity": 80,
+      "voice": "t0c0"
+     }
+    ],
+    "spec_level": "registered_time"
+   },
+   "tool": "piano_roll_view"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",

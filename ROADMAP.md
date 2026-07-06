@@ -2561,6 +2561,28 @@ workstreams so they can be scheduled and checked off independently.
       page can invoke path-taking tools on loopback — token or origin
       allowlist (A6 coordinates); and engine `TypeError`s are misreported as
       HTTP 400 client errors.
+      *(Delivered 2026-07-06, a–e (CORS mechanism pending A6's design call):*
+      **(a)** one `_canonical_events` parser — `[onset, duration, midi,
+      velocity?, voice?]` — on all twelve temporal tools; legacy string-at-3
+      voice and numeric-at-3 velocity forms still read (JSON types
+      disambiguate; the contradictory combination raises); `key_tracking` and
+      melodic/rhythmic/swing no longer hard-reject >3-element events; the
+      lying `list[list[float]]` annotations fixed. **(b)** the two pipelines
+      live below the line as typed entry points (`dataset/pipelines.py`:
+      `analyze_midi_file` → `MidiFileAnalysis`, `piano_roll_view_from_file` →
+      `PianoRollView`); the tools are one-liners; **conformance goldens added
+      via a committed fixture MIDI + `$FIXTURES` placeholder** (machine-
+      independent; the stale path-embedding exclusion reason was verified
+      false) — the ratchet now covers **54 cases / all 46 tools, zero
+      exclusions**; INTEGRATION.md's stale 43 corrected. **(c)** the five
+      `asdict` results gained `to_dict()`; the set_class_info/table mirror is
+      now an enforced test. **(d)** `InsufficientInformation(ValueError)` at
+      the four honest-absence sites; the pipelines catch only it — real input
+      errors propagate. **(e)** bridge binds kwargs before invoking (binding
+      `TypeError` → 400, engine `TypeError` → 500); the CORS mechanism is a
+      filed design call (`notice-bridge-hardening-design-call.md`), behavior
+      unchanged until A6 answers. Consumer notice:
+      `notice-re4-mcp-unification.md`.)*
 - [ ] **RE-5 — Hot-path efficiency pass (mechanical,
       conformance-protected).** All output-identical by construction, so
       the golden harness is the reviewer: **(a)** `rotate_mask` /

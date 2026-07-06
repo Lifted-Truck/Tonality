@@ -15,9 +15,12 @@ Regenerate with (from the repo root):
 
     PYTHONPATH=. .venv/bin/python3.13 tests/test_conformance.py --regenerate
 
-Excluded: ``midi_file_analysis`` (its dataset provenance embeds the input
-path, which is run-dependent; every component it composes — segmentation,
-induction, tracking, naming — is covered by the event-based tools).
+No exclusions (RE-4b): the two pipeline tools run over a committed fixture
+MIDI (``golden/fixtures/pipeline.mid``) referenced via a ``$FIXTURES``
+placeholder — the golden stores the placeholder, never a machine path, and
+the results embed no paths (the old exclusion reason had gone stale). The
+coverage ratchet is therefore total: a new tool without a case fails the
+suite, full stop.
 """
 
 from __future__ import annotations
@@ -32,9 +35,12 @@ from mts.mcp import tools
 
 GOLDEN_PATH = Path(__file__).parent / "golden" / "conformance.json"
 
-# Path-bearing tools: their input is a MIDI file path (run-dependent), so they
-# have no fixed-input golden; every component they compose is covered elsewhere.
-EXCLUDED_TOOLS = {"midi_file_analysis", "piano_roll_view"}
+# RE-4b: no exclusions — the two pipeline tools are covered via a committed
+# fixture MIDI, referenced with a machine-independent $FIXTURES placeholder
+# (resolved at call time; the golden stores the placeholder, and the results
+# embed no paths — verified when the exclusion was retired).
+EXCLUDED_TOOLS: set[str] = set()
+FIXTURES_DIR = Path(__file__).parent / "golden" / "fixtures"
 
 REL_TOL = 1e-9
 ABS_TOL = 1e-12
@@ -306,11 +312,24 @@ CASES: list[tuple[str, dict]] = [
     ("voicing_suggestions", {"root": "C", "quality": "maj7"}),
     ("quality_comparison", {"quality_a": "maj7", "quality_b": "min7"}),
     ("quality_brief", {"quality": "maj7"}),
+    # RE-4b: the two pipeline tools, over the committed fixture (the golden
+    # stores the $FIXTURES placeholder, never a machine path).
+    (
+        "midi_file_analysis",
+        {"path": "$FIXTURES/pipeline.mid", "include_meter_regions": True},
+    ),
+    ("piano_roll_view", {"path": "$FIXTURES/pipeline.mid"}),
 ]
 
 
 def _run_case(tool_name: str, kwargs: dict):
-    return getattr(tools, tool_name)(**kwargs)
+    resolved = {
+        key: value.replace("$FIXTURES", str(FIXTURES_DIR))
+        if isinstance(value, str) and value.startswith("$FIXTURES")
+        else value
+        for key, value in kwargs.items()
+    }
+    return getattr(tools, tool_name)(**resolved)
 
 
 def _assert_matches(expected, actual, path=""):
