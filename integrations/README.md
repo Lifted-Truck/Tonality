@@ -6,6 +6,14 @@ building external consumer projects** (synths, generators, visualizers — see
 first). Chat relays get triaged and then forgotten; files here persist across
 sessions, devices, and agent handoffs.
 
+> **The generic protocol lives in [PROTOCOL.md](PROTOCOL.md)** — the
+> project-agnostic clarifier (file naming, brief structure, triage contract,
+> notices/acks, fences) shared across all projects that host an integrations
+> channel. This README adds Tonality's specifics: the capability schematic is
+> INTEGRATION.md, the SOT is [ROADMAP.md](../ROADMAP.md), and the intake
+> questions below are the domain-tuned versions. Where wording differs,
+> this README wins locally.
+
 ## Layout
 
 ```
