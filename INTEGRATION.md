@@ -112,8 +112,26 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
   **no `profile_version` kwarg on `infer_key` itself** (passing one raises
   `TypeError` and would silently fall through to the default).
 - **Near-silence contract**: all-zero or perfectly uniform pc weights raise
-  (no tonal information — the engine won't guess). Streaming consumers with
-  decaying histograms should gate induction calls on total weight.
+  `ValueError` ("no tonal information" — the engine won't guess); **any
+  positive, non-uniform vector succeeds at any scale** (the profile
+  correlation is scale-invariant — verified down to 1e-12 totals), so there
+  is no magnitude floor to tune. Treat the raise as a signal ("no key claim
+  here"), not an error: try/except is the intended consumption. Near-uniform
+  vectors won't raise but carry tiny margins — an ambiguity threshold on
+  `margin` composes cleanly with the raise. (Wend R3.)
+- **Result shapes for the Python door** (the dataclasses of record live in
+  `mts/analysis/results.py` and each module; the two every consumer asks
+  about — verified by execution, Wend R1):
+  - `infer_key(weights).to_dict()` → `{"candidates": [{"tonic_pc": int,
+    "mode": str, "score": float}, …ranked…], "margin": float,
+    "pc_weights": [12 floats], "profile_version": str}`. There is **no
+    `is_ambiguous` field** — `margin` is the continuous ambiguity signal
+    (Decision 7; the boolean flag exists on *naming* results only).
+  - `voice_leading(source_pcs, target_pcs).to_dict()` → `{"distance": int,
+    "mapping": [[from_pc, to_pc], …], "policy": "doubling.1",
+    "source_pcs": […], "target_pcs": […]}`. Inputs are **iterables of
+    pitch-class ints** directly — no mask conversion, no notation spec;
+    `policy` is a keyword selecting the cited cardinality convention.
 - **Mask bit convention**: Tonality masks are *absolute* — bit *n* = pitch
   class *n* (C=0), the same integer convention as Ian Ring's scale numbers.
   If your project keeps *root-relative* masks (bit 0 = your root), convert
@@ -152,6 +170,29 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
   Note: this is the **chord-segmentation** axis — spurious **key-region** bands
   are a separate axis (local key tracking), tuned by `window_beats`/`hop_beats`
   + a margin (and optionally a minimum region-duration) gate, not by coalescing.
+- **Closed-loop self-validation for generators** (did my output *read* as I
+  intended? — Wend R5; Phase 4.6 names generators as conformance consumers):
+  generate → export SMF → analyze → compare **intended vs detected, aligned
+  in beats**. Use `structural_keys` as the instrument for key plans — compare
+  your intended key schedule against `areas[]` (`tonic_pc`/`mode`/
+  `start_beats`/`end_beats`) and intended tonicizations against each area's
+  `tonicizations[]`; drop to `track_keys` only to inspect the *raw* windowed
+  evidence when an intent didn't register. Pitfalls, in order of bite:
+  **(1) window geometry vs harmonic rhythm** — the defaults
+  (`window_beats=8.0, hop_beats=2.0`) dilute 1-bar events across ~4
+  overlapping windows; for one-chord-per-bar material use
+  `window_beats=4.0, hop_beats=1.0` or expect bar-grain tonicizations to be
+  invisible (not misclassified). **(2) the discriminator floor** — a key
+  change shorter than the structural prior's `min_modulation_beats` reads as
+  a tonicization *by design* ("brief OR (related AND returns)"); sustain
+  intended modulations past the floor, and check the cited `prior_version`.
+  **(3)** start with `key_inertia`/`disambiguate_relative`/`smoothing` all
+  off — validate against the detector's raw reading first (and note
+  `key_inertia` + `disambiguate_relative` together raises). **(4)** exact
+  quantized output needs no coalesce window; asymmetric meters (7/8, 5/8)
+  are a non-issue for key machinery (everything is beat-based — just write
+  the SMF meter map honestly). Free integrity check: read your own emitted
+  file back with `read_midi_file` and assert `losses == []`.
 
 ## Four doors in
 
