@@ -38,6 +38,23 @@ CHROMATIC = 0xFFF
 
 # --- transformations --------------------------------------------------------
 
+def test_mask_primitives_match_the_reference_loops_exhaustively():
+    # RE-5a: rotate_mask/invert_mask went branchless (circular shift; reversal
+    # table + rotate). Pin byte-equality with the old per-bit loops across the
+    # WHOLE 4096-mask space and every shift/index incl. negatives + >12.
+    def ref_rotate(mask, s):
+        s %= 12
+        return sum(1 << ((pc + s) % 12) for pc in range(12) if mask & (1 << pc))
+
+    def ref_invert(mask, index=0):
+        return sum(1 << ((index - pc) % 12) for pc in range(12) if mask & (1 << pc))
+
+    for mask in range(4096):
+        for amt in range(-13, 25):
+            assert rotate_mask(mask, amt) == ref_rotate(mask, amt)
+            assert invert_mask(mask, amt) == ref_invert(mask, amt)
+
+
 def test_invert_mask_about_zero():
     assert invert_mask(MAJOR_TRIAD) == mask_from_pcs([0, 8, 5])
 
