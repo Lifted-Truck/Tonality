@@ -79,22 +79,19 @@ def _modal_rotations(scale: Scale) -> list[ModeRotation]:
     return rotations
 
 
-def _symmetry_data(scale: Scale, step_pattern: list[int]) -> SymmetryData:
+def _symmetry_data(scale: Scale) -> SymmetryData:
     # No empty-set special case: core's convention applies (the empty set is
     # trivially invariant — period 1, every step; the old hardcoded period 0
     # disagreed with core and the exported set-class table).
     mask = scale.mask
-    rotational_period = scale.rotational_period
-    reversed_pattern = list(reversed(step_pattern))
-    achiral = any(
-        reversed_pattern[shift:] + reversed_pattern[:shift] == step_pattern
-        for shift in range(len(step_pattern))
-    )
     reflection_axes = _reflection_axes(set(scale.degrees))
     return SymmetryData(
-        rotational_period=rotational_period,
+        rotational_period=scale.rotational_period,
         rotational_steps=list(rotational_steps(mask)),
-        achiral=achiral,
+        # achiral iff a reflection axis exists — the single definition shared
+        # with chord_analysis (RE-6d), not a second step-pattern palindrome
+        # computation (verified identical across all 4096 masks).
+        achiral=bool(reflection_axes),
         reflection_axes=reflection_axes,
     )
 
@@ -137,7 +134,7 @@ def analyze_scale(request: ScaleAnalysisRequest) -> ScaleAnalysisResult:
 
     symmetry: SymmetryData | None = None
     if request.include_symmetry:
-        symmetry = _symmetry_data(request.scale, step_pattern)
+        symmetry = _symmetry_data(request.scale)
 
     intervals: ScaleIntervalSummary | None = None
     if request.include_interval_report:
