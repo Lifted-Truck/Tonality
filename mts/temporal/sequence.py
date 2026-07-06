@@ -39,7 +39,6 @@ class Event:
     onset: float
     duration: float
     pitch: Pitch
-    tags: tuple[str, ...] = ()
     voice: str | None = None
 
     def __post_init__(self) -> None:

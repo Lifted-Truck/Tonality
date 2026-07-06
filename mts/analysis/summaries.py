@@ -97,7 +97,6 @@ def _compatibility_snapshot(
             continue
         snapshot.append((scale.name, roots))
     snapshot.sort(key=lambda item: (-len(item[1]), item[0]))
-    # TODO: annotate each scale entry with diatonic/borrowed status relative to a workspace context.
     formatted: list[str] = []
     for name, roots in snapshot[:max_scales]:
         display = ", ".join(str(r) for r in roots)

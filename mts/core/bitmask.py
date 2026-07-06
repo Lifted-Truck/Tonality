@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from functools import lru_cache
 
 
@@ -37,10 +37,6 @@ def rotate_mask(mask: int, semitones: int) -> int:
     if s == 0:
         return mask & 0xFFF
     return ((mask << s) | (mask >> (12 - s))) & 0xFFF
-
-
-def transpose_pcs(pcs: Sequence[int], semitones: int) -> list[int]:
-    return [validate_pc((pc + semitones) % 12) for pc in pcs]
 
 
 # Bit-reversal of a 12-bit mask (pc p -> 11 - p), precomputed once. A pure data

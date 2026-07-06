@@ -1,9 +1,7 @@
-"""Scale analysis routines.
+"""Scale analysis: request in, typed ``ScaleAnalysisResult`` out.
 
-TODO:
-    - Classify chirality and imperfect tones.
-    - Provide hooks for bracelet/Tonnetz style visualisations.
-    - Surface chord families that fit at each scale degree / interval.
+Modes, symmetry (rotational + reflective), interval summary, and set-class
+data for a scale — numeric/PC only (spelling renders at the display edge).
 """
 
 from __future__ import annotations
