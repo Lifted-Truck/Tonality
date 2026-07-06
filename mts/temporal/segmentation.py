@@ -21,7 +21,7 @@ from ..analysis.equivalence import interpret_chord
 from ..analysis.results import ChordInterpretations
 from ..core.bitmask import mask_from_pcs
 from ..core.realization import Realization
-from .sequence import Sequence
+from .sequence import Event, Sequence
 
 _EPS = 1e-9
 
@@ -63,6 +63,29 @@ class HarmonicRhythm:
         return dataclasses.asdict(self)
 
 
+def _sweep_active(
+    events: "tuple[Event, ...]", query_beats: list[float]
+) -> list[tuple["Event", ...]]:
+    """The events sounding at each of ``query_beats`` (ascending, each strictly
+    interior to a gap), in the same order ``Sequence.sounding_at`` returns
+    (midi-sorted). One monotone sweep over the onset-sorted events instead of a
+    full scan per query — the linear replacement for the per-boundary
+    ``sounding_at`` (RE-5d). ``events`` must be in sequence order (onset, midi).
+    """
+
+    results: list[tuple[Event, ...]] = []
+    active: list[Event] = []  # currently-open events, in sequence order
+    i = 0
+    n = len(events)
+    for beat in query_beats:
+        while i < n and events[i].onset - _EPS <= beat:  # started by this beat
+            active.append(events[i])
+            i += 1
+        active = [e for e in active if beat < e.offset]  # drop the ended ones
+        results.append(tuple(sorted(active, key=lambda e: e.pitch.midi)))
+    return results
+
+
 def segment(sequence: Sequence) -> list[Segment]:
     """Partition ``sequence`` into stable-pitch-class-set segments.
 
@@ -76,12 +99,18 @@ def segment(sequence: Sequence) -> list[Segment]:
         return []
 
     boundaries = sorted({e.onset for e in events} | {e.offset for e in events})
+    intervals = [
+        (start, end)
+        for start, end in zip(boundaries, boundaries[1:])
+        if end - start > _EPS
+    ]
+    # One sweep for the per-interval sounding sets (was sounding_at per boundary).
+    sounding_per_interval = _sweep_active(
+        events, [(start + end) / 2.0 for start, end in intervals]
+    )
 
     raw: list[tuple[float, float, tuple[int, ...]]] = []
-    for start, end in zip(boundaries, boundaries[1:]):
-        if end - start <= _EPS:
-            continue
-        sounding = sequence.sounding_at((start + end) / 2.0)
+    for (start, end), sounding in zip(intervals, sounding_per_interval):
         if not sounding:
             continue  # silence
         pcs = tuple(sorted({e.pitch.pc for e in sounding}))
@@ -90,10 +119,14 @@ def segment(sequence: Sequence) -> list[Segment]:
         else:
             raw.append((start, end, pcs))
 
+    # Second sweep for the realization at each MERGED segment's midpoint (was
+    # realization_at per segment — the merged midpoint can catch a different
+    # voicing than either sub-span, so it's computed post-merge, as before).
+    merged_sounding = _sweep_active(events, [(s + e) / 2.0 for s, e, _ in raw])
     segments: list[Segment] = []
-    for start, end, pcs in raw:
-        realization = sequence.realization_at((start + end) / 2.0)
-        assert realization is not None  # non-silent by construction
+    for (start, end, pcs), sounding in zip(raw, merged_sounding):
+        assert sounding  # non-silent by construction
+        realization = Realization(tuple(e.pitch for e in sounding), root_pc=None)
         segments.append(Segment(start, end, pcs, mask_from_pcs(pcs), realization))
     return segments
 

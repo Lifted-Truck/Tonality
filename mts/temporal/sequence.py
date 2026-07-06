@@ -146,6 +146,37 @@ class Sequence:
                 weights[event.pitch.pc] += hi - lo
         return tuple(weights)
 
+    def pc_weights_windows(
+        self, windows: list[tuple[float, float]]
+    ) -> list[tuple[float, ...]]:
+        """``pc_weights(start, end)`` for many ascending windows in one sweep.
+
+        The windowed key/meter trackers slide overlapping windows and used to
+        re-scan every event per window (O(windows x events) — RE-5d). Here the
+        onset-sorted events are swept once: an active list gains events as their
+        onset enters reach and sheds them once their offset falls before the
+        window start (monotone, since window starts only increase). Byte-identical
+        to calling ``pc_weights`` per window. ``windows`` must be sorted by start.
+        """
+
+        results: list[tuple[float, ...]] = []
+        active: list[Event] = []  # events not yet fully behind the window start
+        i = 0
+        n = len(self.events)
+        for start, end in windows:
+            while i < n and self.events[i].onset < end - _EPS:
+                active.append(self.events[i])
+                i += 1
+            active = [e for e in active if e.offset > start + _EPS]
+            weights = [0.0] * 12
+            for event in active:
+                lo = max(event.onset, start)
+                hi = min(event.offset, end)
+                if hi - lo > _EPS:
+                    weights[event.pitch.pc] += hi - lo
+            results.append(tuple(weights))
+        return results
+
     def voices(self) -> tuple[str, ...]:
         """The distinct voice labels present, sorted (unvoiced events excluded)."""
 

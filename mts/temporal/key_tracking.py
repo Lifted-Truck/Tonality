@@ -279,9 +279,12 @@ def track_keys(
     # Per-window full candidate scores (the emission vectors the key-inertia path
     # consumes); None for an uninformative window. Kept parallel to `windows`.
     score_vectors: list[dict[tuple[int, str], float] | None] = []
-    for start in starts:
+    # One sweep for all windows' pc content instead of re-scanning every event
+    # per window (RE-5d).
+    window_bounds = [(start, min(start + window_beats, duration)) for start in starts]
+    weights_per_window = sequence.pc_weights_windows(window_bounds)
+    for start, weights in zip(starts, weights_per_window):
         end = min(start + window_beats, duration)
-        weights = sequence.pc_weights(start, end)
         try:
             ranking = infer_key(weights, profiles=profiles)
         except ValueError:
