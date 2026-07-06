@@ -121,6 +121,12 @@ class ChordParseResult:
             return None
         return Realization(self.spec.absolute, root_pc=self.root_pc)
 
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        import dataclasses
+
+        return dataclasses.asdict(self)
+
 
 @dataclass(frozen=True)
 class QualityVariant:

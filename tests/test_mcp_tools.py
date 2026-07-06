@@ -179,8 +179,10 @@ def test_voice_pair_motion_over_event_quadruples():
     assert result["voices"] == ["bass", "tenor"]
     transition = result["transitions"][0]
     assert (transition["motion"], transition["interval_class_to"]) == ("parallel", 7)
-    with pytest.raises(ValueError, match="voice_label"):
-        tools.voice_pair_motion([[0, 1, 60]])  # missing the voice
+    # RE-4a: 3-element events are valid canonical input everywhere; the honest
+    # error now comes from voice_motion itself (no voiced parts to pair).
+    with pytest.raises(ValueError, match="voiced parts"):
+        tools.voice_pair_motion([[0, 1, 60]])  # unvoiced — nothing to pair
 
 
 def test_melodic_analysis_with_and_without_harmony():

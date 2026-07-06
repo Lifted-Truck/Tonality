@@ -12,6 +12,21 @@ from ..core.realization import Realization
 from ..core.spec_level import SpecLevel
 
 
+class InsufficientInformation(ValueError):
+    """Raised when the *input carries no evidence for the question* — honest
+    absence, not an input error (RE-4d).
+
+    Subclasses ``ValueError`` so every existing consumer try/except keeps
+    working; the point of the subclass is the other direction: pipeline code
+    that treats "nothing to claim" as a null result (``midi_file_analysis``'s
+    ``key_regions: null``) can catch **only** this, so a real input error
+    (bad flag combination, malformed events) propagates instead of being
+    silently absorbed as "no tonal information". Raise sites: uniform/empty
+    pc weights (`infer_key`), no informative window (`track_keys` /
+    `track_meter`), metrically-uniform onsets (`infer_meter`).
+    """
+
+
 class SpecificationError(Exception):
     """Raised when analysis is given less specification than it requires.
 
@@ -55,4 +70,4 @@ def require_realization(
     return realization
 
 
-__all__ = ["SpecificationError", "require_realization"]
+__all__ = ["InsufficientInformation", "SpecificationError", "require_realization"]

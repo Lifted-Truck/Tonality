@@ -38,6 +38,7 @@ from ..core.scale import Scale
 if TYPE_CHECKING:  # lazy at runtime: io.loaders imports analysis.builders
     from ..io.loaders import KeyProfileSet
 from .analytical_context import AnalyticalContext
+from .errors import InsufficientInformation
 from .results import (
     KeyCandidate,
     KeyInductionResult,
@@ -91,7 +92,7 @@ def infer_key(
     if max(weights) == min(weights):
         # All-zero (silence) or perfectly uniform (e.g. full chromatic, equal
         # durations): correlation is undefined and no key is better than another.
-        raise ValueError("pc weights carry no tonal information (empty or uniform).")
+        raise InsufficientInformation("pc weights carry no tonal information (empty or uniform).")
 
     if profiles is None:
         from ..io.loaders import load_key_profiles

@@ -120,3 +120,22 @@ def test_bundle_is_deterministic_and_json_serialisable():
     b = versioned_data_bundle()
     assert a == b
     json.dumps(a)  # the whole bundle (embedded content included) round-trips
+
+
+def test_tool_table_mirror_is_enforced():
+    """RE-4c: export.py's table documents that rows mirror the set_class_info
+    tool. Nothing enforced it — this does: every field shared between the tool
+    and a row must be equal, across a sample incl. the slice-1b family."""
+    from mts.core.bitmask import pcs_from_mask
+    from mts.mcp.tools import set_class_info
+
+    table = set_class_table()
+    for mask in (1, 145, 2741, 1365, 4095):
+        tool = set_class_info(pcs=pcs_from_mask(mask))
+        row = table[mask]
+        shared = set(tool) & set(row)
+        assert {"mask", "prime_form", "dft_magnitudes", "dft_phases",
+                "general_chirality", "chirality_sign", "chirality",
+                "reflection_residual", "rotational_period"} <= shared
+        for field in shared:
+            assert tool[field] == row[field], f"mirror broken on {field} @ {mask}"

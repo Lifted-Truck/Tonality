@@ -50,6 +50,12 @@ class ChordComparison:
     unique_to_a: tuple[str, ...]
     unique_to_b: tuple[str, ...]
 
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        import dataclasses
+
+        return dataclasses.asdict(self)
+
 
 def compare_chord_qualities(
     quality_a: ChordQuality,

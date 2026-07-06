@@ -20,7 +20,7 @@ from .key_induction import candidate_context, disambiguate_relative_key, infer_k
 from .meter_estimation import infer_meter
 from .naming import name_chord, name_chord_across_keys
 from .voice_leading import POLICY_DOUBLING_V1, voice_leading, voice_leading_realized
-from .errors import SpecificationError, require_realization
+from .errors import InsufficientInformation, SpecificationError, require_realization
 from ..core.realization import Realization
 from ..core.spec_level import Registral, SpecLevel, Transpositional
 from .summaries import ChordBrief, chord_brief

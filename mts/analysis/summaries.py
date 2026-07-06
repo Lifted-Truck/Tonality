@@ -19,6 +19,12 @@ class ChordBrief:
     compatible_scales: list[str]
     functional_roles: list[str]
 
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        import dataclasses
+
+        return dataclasses.asdict(self)
+
     def as_lines(self) -> list[str]:
         lines = [f"Intervals: {self.interval_fingerprint}"]
         if self.compatible_scales:

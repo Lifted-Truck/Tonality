@@ -162,3 +162,30 @@ def test_options_preflight(base_url):
     assert status == 204
     assert "POST" in headers["Access-Control-Allow-Methods"]
     assert headers["Access-Control-Allow-Headers"] == "Content-Type"
+
+
+# --- RE-4e: engine bugs are 500s, caller mistakes are 400s ------------------------------
+
+
+def test_unknown_kwarg_is_still_a_400(base_url):
+    status, _, body = _request(
+        f"{base_url}/call/chord_analysis", {"root": "C", "quality": "maj", "bogus": 1}
+    )
+    assert status == 400
+    assert body["error_type"] == "TypeError"
+    assert "bogus" in body["error"]
+
+
+def test_engine_internal_typeerror_is_a_500(base_url, monkeypatch):
+    # Simulate an engine bug: a TypeError raised INSIDE the tool body (not by
+    # kwarg binding). The old blanket handler blamed the client with a 400.
+    from mts.mcp import bridge
+
+    def buggy_tool(root: str = "C") -> dict:
+        raise TypeError("engine bug: NoneType has no attribute 'pcs'")
+
+    monkeypatch.setitem(bridge._TOOL_MAP, "buggy_tool", buggy_tool)
+    status, _, body = _request(f"{base_url}/call/buggy_tool", {"root": "C"})
+    assert status == 500
+    assert body["error_type"] == "TypeError"
+    assert "engine bug" in body["error"]

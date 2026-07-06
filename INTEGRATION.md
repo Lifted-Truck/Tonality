@@ -200,7 +200,8 @@ APIs are whole-sequence (batch), not incremental — see "Coming" below.
    infer_key, name_chord, voice_leading, ...` — typed frozen dataclasses, each
    with `to_dict()`. Best for Python-native projects and lowest latency.
 2. **MCP endpoint** (cross-language / agent-facing): `pip install 'mts[mcp]'`,
-   then `python -m mts.mcp` (stdio). 43 tools mirroring the library surface,
+   then `python -m mts.mcp` (stdio). 46 tools mirroring the library surface
+   (`GET /tools` on the bridge, or `len(TOOLS)`, is the live count),
    including `midi_file_analysis` (file → key-aware dataset in one call) and
    catalog discovery (`list_scales`, `list_chord_qualities`). Inputs accept
    note names (`"C"`, `"F#"`, `"Bb"`) or pc ints; MIDI numbers for register.
