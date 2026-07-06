@@ -38,6 +38,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from ..io.loaders import MeterProfileSet
     from ..temporal import Sequence
+from .errors import InsufficientInformation
 from .results import MeterCandidate, MeterEstimationResult
 
 _EPS = 1e-9
@@ -98,7 +99,7 @@ def infer_meter(
 
     events = sequence.events
     if len(events) < _MIN_ONSETS:
-        raise ValueError(
+        raise InsufficientInformation(
             f"meter estimation needs at least {_MIN_ONSETS} onsets, got {len(events)}."
         )
     has_velocity = any(e.pitch.velocity is not None for e in events)
@@ -115,7 +116,7 @@ def infer_meter(
         if 0 <= idx < n_slots:
             signal[idx] += weight
     if max(signal) - min(signal) <= _EPS:
-        raise ValueError("onset content carries no metric information (uniform signal).")
+        raise InsufficientInformation("onset content carries no metric information (uniform signal).")
 
     # Each entry pairs a candidate with the bar phase (in beats) that best aligned
     # its profile fold — the winning downbeat offset, surfaced for the top candidate.

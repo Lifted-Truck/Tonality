@@ -33,6 +33,7 @@ import dataclasses
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from ..analysis.errors import InsufficientInformation
 from ..analysis.meter_estimation import infer_meter
 from .sequence import Event, Sequence
 
@@ -210,7 +211,7 @@ def track_meter(
 
     informative = [w for w in windows if w.is_informative]
     if not informative:
-        raise ValueError(
+        raise InsufficientInformation(
             "No window carries metric information (too sparse or uniform throughout)."
         )
 

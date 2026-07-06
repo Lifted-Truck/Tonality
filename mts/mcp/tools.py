@@ -16,6 +16,7 @@ import dataclasses
 from ..analysis import (
     AnalyticalContext,
     ChordAnalysisRequest,
+    InsufficientInformation,
     ScaleAnalysisRequest,
     analyze_chord,
     analyze_scale,
@@ -303,31 +304,16 @@ def meter_estimation(
     accent match the meter's template — distinguishing e.g. 3/4 from 6/8);
     templates are a versioned prior (meter-grid.1, cited). The engine NEVER
     overrides the file's meter — numerator/denominator set the declared meter
-    and `agrees_with_declared` evidences against it. events: each [onset_beats,
-    duration_beats, midi_note] or [..., velocity] (velocity at index 3 weights
-    the accent). phase_search (default off): also search every bar phase and
+    and `agrees_with_declared` evidences against it. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form) (velocity, when
+    present, weights the accent). phase_search (default off): also search every bar phase and
     report the top candidate's winning downbeat offset (the anacrusis / global
     phase) as `downbeat_offset_beats` — `None` when off. Raises on too few onsets
     or content with no metric information."""
     from ..analysis import infer_meter
     from ..temporal import Event, Sequence
 
-    try:
-        parsed = tuple(
-            Event(
-                float(e[0]), float(e[1]),
-                Pitch.from_midi(int(e[2]),
-                                velocity=int(e[3]) if len(e) > 3 and e[3] is not None else None),
-            )
-            for e in events
-        )
-    except (TypeError, ValueError, IndexError) as exc:
-        raise ValueError(
-            "Each event must be [onset_beats, duration_beats, midi_note] with "
-            f"optional velocity (index 3): {exc}"
-        ) from exc
-    sequence = Sequence.from_events(
-        parsed, bpm=float(bpm), time_signature=(int(numerator), int(denominator))
+    sequence = _canonical_sequence(
+        events, bpm=float(bpm), time_signature=(int(numerator), int(denominator))
     )
     return infer_meter(sequence, phase_search=bool(phase_search)).to_dict()
 
@@ -349,26 +335,11 @@ def meter_tracking(
     aggregated per region (the local anacrusis estimate). A window with too few onsets or no
     differential accent makes no claim (regions merge across it). Meter needs
     several bars of evidence, so windows default larger than key tracking's
-    (window_beats 16, hop_beats 4); boundary resolution is the hop grid. events:
-    each [onset_beats, duration_beats, midi_note] or [..., velocity] (velocity at
-    index 3 weights the accent). Raises if no window carries metric information."""
+    (window_beats 16, hop_beats 4); boundary resolution is the hop grid. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form) (velocity,
+    when present, weights the accent). Raises if no window carries metric information."""
     from ..temporal import Event, Sequence, track_meter
 
-    try:
-        parsed = tuple(
-            Event(
-                float(e[0]), float(e[1]),
-                Pitch.from_midi(int(e[2]),
-                                velocity=int(e[3]) if len(e) > 3 and e[3] is not None else None),
-            )
-            for e in events
-        )
-    except (TypeError, ValueError, IndexError) as exc:
-        raise ValueError(
-            "Each event must be [onset_beats, duration_beats, midi_note] with "
-            f"optional velocity (index 3): {exc}"
-        ) from exc
-    sequence = Sequence.from_events(parsed, bpm=float(bpm))
+    sequence = _canonical_sequence(events, bpm=float(bpm))
     return track_meter(
         sequence, window_beats=float(window_beats), hop_beats=float(hop_beats)
     ).to_dict()
@@ -470,8 +441,9 @@ def key_tracking(
     profile_version: str | None = None,
     key_inertia: bool = False,
 ) -> dict:
-    """Local key tracking: key regions through time for a list of events, each
-    [onset_beats, duration_beats, midi_note]. Windowed key induction (same
+    """Local key tracking: key regions through time for a list of events —
+    the canonical event form [onset_beats, duration_beats, midi_note,
+    velocity?, voice?]. Windowed key induction (same
     versioned profiles; profile_version selects the set — default kk-1982.1,
     'tkp-cbms.1' the opt-in Temperley-Kostka-Payne alternative, A6 brief-9);
     regions carry beats+seconds extents, mean score/margin,
@@ -491,16 +463,7 @@ def key_tracking(
     composes with smoothing and leaves infer_key untouched."""
     from ..temporal import Event, Sequence, track_keys
 
-    try:
-        parsed = tuple(
-            Event(float(onset), float(duration), Pitch.from_midi(int(midi)))
-            for onset, duration, midi in events
-        )
-    except (TypeError, ValueError) as exc:
-        raise ValueError(
-            f"Each event must be [onset_beats, duration_beats, midi_note]: {exc}"
-        ) from exc
-    sequence = Sequence.from_events(parsed, bpm=float(bpm))
+    sequence = _canonical_sequence(events, bpm=float(bpm))
     return track_keys(
         sequence,
         window_beats=window_beats,
@@ -533,8 +496,7 @@ def structural_keys(
     Returns structural `areas` (each with its absorbed `tonicizations` + the
     home key) and carries the underlying `tracking` + global key as evidence;
     thresholds are a versioned prior (structural-key.2, cited). Never overrides
-    the file's meter/key. events: each [onset_beats, duration_beats, midi_note]
-    or [..., voice]. disambiguate_relative/smoothing choose the underlying local
+    the file's meter/key. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form). disambiguate_relative/smoothing choose the underlying local
     track the reduction runs on (the reduction is agnostic to either).
     anchor_method picks the home key: 'frame_weighted' (default — weights the
     opening + closing regions, the tonicization-robust home-key signal for pieces
@@ -546,18 +508,7 @@ def structural_keys(
     A6 brief-9)."""
     from ..temporal import Event, Sequence, reduce_to_structural_keys, track_keys
 
-    try:
-        parsed = tuple(
-            Event(float(onset), float(duration), Pitch.from_midi(int(midi)),
-                  voice=str(entry[3]) if len(entry) > 3 and entry[3] is not None else None)
-            for entry in events
-            for onset, duration, midi in [entry[:3]]
-        )
-    except (TypeError, ValueError, IndexError) as exc:
-        raise ValueError(
-            f"Each event must be [onset_beats, duration_beats, midi_note] (optional voice): {exc}"
-        ) from exc
-    sequence = Sequence.from_events(parsed, bpm=float(bpm))
+    sequence = _canonical_sequence(events, bpm=float(bpm))
     profiles = _profiles(profile_version)
     tracking = track_keys(
         sequence, window_beats=float(window_beats), hop_beats=float(hop_beats),
@@ -571,27 +522,14 @@ def structural_keys(
 
 def voice_pair_motion(events: list[list]) -> dict:
     """Classify how voice pairs move (parallel/similar/contrary/oblique, with
-    interval evidence) for voiced events, each [onset_beats, duration_beats,
-    midi_note, voice_label]. The 'which voice moved' primitive counterpoint
+    interval evidence) for voiced events — the canonical event form [onset_beats,
+    duration_beats, midi_note, velocity?, voice?] (voiced = the voice slot is
+    set; the legacy [.., voice]-at-index-3 string form still reads). The 'which voice moved' primitive counterpoint
     predicates filter — e.g. parallel fifths = motion 'parallel' with
     interval_class 7."""
     from ..temporal import Event, Sequence, voice_motion
 
-    try:
-        parsed = tuple(
-            Event(
-                float(onset),
-                float(duration),
-                Pitch.from_midi(int(midi)),
-                voice=str(voice),
-            )
-            for onset, duration, midi, voice in events
-        )
-    except (TypeError, ValueError) as exc:
-        raise ValueError(
-            f"Each event must be [onset_beats, duration_beats, midi_note, voice_label]: {exc}"
-        ) from exc
-    return voice_motion(Sequence.from_events(parsed)).to_dict()
+    return voice_motion(_canonical_sequence(events)).to_dict()
 
 
 def melodic_analysis(
@@ -601,20 +539,10 @@ def melodic_analysis(
     """Melodic atoms for one monophonic line: signed intervals, step/skip/leap
     classes, Parsons contour, ambitus, approach/departure per note — plus
     non-harmonic-tone typing (passing, neighbor, appoggiatura, escape,
-    suspension, anticipation, pedal) when harmony is given. events: each
-    [onset_beats, duration_beats, midi_note]. harmony (optional): spans
+    suspension, anticipation, pedal) when harmony is given. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form). harmony (optional): spans
     [start_beat, end_beat, [pcs]] — without it no chord-tone claims are made."""
     from ..temporal import Event, Sequence, analyze_melody
 
-    try:
-        parsed = tuple(
-            Event(float(onset), float(duration), Pitch.from_midi(int(midi)))
-            for onset, duration, midi in events
-        )
-    except (TypeError, ValueError) as exc:
-        raise ValueError(
-            f"Each event must be [onset_beats, duration_beats, midi_note]: {exc}"
-        ) from exc
     spans = None
     if harmony is not None:
         try:
@@ -623,7 +551,7 @@ def melodic_analysis(
             raise ValueError(
                 f"Each harmony span must be [start_beat, end_beat, [pcs]]: {exc}"
             ) from exc
-    return analyze_melody(Sequence.from_events(parsed), harmony=spans).to_dict()
+    return analyze_melody(_canonical_sequence(events), harmony=spans).to_dict()
 
 
 def rhythmic_analysis(
@@ -635,22 +563,13 @@ def rhythmic_analysis(
     beat / offbeat / subdivision against the felt beat — compound meters
     beat in threes), a precise syncopation predicate (a weak onset sounding
     through the next stronger grid line), durations and inter-onset
-    intervals. events: each [onset_beats, duration_beats, midi_note];
+    intervals. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form);
     numerator/denominator set a constant time signature (full meter maps via
     the library door)."""
     from ..temporal import Event, Sequence, analyze_rhythm
 
-    try:
-        parsed = tuple(
-            Event(float(onset), float(duration), Pitch.from_midi(int(midi)))
-            for onset, duration, midi in events
-        )
-    except (TypeError, ValueError) as exc:
-        raise ValueError(
-            f"Each event must be [onset_beats, duration_beats, midi_note]: {exc}"
-        ) from exc
-    sequence = Sequence.from_events(
-        parsed, time_signature=(int(numerator), int(denominator))
+    sequence = _canonical_sequence(
+        events, time_signature=(int(numerator), int(denominator))
     )
     return analyze_rhythm(sequence).to_dict()
 
@@ -665,22 +584,13 @@ def swing_analysis(
     onset (0.5 = straight, 2/3 = triplet swing 2:1, 0.75 = dotted shuffle
     3:1, < 0.5 = reversed) and classifies the feel under a versioned prior
     cited in the result. Raises when there are too few divisions to claim a
-    feel. events: each [onset_beats, duration_beats, midi_note]. NOTE:
+    feel. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form). NOTE:
     quantized-straight MIDI carries no swing to measure — swing must be in
     the onsets themselves."""
     from ..temporal import Event, Sequence, analyze_swing
 
-    try:
-        parsed = tuple(
-            Event(float(onset), float(duration), Pitch.from_midi(int(midi)))
-            for onset, duration, midi in events
-        )
-    except (TypeError, ValueError) as exc:
-        raise ValueError(
-            f"Each event must be [onset_beats, duration_beats, midi_note]: {exc}"
-        ) from exc
-    sequence = Sequence.from_events(
-        parsed, time_signature=(int(numerator), int(denominator))
+    sequence = _canonical_sequence(
+        events, time_signature=(int(numerator), int(denominator))
     )
     return analyze_swing(sequence).to_dict()
 
@@ -697,13 +607,12 @@ def coalesce_events(
     cluster's earliest point) and optionally snaps to a grid. Returns the
     cleaned events plus what changed (moved count, max shift) and any events
     dropped for collapsing to zero length — losses are itemized, never
-    hidden. events: each [onset_beats, duration_beats, midi_note] or
-    [..., voice_label]. The engine never coalesces implicitly; exact input
+    hidden. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form). The engine never coalesces implicitly; exact input
     stays exact unless you call this."""
     from ..temporal import coalesce
 
     result = coalesce(
-        _flex_events(events),
+        _canonical_sequence(events),
         onset_window_beats=float(onset_window_beats),
         snap_grid_beats=float(snap_grid_beats) if snap_grid_beats is not None else None,
     )
@@ -717,36 +626,62 @@ def coalesce_events(
 
 # --- groove extract / apply (gap 10) -------------------------------------------------
 
-def _vel_events(events: list[list]) -> "Sequence":
-    """Events as [onset, duration, midi, velocity?] or [..., velocity, voice].
+def _canonical_events(events: list[list]) -> tuple:
+    """Parse the ONE canonical event form every temporal tool accepts (RE-4a):
 
-    Distinct from ``_flex_events``: velocity is at index 3 (``None``/omitted =
-    no velocity) and voice is promoted to index 4 — the groove tools need
-    per-note velocity, which the [.., voice]-at-index-3 convention can't carry.
+        [onset_beats, duration_beats, midi_note, velocity?, voice?]
+
+    ``velocity`` (index 3) is a number or null; ``voice`` (index 4) is a
+    string. Legacy compat, additive: a STRING at index 3 is read as the voice
+    (the old ``[.., voice]`` convention several tools used) — the JSON types
+    keep the two readings unambiguous, and a string at 3 combined with a
+    voice at 4 is rejected as contradictory rather than guessed at.
+    Returns the parsed Event tuple; callers build the Sequence (they differ
+    on bpm/time-signature kwargs).
     """
-    from ..temporal import Event, Sequence
+    from ..temporal import Event
 
     try:
-        parsed = tuple(
-            Event(
-                float(entry[0]),
-                float(entry[1]),
-                Pitch.from_midi(
-                    int(entry[2]),
-                    velocity=(
-                        int(entry[3]) if len(entry) > 3 and entry[3] is not None else None
-                    ),
-                ),
-                voice=str(entry[4]) if len(entry) > 4 and entry[4] is not None else None,
+        parsed = []
+        for entry in events:
+            velocity = None
+            voice = None
+            if len(entry) > 3 and entry[3] is not None:
+                if isinstance(entry[3], str):
+                    if len(entry) > 4 and entry[4] is not None:
+                        raise ValueError(
+                            f"contradictory event {entry!r}: a string at index 3 "
+                            "is the legacy voice form, which cannot combine with "
+                            "a voice at index 4"
+                        )
+                    voice = entry[3]  # legacy [onset, duration, midi, voice]
+                else:
+                    velocity = int(entry[3])
+            if len(entry) > 4 and entry[4] is not None:
+                voice = str(entry[4])
+            parsed.append(
+                Event(
+                    float(entry[0]),
+                    float(entry[1]),
+                    Pitch.from_midi(int(entry[2]), velocity=velocity),
+                    voice=voice,
+                )
             )
-            for entry in events
-        )
     except (TypeError, ValueError, IndexError) as exc:
         raise ValueError(
-            "Each event must be [onset_beats, duration_beats, midi_note] with "
-            f"optional velocity (index 3) and voice (index 4): {exc}"
+            "Each event must be [onset_beats, duration_beats, midi_note, "
+            "velocity?, voice?] — velocity numeric at index 3 (a bare string "
+            "there is read as the legacy voice form), voice string at index 4: "
+            f"{exc}"
         ) from exc
-    return Sequence.from_events(parsed)
+    return tuple(parsed)
+
+
+def _canonical_sequence(events: list[list], **kwargs) -> "Sequence":
+    """Canonical events straight to a Sequence (kwargs: bpm, time_signature)."""
+    from ..temporal import Sequence
+
+    return Sequence.from_events(_canonical_events(events), **kwargs)
 
 
 def extract_groove(
@@ -762,13 +697,12 @@ def extract_groove(
     yields a NULL groove (all offsets 0.0); the feel must be in the onsets to
     be measured. Polyphony is fine (simultaneous onsets share a slot).
     loop_length_beats defaults to the sequence duration rounded to whole slots
-    — pass it explicitly for a clean loop. events: each [onset_beats,
-    duration_beats, midi_note] with optional velocity (index 3) and voice
-    (index 4)."""
+    — pass it explicitly for a clean loop. events: the canonical event form
+    [onset_beats, duration_beats, midi_note, velocity?, voice?]."""
     from ..temporal import extract_groove as _extract
 
     template = _extract(
-        _vel_events(events),
+        _canonical_sequence(events),
         base_unit_beats=float(base_unit_beats),
         loop_length_beats=(
             float(loop_length_beats) if loop_length_beats is not None else None
@@ -796,14 +730,14 @@ def apply_groove(
     (REQUIRES seed when > 0 — same input + same seed → same output); velocity
     is a signed scale on the accent contour (negative reverses); amount [0,1]
     is a global multiplier on all feel. Onsets shift, durations are preserved.
-    template is the dict returned by extract_groove. events: each [onset_beats,
-    duration_beats, midi_note] with optional velocity (index 3) and voice
-    (index 4); the result echoes velocity at index 3 (and voice at index 4 if
+    template is the dict returned by extract_groove. events: the canonical event
+    form [onset_beats, duration_beats, midi_note, velocity?, voice?]; the
+    result echoes velocity at index 3 (and voice at index 4 if
     present) plus the cited parameters and what changed."""
     from ..temporal import GrooveTemplate, apply_groove as _apply
 
     result = _apply(
-        _vel_events(events),
+        _canonical_sequence(events),
         GrooveTemplate.from_dict(template),
         quantize=float(quantize),
         timing=float(timing),
@@ -824,28 +758,6 @@ def apply_groove(
 
 # --- rulesets (Phase 4.6) -----------------------------------------------------------
 
-def _flex_events(events: list[list]) -> "Sequence":
-    """Events as [onset, duration, midi] or [onset, duration, midi, voice]."""
-    from ..temporal import Event, Sequence
-
-    try:
-        parsed = tuple(
-            Event(
-                float(entry[0]),
-                float(entry[1]),
-                Pitch.from_midi(int(entry[2])),
-                voice=str(entry[3]) if len(entry) > 3 and entry[3] is not None else None,
-            )
-            for entry in events
-        )
-    except (TypeError, ValueError, IndexError) as exc:
-        raise ValueError(
-            "Each event must be [onset_beats, duration_beats, midi_note] or "
-            f"[onset_beats, duration_beats, midi_note, voice_label]: {exc}"
-        ) from exc
-    return Sequence.from_events(parsed)
-
-
 def validate_ruleset(ruleset: dict) -> dict:
     """Strictly validate a ruleset document (the Phase 4.6 DSL) WITHOUT
     evaluating it. Returns {"valid": bool, "errors": [...]} with every
@@ -865,8 +777,9 @@ def evaluate_ruleset(
     events: list[list],
     harmony: list[list] | None = None,
 ) -> dict:
-    """Evaluate a ruleset (Phase 4.6 DSL) against events — each [onset_beats,
-    duration_beats, midi_note] or [..., voice_label] — returning a
+    """Evaluate a ruleset (Phase 4.6 DSL) against events — the canonical
+    event form [onset_beats, duration_beats, midi_note, velocity?, voice?] —
+    returning a
     ConformanceReport: per-rule violations with locations and atom evidence,
     conformance frequencies, hard/soft rollups. Rules referencing
     harmony-dependent fields (nht_type, is_chord_tone) need harmony spans
@@ -883,7 +796,7 @@ def evaluate_ruleset(
             raise ValueError(
                 f"Each harmony span must be [start_beat, end_beat, [pcs]]: {exc}"
             ) from exc
-    return evaluate(ruleset, _flex_events(events), harmony=spans).to_dict()
+    return evaluate(ruleset, _canonical_sequence(events), harmony=spans).to_dict()
 
 
 def induce_rules(
@@ -911,7 +824,7 @@ def induce_rules(
     ruleset round-trips through the validator."""
     from ..rules import induce_ruleset
 
-    pieces = [_flex_events(piece) for piece in corpus]
+    pieces = [_canonical_sequence(piece) for piece in corpus]
     spans = None
     if harmony is not None:
         try:
@@ -1234,15 +1147,15 @@ def midi_file_analysis(
                 profiles=profiles,
                 key_inertia=bool(key_inertia),
             )
-        except ValueError:
-            regions = None  # no window carried tonal information
+        except InsufficientInformation:
+            regions = None  # honest absence: no window carried tonal information
 
     meter_regions = None
     if include_meter_regions:
         try:
             meter_regions = track_meter(sequence)
-        except ValueError:
-            meter_regions = None  # no window carried metric information
+        except InsufficientInformation:
+            meter_regions = None  # honest absence: no window carried metric information
 
     dataset = dataset_from_sequence(
         sequence,
@@ -1304,8 +1217,8 @@ def piano_roll_view(
                 disambiguate_relative=bool(disambiguate_relative_keys),
                 smoothing=bool(smooth_key_regions),
             )
-        except ValueError:
-            regions = None  # no window carried tonal information
+        except InsufficientInformation:
+            regions = None  # honest absence: no window carried tonal information
     if regions is None and chord_overlays:
         try:
             best = infer_key(sequence)
@@ -1315,8 +1228,8 @@ def piano_roll_view(
                 if rel.applied and not rel.is_ambiguous:
                     chosen = rel.chosen
             context = candidate_context(chosen)
-        except ValueError:
-            context = None  # no tonal information — intrinsic naming only
+        except InsufficientInformation:
+            context = None  # honest absence — intrinsic naming only
 
     result = piano_roll_descriptor(
         sequence,

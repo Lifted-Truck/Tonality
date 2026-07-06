@@ -38,6 +38,7 @@ import dataclasses
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from ..analysis.errors import InsufficientInformation
 from ..analysis.key_induction import disambiguate_relative_key, infer_key
 from .sequence import Sequence
 
@@ -310,7 +311,7 @@ def track_keys(
     informative = [w for w in windows if w.is_informative]
     info_scores = [sv for sv in score_vectors if sv is not None]
     if not informative:
-        raise ValueError(
+        raise InsufficientInformation(
             "No window carries tonal information (all silence or uniform content)."
         )
 
