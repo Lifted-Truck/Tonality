@@ -29,6 +29,7 @@ cited in the result; don't read boundaries finer than ``hop_beats``.
 
 from __future__ import annotations
 
+import bisect
 import dataclasses
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -115,7 +116,13 @@ class MeterTrackingResult:
         return dataclasses.asdict(self)
 
 
-def _window_subsequence(sequence: Sequence, start: float, end: float) -> Sequence:
+def _window_subsequence(
+    sequence: Sequence,
+    start: float,
+    end: float,
+    *,
+    onsets: list[float] | None = None,
+) -> Sequence:
     """The events in ``[start, end)`` re-based to window phase 0.
 
     Onsets shift by ``-start`` (so the window starts on a notional downbeat, the
@@ -123,13 +130,20 @@ def _window_subsequence(sequence: Sequence, start: float, end: float) -> Sequenc
     preserved so the accent weighting is intact. Tempo/meter default — only the
     inferred candidate is read from this sub-sequence; region seconds come from the
     original sequence's tempo map.
+
+    ``onsets`` (the events' onsets, precomputed once by the caller) turns the
+    per-window membership scan into a bisect slice — events are onset-sorted,
+    so ``[start, end)`` is a contiguous range (RE-5d).
     """
 
-    windowed = [
-        dataclasses.replace(e, onset=e.onset - start)
-        for e in sequence.events
-        if start - _EPS <= e.onset < end - _EPS
-    ]
+    events = sequence.events
+    if onsets is None:
+        window_events = [e for e in events if start - _EPS <= e.onset < end - _EPS]
+    else:
+        lo = bisect.bisect_left(onsets, start - _EPS)
+        hi = bisect.bisect_left(onsets, end - _EPS)
+        window_events = events[lo:hi]
+    windowed = [dataclasses.replace(e, onset=e.onset - start) for e in window_events]
     return Sequence.from_events(windowed)
 
 
@@ -186,11 +200,14 @@ def track_meter(
         starts = [0.0]
 
     windows: list[MeterWindow] = []
+    onsets = [e.onset for e in sequence.events]  # sorted; bisect slices per window
     for start in starts:
         end = min(start + window_beats, duration)
         try:
             ranking = infer_meter(
-                _window_subsequence(sequence, start, end), profiles=profiles, phase_search=True
+                _window_subsequence(sequence, start, end, onsets=onsets),
+                profiles=profiles,
+                phase_search=True,
             )
         except ValueError:
             windows.append(MeterWindow(start, end, (start + end) / 2.0, None, None, None, None, None))

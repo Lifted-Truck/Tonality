@@ -92,7 +92,9 @@ def reflection_axes(pcs: set[int]) -> list[ReflectionAxis]:
     return list(_reflection_axes_for_mask(mask_from_pcs(pcs)))
 
 
-@lru_cache(maxsize=4096)
+# Pair-keyed cache (RE-5e): the key space is mask *pairs*, not single masks, so
+# 4096 thrashes; 16384 matches voice_leading's pair-keyed sizing.
+@lru_cache(maxsize=16384)
 def _compatibility_roots_for_masks(scale_mask: int, quality_mask: int) -> tuple[int, ...]:
     return tuple(
         root
@@ -107,7 +109,8 @@ def compatibility_roots(scale: Scale, quality: ChordQuality) -> tuple[int, ...]:
     return _compatibility_roots_for_masks(scale.mask, quality.mask)
 
 
-@lru_cache(maxsize=4096)
+# Pair-keyed cache (RE-5e): mask-pair key space — 16384, not 4096.
+@lru_cache(maxsize=16384)
 def _containing_roots_for_masks(container_mask: int, query_mask: int) -> tuple[int, ...]:
     return tuple(
         root

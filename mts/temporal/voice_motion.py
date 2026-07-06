@@ -96,16 +96,14 @@ def _classify(a_from: int, a_to: int, b_from: int, b_to: int) -> str | None:
     return "similar"
 
 
-def _positions(sequence: Sequence, beat: float) -> dict[str, tuple[int, float]]:
-    """Each voice's single sounding (MIDI pitch, latest offset) at *beat*
-    (ambiguous pitch → absent). The offset lets the caller detect a rest
-    before the next moment: adjacent moments have no onsets between them, so
-    a voice bridges the gap iff a sounding event reaches the next moment."""
-
+def _positions_from(sounding) -> dict[str, tuple[int, float]]:
+    """The per-voice single-pitch positions from a set of sounding events —
+    each voice's (midi, latest offset), voices with an ambiguous pitch dropped.
+    """
     pitches: dict[str, set[int]] = {}
     reach: dict[str, float] = {}
-    for event in sequence.events:
-        if event.voice is not None and event.sounds_at(beat):
+    for event in sounding:
+        if event.voice is not None:
             pitches.setdefault(event.voice, set()).add(event.pitch.midi)
             reach[event.voice] = max(reach.get(event.voice, 0.0), event.offset)
     return {
@@ -113,6 +111,15 @@ def _positions(sequence: Sequence, beat: float) -> dict[str, tuple[int, float]]:
         for voice, p in pitches.items()
         if len(p) == 1
     }
+
+
+def _positions(sequence: Sequence, beat: float) -> dict[str, tuple[int, float]]:
+    """Each voice's single sounding (MIDI pitch, latest offset) at *beat*
+    (ambiguous pitch → absent). The offset lets the caller detect a rest
+    before the next moment: adjacent moments have no onsets between them, so
+    a voice bridges the gap iff a sounding event reaches the next moment."""
+
+    return _positions_from(e for e in sequence.events if e.sounds_at(beat))
 
 
 def voice_motion(sequence: Sequence) -> VoiceMotionResult:
@@ -131,10 +138,16 @@ def voice_motion(sequence: Sequence) -> VoiceMotionResult:
         )
 
     moments = sorted({e.onset for e in sequence.events if e.voice is not None})
+    # One sweep for every moment's positions instead of _positions (a full
+    # event scan) twice per adjacent pair (RE-5d): each moment's sounding set
+    # is computed once, in ascending order, over the sequence-ordered events.
+    from .segmentation import _sweep_active
+
+    positions = [_positions_from(active) for active in _sweep_active(sequence.events, moments)]
     transitions: list[VoicePairMotion] = []
-    for from_beat, to_beat in zip(moments, moments[1:]):
-        before = _positions(sequence, from_beat)
-        after = _positions(sequence, to_beat)
+    for idx, (from_beat, to_beat) in enumerate(zip(moments, moments[1:])):
+        before = positions[idx]
+        after = positions[idx + 1]
         for voice_a, voice_b in combinations(voices, 2):
             if not {voice_a, voice_b} <= before.keys() & after.keys():
                 continue

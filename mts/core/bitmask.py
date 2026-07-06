@@ -29,25 +29,35 @@ def is_subset(subset_mask: int, superset_mask: int) -> bool:
 
 
 def rotate_mask(mask: int, semitones: int) -> int:
-    semitones %= 12
-    rotated = 0
-    for pc in range(12):
-        if mask & (1 << pc):
-            rotated |= 1 << ((pc + semitones) % 12)
-    return rotated
+    # Circular left-shift in 12-bit space: bit p -> (p + s) mod 12. Bits shifted
+    # past bit 11 wrap in via `mask >> (12 - s)`; masking to 0xFFF keeps it
+    # 12-bit. Branchless replacement for the old 12-iteration loop (the
+    # library's hottest primitive — per-root/per-tone, x24 in prime form).
+    s = semitones % 12
+    if s == 0:
+        return mask & 0xFFF
+    return ((mask << s) | (mask >> (12 - s))) & 0xFFF
 
 
 def transpose_pcs(pcs: Sequence[int], semitones: int) -> list[int]:
     return [validate_pc((pc + semitones) % 12) for pc in pcs]
 
 
+# Bit-reversal of a 12-bit mask (pc p -> 11 - p), precomputed once. A pure data
+# table — ports as a constexpr array (Phase 8). Used by invert_mask.
+_REVERSE_12 = tuple(
+    sum(1 << (11 - pc) for pc in range(12) if m & (1 << pc)) for m in range(4096)
+)
+
+
 def invert_mask(mask: int, index: int = 0) -> int:
-    """The inversion I_n: each pc maps to (index - pc) mod 12."""
-    inverted = 0
-    for pc in range(12):
-        if mask & (1 << pc):
-            inverted |= 1 << ((index - pc) % 12)
-    return inverted
+    """The inversion I_n: each pc maps to (index - pc) mod 12.
+
+    ``(index - pc) mod 12 == (index + 1) + (11 - pc) (mod 12)``, so inversion is
+    a bit-reversal (pc -> 11 - pc) followed by a rotation of ``index + 1`` —
+    a table lookup plus the branchless rotate, no per-bit loop.
+    """
+    return rotate_mask(_REVERSE_12[mask & 0xFFF], index + 1)
 
 
 def complement_mask(mask: int) -> int:

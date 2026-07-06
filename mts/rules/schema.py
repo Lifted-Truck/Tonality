@@ -259,12 +259,15 @@ def _parse_rule(payload: object, index: int, seen_ids: set[str], errors: list[st
     )
 
 
-def validation_errors(payload: object) -> list[str]:
-    """Every problem with *payload* as a ruleset (empty list = valid)."""
+def _validate_and_parse(payload: object) -> tuple[list[str], tuple["Rule", ...]]:
+    """One pass over a ruleset payload: collect every error AND the parsed
+    rules (RE-5f — ``_parse_rule`` both validates and builds, so validating
+    then re-parsing walked every rule twice). ``validation_errors`` and
+    ``parse_ruleset`` are thin wrappers over this."""
 
     errors: list[str] = []
     if not isinstance(payload, dict):
-        return [f"ruleset must be a JSON object, got {type(payload).__name__}"]
+        return [f"ruleset must be a JSON object, got {type(payload).__name__}"], ()
     unknown = set(payload) - _RULESET_KEYS
     if unknown:
         errors.append(f"unknown keys {sorted(unknown)} (allowed: {sorted(_RULESET_KEYS)})")
@@ -275,14 +278,23 @@ def validation_errors(payload: object) -> list[str]:
     # string "None" and round-tripped as data. Optional, but a string when present.
     if "description" in payload and not isinstance(payload["description"], str):
         errors.append("description: must be a string when present")
-    rules = payload.get("rules")
-    if not isinstance(rules, list) or not rules:
+    rules_payload = payload.get("rules")
+    parsed: list[Rule] = []
+    if not isinstance(rules_payload, list) or not rules_payload:
         errors.append("rules: required, a non-empty list")
     else:
         seen: set[str] = set()
-        for i, rule_payload in enumerate(rules):
-            _parse_rule(rule_payload, i, seen, errors)
-    return errors
+        for i, rule_payload in enumerate(rules_payload):
+            rule = _parse_rule(rule_payload, i, seen, errors)
+            if rule is not None:
+                parsed.append(rule)
+    return errors, tuple(parsed)
+
+
+def validation_errors(payload: object) -> list[str]:
+    """Every problem with *payload* as a ruleset (empty list = valid)."""
+
+    return _validate_and_parse(payload)[0]
 
 
 def parse_ruleset(payload: object) -> Ruleset:
@@ -291,17 +303,10 @@ def parse_ruleset(payload: object) -> Ruleset:
     Raises :class:`RulesetValidationError` carrying the full error list.
     """
 
-    errors = validation_errors(payload)
+    errors, rules = _validate_and_parse(payload)
     if errors:
         raise RulesetValidationError(errors)
     assert isinstance(payload, dict)
-    seen: set[str] = set()
-    silent: list[str] = []
-    rules = tuple(
-        rule
-        for i, rule_payload in enumerate(payload["rules"])
-        if (rule := _parse_rule(rule_payload, i, seen, silent)) is not None
-    )
     return Ruleset(
         name=payload["name"],
         version=payload["version"],

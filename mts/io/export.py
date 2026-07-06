@@ -120,15 +120,24 @@ def _asset_versions(data: Any) -> list[str] | None:
     return None
 
 
-def _data_asset_index() -> dict[str, dict[str, Any]]:
-    """Per-file ``{name: {"versions": ...}}`` over ``data/*.json`` (sorted)."""
+def _data_asset_index(*, include_content: bool = False) -> dict[str, dict[str, Any]]:
+    """Per-file ``{name: {"versions": ...}}`` over ``data/*.json`` (sorted).
+
+    With ``include_content`` each entry also carries the parsed ``content`` and a
+    ``sha256`` of the raw bytes — the bundle's payload, read and parsed in the
+    *same* pass as the version index instead of a second time (RE-5f)."""
 
     from .loaders import DATA_DIR
 
     assets: dict[str, dict[str, Any]] = {}
     for path in sorted(DATA_DIR.glob("*.json")):
-        data = json.loads(path.read_text(encoding="utf-8"))
-        assets[path.name] = {"versions": _asset_versions(data)}
+        raw = path.read_bytes()
+        data = json.loads(raw)
+        entry: dict[str, Any] = {"versions": _asset_versions(data)}
+        if include_content:
+            entry["sha256"] = hashlib.sha256(raw).hexdigest()
+            entry["content"] = data
+        assets[path.name] = entry
     return assets
 
 
@@ -160,7 +169,9 @@ def voice_leading_policies() -> list[dict[str, Any]]:
     ]
 
 
-def versioned_data_manifest() -> dict[str, Any]:
+def versioned_data_manifest(
+    *, data_assets: dict[str, dict[str, Any]] | None = None
+) -> dict[str, Any]:
     """A stable-schema index of the engine's versioned data assets.
 
     For each ``data/*.json`` prior/catalog, records the version string(s) it
@@ -169,6 +180,9 @@ def versioned_data_manifest() -> dict[str, Any]:
     native port reads to know exactly which versioned data — and which version
     strings — it must pin and cite. Names the data; does **not** embed content
     (use :func:`versioned_data_bundle` for the self-contained payload).
+
+    ``data_assets`` lets the bundle pass its already-parsed index (version-only
+    view) so the files aren't parsed twice (RE-5f).
     """
 
     return {
@@ -178,7 +192,7 @@ def versioned_data_manifest() -> dict[str, Any]:
             "consumer-port corollary). The golden conformance harness is the parity "
             "oracle; this names the versioned data a port must pin + cite."
         ),
-        "data_assets": _data_asset_index(),
+        "data_assets": _data_asset_index() if data_assets is None else data_assets,
         "policies": voice_leading_policies(),
         "set_class_table": {
             "entries": 4096,
@@ -207,18 +221,17 @@ def versioned_data_bundle() -> dict[str, Any]:
     (1.4M); the table is emitted as its own artifact. Deterministic.
     """
 
-    from .loaders import DATA_DIR
-
-    bundle = versioned_data_manifest()
+    # One parse per file: the full index (versions + sha256 + content) feeds the
+    # bundle, and a version-only view feeds the manifest (RE-5f — the assets were
+    # previously parsed once for the manifest index and again here for content).
+    full = _data_asset_index(include_content=True)
+    thin = {name: {"versions": entry["versions"]} for name, entry in full.items()}
+    bundle = versioned_data_manifest(data_assets=thin)
     bundle["bundle_note"] = (
         "Self-contained: each data_assets entry embeds parsed 'content' and a "
         "'sha256' over the raw file bytes. set_class_table is emitted separately."
     )
-    for path in sorted(DATA_DIR.glob("*.json")):
-        raw = path.read_bytes()
-        entry = bundle["data_assets"][path.name]
-        entry["sha256"] = hashlib.sha256(raw).hexdigest()
-        entry["content"] = json.loads(raw)
+    bundle["data_assets"] = full
     return bundle
 
 
