@@ -9,9 +9,16 @@ import dataclasses
 import hashlib
 import json
 
-from mts.analysis.pcset_math import set_class_data
+from mts.analysis.pcset_math import set_class_data, trichord_chirality
 from mts.analysis.voice_leading import POLICY_DOUBLING_V1
 from mts.core.bitmask import interval_vector_from_mask
+from mts.core.setclass import (
+    chirality,
+    chirality_sign,
+    dft_phases,
+    general_chirality,
+    reflection_residual,
+)
 from mts.core.symmetry import rotational_period
 from mts.io.export import (
     EXPORT_SCHEMA_VERSION,
@@ -46,6 +53,13 @@ def test_rows_are_faithful_to_the_engine():
         assert row["interval_vector"] == list(interval_vector_from_mask(mask))
         assert row["rotational_period"] == rotational_period(mask)
         assert row["cardinality"] == bin(mask).count("1")
+        # export.2 slice-1b family: same core functions as set_class_info.
+        assert row["dft_phases"] == list(dft_phases(mask))
+        assert row["trichord_chirality"] == trichord_chirality(mask)
+        assert row["general_chirality"] == general_chirality(mask)
+        assert row["chirality_sign"] == chirality_sign(mask)
+        assert row["chirality"] == chirality(mask)
+        assert row["reflection_residual"] == reflection_residual(mask)
 
 
 def test_table_is_deterministic_and_json_serialisable():
@@ -57,7 +71,7 @@ def test_table_is_deterministic_and_json_serialisable():
 
 def test_manifest_cites_live_versions():
     manifest = versioned_data_manifest()
-    assert manifest["schema_version"] == EXPORT_SCHEMA_VERSION == "export.1"
+    assert manifest["schema_version"] == EXPORT_SCHEMA_VERSION == "export.2"
     assets = manifest["data_assets"]
     # the versioned priors are present with their live version strings
     assert load_key_profiles().version in assets["key_profiles.json"]["versions"]

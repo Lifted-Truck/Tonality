@@ -202,7 +202,13 @@ def set_class_info(pcs: list[int]) -> dict:
     real magnitude (|chirality| = √R orders sets by how chiral they are).
     `prime_form`, `prime_form_mask`, and the 12-bit `mask` are all returned."""
     from ..analysis.pcset_math import trichord_chirality
-    from ..core.setclass import chirality, chirality_sign, dft_phases, general_chirality
+    from ..core.setclass import (
+        chirality,
+        chirality_sign,
+        dft_phases,
+        general_chirality,
+        reflection_residual,
+    )
 
     mask = mask_from_pcs({int(pc) % 12 for pc in pcs})
     if mask == 0:
@@ -214,6 +220,10 @@ def set_class_info(pcs: list[int]) -> dict:
     data["general_chirality"] = general_chirality(mask)
     data["chirality_sign"] = chirality_sign(mask)
     data["chirality"] = chirality(mask)
+    # export.2 mirror: R itself, the best-fit reflection-axis residual
+    # (|chirality| = sqrt(R)) — added alongside the table column so the
+    # tool/table mirror holds on every field (tonality-core slice 1b).
+    data["reflection_residual"] = reflection_residual(mask)
     data["mask"] = mask
     return data
 

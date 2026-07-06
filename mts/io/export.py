@@ -39,7 +39,11 @@ import hashlib
 import json
 from typing import Any
 
-EXPORT_SCHEMA_VERSION = "export.1"
+# export.2 (2026-07-05): rows gain the slice-1b family — dft_phases +
+# trichord/general chirality + chirality_sign + chirality + reflection_residual
+# (tonality-core brief; A6 declared the surface settled). Additive per row;
+# consumers pin via the manifest's declared fields + this version string.
+EXPORT_SCHEMA_VERSION = "export.2"
 
 #: The per-mask fields of :func:`set_class_table` (documented in the manifest).
 SET_CLASS_TABLE_FIELDS = (
@@ -53,6 +57,12 @@ SET_CLASS_TABLE_FIELDS = (
     "z_partner_prime_form",
     "complement_prime_form",
     "rotational_period",
+    "dft_phases",
+    "trichord_chirality",
+    "general_chirality",
+    "chirality_sign",
+    "chirality",
+    "reflection_residual",
 )
 
 
@@ -66,8 +76,15 @@ def set_class_table() -> list[dict[str, Any]]:
     conformance harness pins one row already).
     """
 
-    from ..analysis.pcset_math import set_class_data
+    from ..analysis.pcset_math import set_class_data, trichord_chirality
     from ..core.bitmask import interval_vector_from_mask
+    from ..core.setclass import (
+        chirality,
+        chirality_sign,
+        dft_phases,
+        general_chirality,
+        reflection_residual,
+    )
     from ..core.symmetry import rotational_period
 
     table: list[dict[str, Any]] = []
@@ -77,6 +94,14 @@ def set_class_table() -> list[dict[str, Any]]:
         entry["cardinality"] = bin(mask).count("1")
         entry["interval_vector"] = list(interval_vector_from_mask(mask))
         entry["rotational_period"] = rotational_period(mask)
+        # Slice-1b family (export.2) — the same core functions set_class_info
+        # calls, so the tool/table mirror holds for every field.
+        entry["dft_phases"] = list(dft_phases(mask))
+        entry["trichord_chirality"] = trichord_chirality(mask)
+        entry["general_chirality"] = general_chirality(mask)
+        entry["chirality_sign"] = chirality_sign(mask)
+        entry["chirality"] = chirality(mask)
+        entry["reflection_residual"] = reflection_residual(mask)
         table.append({field: entry[field] for field in SET_CLASS_TABLE_FIELDS})
     return table
 

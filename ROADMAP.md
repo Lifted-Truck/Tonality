@@ -561,6 +561,33 @@ list as new applications come into view.
   contract schema/validator/emitter — **gap 16 below** · constrained voicing
   enumeration/ranking — **gap 17 below** · division-of-labor table + bounded
   client fallbacks ✅ endorsed (the consumer-port-corollary shape, Decision 10).
+- **A9 — WEND** *(added 2026-07-05 from its brief, direct route —
+  `integrations/wend/`; repo: github.com/Lifted-Truck/Wend)*. A **conditional
+  generative sequencer** (pure-Python MVP): a rule-DSL-driven walk through
+  harmonic space (diatonic motion, fifths steps, pivot modulation,
+  tonicization, conditional meter) emitting SMF + a per-bar JSON decision
+  trace. Consumes through one adapter seam (`oracle.py` — "the engine never
+  chooses"; every touch point greppable as `# SEAM`), with a zero-dep
+  fallback oracle behind the same protocol. Its central mechanism —
+  **surprise is measured, not drawn** — consumes VL cost as move-surprise
+  and the induction `margin` directly as a continuous tension signal: the
+  first consumer to use margin as a *generative control input*. Offline
+  batch; re-queries per bar; Door 1 (Python import); numeric only.
+  *Capabilities:* `infer_key` per bar ✅ shipped (pins `kk-1982.1` — the
+  TERRANE margin-as-signal posture, confirmed) · identity `voice_leading`
+  + mapping-as-evidence per candidate move ✅ shipped (pc-list inputs
+  direct) · `next_chord` raw-axes re-ranking ✅ shipped · `cadences`
+  closed-loop ✅ shipped · `evaluate_ruleset` ✅ shipped, but its harmonic
+  vocabulary is **the Phase 4.6 harmony/progression rule family** — Wend is
+  that gap's first named external consumer · generate→detect
+  self-validation via `structural_keys` 📖 documented (INTEGRATION.md
+  recipe, Wend R5) · **Phase 7 consumer on both halves** (modulation-path
+  planning ← `pivots_between`; generative realization ← `realize_voicing`,
+  with recorded parameter asks: per-step VL-cost ceiling, register center,
+  contour hold, max fifths distance, pivot preference) — the realization
+  half also registered on **gap 17** (nearer-term slice of the same need) ·
+  serializer unification (its SMF writer → `sequence_to_midi_file`) noted,
+  door open, nothing owed.
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
@@ -997,7 +1024,9 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     **explicitly generative** layer producing candidates under the constraints;
     deterministic, any random component seed-explicit. Accepted under Decision
     11's scope rule (multi-client benefit: A8's resonator voicings, TERRANE's
-    harmonic states, the Phase 7 generative work all want it). Client-supplied
+    harmonic states, A9 Wend's `realize_voicing` seam — recorded asks:
+    smoothness ceiling vs the previous voicing, register center, contour
+    hold — and the Phase 7 generative work all want it). Client-supplied
     voicings remain valid ranking input regardless; this gap lags gap 16
     without blocking it (hand-authored voicings are valid contracts).
 18. **Catalog contract + pitch-answer scorer** (added 2026-07-04 from A6
@@ -1855,7 +1884,11 @@ to be informed by what 1–3 teach about the DSL's seams).
       stream derives from segmentation/dataset records rather than raw
       atom streams. Per the Decision 8 corollary, this vocabulary expansion
       is a first-class investment; induction inherits the new family for
-      free (mineable categorical fields).
+      free (mineable categorical fields). *First named external consumer
+      (2026-07-05): **A9 Wend** (brief R4) — wants succession tags, cadence
+      events, and key-region shape as rule fields ("require an authentic
+      cadence within 4 bars of a section end"); stopgaps via
+      `tag_transition` self-scoring meanwhile.*
 - [ ] **Pattern layer — sequential patterns/schemata as first-class objects**
       (added 2026-07-01 — gap C; the largest design lift, sequenced last).
       Constraints say what is *forbidden/required*; patterns say what is
@@ -2101,6 +2134,12 @@ bracelet identity views.)*
 *Ordering note: the number groups this with the later work, but it depends only on
 shipped layers (voicings, `Realization`, temporal/segmentation) plus optionally
 Phase 4.5 corpus statistics — so it can land before the Phase 6 tuning work.*
+*Named consumer (2026-07-05): **A9 Wend** — both halves, with seams already
+tagged in its source awaiting this phase: `realize_voicing` → generative
+realization (asks: per-step VL-cost ceiling / "smoothness", register center,
+contour hold) and `pivots_between` / `tonicization_targets` → modulation-path
+planning (asks: maximum fifths distance, pivot preference). The realization
+half is also registered on gap 17, the nearer-term slice.*
 
 - **Generative, not analysis** (the cardinal rule): given a chord *progression* — a
   sequence of identities, from segmentation / `interpret_chord` / user input —
@@ -2200,6 +2239,18 @@ acceptance plan: **[CPP_PORT.md](CPP_PORT.md)**.
       (`voice_leading_policies()` → id + description, in both manifest and
       bundle) — `voice_leading.py` behaviour unchanged. The script emits
       `bundle.json` alongside `manifest.json` + `set_class_table.json`.*)
+      *(Slice 3, delivered 2026-07-05 — **export.2, the slice-1b family**:
+      table rows gain `dft_phases` + `trichord_chirality` +
+      `general_chirality` + `chirality_sign` + `chirality` +
+      `reflection_residual`, computed through the same core functions
+      `set_class_info` calls — and `reflection_residual` joins
+      `set_class_info` too, preserving the tool/table mirror. Trigger: A6
+      declared the briefs-15–17 chirality surface settled
+      (`integrations/audiology/note-chirality-settled.md`), satisfying the
+      slice-1b hold; asked by the port thread's first brief
+      (`integrations/tonality-core/brief.md`). The port pin tripped and was
+      regenerated in the same PR with the notice, per the protocol —
+      the pin's first live firing.)*
       **Deferred follow-ons:** committing the table artifact + a
       regenerate-and-diff guard if a consumer wants it checked in.
 - **Port plan drafted (2026-06-29 — [CPP_PORT.md](CPP_PORT.md), under review).**

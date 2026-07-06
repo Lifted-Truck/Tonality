@@ -51,7 +51,7 @@ def ported_surface_fingerprint() -> dict[str, object]:
         if case["tool"] in PORTED_CONFORMANCE_TOOLS
     ]
     return {
-        "surface": "port.slice-1",
+        "surface": "port.slice-1b",  # slice 1 + the chirality/DFT-phase family (export.2)
         "export_schema_version": EXPORT_SCHEMA_VERSION,
         "set_class_table_fields": list(SET_CLASS_TABLE_FIELDS),
         "set_class_table_sha256": _canonical_sha256(set_class_table()),
