@@ -30,16 +30,9 @@ DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 # the JSON is re-read only when the file changes on disk.
 _BASE_SCALES_CACHE: tuple[Path, int, dict[str, Scale]] | None = None
 _BASE_QUALITIES_CACHE: tuple[Path, int, dict[str, ChordQuality]] | None = None
-_KEY_PROFILES_CACHE: tuple[Path, int, tuple["KeyProfileSet", ...]] | None = None
-_NAMING_WEIGHTS_CACHE: tuple[Path, int, tuple["NamingWeights", ...]] | None = None
-_SWING_FEEL_CACHE: tuple[Path, int, tuple["SwingFeelPriors", ...]] | None = None
-_SUCCESSION_WEIGHTS_CACHE: tuple[Path, int, tuple["SuccessionWeights", ...]] | None = None
-_RELATIVE_KEY_CACHE: tuple[Path, int, tuple["RelativeKeyWeights", ...]] | None = None
-_KEY_SMOOTHING_CACHE: tuple[Path, int, tuple["KeySmoothingPriors", ...]] | None = None
-_KEY_INERTIA_CACHE: tuple[Path, int, tuple["KeyInertiaPriors", ...]] | None = None
-_SCORING_PRIORS_CACHE: tuple[Path, int, tuple["ScoringPrior", ...]] | None = None
-_METER_PROFILES_CACHE: tuple[Path, int, tuple["MeterProfileSet", ...]] | None = None
-_STRUCTURAL_KEY_CACHE: tuple[Path, int, tuple["StructuralKeyPriors", ...]] | None = None
+# One cache for all ten versioned prior/profile loaders (RE-5f): filename
+# -> (mtime_ns, parsed entries). Base catalogs keep their own caches.
+_VERSIONED_CACHE: dict[str, tuple[int, tuple]] = {}
 # (source_mtimes, {args_key: mappings}) — the function-mapping generator cache
 # (RE-5b), keyed by scales.json + chord_qualities.json mtimes.
 _FUNCTION_MAPPINGS_CACHE: tuple[tuple[int, int], dict[tuple, list]] | None = None
@@ -255,48 +248,84 @@ def _read_json(name: str) -> list[dict]:
     return data
 
 
-def load_key_profiles(version: str | None = None) -> KeyProfileSet:
-    """Load a versioned key-profile set from ``data/key_profiles.json``.
+def _load_versioned(
+    filename: str,
+    parse_one,
+    *,
+    kind: str,
+    empty_message: str,
+    version: str | None,
+):
+    """Generic mtime-keyed versioned-prior loader (RE-5f).
 
-    ``version=None`` returns the first (default) entry. Cached by file mtime,
-    like the catalogs.
+    The ten prior/profile loaders shared an identical ~40-line block —
+    mtime cache, parse each JSON entry, select by ``version`` (``None`` =
+    first/default) or raise with the known versions. Only the per-entry
+    ``parse_one(payload)`` body and the labels differ; they now live in small
+    ``_parse_*`` functions and this helper carries the boilerplate. Simpler,
+    table-driven, and cleaner to port (Phase 8).
     """
-    global _KEY_PROFILES_CACHE
-    path = DATA_DIR / "key_profiles.json"
+    path = DATA_DIR / filename
     mtime = path.stat().st_mtime_ns
-    if _KEY_PROFILES_CACHE is not None and _KEY_PROFILES_CACHE[:2] == (path, mtime):
-        entries = _KEY_PROFILES_CACHE[2]
+    cached = _VERSIONED_CACHE.get(filename)
+    if cached is not None and cached[0] == mtime:
+        entries = cached[1]
     else:
-        parsed: list[KeyProfileSet] = []
-        for payload in _read_json("key_profiles.json"):
-            profiles: dict[str, tuple[float, ...]] = {}
-            for mode, values in dict(payload["profiles"]).items():
-                weights = tuple(float(v) for v in values)
-                if len(weights) != 12:
-                    raise ValueError(
-                        f"Key profile {payload['version']!r}/{mode!r} must have 12 weights"
-                    )
-                profiles[str(mode)] = weights
-            if not profiles:
-                raise ValueError(f"Key profile set {payload['version']!r} defines no modes")
-            parsed.append(
-                KeyProfileSet(
-                    version=str(payload["version"]),
-                    source=str(payload.get("source", "")),
-                    profiles=profiles,
-                )
-            )
-        if not parsed:
-            raise ValueError("key_profiles.json contains no profile sets")
-        entries = tuple(parsed)
-        _KEY_PROFILES_CACHE = (path, mtime, entries)
+        entries = tuple(parse_one(payload) for payload in _read_json(filename))
+        if not entries:
+            raise ValueError(empty_message)
+        _VERSIONED_CACHE[filename] = (mtime, entries)
     if version is None:
         return entries[0]
     for entry in entries:
         if entry.version == version:
             return entry
     known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown key-profile version {version!r} (known: {known})")
+    raise ValueError(f"Unknown {kind} version {version!r} (known: {known})")
+
+
+def _parse_key_profile(payload: dict) -> "KeyProfileSet":
+    profiles: dict[str, tuple[float, ...]] = {}
+    for mode, values in dict(payload["profiles"]).items():
+        weights = tuple(float(v) for v in values)
+        if len(weights) != 12:
+            raise ValueError(
+                f"Key profile {payload['version']!r}/{mode!r} must have 12 weights"
+            )
+        profiles[str(mode)] = weights
+    if not profiles:
+        raise ValueError(f"Key profile set {payload['version']!r} defines no modes")
+    return KeyProfileSet(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        profiles=profiles,
+    )
+
+
+def load_key_profiles(version: str | None = None) -> KeyProfileSet:
+    """Load a versioned key-profile set from ``data/key_profiles.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime,
+    like the catalogs.
+    """
+    return _load_versioned(
+        "key_profiles.json", _parse_key_profile,
+        kind="key-profile", version=version,
+        empty_message="key_profiles.json contains no profile sets",
+    )
+
+
+def _parse_naming_weights(payload: dict) -> "NamingWeights":
+    weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
+    if not weights:
+        raise ValueError(f"Naming weights {payload['version']!r} define no signals")
+    return NamingWeights(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        weights=weights,
+        ambiguity_margin=float(payload.get("ambiguity_margin", 0.0)),
+        marginalization=dict(payload.get("marginalization", {})),
+    )
 
 
 def load_naming_weights(version: str | None = None) -> NamingWeights:
@@ -304,37 +333,26 @@ def load_naming_weights(version: str | None = None) -> NamingWeights:
 
     ``version=None`` returns the first (default) entry. Cached by file mtime.
     """
-    global _NAMING_WEIGHTS_CACHE
-    path = DATA_DIR / "naming_weights.json"
-    mtime = path.stat().st_mtime_ns
-    if _NAMING_WEIGHTS_CACHE is not None and _NAMING_WEIGHTS_CACHE[:2] == (path, mtime):
-        entries = _NAMING_WEIGHTS_CACHE[2]
-    else:
-        parsed: list[NamingWeights] = []
-        for payload in _read_json("naming_weights.json"):
-            weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
-            if not weights:
-                raise ValueError(f"Naming weights {payload['version']!r} define no signals")
-            parsed.append(
-                NamingWeights(
-                    version=str(payload["version"]),
-                    source=str(payload.get("source", "")),
-                    weights=weights,
-                    ambiguity_margin=float(payload.get("ambiguity_margin", 0.0)),
-                    marginalization=dict(payload.get("marginalization", {})),
-                )
-            )
-        if not parsed:
-            raise ValueError("naming_weights.json contains no weight tables")
-        entries = tuple(parsed)
-        _NAMING_WEIGHTS_CACHE = (path, mtime, entries)
-    if version is None:
-        return entries[0]
-    for entry in entries:
-        if entry.version == version:
-            return entry
-    known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown naming-weights version {version!r} (known: {known})")
+    return _load_versioned(
+        "naming_weights.json", _parse_naming_weights,
+        kind="naming-weights", version=version,
+        empty_message="naming_weights.json contains no weight tables",
+    )
+
+
+def _parse_swing_prior(payload: dict) -> "SwingFeelPriors":
+    priors = SwingFeelPriors(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        straight_tolerance=float(payload["straight_tolerance"]),
+        consistency_tolerance=float(payload["consistency_tolerance"]),
+        min_divisions=int(payload["min_divisions"]),
+    )
+    if not 0.0 < priors.straight_tolerance < 0.5:
+        raise ValueError(f"Swing prior {priors.version!r}: straight_tolerance out of (0, 0.5)")
+    if priors.min_divisions < 1:
+        raise ValueError(f"Swing prior {priors.version!r}: min_divisions must be >= 1")
+    return priors
 
 
 def load_swing_priors(version: str | None = None) -> SwingFeelPriors:
@@ -342,37 +360,22 @@ def load_swing_priors(version: str | None = None) -> SwingFeelPriors:
 
     ``version=None`` returns the first (default) entry. Cached by file mtime.
     """
-    global _SWING_FEEL_CACHE
-    path = DATA_DIR / "swing_feel.json"
-    mtime = path.stat().st_mtime_ns
-    if _SWING_FEEL_CACHE is not None and _SWING_FEEL_CACHE[:2] == (path, mtime):
-        entries = _SWING_FEEL_CACHE[2]
-    else:
-        parsed: list[SwingFeelPriors] = []
-        for payload in _read_json("swing_feel.json"):
-            priors = SwingFeelPriors(
-                version=str(payload["version"]),
-                source=str(payload.get("source", "")),
-                straight_tolerance=float(payload["straight_tolerance"]),
-                consistency_tolerance=float(payload["consistency_tolerance"]),
-                min_divisions=int(payload["min_divisions"]),
-            )
-            if not 0.0 < priors.straight_tolerance < 0.5:
-                raise ValueError(f"Swing prior {priors.version!r}: straight_tolerance out of (0, 0.5)")
-            if priors.min_divisions < 1:
-                raise ValueError(f"Swing prior {priors.version!r}: min_divisions must be >= 1")
-            parsed.append(priors)
-        if not parsed:
-            raise ValueError("swing_feel.json contains no prior tables")
-        entries = tuple(parsed)
-        _SWING_FEEL_CACHE = (path, mtime, entries)
-    if version is None:
-        return entries[0]
-    for entry in entries:
-        if entry.version == version:
-            return entry
-    known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown swing-feel version {version!r} (known: {known})")
+    return _load_versioned(
+        "swing_feel.json", _parse_swing_prior,
+        kind="swing-feel", version=version,
+        empty_message="swing_feel.json contains no prior tables",
+    )
+
+
+def _parse_succession_weights(payload: dict) -> "SuccessionWeights":
+    weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
+    if not weights:
+        raise ValueError(f"Succession weights {payload['version']!r} define no signals")
+    return SuccessionWeights(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        weights=weights,
+    )
 
 
 def load_succession_weights(version: str | None = None) -> SuccessionWeights:
@@ -380,40 +383,24 @@ def load_succession_weights(version: str | None = None) -> SuccessionWeights:
 
     ``version=None`` returns the first (default) entry. Cached by file mtime.
     """
-    global _SUCCESSION_WEIGHTS_CACHE
-    path = DATA_DIR / "succession_weights.json"
-    mtime = path.stat().st_mtime_ns
-    if (
-        _SUCCESSION_WEIGHTS_CACHE is not None
-        and _SUCCESSION_WEIGHTS_CACHE[:2] == (path, mtime)
-    ):
-        entries = _SUCCESSION_WEIGHTS_CACHE[2]
-    else:
-        parsed: list[SuccessionWeights] = []
-        for payload in _read_json("succession_weights.json"):
-            weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
-            if not weights:
-                raise ValueError(
-                    f"Succession weights {payload['version']!r} define no signals"
-                )
-            parsed.append(
-                SuccessionWeights(
-                    version=str(payload["version"]),
-                    source=str(payload.get("source", "")),
-                    weights=weights,
-                )
-            )
-        if not parsed:
-            raise ValueError("succession_weights.json contains no weight tables")
-        entries = tuple(parsed)
-        _SUCCESSION_WEIGHTS_CACHE = (path, mtime, entries)
-    if version is None:
-        return entries[0]
-    for entry in entries:
-        if entry.version == version:
-            return entry
-    known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown succession-weights version {version!r} (known: {known})")
+    return _load_versioned(
+        "succession_weights.json", _parse_succession_weights,
+        kind="succession-weights", version=version,
+        empty_message="succession_weights.json contains no weight tables",
+    )
+
+
+def _parse_relative_key_weights(payload: dict) -> "RelativeKeyWeights":
+    weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
+    if not weights:
+        raise ValueError(f"Relative-key weights {payload['version']!r} define no signals")
+    return RelativeKeyWeights(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        weights=weights,
+        near_tie_margin=float(payload["near_tie_margin"]),
+        decision_margin=float(payload["decision_margin"]),
+    )
 
 
 def load_relative_key_weights(version: str | None = None) -> RelativeKeyWeights:
@@ -421,39 +408,25 @@ def load_relative_key_weights(version: str | None = None) -> RelativeKeyWeights:
 
     ``version=None`` returns the first (default) entry. Cached by file mtime.
     """
-    global _RELATIVE_KEY_CACHE
-    path = DATA_DIR / "relative_key_weights.json"
-    mtime = path.stat().st_mtime_ns
-    if _RELATIVE_KEY_CACHE is not None and _RELATIVE_KEY_CACHE[:2] == (path, mtime):
-        entries = _RELATIVE_KEY_CACHE[2]
-    else:
-        parsed: list[RelativeKeyWeights] = []
-        for payload in _read_json("relative_key_weights.json"):
-            weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
-            if not weights:
-                raise ValueError(
-                    f"Relative-key weights {payload['version']!r} define no signals"
-                )
-            parsed.append(
-                RelativeKeyWeights(
-                    version=str(payload["version"]),
-                    source=str(payload.get("source", "")),
-                    weights=weights,
-                    near_tie_margin=float(payload["near_tie_margin"]),
-                    decision_margin=float(payload["decision_margin"]),
-                )
-            )
-        if not parsed:
-            raise ValueError("relative_key_weights.json contains no weight tables")
-        entries = tuple(parsed)
-        _RELATIVE_KEY_CACHE = (path, mtime, entries)
-    if version is None:
-        return entries[0]
-    for entry in entries:
-        if entry.version == version:
-            return entry
-    known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown relative-key version {version!r} (known: {known})")
+    return _load_versioned(
+        "relative_key_weights.json", _parse_relative_key_weights,
+        kind="relative-key", version=version,
+        empty_message="relative_key_weights.json contains no weight tables",
+    )
+
+
+def _parse_key_smoothing(payload: dict) -> "KeySmoothingPriors":
+    priors = KeySmoothingPriors(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        min_region_windows=int(payload["min_region_windows"]),
+        min_region_margin=float(payload["min_region_margin"]),
+    )
+    if priors.min_region_windows < 1:
+        raise ValueError(
+            f"Key smoothing {priors.version!r}: min_region_windows must be >= 1"
+        )
+    return priors
 
 
 def load_key_smoothing(version: str | None = None) -> KeySmoothingPriors:
@@ -461,36 +434,24 @@ def load_key_smoothing(version: str | None = None) -> KeySmoothingPriors:
 
     ``version=None`` returns the first (default) entry. Cached by file mtime.
     """
-    global _KEY_SMOOTHING_CACHE
-    path = DATA_DIR / "key_smoothing.json"
-    mtime = path.stat().st_mtime_ns
-    if _KEY_SMOOTHING_CACHE is not None and _KEY_SMOOTHING_CACHE[:2] == (path, mtime):
-        entries = _KEY_SMOOTHING_CACHE[2]
-    else:
-        parsed: list[KeySmoothingPriors] = []
-        for payload in _read_json("key_smoothing.json"):
-            priors = KeySmoothingPriors(
-                version=str(payload["version"]),
-                source=str(payload.get("source", "")),
-                min_region_windows=int(payload["min_region_windows"]),
-                min_region_margin=float(payload["min_region_margin"]),
-            )
-            if priors.min_region_windows < 1:
-                raise ValueError(
-                    f"Key smoothing {priors.version!r}: min_region_windows must be >= 1"
-                )
-            parsed.append(priors)
-        if not parsed:
-            raise ValueError("key_smoothing.json contains no prior tables")
-        entries = tuple(parsed)
-        _KEY_SMOOTHING_CACHE = (path, mtime, entries)
-    if version is None:
-        return entries[0]
-    for entry in entries:
-        if entry.version == version:
-            return entry
-    known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown key-smoothing version {version!r} (known: {known})")
+    return _load_versioned(
+        "key_smoothing.json", _parse_key_smoothing,
+        kind="key-smoothing", version=version,
+        empty_message="key_smoothing.json contains no prior tables",
+    )
+
+
+def _parse_key_inertia(payload: dict) -> "KeyInertiaPriors":
+    priors = KeyInertiaPriors(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        switch_penalty=float(payload["switch_penalty"]),
+    )
+    if priors.switch_penalty < 0:
+        raise ValueError(
+            f"Key inertia {priors.version!r}: switch_penalty must be >= 0"
+        )
+    return priors
 
 
 def load_key_inertia(version: str | None = None) -> KeyInertiaPriors:
@@ -498,35 +459,38 @@ def load_key_inertia(version: str | None = None) -> KeyInertiaPriors:
 
     ``version=None`` returns the first (default) entry. Cached by file mtime.
     """
-    global _KEY_INERTIA_CACHE
-    path = DATA_DIR / "key_inertia.json"
-    mtime = path.stat().st_mtime_ns
-    if _KEY_INERTIA_CACHE is not None and _KEY_INERTIA_CACHE[:2] == (path, mtime):
-        entries = _KEY_INERTIA_CACHE[2]
-    else:
-        parsed: list[KeyInertiaPriors] = []
-        for payload in _read_json("key_inertia.json"):
-            priors = KeyInertiaPriors(
-                version=str(payload["version"]),
-                source=str(payload.get("source", "")),
-                switch_penalty=float(payload["switch_penalty"]),
-            )
-            if priors.switch_penalty < 0:
-                raise ValueError(
-                    f"Key inertia {priors.version!r}: switch_penalty must be >= 0"
-                )
-            parsed.append(priors)
-        if not parsed:
-            raise ValueError("key_inertia.json contains no prior tables")
-        entries = tuple(parsed)
-        _KEY_INERTIA_CACHE = (path, mtime, entries)
-    if version is None:
-        return entries[0]
-    for entry in entries:
-        if entry.version == version:
-            return entry
-    known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown key-inertia version {version!r} (known: {known})")
+    return _load_versioned(
+        "key_inertia.json", _parse_key_inertia,
+        kind="key-inertia", version=version,
+        empty_message="key_inertia.json contains no prior tables",
+    )
+
+
+def _parse_scoring_prior(payload: dict) -> "ScoringPrior":
+    prior = ScoringPrior(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        measure=str(payload["measure"]),
+        null_model=str(payload["null_model"]),
+        min_support_pieces=int(payload["min_support_pieces"]),
+        exploratory_floor_pieces=int(payload["exploratory_floor_pieces"]),
+        fdr_q=float(payload["fdr_q"]),
+        arity_cap=int(payload["arity_cap"]),
+        weight_scale=float(payload["weight_scale"]),
+    )
+    if prior.min_support_pieces < 1:
+        raise ValueError(
+            f"Scoring prior {prior.version!r}: min_support_pieces must be >= 1"
+        )
+    if prior.arity_cap < 1:
+        raise ValueError(
+            f"Scoring prior {prior.version!r}: arity_cap must be >= 1"
+        )
+    if not 0.0 < prior.fdr_q < 1.0:
+        raise ValueError(
+            f"Scoring prior {prior.version!r}: fdr_q must be in (0, 1)"
+        )
+    return prior
 
 
 def load_scoring_prior(version: str | None = None) -> ScoringPrior:
@@ -534,49 +498,26 @@ def load_scoring_prior(version: str | None = None) -> ScoringPrior:
 
     ``version=None`` returns the first (default) entry. Cached by file mtime.
     """
-    global _SCORING_PRIORS_CACHE
-    path = DATA_DIR / "scoring_priors.json"
-    mtime = path.stat().st_mtime_ns
-    if _SCORING_PRIORS_CACHE is not None and _SCORING_PRIORS_CACHE[:2] == (path, mtime):
-        entries = _SCORING_PRIORS_CACHE[2]
-    else:
-        parsed: list[ScoringPrior] = []
-        for payload in _read_json("scoring_priors.json"):
-            prior = ScoringPrior(
-                version=str(payload["version"]),
-                source=str(payload.get("source", "")),
-                measure=str(payload["measure"]),
-                null_model=str(payload["null_model"]),
-                min_support_pieces=int(payload["min_support_pieces"]),
-                exploratory_floor_pieces=int(payload["exploratory_floor_pieces"]),
-                fdr_q=float(payload["fdr_q"]),
-                arity_cap=int(payload["arity_cap"]),
-                weight_scale=float(payload["weight_scale"]),
-            )
-            if prior.min_support_pieces < 1:
-                raise ValueError(
-                    f"Scoring prior {prior.version!r}: min_support_pieces must be >= 1"
-                )
-            if prior.arity_cap < 1:
-                raise ValueError(
-                    f"Scoring prior {prior.version!r}: arity_cap must be >= 1"
-                )
-            if not 0.0 < prior.fdr_q < 1.0:
-                raise ValueError(
-                    f"Scoring prior {prior.version!r}: fdr_q must be in (0, 1)"
-                )
-            parsed.append(prior)
-        if not parsed:
-            raise ValueError("scoring_priors.json contains no prior tables")
-        entries = tuple(parsed)
-        _SCORING_PRIORS_CACHE = (path, mtime, entries)
-    if version is None:
-        return entries[0]
-    for entry in entries:
-        if entry.version == version:
-            return entry
-    known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown scoring-prior version {version!r} (known: {known})")
+    return _load_versioned(
+        "scoring_priors.json", _parse_scoring_prior,
+        kind="scoring-prior", version=version,
+        empty_message="scoring_priors.json contains no prior tables",
+    )
+
+
+def _parse_meter_profile(payload: dict) -> "MeterProfileSet":
+    profiles = {
+        str(sig): tuple(float(w) for w in weights)
+        for sig, weights in dict(payload["profiles"]).items()
+    }
+    if not profiles:
+        raise ValueError(f"Meter profile set {payload['version']!r} defines no meters")
+    return MeterProfileSet(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        grid_beats=float(payload["grid_beats"]),
+        profiles=profiles,
+    )
 
 
 def load_meter_profiles(version: str | None = None) -> MeterProfileSet:
@@ -584,39 +525,31 @@ def load_meter_profiles(version: str | None = None) -> MeterProfileSet:
 
     ``version=None`` returns the first (default) entry. Cached by file mtime.
     """
-    global _METER_PROFILES_CACHE
-    path = DATA_DIR / "meter_profiles.json"
-    mtime = path.stat().st_mtime_ns
-    if _METER_PROFILES_CACHE is not None and _METER_PROFILES_CACHE[:2] == (path, mtime):
-        entries = _METER_PROFILES_CACHE[2]
-    else:
-        parsed: list[MeterProfileSet] = []
-        for payload in _read_json("meter_profiles.json"):
-            profiles = {
-                str(sig): tuple(float(w) for w in weights)
-                for sig, weights in dict(payload["profiles"]).items()
-            }
-            if not profiles:
-                raise ValueError(f"Meter profile set {payload['version']!r} defines no meters")
-            parsed.append(
-                MeterProfileSet(
-                    version=str(payload["version"]),
-                    source=str(payload.get("source", "")),
-                    grid_beats=float(payload["grid_beats"]),
-                    profiles=profiles,
-                )
-            )
-        if not parsed:
-            raise ValueError("meter_profiles.json contains no profile sets")
-        entries = tuple(parsed)
-        _METER_PROFILES_CACHE = (path, mtime, entries)
-    if version is None:
-        return entries[0]
-    for entry in entries:
-        if entry.version == version:
-            return entry
-    known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown meter-profile version {version!r} (known: {known})")
+    return _load_versioned(
+        "meter_profiles.json", _parse_meter_profile,
+        kind="meter-profile", version=version,
+        empty_message="meter_profiles.json contains no profile sets",
+    )
+
+
+def _parse_structural_key_prior(payload: dict) -> "StructuralKeyPriors":
+    priors = StructuralKeyPriors(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        min_modulation_beats=float(payload["min_modulation_beats"]),
+        min_area_beats=float(payload["min_area_beats"]),
+        require_return=bool(payload["require_return"]),
+        frame_anchor_bonus=float(payload.get("frame_anchor_bonus", 1.0)),
+    )
+    if priors.min_modulation_beats <= 0 or priors.min_area_beats <= 0:
+        raise ValueError(
+            f"Structural-key prior {priors.version!r}: beat floors must be > 0"
+        )
+    if priors.frame_anchor_bonus < 0:
+        raise ValueError(
+            f"Structural-key prior {priors.version!r}: frame_anchor_bonus must be >= 0"
+        )
+    return priors
 
 
 def load_structural_key_priors(version: str | None = None) -> StructuralKeyPriors:
@@ -624,42 +557,12 @@ def load_structural_key_priors(version: str | None = None) -> StructuralKeyPrior
 
     ``version=None`` returns the first (default) entry. Cached by file mtime.
     """
-    global _STRUCTURAL_KEY_CACHE
-    path = DATA_DIR / "structural_key.json"
-    mtime = path.stat().st_mtime_ns
-    if _STRUCTURAL_KEY_CACHE is not None and _STRUCTURAL_KEY_CACHE[:2] == (path, mtime):
-        entries = _STRUCTURAL_KEY_CACHE[2]
-    else:
-        parsed: list[StructuralKeyPriors] = []
-        for payload in _read_json("structural_key.json"):
-            priors = StructuralKeyPriors(
-                version=str(payload["version"]),
-                source=str(payload.get("source", "")),
-                min_modulation_beats=float(payload["min_modulation_beats"]),
-                min_area_beats=float(payload["min_area_beats"]),
-                require_return=bool(payload["require_return"]),
-                frame_anchor_bonus=float(payload.get("frame_anchor_bonus", 1.0)),
-            )
-            if priors.min_modulation_beats <= 0 or priors.min_area_beats <= 0:
-                raise ValueError(
-                    f"Structural-key prior {priors.version!r}: beat floors must be > 0"
-                )
-            if priors.frame_anchor_bonus < 0:
-                raise ValueError(
-                    f"Structural-key prior {priors.version!r}: frame_anchor_bonus must be >= 0"
-                )
-            parsed.append(priors)
-        if not parsed:
-            raise ValueError("structural_key.json contains no prior tables")
-        entries = tuple(parsed)
-        _STRUCTURAL_KEY_CACHE = (path, mtime, entries)
-    if version is None:
-        return entries[0]
-    for entry in entries:
-        if entry.version == version:
-            return entry
-    known = ", ".join(e.version for e in entries)
-    raise ValueError(f"Unknown structural-key version {version!r} (known: {known})")
+    return _load_versioned(
+        "structural_key.json", _parse_structural_key_prior,
+        kind="structural-key", version=version,
+        empty_message="structural_key.json contains no prior tables",
+    )
+
 
 
 def load_intervals() -> list[Interval]:
