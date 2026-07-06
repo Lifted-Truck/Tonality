@@ -11,8 +11,6 @@ testable without the optional ``mcp`` dependency; ``server.py`` registers
 
 from __future__ import annotations
 
-import dataclasses
-
 from ..analysis import (
     AnalyticalContext,
     ChordAnalysisRequest,
@@ -135,7 +133,7 @@ def parse_chord(text: str) -> dict:
     note tokens "[C,E,G]", MIDI sets "{60,64,67}", catalog names "C:min7",
     inline alias "=label".
     """
-    return dataclasses.asdict(parse_chord_spec(text))
+    return parse_chord_spec(text).to_dict()
 
 
 def chord_analysis(
@@ -214,7 +212,7 @@ def set_class_info(pcs: list[int]) -> dict:
     mask = mask_from_pcs({int(pc) % 12 for pc in pcs})
     if mask == 0:
         raise ValueError("set_class_info needs at least one pitch class.")
-    data = dataclasses.asdict(set_class_data(mask))
+    data = set_class_data(mask).to_dict()
     data["dft_phases"] = list(dft_phases(mask))
     data["rotational_period"] = rotational_period(mask)
     data["trichord_chirality"] = trichord_chirality(mask)
@@ -916,7 +914,7 @@ def voicing_suggestions(root: int | str, quality: str) -> dict:
     """GENERATIVE: invent candidate voicings (closed, drop-2/3, rootless, shell)
     for a chord identity."""
     chord = Chord.from_quality(_pc(root), _quality(quality))
-    return dataclasses.asdict(suggest_voicings(chord))
+    return suggest_voicings(chord).to_dict()
 
 
 # --- comparison & summary ----------------------------------------------------------------------
@@ -924,15 +922,13 @@ def voicing_suggestions(root: int | str, quality: str) -> dict:
 def quality_comparison(quality_a: str, quality_b: str) -> dict:
     """Compare two chord qualities across the scale catalog (shared scales,
     placements, unique fits)."""
-    return dataclasses.asdict(
-        compare_chord_qualities(_quality(quality_a), _quality(quality_b))
-    )
+    return compare_chord_qualities(_quality(quality_a), _quality(quality_b)).to_dict()
 
 
 def quality_brief(quality: str) -> dict:
     """Compact brief for a chord quality: interval fingerprint, top compatible
     scales, functional roles."""
-    return dataclasses.asdict(chord_brief(_quality(quality)))
+    return chord_brief(_quality(quality)).to_dict()
 
 
 # --- representation (Phase 5: projections as data) -----------------------------------

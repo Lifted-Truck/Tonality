@@ -57,6 +57,10 @@ class SetClassData:
     z_partner_prime_form: list[int] | None
     complement_prime_form: list[int]
 
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
 
 # ---------------------------------------------------------------------------
 # Scale-specific sub-types
@@ -161,6 +165,10 @@ class VoicingSet:
     def labels(self) -> list[str]:
         """The labels present, in order."""
         return [entry.label for entry in self.entries]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
 
 
 @dataclass(frozen=True)
