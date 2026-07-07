@@ -3123,6 +3123,161 @@
   },
   {
    "kwargs": {
+    "constraints": {
+     "max_voice_leading": 8,
+     "no_interval_over_bass": [
+      1
+     ],
+     "register": [
+      48,
+      84
+     ],
+     "spread": {
+      "lte": 19
+     }
+    },
+    "from_voicing": [
+     60,
+     64,
+     67,
+     71
+    ],
+    "limit": 10,
+    "pcs": [
+     0,
+     4,
+     7,
+     11,
+     2
+    ],
+    "root": 0
+   },
+   "result": {
+    "constraints": {
+     "max_voice_leading": 8,
+     "no_interval_over_bass": [
+      1
+     ],
+     "register": [
+      48,
+      84
+     ],
+     "spread": {
+      "lte": 19
+     }
+    },
+    "count": 4,
+    "from_voicing": [
+     60,
+     64,
+     67,
+     71
+    ],
+    "matches": [
+     {
+      "bass_pc": 0,
+      "center": 64.8,
+      "intervals_over_bass": [
+       2,
+       4,
+       7,
+       11
+      ],
+      "midi": [
+       60,
+       62,
+       64,
+       67,
+       71
+      ],
+      "spread": 11,
+      "top_midi": 71,
+      "top_pc": 11,
+      "vl_from": 2,
+      "voicing_type": "closed"
+     },
+     {
+      "bass_pc": 2,
+      "center": 67.2,
+      "intervals_over_bass": [
+       2,
+       5,
+       9,
+       10
+      ],
+      "midi": [
+       62,
+       64,
+       67,
+       71,
+       72
+      ],
+      "spread": 10,
+      "top_midi": 72,
+      "top_pc": 0,
+      "vl_from": 3,
+      "voicing_type": null
+     },
+     {
+      "bass_pc": 0,
+      "center": 67.2,
+      "intervals_over_bass": [
+       2,
+       4,
+       7,
+       11
+      ],
+      "midi": [
+       60,
+       64,
+       67,
+       71,
+       74
+      ],
+      "spread": 14,
+      "top_midi": 74,
+      "top_pc": 2,
+      "vl_from": 3,
+      "voicing_type": null
+     },
+     {
+      "bass_pc": 0,
+      "center": 67.2,
+      "intervals_over_bass": [
+       2,
+       4,
+       7,
+       11
+      ],
+      "midi": [
+       60,
+       62,
+       67,
+       71,
+       76
+      ],
+      "spread": 16,
+      "top_midi": 76,
+      "top_pc": 4,
+      "vl_from": 7,
+      "voicing_type": null
+     }
+    ],
+    "pcs": [
+     0,
+     2,
+     4,
+     7,
+     11
+    ],
+    "root": 0,
+    "space": 324,
+    "truncated": false
+   },
+   "tool": "search_voicings"
+  },
+  {
+   "kwargs": {
     "key_name": "Ionian",
     "quality": "min7",
     "root": "D",

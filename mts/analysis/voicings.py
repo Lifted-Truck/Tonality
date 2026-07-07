@@ -108,6 +108,11 @@ _VOICING_BUILDERS: list[tuple[str, VoicingBuilder]] = [
     ("shell", _shell),
 ]
 
+# The closed vocabulary of named-voicing labels (registry order). Public so
+# consumers (e.g. search_voicings' voicing_type field) validate against the
+# single source of truth instead of hardcoding label strings.
+VOICING_LABELS: tuple[str, ...] = tuple(label for label, _ in _VOICING_BUILDERS)
+
 
 def voicing_shapes(closed_stack: list[int]) -> dict[str, tuple[int, ...]]:
     """Normalized offset *shapes* for each applicable named voicing.
@@ -170,4 +175,4 @@ def suggest_voicings(chord: Chord) -> VoicingSet:
     return VoicingSet(entries=entries)
 
 
-__all__ = ["suggest_voicings", "voicing_shapes"]
+__all__ = ["suggest_voicings", "voicing_shapes", "VOICING_LABELS"]

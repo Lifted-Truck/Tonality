@@ -33,6 +33,7 @@ from ..analysis.comparisons import compare_chord_qualities
 from ..analysis.pcset_math import set_class_data
 from ..analysis.summaries import chord_brief
 from ..search import search_identities as _search_identities
+from ..search import search_voicings as _search_voicings
 from ..core.bitmask import mask_from_pcs
 from ..core.chord import Chord
 from ..core.enharmonics import pc_from_name
@@ -948,6 +949,39 @@ def voicing_suggestions(root: int | str, quality: str) -> dict:
     return suggest_voicings(chord).to_dict()
 
 
+def search_voicings(
+    pcs: list[int],
+    root: int | None = None,
+    constraints: dict | None = None,
+    from_voicing: list[int] | None = None,
+    limit: int | None = None,
+) -> dict:
+    """GENERATIVE: exhaustively enumerate every registered voicing of a pc-set
+    inside a MIDI window, under spacing/bass/smoothness constraints (gap 17).
+
+    constraints MUST include register: [lo, hi] (inclusive MIDI window) — the
+    engine never invents a default register; bounding the space is the caller's
+    generative choice. Optional fields: spread / top_midi (ints, full ops),
+    bass_pc / top_pc (0-11), center (float, gte/lte), voicing_type (named shape
+    closed/drop2/…, needs root), no_interval_over_bass (directed pc-intervals
+    1-11 forbidden above the bass), max_voice_leading (needs from_voicing).
+
+    Each pc is voiced exactly once (slice 1 — no doublings). root=None searches
+    voicing TEMPLATES (registered+rootless; shape labels skipped). With
+    from_voicing, every match carries vl_from (exact realized VL cost,
+    doubling.1) and matches come back RANKED by it; without, ordered by
+    (spread, pitches). count is always the true total (limit only cuts the
+    reported list; an over-large window raises with advice instead of silently
+    truncating). Invalid input raises ValueError listing EVERY problem."""
+    return _search_voicings(
+        pcs,
+        root=root,
+        constraints=constraints if constraints is not None else {},
+        from_voicing=from_voicing,
+        limit=limit,
+    ).to_dict()
+
+
 # --- comparison & summary ----------------------------------------------------------------------
 
 def quality_comparison(quality_a: str, quality_b: str) -> dict:
@@ -1222,6 +1256,7 @@ TOOLS = (
     realized_voice_leading,
     voicing_analysis,
     voicing_suggestions,
+    search_voicings,
     quality_comparison,
     quality_brief,
     midi_file_analysis,
