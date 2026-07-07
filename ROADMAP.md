@@ -594,6 +594,27 @@ list as new applications come into view.
   `notice-melodic-tendency.md`; the `_snap_stable`/`_snap_chord` swap is open) ·
   satisfaction-loop hooks = **gap 20** (v1 recipe-answered; feature vocabulary
   is Tonality's, Decision 11).
+- **A10 — WONT** *(added 2026-07-07 from its intake brief, direct route —
+  `integrations/wont/`; project: synthetic-worlds/wont)*. The **modular
+  preference-learner** anticipated in Wend brief-3 R2, now real: consumes
+  **LabeledRuns** (a client's generation fingerprint + a bar-aligned
+  satisfaction curve), mines the liked/disliked span corpora with the engine's
+  own vocabulary, and emits **versioned bias artifacts** (validated DSL
+  rulesets + contrast evidence) a generator applies deterministically —
+  classical ML, offline batch, analysis-only, one boundary module
+  (`wont/engine.py`). Division of labor is clean (Decision 11): **Tonality owns
+  the feature vocabulary + deterministic extraction; wont owns the ML.** It is
+  the **gap-20 consumer of record** and the **second named consumer on gap B**
+  (harmony scope). *Triage (`response.md`):* the field manifest is
+  `rules.schema.FAMILIES` (a sanctioned `ruleset_field_manifest()` export is a
+  recorded gap-20 sub-item); the **span-independence recipe = per-run pooling**
+  (concatenate a run's liked spans into one pseudo-piece so `pieces = runs`,
+  restoring the Fisher/BH-FDR independence duplication would break — read every
+  piece floor against *runs*, not spans); satisfaction labels stay wont-schema
+  with engine records embedded by reference (§5 boundary ruling); the one
+  contingent engine slice beyond graded-weights is **per-rule firing-location
+  extraction** (the "considered-and-held" complement to `evaluate_ruleset`'s
+  violation stream — build when its saliency layer needs it, wont named).
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
@@ -1129,8 +1150,27 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     align client-side. **Only potential engine slice:** graded (continuous)
     sample-weights on induction, which *can't* be got soundly by corpus
     construction — build only if the binary liked/disliked split proves too
-    coarse. The learner project is an **anticipated consumer** (files its own
-    intake brief when it exists). Not scheduled.
+    coarse.
+    **Consumer of record: A10 wont** (intake brief 2026-07-07,
+    `integrations/wont/{brief,response}.md`). Recorded outcomes beyond the v1
+    recipes: **(1) span-independence recipe — per-run pooling.** Spans from one
+    run are correlated siblings (shared seed/config/ruleset), so treating N
+    spans from M<N runs as N pieces is pseudo-replication (duplication is its
+    ρ=1 limit); pool each run's liked spans into one pseudo-piece so
+    `pieces = runs`, restoring independence, and read every piece floor
+    (`min_support_pieces`, `exploratory_floor_pieces`) against **runs**, not
+    spans. Recipe answer, no engine work. **(2) Field-manifest export
+    (sub-item, open):** `rules.schema.FAMILIES` already carries the per-family
+    field/kind/vocab manifest; a sanctioned `ruleset_field_manifest()` versioned
+    export (~20 lines) is offered so consumers bind to a contract, not the
+    internal dict — ships on request. **(3) Firing-location extraction
+    (contingent slice):** `evaluate_ruleset` emits violations-with-locations but
+    not located positive firings; the "considered-and-held" complement is the
+    clean addition wont's saliency layer would need — build when pulled. **(4)
+    Boundary ruling:** satisfaction labels stay wont-schema, engine records
+    embedded by reference — no sanctioned satisfaction side-car in Tonality's
+    interchange vocabulary (satisfaction is consumer-side aggregation, the
+    AI/deterministic boundary). Still not scheduled (recipes unblock wont today).
 21. **Rhythmic constraint search** (added 2026-07-07, prompted by Julian —
     assessment artifact `docs/reviews/2026-07_rhythm-search-assessment.html`).
     Not an analogy — the identity layer's own mathematics on a circle of time:
@@ -2050,7 +2090,12 @@ to be informed by what 1–3 teach about the DSL's seams).
       (2026-07-05): **A9 Wend** (brief R4) — wants succession tags, cadence
       events, and key-region shape as rule fields ("require an authentic
       cadence within 4 bars of a section end"); stopgaps via
-      `tag_transition` self-scoring meanwhile.*
+      `tag_transition` self-scoring meanwhile.* *Second consumer (2026-07-07):
+      **A10 wont** — the harmony training scope needs `induce_rules` over this
+      family; interim stand-in is a succession-tag frequency contrast (Fisher +
+      BH-FDR), ruled sound only with per-run (not per-span) presence counting
+      and stamped `method: tag-contrast.1`/`exploratory` for re-derive-not-
+      migrate when this ships (`integrations/wont/response.md` §3).*
 - [ ] **Pattern layer — sequential patterns/schemata as first-class objects**
       (added 2026-07-01 — gap C; the largest design lift, sequenced last).
       Constraints say what is *forbidden/required*; patterns say what is
