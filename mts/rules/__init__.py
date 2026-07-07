@@ -39,11 +39,14 @@ from .composition import (
     specialize,
 )
 from .induction import InductionResult, RuleEvidence, induce_ruleset
+from .library import list_named_rulesets, load_named_ruleset
 
 __all__ = [
     "InductionResult",
     "RuleEvidence",
     "induce_ruleset",
+    "list_named_rulesets",
+    "load_named_ruleset",
     "FAMILIES",
     "FIELD_MANIFEST_VERSION",
     "Rule",

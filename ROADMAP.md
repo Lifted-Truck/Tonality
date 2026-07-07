@@ -2075,6 +2075,29 @@ to be informed by what 1–3 teach about the DSL's seams).
       species, second species… — is a `specialize` chain). Authoring is
       caller-side translation per Decision 8; the engine ships the validated
       artifact with source citations.
+      **Slice 1 DELIVERED (2026-07-07): first-species counterpoint.**
+      `mts/data/rulesets/first-species-counterpoint.json` (`fux-first-species.1`)
+      + `mts/rules/library.py` (`list_named_rulesets` / `load_named_ruleset`,
+      shipped rulesets validated through the same strict parser) + MCP tools.
+      The 5 authored rules are the *complete, exact* LOCAL first-species law and
+      are tested against clean/parallel-fifths/octaves/dissonant/hidden-fifths/
+      melodic-tritone fragments: no-parallel-perfects, no-direct-perfects,
+      consonant-verticals-only (P4-vs-bass = dissonant, documented), no-melodic-
+      tritone, recover-leap-by-step. **The expressiveness findings (the payoff),
+      each proven by a test that the rule can't be authored:** (a) **cross-field
+      comparison** — "counterpoint stays above the cantus firmus" needs
+      `a_to_midi > b_to_midi`, but a condition value is always a literal, never
+      another field (`RulesetValidationError` on the attempt) — a NEW recorded
+      gap, the cleanest single missing operator; (b) **phrase/global scope** —
+      begin/end on a perfect consonance, single climax (no is-first/is-last/
+      position/climax field) — the deferred Phase 4.6 scope; (c) **run-length**
+      — "no >3 consecutive parallel thirds" (no consecutive-count field) — the
+      gap-C pattern layer. Interval semantics confirmed empirically:
+      `interval_class_to` is the vertical interval **mod 12** (0=8ve, 7=P5),
+      `approach_interval` signed. Golden additive; port pin untouched; 14 tests.
+      **Next slices:** second species (adds passing dissonance on weak beats —
+      exercises the rhythm family), then a common-practice harmony set once
+      gap B ships (which the harmony-scope omissions above motivate).
 - [ ] **Harmony/progression rule family** (added 2026-07-01 — gap B; the
       binding vocabulary gap for genre-level rulesets). The DSL's three
       families are voice motion, melody, rhythm — so "V resolves to I",

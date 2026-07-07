@@ -1,0 +1,125 @@
+<title>Named ruleset library — first species & the expressiveness map</title>
+<style>
+  :root{
+    --paper:#f4f2ec; --ink:#1b1d22; --ink-soft:#4a4e57; --line:#d7d3c8;
+    --indigo:#3a3d8f; --indigo-soft:#5c60b8; --indigo-wash:#e9e9f4;
+    --gold:#a8792c; --gold-wash:#f2ead9; --green:#3f7d5a; --green-wash:#e8f1eb;
+    --red:#a4443a; --rule:#c9c4b6;
+    --mono:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:52px 32px 74px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--indigo);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:37px;line-height:1.09;margin:0 0 12px;letter-spacing:-.01em;text-wrap:balance}
+  .lede{font-size:16px;color:var(--ink-soft);max-width:66ch;margin:0 0 22px}
+  .lede b{color:var(--ink)}
+  .thesis{border-left:3px solid var(--gold);background:var(--gold-wash);padding:15px 20px;border-radius:0 8px 8px 0;margin:0 0 30px;font-size:14.5px;max-width:74ch}
+  .thesis b{color:#8a6420}
+  .status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);border:1px solid #bcd6c7;background:var(--green-wash);padding:5px 11px;border-radius:20px;margin-bottom:26px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+  h2{font-family:var(--serif);font-weight:600;font-size:23px;margin:40px 0 6px}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 18px;max-width:72ch}
+  code{font-family:var(--mono);font-size:.86em;background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:4px}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding:8px 10px 8px 0;font-weight:400}
+  td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  td .m{font-family:var(--mono);font-size:12px}
+  .yes{color:var(--green);font-weight:600}
+  .gap{color:var(--gold);font-weight:600}
+  .tag{display:inline-block;font-family:var(--mono);font-size:9.5px;padding:1px 6px;border-radius:4px;margin-left:2px}
+  .tag.new{background:var(--gold-wash);color:#8a6420}
+  .tag.def{background:var(--indigo-wash);color:var(--indigo)}
+  .tag.c{background:#efe7f0;color:#6b4a70}
+  .cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:8px}
+  @media(max-width:720px){.cards{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:11px;background:#fbfaf6;padding:16px 18px}
+  .card.newgap{border-left:3px solid var(--gold)}
+  .card h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:0 0 4px}
+  .card .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .card p{font-size:12.5px;color:var(--ink-soft);margin:0 0 8px}
+  .card .proof{font-family:var(--mono);font-size:11px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:6px;padding:7px 9px}
+  .term{background:#1b1d22;border-radius:10px;padding:15px 18px;font-family:var(--mono);font-size:12px;line-height:1.7;color:#d7d3c8;overflow-x:auto;margin:14px 0}
+  .term .c{color:#8a8f9a} .term .g{color:#8fc0a4} .term .r{color:#e0928a} .term .y{color:#d8b57a}
+  .proofrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:620px){.proofrow{grid-template-columns:1fr}}
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px}
+  @media(max-width:620px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:#fbfaf6;border:1px solid var(--line);border-radius:10px;padding:13px 15px;text-align:center}
+  .stat .n{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--indigo)}
+  .stat .l{font-size:11px;color:var(--ink-soft);margin-top:3px}
+  .foot{margin-top:38px;padding-top:16px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink-soft)}
+  .foot b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Tonality · gap D slice 1 · build review · 2026-07-07</p>
+  <h1>The named ruleset library opens with Fux — and a map of what the DSL can't yet say</h1>
+  <p class="lede">First-species counterpoint, hand-authored as a citable ruleset and validated through the same strict parser as any caller's. The five <b>local</b> rules are the complete, exact species law. But the point of authoring a real ruleset was never just the rules — it was to discover, precisely, <b>where the DSL runs out of vocabulary</b>.</p>
+  <div class="thesis"><b>The finding is the deliverable.</b> gap D predicted that authoring the first ruleset would surface the DSL's expressiveness limits — "those hits are the deliverable, not a failure." It did: three distinct gaps, each now <b>proven by a test that the rule cannot be authored</b>. One of them is new.</div>
+  <div class="status"><span class="dot"></span>PR open · 808 passing · golden additive · pin untouched</div>
+
+  <h2>What ships — the local first-species law</h2>
+  <p class="sub"><code>first-species-counterpoint.json</code> (<code>fux-first-species.1</code>), loadable by name; each rule tested against a fragment that should trip it.</p>
+  <table>
+    <thead><tr><th>Rule</th><th>Family · form</th><th>Catches</th></tr></thead>
+    <tbody>
+      <tr><td class="m">no-parallel-perfects</td><td class="m">voice_motion · parallel → forbid ic∈{0,7}</td><td>parallel 8ves &amp; 5ths</td></tr>
+      <tr><td class="m">no-direct-perfects</td><td class="m">voice_motion · similar → forbid ic∈{0,7}</td><td>hidden/direct 5ths &amp; 8ves</td></tr>
+      <tr><td class="m">consonant-verticals-only</td><td class="m">voice_motion · forbid ic∈{1,2,5,6,10,11}</td><td>every dissonant vertical (P4-vs-bass incl.)</td></tr>
+      <tr><td class="m">no-melodic-tritone</td><td class="m">melody · forbid approach∈{±6}</td><td>the diabolus melodic leap</td></tr>
+      <tr><td class="m">recover-leap-by-step</td><td class="m">melody · leap → require step departure</td><td>unrecovered leaps <span style="color:var(--ink-soft)">(soft)</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>The expressiveness map — three gaps, one of them new</h2>
+  <p class="sub">First-species rules the DSL <b>cannot</b> express today. Each is proven real by a test, not asserted — the rule was attempted and the engine refused it or the field was shown absent.</p>
+  <div class="cards">
+    <div class="card newgap">
+      <div class="k">NEW GAP <span class="tag new">cross-field</span></div>
+      <h3>Compare two fields</h3>
+      <p>"Counterpoint stays above the cantus firmus" is <code>a_to_midi &gt; b_to_midi</code>. But a condition value is always a <i>literal</i> — never another field. No rule can relate two fields.</p>
+      <div class="proof">parse_ruleset({… "a_to_midi":<br>&nbsp;&nbsp;{"lte":"b_to_midi"}}) <span class="r">→ raises</span></div>
+    </div>
+    <div class="card">
+      <div class="k">DEFERRED <span class="tag def">phrase/global</span></div>
+      <h3>Where in the phrase</h3>
+      <p>"Begin &amp; end on a perfect consonance", "a single melodic climax" — all need a first / last / global position. No family carries one.</p>
+      <div class="proof">is_first · is_last · is_climax<br><span class="r">∉ any family's fields</span></div>
+    </div>
+    <div class="card">
+      <div class="k">GAP C <span class="tag c">pattern layer</span></div>
+      <h3>Run length</h3>
+      <p>"No more than three consecutive parallel thirds" needs a consecutive-count over the sequence. The flat per-item vocabulary has none.</p>
+      <div class="proof">run_length · consecutive_count<br><span class="r">∉ any family's fields</span></div>
+    </div>
+  </div>
+
+  <h2>Evidence it works</h2>
+  <div class="proofrow">
+    <div class="term">
+<span class="c"># clean note-against-note (3rds &amp; 10ths, stepwise)</span>
+evaluate(fux, clean)
+<span class="g">→ hard_rules_hold: True · violations: 0</span>
+    </div>
+    <div class="term">
+<span class="c"># parallel fifths: C-G → D-A</span>
+evaluate(fux, parallel_fifths)
+<span class="r">→ no-parallel-perfects fires</span>
+<span class="c">  evidence {interval_class_to: 7, motion: parallel}</span>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="stat"><div class="n">5</div><div class="l">local rules, exact</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">gaps, each test-proven</div></div>
+    <div class="stat"><div class="n">14</div><div class="l">new tests</div></div>
+    <div class="stat"><div class="n">808</div><div class="l">suite green (1 skip)</div></div>
+  </div>
+
+  <div class="foot">
+    <p><b>One empirical correction along the way:</b> the schema docstring's example implied <code>interval_class_to</code> was a 0–6 interval class; probing the analyzer showed it's the vertical interval <b>mod 12</b> (0 = octave, 7 = P5). The ruleset is authored against the real semantics, and the mod-12 reading is now documented.</p>
+    <p style="margin-top:8px"><b>Where this points:</b> the <b>cross-field-comparison</b> gap is the cleanest, most reusable single addition (it would also unlock "this interval equals the previous", "the answer transposes the subject"…). Phrase/global scope and the pattern layer were already on the roadmap; this ruleset is now their concrete motivating evidence. <b>Next library slices:</b> second species (passing dissonance on weak beats — exercises the rhythm family), then a common-practice harmony set once gap B lands.</p>
+  </div>
+</div>

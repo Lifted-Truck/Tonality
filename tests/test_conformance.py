@@ -296,6 +296,8 @@ CASES: list[tuple[str, dict]] = [
         },
     ),
     ("ruleset_field_manifest", {}),
+    ("list_named_rulesets", {}),
+    ("load_named_ruleset", {"name": "first-species-counterpoint"}),
     ("induce_rules", {"corpus": _induction_corpus(), "family": "voice_motion"}),
     ("induce_rules", {"corpus": _induction_merge_corpus(), "family": "voice_motion"}),
     (

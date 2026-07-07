@@ -1,0 +1,41 @@
+{
+  "name": "First-species counterpoint (Fux)",
+  "version": "fux-first-species.1",
+  "description": "Note-against-note (first species) counterpoint, after Fux's Gradus ad Parnassum, expressed in the shipped voice_motion + melody families. SCOPE ASSUMPTIONS (documented, not defects): the lower sounding voice is the harmonic bass, so a vertical perfect fourth (interval_class_to 5) is treated as a dissonance; melodic rules apply per analyzed voice line. What this ruleset DELIBERATELY omits because the v1 DSL cannot yet express it (each is recorded roadmap evidence, see integrations/ + ROADMAP gap D): begin/end on a perfect consonance and the contrary-stepwise final (need phrase/global scope); no voice crossing / counterpoint-above-cantus-firmus (needs cross-field comparison of a_to_midi vs b_to_midi — the DSL tests one field against a literal, never two fields against each other); no more than three consecutive parallel thirds/sixths (needs run-length over the sequence — the gap C pattern layer); a single melodic climax (needs a global max over the line). The LOCAL rules below are complete and exact.",
+  "rules": [
+    {
+      "id": "no-parallel-perfects",
+      "family": "voice_motion",
+      "where": {"motion": "parallel"},
+      "forbid": {"interval_class_to": {"in": [0, 7]}},
+      "polarity": "hard"
+    },
+    {
+      "id": "no-direct-perfects",
+      "family": "voice_motion",
+      "where": {"motion": "similar"},
+      "forbid": {"interval_class_to": {"in": [0, 7]}},
+      "polarity": "hard"
+    },
+    {
+      "id": "consonant-verticals-only",
+      "family": "voice_motion",
+      "forbid": {"interval_class_to": {"in": [1, 2, 5, 6, 10, 11]}},
+      "polarity": "hard"
+    },
+    {
+      "id": "no-melodic-tritone",
+      "family": "melody",
+      "forbid": {"approach_interval": {"in": [6, -6]}},
+      "polarity": "hard"
+    },
+    {
+      "id": "recover-leap-by-step",
+      "family": "melody",
+      "where": {"approach_class": "leap"},
+      "require": {"departure_class": {"in": ["step", "unison"]}},
+      "polarity": "soft",
+      "weight": 2.0
+    }
+  ]
+}
