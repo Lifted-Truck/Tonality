@@ -183,3 +183,56 @@ asks arrive as briefs on the integrations channel.
   and *the exact cases/fixtures that prove it* — so review is coherent against
   intent, not just a diff. For port slices, the acceptance block is literally
   "reproduces these conformance cases / fixture rows." Trivial fixes are exempt.
+
+<!-- KNOWLEDGE-LOOP:START -->
+## Self-Improving Knowledge Loop
+
+Each session: read accumulated knowledge before acting, write distilled knowledge
+after. This meta-layer sits on top of my primary role and never overrides it.
+
+### Every session
+1. **ORIENT** — Read INDEX.md in full (kept small on purpose). Pull ONLY the matching
+   entries from LIBRARY.md into context. Never load all of LIBRARY by default.
+2. **ACT** — Do the work, applying retrieved lessons. If a lesson proves wrong,
+   correcting it outranks adding a new one.
+3. **REFLECT** — Ask: "What did I learn that a future session needs and could not
+   cheaply re-derive?" A lesson qualifies only if durable, evidenced (tied to a
+   concrete trigger), and non-obvious. If nothing qualifies, write nothing.
+4. **WRITE (atomic)** — Append the lesson to LIBRARY.md and a one-line pointer to
+   INDEX.md in the same change. New lessons enter as `tier: candidate`; promote to
+   `canonical` only on a second independent occurrence or human review.
+
+### Write gate (anti-poisoning)
+This loop feeds its own output back as input, so a wrong lesson, written once, is
+retrieved and reinforced forever. Therefore: prefer not writing over writing
+unverified; every lesson states what would falsify it; if a retrieved lesson
+contradicts present evidence, trust the evidence and demote the lesson.
+
+### Consolidation (periodic)
+When LIBRARY exceeds ~30 entries, merge duplicates, delete superseded entries,
+promote recurring candidates, tighten tags. Refactor it like code; don't grow it
+like a log.
+
+### LIBRARY entry template
+`[Lxxxx] <title> | tier | added: YYYY-MM-DD | tags: … | lesson: … | evidence: … | falsifier: … | supersedes: …`
+
+### Scope boundary (Tonality-specific — read before writing a lesson)
+This loop is one of **four** knowledge systems here; keeping them disjoint is what
+prevents drift. A lesson belongs in LIBRARY **only if none of these own it**:
+- **ROADMAP.md** owns *decisions and plans* (Decisions on record, phase gates). A
+  new decision or a "what to build next" is a ROADMAP edit, NOT a LIBRARY lesson.
+- **Per-layer CLAUDE.md / the code** own *code-structure facts* (module homes,
+  layer rules). Where a function lives is not a lesson.
+- **`~/.claude/…/memory/`** auto-memory owns *this user's private, machine-local*
+  cross-session state. LIBRARY is instead **repo-shared** (committed, travels via
+  git to the audit / port / consumer agents).
+
+LIBRARY therefore holds only **repo-shared agent-process lessons** — the hard-won,
+evidenced "how to work in this repo without re-tripping a wire" that any thread's
+agent benefits from and that is not a decision, a plan, or a code fact.
+
+Retrieval tags (domain-tuned): `workflow` (harness/CI gotchas) · `architecture`
+(layer/import invariants) · `contracts` (what must not silently change) ·
+`coordination` (dev/audit/port/consumer thread interlock) · `theory-traps`
+(music-math correctness subtleties).
+<!-- KNOWLEDGE-LOOP:END -->
