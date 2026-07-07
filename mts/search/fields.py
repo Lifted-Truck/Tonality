@@ -31,7 +31,7 @@ from ..core.bitmask import (
     pcs_from_mask,
     rotate_mask,
 )
-from ..core.setclass import chirality_sign
+from ..core.setclass import chirality_sign, dft_magnitudes
 from ..core.symmetry import rotational_period
 
 
@@ -70,6 +70,22 @@ def _ic(index: int) -> Callable[[int], int]:
     return lambda mask: interval_vector_from_mask(mask)[index]
 
 
+def _df(index: int) -> Callable[[int], float]:
+    return lambda mask: dft_magnitudes(mask)[index]
+
+
+# Interpretive shorthand for the DFT-magnitude fields (|f_k|, from
+# core.setclass.dft_magnitudes) — the T/I-invariant interval-content spectrum.
+_DF_DOC = {
+    1: "chromatic clustering (|f1|)",
+    2: "quartal/whole-tone-cluster balance (|f2|)",
+    3: "hexatonicity (|f3|)",
+    4: "octatonicity (|f4|)",
+    5: "diatonicity / fifthiness (|f5|)",
+    6: "whole-tone-ness (|f6|)",
+}
+
+
 # The identity field vocabulary. Scalar fields carry an extractor + kind; the two
 # structural fields (contains / contained_in) are named here for validation but
 # evaluated separately (they take a pc-set argument, not a scalar condition).
@@ -95,6 +111,15 @@ IDENTITY_FIELDS: dict[str, ScalarField] = {
         "bool", _no_consecutive_semitones,
         "no two semitone steps in a row (no 3-note chromatic run)",
     ),
+    # DFT-magnitude fields — the interval-content spectrum, T/I-invariant (so
+    # genuine set-class fields). Floats: range-queried with gte/lte only (an
+    # equality test on an irrational magnitude is a footgun). Full |f1..f6| is
+    # also reported on every match as `dft_magnitudes`, so a caller can *rank*
+    # by graded diatonicity, not merely filter (A9 Wend's surprise-budget use).
+    **{
+        f"df{k}": ScalarField("float", _df(k - 1), f"DFT magnitude — {_DF_DOC[k]}")
+        for k in range(1, 7)
+    },
 }
 
 # Structural set-predicate fields: value is a pitch-class set, matched

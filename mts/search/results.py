@@ -15,7 +15,9 @@ class IdentityMatch:
     rooted image when ``expand_transpositions`` was set. ``contains_roots`` (when
     a ``contains`` constraint was given) reports the roots at which the queried
     shape appears in this identity — turning the match into a placement answer,
-    not just a yes.
+    not just a yes. ``dft_magnitudes`` is the full ``|f1..f6|`` interval-content
+    spectrum (the ``df1..df6`` fields), always present so a caller can *rank*
+    matches by graded diatonicity/etc., not merely filter on a threshold.
     """
 
     mask: int
@@ -24,6 +26,7 @@ class IdentityMatch:
     interval_vector: tuple[int, int, int, int, int, int]
     rotational_period: int
     is_achiral: bool
+    dft_magnitudes: tuple[float, float, float, float, float, float]
     contains_roots: tuple[int, ...] | None = None
 
     def to_dict(self) -> dict:

@@ -19,7 +19,7 @@ from collections.abc import Mapping
 from functools import lru_cache
 
 from ..core.bitmask import interval_vector_from_mask, is_subset, pcs_from_mask
-from ..core.setclass import chirality_sign, prime_form_mask
+from ..core.setclass import chirality_sign, dft_magnitudes, prime_form_mask
 from ..core.symmetry import rotational_period
 from ..rules.schema import Condition
 from .fields import (
@@ -60,6 +60,10 @@ def _check_scalar_value(spec: ScalarField, value: object, ctx: str, errors: list
             errors.append(f"{ctx}: {value!r} is not one of {list(spec.values)}")
 
 
+def _is_number(value: object) -> bool:
+    return not isinstance(value, bool) and isinstance(value, (int, float))
+
+
 def _parse_scalar(field: str, spec: ScalarField, raw: object, errors: list[str]) -> Condition | None:
     ctx = f"{field}"
     if isinstance(raw, dict):
@@ -68,6 +72,11 @@ def _parse_scalar(field: str, spec: ScalarField, raw: object, errors: list[str])
             return None
         op, value = next(iter(raw.items()))
         if op == "in":
+            # A float field is range-queried; membership in an exact-value list is
+            # a footgun on an irrational magnitude, so it's rejected outright.
+            if spec.kind == "float":
+                errors.append(f"{ctx}.in: {field} is a float field — range-query it with gte/lte")
+                return None
             if not isinstance(value, list) or not value:
                 errors.append(f"{ctx}.in: must be a non-empty list")
                 return None
@@ -75,13 +84,21 @@ def _parse_scalar(field: str, spec: ScalarField, raw: object, errors: list[str])
                 _check_scalar_value(spec, entry, f"{ctx}.in[{i}]", errors)
             return Condition(field, "in", tuple(value))
         # gte / lte
-        if spec.kind != "int":
+        if spec.kind not in ("int", "float"):
             errors.append(f"{ctx}.{op}: field is {spec.kind}, not numeric")
             return None
-        if isinstance(value, bool) or not isinstance(value, int):
-            errors.append(f"{ctx}.{op}: expected an int, got {value!r}")
+        if not _is_number(value):
+            errors.append(f"{ctx}.{op}: expected a number, got {value!r}")
+            return None
+        if spec.kind == "int" and not isinstance(value, int):
+            errors.append(f"{ctx}.{op}: {field} is integer-valued, got {value!r}")
             return None
         return Condition(field, op, value)
+    # Bare literal → equality. Not meaningful for a float field (irrational
+    # magnitudes never compare equal usefully) — steer the caller to gte/lte.
+    if spec.kind == "float":
+        errors.append(f"{ctx}: {field} is a float field — range-query it with gte/lte, not equality")
+        return None
     _check_scalar_value(spec, raw, ctx, errors)
     return Condition(field, "eq", raw)
 
@@ -196,6 +213,7 @@ def search_identities(
                 interval_vector=interval_vector_from_mask(mask),
                 rotational_period=rotational_period(mask),
                 is_achiral=chirality_sign(mask) == 0,
+                dft_magnitudes=dft_magnitudes(mask),
                 contains_roots=roots,
             )
         )
