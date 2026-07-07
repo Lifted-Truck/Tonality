@@ -233,7 +233,7 @@ def name_chord(
         RankedInterpretation(
             interpretation=r.interpretation,
             score=r.score,
-            rank=i,
+            rank=i + 1,
             functional_role=r.functional_role,
             root_degree=r.root_degree,
             function_category=r.function_category,
@@ -338,7 +338,7 @@ def name_chord_across_keys(
         RankedInterpretation(
             interpretation=r.interpretation,
             score=r.score,
-            rank=i,
+            rank=i + 1,
             evidence=r.evidence,
         )
         for i, r in enumerate(combined)
