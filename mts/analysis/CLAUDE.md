@@ -3,12 +3,15 @@
 Turns identities into contextualized analysis. Pure functions over `core` objects;
 no session state here (that lives in `workspace`/`SessionCatalog`).
 
-- `specs.py` — the multi-notation parser (intervals, degrees, note names, MIDI,
-  catalog names). This *is* the "various timeless notations" feature. Its
-  `scope` literal (abstract/note/absolute) is now an additive compat alias over
-  the `core/spec_level.py` lattice: `from_scope`/`to_scope` bridge the two, and
-  `ChordSpec.spec_level` / `ChordParseResult.to_realization()` expose the lattice
-  view. `scope` is a *diagonal* — it cannot express the registered+rootless cell.
+- `mts/notation.py` (moved below this layer, RE-6b — was `analysis/specs.py`) — the
+  multi-notation parser (intervals, degrees, note names, MIDI, catalog names).
+  This *is* the "various timeless notations" feature. It sits **below `io/`** so
+  `io/loaders` can consume it without an import cycle; it is re-exported from
+  `mts.analysis` for compatibility. Its `scope` literal (abstract/note/absolute)
+  is an additive compat alias over the `core/spec_level.py` lattice:
+  `from_scope`/`to_scope` bridge the two, and `ChordSpec.spec_level` /
+  `ChordParseResult.to_realization()` expose the lattice view. `scope` is a
+  *diagonal* — it cannot express the registered+rootless cell.
 - `errors.py` — `SpecificationError` + `require_realization`, the guard for the
   cardinal rule. Register-dependent analysis calls the guard and **errors** when
   handed a register-less identity instead of inventing a voicing.
@@ -78,8 +81,12 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   cached over the 4096-mask space; add new mask-keyed math here instead of
   duplicating it per module.
 - `comparisons.py`, `summaries.py` — cross-object compatibility and compact briefs.
-- `builders.py` — `SessionCatalog` + manual scale/chord registration. **No
-  module-level mutable state** — sessions are instances.
+- `mts/session.py` (moved below this layer, RE-6b — was `analysis/builders.py`) —
+  `SessionCatalog` + manual scale/chord registration. **No module-level mutable
+  state** — sessions are instances, and the module-level default session was
+  *retired* (RE-6b): `register_scale`/`register_chord` require an explicit
+  `session=`. It sits below `io/` (which merges a session's catalogs on request);
+  re-exported from `mts.analysis` for compatibility.
   Temporal code lives in the `mts/temporal/` package (Phase 2) — build it there,
   not here. (The old `timeline.py` stub + `workspace.analyze_timeline` path were
   removed 2026-06-29.)

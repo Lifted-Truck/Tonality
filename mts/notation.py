@@ -6,11 +6,11 @@ import re
 from dataclasses import dataclass, replace
 from typing import Iterable, Literal, Mapping, Sequence, Tuple
 
-from ..core.enharmonics import name_for_pc
-from ..core.pitch import Pitch, parse_pitch_token, ParsedPitch
-from ..core.quality import ChordQuality
-from ..core.realization import Realization
-from ..core.spec_level import (
+from .core.enharmonics import name_for_pc
+from .core.pitch import Pitch, parse_pitch_token, ParsedPitch
+from .core.quality import ChordQuality
+from .core.realization import Realization
+from .core.spec_level import (
     INTERVAL_SHAPE,
     NAMED_CHORD,
     VOICING,
@@ -158,7 +158,7 @@ def parse_chord_spec(
     """
 
     if catalog is None:
-        from ..io.loaders import load_chord_qualities
+        from .io.loaders import load_chord_qualities
 
         catalog = load_chord_qualities()
 

@@ -9,6 +9,7 @@ from ..core.quality import ChordQuality
 from ..core.scale import Scale
 from .pcset_math import compatibility_roots as _compatibility_roots
 from .summaries import chord_brief
+from ..io.loaders import load_scales
 
 ROMANS = ["I", "II", "III", "IV", "V", "VI", "VII"]
 
@@ -67,7 +68,6 @@ def compare_chord_qualities(
     """Compare two chord qualities across the scale catalog."""
 
     if catalog_scales is None:
-        from ..io.loaders import load_scales
 
         catalog_scales = load_scales()
 

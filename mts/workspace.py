@@ -20,7 +20,7 @@ from .analysis import (
     analyze_chord,
 )
 from .analysis.results import ScaleAnalysisResult, ChordAnalysisResult
-from .analysis.builders import (
+from .session import (
     ManualScaleBuilder,
     ManualChordBuilder,
     SessionCatalog,

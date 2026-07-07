@@ -12,7 +12,12 @@ from .push_grid import PushGrid
 from ..theory import functions as fn_defs
 from ..analysis import ChordAnalysisRequest, analyze_chord
 from ..analysis.voicings import suggest_voicings
-from ..analysis.builders import is_session_chord, SESSION_CHORD_CONTEXT
+from ..session import SessionCatalog, SESSION_FILE
+
+# This demoted example CLI owns its own session (loaded from the saved file);
+# there is no library-level default session (RE-6b).
+_session = SessionCatalog()
+_session.load(SESSION_FILE)
 from ..context import DisplayContext
 from ..context.formatters import (
     format_pitch_class,
@@ -232,7 +237,7 @@ def main(argv: list[str] | None = None) -> None:
         update_context_with_chord_root(context, chord_root_pc)
         chord_spelling = [format_pitch_class(pc, context) for pc in chord_pcs]
         chord_quality = chord.quality
-        chord_context = SESSION_CHORD_CONTEXT.get(chord_quality.name)
+        chord_context = _session.chord_context.get(chord_quality.name)
     elif args.chord_root and args.chord_quality:
         chord_root_pc = pc_from_name(args.chord_root)
         if args.chord_quality not in qualities:
@@ -243,7 +248,7 @@ def main(argv: list[str] | None = None) -> None:
         update_context_with_chord_root(context, chord_root_pc)
         chord_spelling = [format_pitch_class(pc, context) for pc in chord_pcs]
         chord_quality = chord.quality
-        chord_context = SESSION_CHORD_CONTEXT.get(chord_quality.name)
+        chord_context = _session.chord_context.get(chord_quality.name)
     else:
         # No chord: leave empty; grid will show '-' markers
         update_context_with_chord_root(context, None)
@@ -257,7 +262,7 @@ def main(argv: list[str] | None = None) -> None:
         print(context_line)
         # TODO: When scope is absolute, feed exact voicing data into PushGrid for pad highlighting.
 
-    if chord_quality and is_session_chord(chord_quality.name):
+    if chord_quality and _session.is_chord(chord_quality.name):
         summary = _session_chord_summary(chord_quality)
         print(f"[Session chord] {chord_quality.name}: {summary}")
 

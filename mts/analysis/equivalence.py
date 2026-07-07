@@ -26,6 +26,7 @@ from ..core.bitmask import mask_from_pcs, rotate_mask
 from ..core.quality import ChordQuality
 from ..core.symmetry import rotational_period
 from .results import ChordInterpretation, ChordInterpretations
+from ..io.loaders import chord_qualities_by_mask
 
 
 def interpret_chord(
@@ -47,7 +48,6 @@ def interpret_chord(
     if catalog is None:
         # Default path (per-segment hot loop): the mask index is cached on the
         # catalog, so this rebuilds nothing (RE-5c).
-        from ..io.loaders import chord_qualities_by_mask
 
         by_mask: Mapping[int, Sequence[ChordQuality]] = chord_qualities_by_mask()
     else:

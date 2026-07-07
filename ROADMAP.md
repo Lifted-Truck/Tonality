@@ -2613,7 +2613,8 @@ workstreams so they can be scheduled and checked off independently.
       near-identical ~40-line loader blocks collapse into one generic
       mtime-keyed helper. Side benefit: simpler table-driven code is exactly
       what ports cleanly in Phase 8.
-- [ ] **RE-6 — Doctrine-drift cleanup (the GUI-era residue).** **(a)**
+- [x] **RE-6 — Doctrine-drift cleanup (the GUI-era residue). DELIVERED**
+      (a→e across #142–#146; RE-6b closes the review). **(a)**
       `layouts/push_grid.py` is an in-library ANSI renderer (escape tables,
       `isatty()` color policy, spelled labels, no spec level) — the exact
       thing Phase 5 was created to replace; the grid *descriptor* moves to

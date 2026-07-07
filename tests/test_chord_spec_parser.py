@@ -1,4 +1,4 @@
-from mts.analysis.specs import parse_chord_spec
+from mts.notation import parse_chord_spec
 
 
 def test_parse_intervals_abstract():

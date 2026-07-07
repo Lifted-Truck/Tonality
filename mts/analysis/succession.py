@@ -51,6 +51,7 @@ from .results import (
     NextChordRecommendation,
     SuccessionEvidence,
 )
+from ..io.loaders import load_chord_qualities, load_function_mappings, load_scales, load_succession_weights
 
 _SUPPORTED_MODES = ("major", "minor")
 
@@ -66,7 +67,6 @@ CORE_QUALITIES = (
 def _role_table(mode: str) -> dict[tuple[int, str], tuple[str, str]]:
     """{(relative_root, quality): (role, roman)} for the mode (cadence's table)."""
 
-    from ..io.loaders import load_function_mappings
 
     table: dict[tuple[int, str], tuple[str, str]] = {}
     for mapping in load_function_mappings(mode):
@@ -80,14 +80,12 @@ def _role_table(mode: str) -> dict[tuple[int, str], tuple[str, str]]:
 def _diatonic_degrees(mode: str) -> frozenset[int]:
     """Relative pitch classes of the mode's reference scale (for applied dominants)."""
 
-    from ..io.loaders import load_scales
 
     scale_name = "Ionian" if mode == "major" else "Natural Minor"
     return frozenset(load_scales()[scale_name].degrees)
 
 
 def _quality_intervals(quality: str) -> tuple[int, ...]:
-    from ..io.loaders import load_chord_qualities
 
     catalog = load_chord_qualities()
     if quality not in catalog:
@@ -260,7 +258,6 @@ def tag_transition(
             "vocabulary (major/minor only — modal keys are not guessed)."
         )
 
-    from ..io.loaders import load_succession_weights
 
     weights = load_succession_weights(weights_version).weights
     table = _role_table(mode_key)
@@ -329,7 +326,6 @@ def recommend_next_chord(
             "guessed)."
         )
 
-    from ..io.loaders import load_function_mappings, load_succession_weights
 
     prior = load_succession_weights(weights_version)
     weights = prior.weights

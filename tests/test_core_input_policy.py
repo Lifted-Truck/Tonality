@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from mts.analysis.builders import mask_from_text
+from mts.session import mask_from_text
 from mts.core.chord import Chord
 from mts.core.pitch import Pitch, parse_pitch_token
 from mts.core.quality import ChordQuality

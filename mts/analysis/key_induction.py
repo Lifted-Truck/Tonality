@@ -31,12 +31,10 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence as SequenceABC
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..core.scale import Scale
 
-if TYPE_CHECKING:  # lazy at runtime: io.loaders imports analysis.builders
-    from ..io.loaders import KeyProfileSet
 from .analytical_context import AnalyticalContext
 from .errors import InsufficientInformation
 from .results import (
@@ -45,6 +43,7 @@ from .results import (
     RelativeKeyDisambiguation,
     RelativeKeyEvidence,
 )
+from ..io.loaders import KeyProfileSet, load_key_profiles, load_relative_key_weights, load_scales
 
 # Catalog scale realizing each profile mode (the same mapping the functional
 # harmony generator uses for "major"/"minor").
@@ -95,7 +94,6 @@ def infer_key(
         raise InsufficientInformation("pc weights carry no tonal information (empty or uniform).")
 
     if profiles is None:
-        from ..io.loaders import load_key_profiles
 
         profiles = load_key_profiles()
 
@@ -137,7 +135,6 @@ def candidate_context(
             f"No catalog scale mapping for mode {candidate.mode!r} (known: {known})."
         )
     if scales is None:
-        from ..io.loaders import load_scales
 
         scales = load_scales()
     if scale_name not in scales:
@@ -179,7 +176,6 @@ def disambiguate_relative_key(
         induction = infer_key(material, profiles=profiles)
 
     if weights is None:
-        from ..io.loaders import load_relative_key_weights
 
         weights = load_relative_key_weights()
 

@@ -14,7 +14,10 @@ if str(REPO_ROOT) not in sys.path:
 
 from mts.io.loaders import load_scales, load_chord_qualities
 from mts.analysis import ScaleAnalysisRequest, analyze_scale
-from mts.analysis.builders import SESSION_SCALE_CONTEXT
+from mts.session import SessionCatalog, SESSION_FILE
+
+_session = SessionCatalog()
+_session.load(SESSION_FILE)
 from mts.analysis.results import ScaleAnalysisResult, ScaleIntervalSummary, SymmetryData, ModeRotation
 from mts.core.enharmonics import pc_from_name
 from mts.context import DisplayContext
@@ -125,7 +128,7 @@ def main() -> None:
         parser.error(f"Unknown scale {args.scale!r}. Use --list-scales to inspect options.")
 
     scale = scales[args.scale]
-    context = SESSION_SCALE_CONTEXT.get(scale.name)
+    context = _session.scale_context.get(scale.name)
     if context:
         scope = context.get("scope", "abstract").capitalize()
         tokens = ", ".join(context.get("tokens", []))

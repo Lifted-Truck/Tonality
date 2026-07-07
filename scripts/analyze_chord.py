@@ -20,7 +20,10 @@ from mts.io.loaders import load_chord_qualities, load_scales
 from mts.core.chord import Chord
 from mts.core.enharmonics import pc_from_name
 from mts.analysis import ChordAnalysisRequest, analyze_chord
-from mts.analysis.builders import SESSION_CHORD_CONTEXT
+from mts.session import SessionCatalog, SESSION_FILE
+
+_session = SessionCatalog()
+_session.load(SESSION_FILE)
 from mts.analysis.results import ChordAnalysisResult
 from mts.analysis.voicings import suggest_voicings
 from mts.context import DisplayContext
@@ -206,7 +209,7 @@ def main() -> None:
     if tonic_pc is not None:
         ctx.set("tonic_pc", tonic_pc, layer="cli")
 
-    session_context = SESSION_CHORD_CONTEXT.get(chord.quality.name)
+    session_context = _session.chord_context.get(chord.quality.name)
     if session_context:
         scope = session_context.get("scope", "abstract").capitalize()
         tokens = ", ".join(session_context.get("tokens", []))

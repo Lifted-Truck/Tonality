@@ -36,10 +36,10 @@ import math
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
-    from ..io.loaders import MeterProfileSet
     from ..temporal import Sequence
 from .errors import InsufficientInformation
 from .results import MeterCandidate, MeterEstimationResult
+from ..io.loaders import MeterProfileSet, load_meter_profiles
 
 _EPS = 1e-9
 _MIN_ONSETS = 6  # below this there is too little evidence for the autocorrelation
@@ -92,7 +92,6 @@ def infer_meter(
     """
 
     if profiles is None:
-        from ..io.loaders import load_meter_profiles
 
         profiles = load_meter_profiles()
     grid = profiles.grid_beats

@@ -41,6 +41,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from .results import CadenceChord, CadenceEvent, CadenceResult
+from ..io.loaders import load_function_mappings
 
 _SUPPORTED_MODES = ("major", "minor")
 _ROOT_MOTION_NAME = {5: "root up a fourth (down a fifth)", 7: "root up a fifth"}
@@ -48,8 +49,6 @@ _ROOT_MOTION_NAME = {5: "root up a fourth (down a fifth)", 7: "root up a fifth"}
 
 def _role_table(mode: str) -> dict[tuple[int, str], tuple[str, str]]:
     """{(relative_root, quality): (role, roman)} for the mode's functions."""
-
-    from ..io.loaders import load_function_mappings
 
     table: dict[tuple[int, str], tuple[str, str]] = {}
     for mapping in load_function_mappings(mode):
