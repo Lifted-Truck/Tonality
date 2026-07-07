@@ -315,6 +315,67 @@ def load_key_profiles(version: str | None = None) -> KeyProfileSet:
     )
 
 
+@dataclass(frozen=True)
+class MelodicTendencyPrior:
+    """One versioned melodic-tendency table (a versioned empirical prior).
+
+    ``stability`` maps mode -> 12 per-pc stability values, **frozen** from the
+    key profiles they were derived from (never read live — a profile default
+    flip must not silently move tendency scales). Attraction is
+    ``(s_target/s_source) / distance**distance_exponent`` over step targets
+    within ``max_step_semitones``; ``chord_anchor_boost`` multiplies the
+    stability of chord tones (both roles) when a chord context is given.
+    ``target_policies`` is the closed vocabulary the ``targets`` parameter
+    accepts. Results cite ``version`` (ROADMAP "versioned-priors pattern").
+    """
+
+    version: str
+    source: str
+    stability: dict[str, tuple[float, ...]]
+    distance_exponent: int
+    chord_anchor_boost: float
+    max_step_semitones: int
+    target_policies: tuple[str, ...]
+
+
+def _parse_melodic_tendency(payload: dict) -> "MelodicTendencyPrior":
+    stability: dict[str, tuple[float, ...]] = {}
+    for mode, values in dict(payload["stability"]).items():
+        table = tuple(float(v) for v in values)
+        if len(table) != 12:
+            raise ValueError(
+                f"Melodic-tendency prior {payload['version']!r}/{mode!r} must have 12 values"
+            )
+        stability[str(mode)] = table
+    if not stability:
+        raise ValueError(f"Melodic-tendency prior {payload['version']!r} defines no modes")
+    policies = tuple(str(p) for p in payload["target_policies"])
+    if not policies:
+        raise ValueError(f"Melodic-tendency prior {payload['version']!r} defines no target policies")
+    return MelodicTendencyPrior(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        stability=stability,
+        distance_exponent=int(payload["distance_exponent"]),
+        chord_anchor_boost=float(payload["chord_anchor_boost"]),
+        max_step_semitones=int(payload["max_step_semitones"]),
+        target_policies=policies,
+    )
+
+
+def load_melodic_tendency(version: str | None = None) -> MelodicTendencyPrior:
+    """Load a versioned melodic-tendency prior from ``data/melodic_tendency.json``.
+
+    ``version=None`` returns the first (default) entry. Cached by file mtime,
+    like the other versioned priors.
+    """
+    return _load_versioned(
+        "melodic_tendency.json", _parse_melodic_tendency,
+        kind="melodic-tendency", version=version,
+        empty_message="melodic_tendency.json contains no priors",
+    )
+
+
 def _parse_naming_weights(payload: dict) -> "NamingWeights":
     weights = {str(k): float(v) for k, v in dict(payload["weights"]).items()}
     if not weights:

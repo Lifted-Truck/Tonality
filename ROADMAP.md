@@ -590,8 +590,10 @@ list as new applications come into view.
   door open, nothing owed · `search_identities` **adopted** (brief-2:
   `pivots_between`/`tonicization_targets`, 576/576 + 24/24 parity; R1 bug fixed,
   `df1..df6` shipped) · **brief-3** (`response-3.md`): melodic tendency prior =
-  **gap 19** (seam `_snap_stable`), satisfaction-loop hooks = **gap 20** (v1
-  recipe-answered; feature vocabulary is Tonality's, Decision 11).
+  **gap 19** — slice 1 ✅ **shipped** (`melodic_tendency`, notice
+  `notice-melodic-tendency.md`; the `_snap_stable`/`_snap_chord` swap is open) ·
+  satisfaction-loop hooks = **gap 20** (v1 recipe-answered; feature vocabulary
+  is Tonality's, Decision 11).
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
@@ -1089,7 +1091,27 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     `root > third` hand rule with a cited number). Analysis-side, Decision-7
     plural/evidenced; the caller owns the snap policy. **A9 Wend** named
     consumer, seam `_snap_stable`. Distinct from `next_chord` and from gap 14's
-    (harmonic) diatonic transition-tendency table. Not yet scheduled.
+    (harmonic) diatonic transition-tendency table.
+    **Slice 1 DELIVERED (2026-07-07): `analysis/tendency.py` —
+    `melodic_tendency(pc|degree, tonic_pc=, mode=, chord_pcs=, targets=)`.**
+    Anchoring attraction `(s_q/s_p)/d²` (Lerdahl 2001) over the new versioned
+    prior `melodic-tendency.1` — stability tables **frozen** from kk-1982.1
+    (copied, never read live: a profile default flip must not move tendency
+    scales). Returns ranked resolutions with evidence + the full 12-pc
+    stability table + `prior_version`. **Fork record (Julian, 2026-07-07):**
+    (A) stabilities KK-derived (empirical, in-repo, mode-aware; a Lerdahl
+    basic-space table can ship later as an alternate prior version); (B)
+    **target policy is a caller parameter** — rulesets/styles select their own
+    resolution-target vocabulary; default `diatonic_steps` (a leap is not a
+    resolution), `chromatic_steps` widens to all step neighbors so
+    chromaticism is never shut out (out-of-key targets flagged); (C) chord
+    anchoring ships in slice 1 (chord tones' stability ×1.5 — the Lerdahl
+    basic-space triad/diatonic level ratio — in both source and target roles,
+    Bharucha). Oracles reproduce the pedagogy from the frozen data: ti→do
+    2.2049 tops every major key; fa→mi 1.0709 > fa→sol; stable tones barely
+    tend; C minor flips fa's top target to me; the natural-minor-chromatic
+    leading tone still pulls 2.0 to do. MCP tool + conformance case; additive
+    golden; 20 tests. Major/minor only (the stability data's honest scope).
 20. **Satisfaction-loop hooks / preference-weighted rulesets** (added 2026-07-07
     from A9 Wend brief-3 R2). For a **modular preference-learner** (a separate,
     delegated project; classical ML, versioned bias artifacts a generator

@@ -1,0 +1,112 @@
+<title>melodic_tendency — design brief</title>
+<style>
+  :root{
+    --paper:#f4f2ec; --ink:#1b1d22; --ink-soft:#4a4e57; --line:#d7d3c8;
+    --indigo:#3a3d8f; --indigo-soft:#5c60b8; --indigo-wash:#e9e9f4;
+    --gold:#a8792c; --green:#3f7d5a; --rule:#c9c4b6;
+    --mono:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:950px;margin:0 auto;padding:52px 32px 78px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--indigo);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.07;margin:0 0 12px;letter-spacing:-.01em;text-wrap:balance}
+  .lede{font-size:16.5px;color:var(--ink-soft);max-width:67ch;margin:0 0 22px}
+  .lede b{color:var(--ink)}
+  .thesis{border-left:3px solid var(--indigo);background:var(--indigo-wash);padding:15px 22px;border-radius:0 8px 8px 0;margin:0 0 34px;font-size:14.5px;max-width:74ch}
+  .thesis b{color:var(--indigo)}
+  h2{font-family:var(--serif);font-weight:600;font-size:24px;margin:42px 0 6px}
+  h2 .num{font-family:var(--mono);font-size:13px;color:var(--indigo);margin-right:11px;font-weight:400}
+  .sub{color:var(--ink-soft);font-size:14.5px;margin:0 0 20px;max-width:72ch}
+  code{font-family:var(--mono);font-size:.86em;background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:4px}
+  .formula{font-family:var(--serif);font-size:21px;text-align:center;background:#fbfaf6;border:1px solid var(--line);border-radius:11px;padding:18px;margin:14px 0}
+  .formula .gloss{display:block;font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);margin-top:10px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;margin:8px 0}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding:8px 12px 8px 0;font-weight:400}
+  td{padding:9px 12px 9px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;vertical-align:top}
+  td .m{font-family:var(--mono);font-size:12.5px}
+  tr.hi td{background:var(--indigo-wash)}
+  tr.hi .m{color:var(--indigo);font-weight:600}
+  .bar{height:9px;border-radius:4px;background:var(--indigo-soft);display:inline-block;vertical-align:middle}
+  .fork{border:1px solid var(--line);border-radius:11px;background:#fbfaf6;padding:18px 20px;margin:14px 0}
+  .fork .head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+  .fork .k{font-family:var(--mono);font-size:11px;color:var(--indigo);letter-spacing:.08em}
+  .fork h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:0}
+  .fork p{font-size:13.5px;color:var(--ink-soft);margin:6px 0 0;max-width:74ch}
+  .fork .rec{margin-top:10px;font-size:13px;background:var(--indigo-wash);border-radius:7px;padding:9px 13px;max-width:74ch}
+  .fork .rec b{color:var(--indigo)}
+  .term{background:#1b1d22;border-radius:10px;padding:16px 18px;font-family:var(--mono);font-size:12px;line-height:1.65;color:#d7d3c8;overflow-x:auto;margin:14px 0}
+  .term .c{color:#8a8f9a} .term .k{color:#a7a9e0} .term .g{color:#8fc0a4} .term .y{color:#d8b57a}
+  .locked{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+  @media(max-width:680px){.locked{grid-template-columns:1fr}}
+  .l{border:1px solid var(--line);border-left:3px solid var(--green);border-radius:0 9px 9px 0;background:#fbfaf6;padding:13px 16px}
+  .l h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin:0 0 5px}
+  .l p{font-size:13px;color:var(--ink-soft);margin:0}
+  .l p b{color:var(--ink)}
+  .foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-soft)}
+  .foot b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Tonality · gap 19 · design brief · 2026-07-07</p>
+  <h1>melodic_tendency — which pitch wants to go where, as a cited number</h1>
+  <p class="lede">The melodic sibling of <code>next_chord</code>: given a pitch class in a key (optionally over a chord), return the <b>ranked resolutions</b> — where it tends, how strongly, and why. Wend's brief-3 ask, replacing its three hand-set rules (<code>_snap_stable</code>) with a versioned prior; measured evidence already in hand (leap-approached arrivals 65%→26% under the hand rules this formalizes).</p>
+  <div class="thesis"><b>The elegant part:</b> the engine already owns the data. Lerdahl's tonal-attraction formula computed over the repo's <b>pinned KK profiles</b> reproduces textbook pedagogy from empirical numbers — ti→do comes out strongest, fa→mi next, and stable tones barely tend anywhere. No new empirical collection; one derivation, frozen into a new versioned prior.</div>
+
+  <h2><span class="num">01</span>The model</h2>
+  <p class="sub">Lerdahl's anchoring attraction (Tonal Pitch Space; the standard citable model), with stability <i>s</i> read from a tonal-hierarchy table:</p>
+  <div class="formula">a(p → q) &nbsp;=&nbsp; (s<sub>q</sub> / s<sub>p</sub>) · 1 / d²
+    <span class="gloss">strength of p's pull toward q = how much more stable the target is, damped by squared semitone distance <i>d</i>. Unstable tones near stable neighbors feel the strongest pull — the leading tone, by construction.</span>
+  </div>
+  <p class="sub">Run live against <code>kk-1982.1</code> (the profile already pinned in <code>mts/data/</code>) in C major, diatonic step targets:</p>
+  <table>
+    <thead><tr><th>source</th><th>target</th><th>d</th><th>strength</th><th></th><th>the pedagogy it reproduces</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td class="m">B (ti)</td><td class="m">C (do)</td><td>1</td><td class="m">2.21</td><td><span class="bar" style="width:132px"></span></td><td>the leading tone resolves up</td></tr>
+      <tr><td class="m">F (fa)</td><td class="m">E (mi)</td><td>1</td><td class="m">1.07</td><td><span class="bar" style="width:64px"></span></td><td>fa falls to mi (the 4–3 sigh)</td></tr>
+      <tr><td class="m">D (re)</td><td class="m">C (do)</td><td>2</td><td class="m">0.46</td><td><span class="bar" style="width:28px"></span></td><td>re settles to do more than to mi (0.32)</td></tr>
+      <tr><td class="m">B (ti)</td><td class="m">A (la)</td><td>2</td><td class="m">0.32</td><td><span class="bar" style="width:19px"></span></td><td>…and ti barely wants to fall</td></tr>
+      <tr><td class="m">G (sol)</td><td class="m">F / A</td><td>2</td><td class="m">0.20 / 0.18</td><td><span class="bar" style="width:12px"></span></td><td>stable tones have almost no tendency</td></tr>
+    </tbody>
+  </table>
+  <p class="sub">And the <b>stability ranking itself</b> — <code>C &gt; G &gt; E &gt; F &gt; A &gt; D &gt; B</code> — is the second half of Wend's need verbatim: it replaces the <code>root &gt; third</code> hand rule with a cited ordering (and it's mode-aware for free: the minor profile reorders around ♭3).</p>
+
+  <h2><span class="num">02</span>The shape</h2>
+  <div class="term">
+<span class="k">melodic_tendency</span>(pc_or_degree, key=(tonic, mode), chord=<span class="y">None</span>)
+<span class="c">  → TendencyResult{</span>
+<span class="c">      source_pc, resolutions: [ {target_pc, strength, distance, evidence[]} … ]  # ranked</span>
+<span class="c">      stability: [ {pc, degree, value} … ],   # the ranked landing table (root>third replacement)</span>
+<span class="c">      prior_version: "melodic-tendency.1" }   # Decision 7: plural, evidenced, version-cited</span>
+  </div>
+  <p class="sub">Analysis-side (<code>mts/analysis/tendency.py</code> + MCP tool). The engine reports pulls with evidence; <b>the caller owns the snap policy</b> — same seam as margin-as-signal. One locked decision (not a fork): the prior JSON <b>freezes</b> its derived stability tables with a documented derivation note ("from kk-1982.1"), rather than reading the profile live — so a future profile default flip can never silently move tendency scales (the versioned-priors lesson, learned once already).</p>
+
+  <h2><span class="num">03</span>The forks — your calls</h2>
+
+  <div class="fork">
+    <div class="head"><span class="k">FORK A</span><h3>Where do the stability numbers come from?</h3></div>
+    <p>(1) <b>KK-profile-derived</b> — empirical, already pinned in-repo, mode-aware for free; Lerdahl himself calibrated against Krumhansl's data. (2) <b>Lerdahl basic-space integers</b> — theory-set levels (root 4, triad 3, diatonic 2, chromatic 1); cleaner numbers, coarser distinctions (all non-chord diatonic tones tie). (3) <b>Hand pedagogical table</b> — simplest, but uncited numbers are exactly what this gap exists to replace.</p>
+    <div class="rec"><b>Recommend (1)</b> — the table above is real repo data reproducing the pedagogy; frozen into <code>melodic-tendency.1</code> with the derivation documented. Option (2) can ship later as an alternate prior version if a consumer wants coarse/theory-set behavior — the versioned-prior pattern makes them coexist.</div>
+  </div>
+
+  <div class="fork">
+    <div class="head"><span class="k">FORK B</span><h3>What counts as a resolution target?</h3></div>
+    <p>(1) <b>Diatonic step targets</b> (scale members within ±2 semitones) — anchoring theory's own definition; a leap isn't a resolution. Chromatic sources get their adjacent scale members (usually both semitone neighbors). (2) <b>All diatonic tones at any distance</b> — 1/d² already decays leaps toward zero; more "plural" but reports theoretically-wrong "resolutions" (do→sol as a weak tendency is a leap, not a pull). (3) All 12 pcs — completeness over sense.</p>
+    <div class="rec"><b>Recommend (1)</b> — it is the theory's own target set, and the honest one: reporting a leap as a weak resolution would claim evidence the model doesn't have. The full stability table in the result already gives callers the complete landscape for any other policy.</div>
+  </div>
+
+  <div class="fork">
+    <div class="head"><span class="k">FORK C</span><h3>Does chord context ship in slice 1?</h3></div>
+    <p>Wend's signature includes <code>chord=None</code>, and its hand rules included chord-tone anchoring. Model: when a chord is given, chord tones get a <b>stability boost factor</b> (Bharucha's anchoring — the local stable set), one documented number in the prior JSON; same formula otherwise. (1) <b>Key-only slice 1</b> — smallest; chord param reserved. (2) <b>Both now</b> — the boost model is ~15 lines and Wend's seam uses it immediately.</p>
+    <div class="rec"><b>Recommend (2)</b> — the marginal cost is one prior field + one multiply, and shipping the signature complete avoids a second consumer round-trip. The boost value is a prior parameter (tunable by version), not code.</div>
+  </div>
+
+  <h2><span class="num">04</span>Acceptance preview (the oracles)</h2>
+  <p class="sub">All hand-checkable against the formula + frozen tables: ti→do is the top-ranked resolution in every major key (transposition-covariant); fa→mi outranks fa→sol; stable tones' strongest pull is weaker than any tendency tone's; minor mode reorders the third: in C minor, fa's <i>top</i> resolution flips to me (0.38 vs sol 0.34), where major's fa resolves to mi — the profile knows minor's third is heavy; with a C-major chord context, D's pull to C and E strengthens by exactly the boost factor; degree-input and pc-input agree; full strict-total validation. Conformance case + additive golden, port pin untouched — the standing contract.</p>
+
+  <div class="foot">
+    <p><b>What this brief is for:</b> pick forks A–C and I build the slice (prior JSON + <code>analysis/tendency.py</code> + MCP tool + tests + Wend notice with the <code>_snap_stable</code> swap recipe). <b>Locked already (not up for grabs):</b> frozen prior tables (never live-profile reads); analysis-side, plural, evidenced, version-cited; caller owns the snap.</p>
+  </div>
+</div>
