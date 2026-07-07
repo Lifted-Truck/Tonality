@@ -1,0 +1,149 @@
+<style>
+  :root{
+    --paper:#f3f4f6; --card:#fff; --ink:#171b21; --slate:#5a646f; --faint:#8b939c; --hair:#e0e3e6;
+    --indigo:#3b49c0; --indigo-soft:#eceef9; --amber:#9c6a12; --amber-soft:#f7efdd;
+    --green:#2c724f; --green-soft:#e5f0ea; --red:#ac3644; --red-soft:#f6e6e8;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  .wrap{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;padding:40px 20px 64px;}
+  .col{max-width:820px;margin:0 auto;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--slate);font-weight:600;}
+  h1{font-size:clamp(26px,4.5vw,36px);line-height:1.1;letter-spacing:-.02em;margin:12px 0 10px;text-wrap:balance;font-weight:700;}
+  .standfirst{font-size:16.5px;color:var(--slate);max-width:64ch;margin:0;}
+  hr.rule{border:none;border-top:1px solid var(--hair);margin:34px 0;}
+  h2{font-size:19px;letter-spacing:-.01em;margin:0 0 4px;font-weight:660;}
+  .sub{font-size:13px;color:var(--faint);font-family:var(--mono);margin:0 0 16px;}
+  p{margin:0 0 12px;font-size:15px;}
+  code{font-family:var(--mono);font-size:.87em;background:#eef0f3;padding:1px 5px;border-radius:4px;}
+
+  /* layering diagram */
+  .layers{display:flex;flex-direction:column;gap:0;margin:6px 0 4px;border:1px solid var(--hair);border-radius:10px;overflow:hidden;}
+  .layer{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--hair);background:var(--card);}
+  .layer:last-child{border-bottom:none;}
+  .layer .lname{font-family:var(--mono);font-size:12.5px;font-weight:700;width:120px;color:var(--ink);}
+  .layer .ldesc{font-size:13px;color:var(--slate);font-family:var(--mono);}
+  .layer.moved{background:var(--indigo-soft);}
+  .layer.moved .lname{color:var(--indigo);}
+  .tag-move{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--indigo);background:#fff;border:1px solid #cfd4f2;border-radius:4px;padding:2px 6px;margin-left:auto;white-space:nowrap;}
+  .arrow-note{font-family:var(--mono);font-size:12px;color:var(--faint);margin:8px 2px 0;}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0;}
+  @media(max-width:640px){.two{grid-template-columns:1fr;}}
+  .panel{border:1px solid var(--hair);border-radius:10px;padding:16px 18px;background:var(--card);}
+  .panel h3{margin:0 0 8px;font-size:13px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;}
+  .panel.now h3{color:var(--red);}
+  .panel.after h3{color:var(--green);}
+  .panel ul{margin:0;padding-left:17px;font-size:13.5px;color:var(--slate);}
+  .panel li{margin:5px 0;}
+  .panel li b{color:var(--ink);font-weight:620;}
+
+  /* steps */
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:8px 0 4px;}
+  ol.steps li{counter-increment:s;position:relative;padding:10px 0 10px 40px;border-bottom:1px solid var(--hair);font-size:14.5px;color:var(--slate);}
+  ol.steps li:last-child{border-bottom:none;}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:6px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  ol.steps li b{color:var(--ink);font-weight:620;}
+
+  /* the decision */
+  .decision{border:1px solid #e6c7cc;border-radius:12px;padding:22px 24px;margin:22px 0 0;background:linear-gradient(180deg,#fdf7f8 0%,#fff 60%);}
+  .decision .chip{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--red-soft);color:var(--red);}
+  .decision h2{margin:12px 0 4px;}
+  .optbox{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0 4px;}
+  @media(max-width:640px){.optbox{grid-template-columns:1fr;}}
+  .opt{border:1px solid var(--hair);border-radius:9px;padding:15px 16px;background:#fff;}
+  .opt h4{margin:0 0 4px;font-size:14.5px;}
+  .opt .meta{font-family:var(--mono);font-size:11px;color:var(--faint);margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em;}
+  .opt ul{margin:0;padding-left:16px;font-size:13.5px;color:var(--slate);}
+  .opt li{margin:4px 0;}
+  .opt.rec{border-color:#cfd4f2;background:var(--indigo-soft);}
+  .opt.rec h4{color:var(--indigo);}
+  .recline{margin-top:14px;font-size:14px;color:#2b3350;}
+  .recline b{color:var(--indigo);}
+  .footer{margin-top:36px;padding-top:20px;border-top:1px solid var(--hair);font-size:13px;color:var(--slate);}
+</style>
+
+<div class="wrap"><div class="col">
+
+  <div class="eyebrow">Tonality · RE-6b · the last review item</div>
+  <h1>Untangling the session &amp; import cycle</h1>
+  <p class="standfirst">One clean architectural move — and one question about a convenience API — stands between here and a closed rigor &amp; efficiency review. Here's the plan, and the single call that's yours.</p>
+
+  <hr class="rule" />
+
+  <h2>The move, in one picture</h2>
+  <p class="sub">Give the codebase a clean dependency spine so nothing imports upward.</p>
+
+  <div class="layers">
+    <div class="layer"><span class="lname">core/</span><span class="ldesc">bitmask · pitch · scale · chord · setclass</span></div>
+    <div class="layer moved"><span class="lname">notation</span><span class="ldesc">the multi-notation parser (was analysis/specs.py)</span><span class="tag-move">move down</span></div>
+    <div class="layer moved"><span class="lname">session</span><span class="ldesc">SessionCatalog + manual builders (was analysis/builders.py)</span><span class="tag-move">move down</span></div>
+    <div class="layer"><span class="lname">io/</span><span class="ldesc">loaders — now imports session cleanly, one direction</span></div>
+    <div class="layer"><span class="lname">analysis/</span><span class="ldesc">imports io at the top of the file — no more lazy imports</span></div>
+    <div class="layer"><span class="lname">dataset · temporal · mcp</span><span class="ldesc">unchanged</span></div>
+  </div>
+  <p class="arrow-note">Every arrow points down. The <code>io ↔ analysis</code> cycle disappears, and with it the reason for <b>24 lazy imports</b> scattered across 10 analysis modules.</p>
+
+  <div class="two">
+    <div class="panel now">
+      <h3>Today — the tangle</h3>
+      <ul>
+        <li><code>io/loaders</code> imports <code>analysis.builders</code> (for SessionCatalog) — the cycle's one edge.</li>
+        <li>So analysis can't import io normally: <b>24 imports</b> hide inside functions to dodge it.</li>
+        <li><code>specs.py</code> has its own stray <code>io</code> call — a second small knot.</li>
+        <li>A <b>module-level mutable <code>_DEFAULT_SESSION</code></b> with import-time disk I/O under a bare <code>except</code>.</li>
+      </ul>
+    </div>
+    <div class="panel after">
+      <h3>After — the spine</h3>
+      <ul>
+        <li>SessionCatalog + notation sit <b>below io</b>; io imports them, not the reverse.</li>
+        <li>Analysis imports io at file top — the 24 lazy imports become normal ones.</li>
+        <li>The <code>specs</code> knot resolved by injecting the catalog rather than loading it.</li>
+        <li>No shared mutable module state at import — <b>the MCP-server leak is structurally impossible.</b></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 style="margin-top:26px;">The steps</h2>
+  <ol class="steps">
+    <li><b>Relocate</b> <code>analysis/specs.py → mts/notation.py</code> and <code>analysis/builders.py → mts/session.py</code> (git mv; both depend only on core).</li>
+    <li><b>Break the specs knot</b>: the one <code>load_chord_qualities</code> call inside the parser takes an injected catalog instead of importing io.</li>
+    <li><b>De-lazify</b> the 24 <code>from ..io.loaders import …</code> lines in analysis/ to top-of-file imports.</li>
+    <li><b>Resolve the default session</b> per your call below, then update the ~4 callers (CLI script + 2 test files) and re-point every import. Goldens can't move — it's pure structure.</li>
+  </ol>
+
+  <div class="decision">
+    <span class="chip">Your call · changes a convenience API</span>
+    <h2>The module-level default session — keep it or retire it?</h2>
+    <p style="margin:2px 0 0;color:var(--slate);font-size:15px;">Today <code>register_scale(...)</code> with no explicit session writes to a process-wide <code>_DEFAULT_SESSION</code>, and <code>load_scales()</code> silently merges it. That convenience <b>is</b> the leak the review flagged — and <code>scripts/build_scale_or_chord.py</code> plus two test files lean on it.</p>
+
+    <div class="optbox">
+      <div class="opt rec">
+        <h4>Retire it — sessions are always explicit</h4>
+        <p class="meta">Recommended · fully fixes the leak</p>
+        <ul>
+          <li><code>register_scale(session=…)</code> becomes required; no shared default; no import-time disk I/O.</li>
+          <li>Honors the CLAUDE.md rule verbatim: <b>"never reintroduce module-level mutable registries."</b></li>
+          <li>Cost: migrate the CLI script + 2 tests to own an explicit <code>SessionCatalog</code> (~1 line each). The <code>SESSION_*</code> aliases retire.</li>
+        </ul>
+      </div>
+      <div class="opt">
+        <h4>Keep it — relocate only</h4>
+        <p class="meta">Smaller diff · leak survives</p>
+        <ul>
+          <li>Move the class + default as-is; break the cycle but keep the shared mutable default.</li>
+          <li>No caller migration; <code>SESSION_*</code> convenience stays.</li>
+          <li>The review's leak finding stays technically open — structure fixed, hazard not.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="recline"><b>Recommendation — retire it.</b> The leak is the whole point of RE-6b; a relocate-only version does the churn without the payoff. The migration is tiny (~4 callers) and the CLI keeps working through an explicit session it already creates.</p>
+  </div>
+
+  <div class="footer">
+    Either way this ships as its own PR, goldens untouched (pure structure), suite green before it opens. Same brief-then-decide pattern as the last one — tell me the call and I execute.
+  </div>
+
+</div></div>
