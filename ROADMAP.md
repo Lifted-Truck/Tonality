@@ -587,7 +587,11 @@ list as new applications come into view.
   contour hold, max fifths distance, pivot preference) — the realization
   half also registered on **gap 17** (nearer-term slice of the same need) ·
   serializer unification (its SMF writer → `sequence_to_midi_file`) noted,
-  door open, nothing owed.
+  door open, nothing owed · `search_identities` **adopted** (brief-2:
+  `pivots_between`/`tonicization_targets`, 576/576 + 24/24 parity; R1 bug fixed,
+  `df1..df6` shipped) · **brief-3** (`response-3.md`): melodic tendency prior =
+  **gap 19** (seam `_snap_stable`), satisfaction-loop hooks = **gap 20** (v1
+  recipe-answered; feature vocabulary is Tonality's, Decision 11).
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
@@ -1053,6 +1057,41 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     aggregation (A6-side, same line as the anchoring index); 12-TET explicit
     (`edo` reserved at 12, no microtonal work). Not yet scheduled — gated on
     A6's module-contract sketch surviving its second module, per the brief.
+19. **Melodic tendency / attraction prior** (added 2026-07-07 from A9 Wend
+    brief-3 R1; `integrations/wend/response-3.md`). The **melodic sibling** of
+    gap 14's chord-succession work: which pitch wants to resolve where, and how
+    strongly, per key/chord context. Verified a real gap — `analyze_melody` only
+    *types* notes (NHT: passing/neighbor/…); nothing gives a prescriptive
+    tendency/attraction value or scale-degree stability ranking. Engine-shaped
+    and LLM-hostile (theory-grounded, deterministic), so it stays here.
+    Signature: `melodic_tendency(pc_or_degree, key, chord=None) -> ranked
+    [(target_pc, strength, evidence)]`, a versioned JSON prior (Lerdahl-class
+    attraction / diatonic tendency table; `source`/`version`/`license` stamped,
+    KK-profile pattern). **First slice:** leading-tone→tonic + chordal-7th→(step
+    down) tendencies + a scale-degree stability ranking (replaces a caller's
+    `root > third` hand rule with a cited number). Analysis-side, Decision-7
+    plural/evidenced; the caller owns the snap policy. **A9 Wend** named
+    consumer, seam `_snap_stable`. Distinct from `next_chord` and from gap 14's
+    (harmonic) diatonic transition-tendency table. Not yet scheduled.
+20. **Satisfaction-loop hooks / preference-weighted rulesets** (added 2026-07-07
+    from A9 Wend brief-3 R2). For a **modular preference-learner** (a separate,
+    delegated project; classical ML, versioned bias artifacts a generator
+    applies deterministically). The governing principle, affirmed and recorded:
+    **the learner's feature vocabulary is Tonality's** — rule firings,
+    conformance reports, atoms, succession tags — not bespoke, so it serves any
+    client (Decision 11 applied to a learner: engine owns the deterministic
+    feature vocabulary, learner owns the ML, pinned artifact + seed reproduces).
+    **v1 is recipes, no engine work:** (a) preference-weighting via *thresholding*
+    — mine the liked spans as a corpus (`induce_ruleset`), contrast against the
+    disliked; do **not** duplicate spans to fake weights (it corrupts the
+    piece-presence BH-FDR, which assumes independent pieces); (b) weighted
+    conformance is client-side-derivable — `evaluate_ruleset` already emits
+    per-rule conformance + beat-tagged violation `location`s, so span-weights
+    align client-side. **Only potential engine slice:** graded (continuous)
+    sample-weights on induction, which *can't* be got soundly by corpus
+    construction — build only if the binary liked/disliked split proves too
+    coarse. The learner project is an **anticipated consumer** (files its own
+    intake brief when it exists). Not scheduled.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
