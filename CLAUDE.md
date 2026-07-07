@@ -74,6 +74,12 @@ rules/       Rulesets (Phase 4.6): declarative JSON rules over the atom vocabula
              composition/comparison (combine/specialize/diff). No code execution;
              rules are data (and round-trip via ruleset_to_payload).
   ↓
+search/      Constraint search / inverse analysis (Phase 4): exact, exhaustive
+             queries over the 4096-identity universe. GENERATIVE-side (cardinal
+             rule). Reuses the rules `Condition` predicate over an identity field
+             vocabulary — same predicate, pointed the other way. search_identities
+             shipped; search_voicings (register enumerator) is the next slice.
+  ↓
 representation/ Projections as data (Phase 5): render-agnostic descriptors
              (keyboard, piano-roll, bracelet, Tonnetz). Library emits descriptions;
              pixel/file rendering is an edge consumer, NOT core (no in-repo GUI).

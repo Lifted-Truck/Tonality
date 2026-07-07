@@ -2943,6 +2943,154 @@
   },
   {
    "kwargs": {
+    "constraints": {
+     "cardinality": 7,
+     "contains": [
+      0,
+      4,
+      7
+     ],
+     "no_consecutive_semitones": true
+    }
+   },
+   "result": {
+    "constraints": {
+     "cardinality": 7,
+     "contains": [
+      0,
+      4,
+      7
+     ],
+     "no_consecutive_semitones": true
+    },
+    "count": 4,
+    "matches": [
+     {
+      "cardinality": 7,
+      "contains_roots": [
+       0,
+       1,
+       4,
+       7,
+       9
+      ],
+      "interval_vector": [
+       3,
+       3,
+       6,
+       3,
+       3,
+       3
+      ],
+      "is_achiral": false,
+      "mask": 731,
+      "pcs": [
+       0,
+       1,
+       3,
+       4,
+       6,
+       7,
+       9
+      ],
+      "rotational_period": 12
+     },
+     {
+      "cardinality": 7,
+      "contains_roots": [
+       1,
+       4,
+       8,
+       9
+      ],
+      "interval_vector": [
+       3,
+       3,
+       5,
+       4,
+       4,
+       2
+      ],
+      "is_achiral": false,
+      "mask": 859,
+      "pcs": [
+       0,
+       1,
+       3,
+       4,
+       6,
+       8,
+       9
+      ],
+      "rotational_period": 12
+     },
+     {
+      "cardinality": 7,
+      "contains_roots": [
+       6,
+       8,
+       10
+      ],
+      "interval_vector": [
+       2,
+       5,
+       4,
+       4,
+       4,
+       2
+      ],
+      "is_achiral": true,
+      "mask": 1371,
+      "pcs": [
+       0,
+       1,
+       3,
+       4,
+       6,
+       8,
+       10
+      ],
+      "rotational_period": 12
+     },
+     {
+      "cardinality": 7,
+      "contains_roots": [
+       0,
+       1,
+       5,
+       6,
+       8,
+       10
+      ],
+      "interval_vector": [
+       2,
+       5,
+       4,
+       3,
+       6,
+       1
+      ],
+      "is_achiral": true,
+      "mask": 1387,
+      "pcs": [
+       0,
+       1,
+       3,
+       5,
+       6,
+       8,
+       10
+      ],
+      "rotational_period": 12
+     }
+    ],
+    "truncated": false,
+    "universe": "set_classes"
+   },
+   "tool": "search_identities"
+  },
+  {
+   "kwargs": {
     "key_name": "Ionian",
     "quality": "min7",
     "root": "D",
