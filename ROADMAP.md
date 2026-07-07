@@ -1197,6 +1197,18 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     disguised as analysis (the groove-apply precedent; applied first to
     voicing enumeration, gap 17).
 
+12. **Containment granularity follows universe granularity (constraint search).**
+    (Decided 2026-07-07 building `search_identities`.) In the default
+    **set-class** universe, `contains`/`contained_in` fold inversions — a shape
+    and its mirror are the same set class, so a rooted-shape test against Rahn's
+    (arbitrarily-handed) prime form would be ill-posed for chiral sets. In the
+    **rooted** universe (`expand_transpositions`/`all_masks`) they are strictly
+    transpositional: `[0,4,7]` means the major triad, not the minor. Corollary:
+    *signed* chirality is not a set-class field — only `is_achiral` (a genuine
+    T/I-invariant) is; handedness-sensitive search awaits the register-aware
+    `search_voicings` slice. The rule is teachable and keeps every field a true
+    invariant of the universe it is queried in.
+
 ## Build sequence
 
 ### Phase 0 — Foundation hardening ✅ DONE
@@ -1581,8 +1593,9 @@ they used. Same input + same prior version → same output.
       `list_chord_qualities`); inputs accept note names or pc ints; the server
       instructions tell agents that ranked alternatives + `is_ambiguous` are
       part of the answer, not noise.
-- [ ] *(parked here 2026-06-10)* **Constraint search / "inverse analysis":**
-      `search_identities(constraints)` / `search_voicings(identity, constraints)`
+- [~] **Constraint search / "inverse analysis":**
+      `search_identities(constraints)` **DELIVERED (2026-07-07)** ·
+      `search_voicings(identity, constraints)` still parked.
       — exhaustive, exact queries over the 4096-identity universe and the small
       voicing spaces ("all 7-note scales containing this tetrachord with no
       consecutive semitones"; "all voicings of Cmaj9 under 19 semitones of spread
@@ -1594,6 +1607,21 @@ they used. Same input + same prior version → same output.
       this — a search constraint and a checkable rule are the same predicate
       pointed in different directions; build the constraint vocabulary once,
       there.)*
+      **What shipped (`mts/search/`):** `search_identities` reuses the ruleset
+      engine's `Condition` predicate over a new *identity* field vocabulary
+      (cardinality, ic1..ic6, rotational_period, is_achiral,
+      no_consecutive_semitones) plus structural `contains`/`contained_in`;
+      strict-total validation (the blind-agent ruleset contract); typed
+      `IdentitySearchResult`; MCP tool + conformance case. **Decision 12
+      (containment granularity):** `contains`/`contained_in` fold inversions in
+      the default set-class universe (a shape and its mirror are one class, so
+      the answer can't depend on which handedness Rahn's prime form names) and
+      are strictly rooted in `expand_transpositions`/`all_masks` (where `[0,4,7]`
+      means the major triad, not the minor). *Signed* chirality is deliberately
+      absent from the set-class field vocabulary for the same reason — it awaits
+      the register/orientation-aware `search_voicings` slice. **Next:**
+      `search_voicings` (a bounded register enumerator over `suggest_voicings`'
+      space) under the same predicate contract.
 
 ### Phase 4.5 — Contextual & statistical interpretation (corpus-driven)
 The intelligence payoff: move from *enumerating* interpretations to *weighing* them
@@ -2413,7 +2441,7 @@ file:line evidence (the full report lives in the review conversation; what
 follows is the durable record). Findings are grouped into six named
 workstreams so they can be scheduled and checked off independently.
 
-- [ ] **RE-1 — Packaging: the library only works from a checkout.** The
+- [x] **RE-1 — Packaging: the library only works from a checkout.** The
       most foundational gap for a "foundation library": `io/loaders.py`
       computes `DATA_DIR` as `parents[2]` of the module (the repo root), and
       `pyproject.toml` packages only `mts*` with no package-data — so an
@@ -2438,7 +2466,7 @@ workstreams so they can be scheduled and checked off independently.
       hacks and the stale-venv workaround become removable once the venv gets
       an editable install of the now-correctly-packaged library — small
       follow-on, needs a permission-gated `pip install -e`.)*
-- [ ] **RE-2 — Wrong-output bugs (all verified by execution).** These emit
+- [x] **RE-2 — Wrong-output bugs (all verified by execution).** These emit
       incorrect enrichment to A1/A6 today: **(a)** deceptive cadences are
       undetectable in minor (`cadence.py` requires `relative_root == 9` +
       role `tonic`; minor's submediant is pc 8 / `predominant` — doubly
@@ -2473,7 +2501,7 @@ workstreams so they can be scheduled and checked off independently.
       `integrations/terrane/notice-re2-cadence-corrections.md` (minor-mode
       cadences), the latter flagging "named subtonic cadence type?" as an
       open vocabulary door if TERRANE wants it.)*
-- [ ] **RE-3 — Silent-loss / silent-no-op fixes (the itemize-losses
+- [x] **RE-3 — Silent-loss / silent-no-op fixes (the itemize-losses
       doctrine, applied).** **(a)** MIDI ingestion loses notes without
       report: a second `note_on` for the same `(channel, note)` overwrites
       the open note; dangling note-ons at end-of-track vanish; a
@@ -2535,7 +2563,7 @@ workstreams so they can be scheduled and checked off independently.
       typo fixed (Python API rename, no alias); `structural_key.py` docstring
       states the brief-11 discriminator. Consumer notice:
       `integrations/audiology/notice-re3-silent-loss-fixes.md`.)*
-- [ ] **RE-4 — MCP surface unification (Phase 4 hygiene, coordinated).**
+- [x] **RE-4 — MCP surface unification (Phase 4 hygiene, coordinated).**
       **(a)** Four incompatible positional event conventions live on the
       tool surface (index 3 = string voice in `structural_keys` — whose
       declared schema says `list[list[float]]` — but velocity in the meter
@@ -2589,7 +2617,7 @@ workstreams so they can be scheduled and checked off independently.
       packaged-app schemes (their flagged Tauri/Electron future),
       `--open-cors` the explicit wildcard. Consumer notice:
       `notice-re4-mcp-unification.md`.)*
-- [ ] **RE-5 — Hot-path efficiency pass (mechanical,
+- [x] **RE-5 — Hot-path efficiency pass (mechanical,
       conformance-protected).** All output-identical by construction, so
       the golden harness is the reviewer: **(a)** `rotate_mask` /
       `invert_mask` are 12-iteration Python loops and the hottest primitives

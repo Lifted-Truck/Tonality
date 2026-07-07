@@ -32,6 +32,7 @@ from ..analysis import (
 from ..analysis.comparisons import compare_chord_qualities
 from ..analysis.pcset_math import set_class_data
 from ..analysis.summaries import chord_brief
+from ..search import search_identities as _search_identities
 from ..core.bitmask import mask_from_pcs
 from ..core.chord import Chord
 from ..core.enharmonics import pc_from_name
@@ -238,6 +239,32 @@ def catalog_containment(pcs: list[int]) -> dict:
     roots — tightest containers first, exact matches flagged, absolute masks.
     The reverse of chord-in-scale compatibility."""
     return find_containers(pcs).to_dict()
+
+
+def search_identities(
+    constraints: dict,
+    expand_transpositions: bool = False,
+    limit: int | None = None,
+) -> dict:
+    """Inverse analysis: every pitch-class-set identity satisfying a constraint
+    object, enumerated exactly over the 4096-identity universe.
+
+    constraints is {field: condition}. Scalar fields — cardinality, ic1..ic6
+    (interval-vector entries), rotational_period, is_achiral,
+    no_consecutive_semitones — take a literal (equality), {"in": [...]},
+    {"gte": n}, or {"lte": n}. Structural fields — contains / contained_in —
+    take a pc-set matched at ANY transposition; a `contains` match reports the
+    roots where the shape appears. Fields AND together.
+
+    Default universe is the 223 set classes (prime forms); expand_transpositions
+    widens to every rooted image. limit caps reported matches (count stays the
+    true total; truncated flags the cut). Invalid constraints raise ValueError
+    listing EVERY problem at once. Example: {"cardinality": 7, "contains":
+    [0,4,7], "no_consecutive_semitones": true} — 7-note scales holding a major
+    triad with no chromatic run."""
+    return _search_identities(
+        constraints, expand_transpositions=expand_transpositions, limit=limit
+    ).to_dict()
 
 
 # --- contextual analysis -----------------------------------------------------------------
@@ -1156,6 +1183,7 @@ TOOLS = (
     set_class_info,
     interpretations,
     catalog_containment,
+    search_identities,
     chord_in_key,
     name_pcs,
     key_induction,

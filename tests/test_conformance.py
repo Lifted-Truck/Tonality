@@ -138,6 +138,11 @@ CASES: list[tuple[str, dict]] = [
     ("set_class_info", {"pcs": [0, 4, 7, 10]}),
     ("interpretations", {"pcs": [0, 4, 7, 9]}),
     ("catalog_containment", {"pcs": [0, 4, 7]}),
+    (
+        "search_identities",
+        {"constraints": {"cardinality": 7, "contains": [0, 4, 7],
+                         "no_consecutive_semitones": True}},
+    ),
     ("chord_in_key", {"root": "D", "quality": "min7", "tonic": "C", "key_name": "Ionian"}),
     (
         "name_pcs",
