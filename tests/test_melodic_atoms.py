@@ -34,8 +34,8 @@ def test_interval_classes_use_the_counterpoint_mapping():
 
 def test_intervals_classes_contour_and_ambitus():
     result = analyze_melody(_line([60, 62, 64, 67, 67, 60]))
-    assert result.intervals == [2, 2, 3, 0, -7]
-    assert result.interval_classes == ["step", "step", "skip", "unison", "leap"]
+    assert result.intervals == (2, 2, 3, 0, -7)
+    assert result.interval_classes == ("step", "step", "skip", "unison", "leap")
     assert result.parsons_code == "*uuurd"
     assert (result.lowest_midi, result.highest_midi) == (60, 67)
     assert result.ambitus_semitones == 7

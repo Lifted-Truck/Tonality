@@ -1,20 +1,17 @@
-"""Workspace scaffolding for coordinating scale and chord state.
+"""Stateful session facade over the analysis engine.
 
-This module provides a central object that can be shared across CLIs/GUI layers.
-It keeps track of the currently selected scale and chord while exposing helper
-methods that reuse the existing analyzers.  The implementation is intentional
-scaffolding—each method documents TODOs so future features can land without
-reshaping the rest of the codebase.
-
-Each ``Workspace`` owns its own ``SessionCatalog`` so that multiple workspaces
-can coexist with independent user-registered scales and chords.
+A ``Workspace`` holds the currently selected scale/chord plus a
+``DisplayContext``, and exposes helpers that reuse the typed analyzers. It is
+*a* entry point (for the CLI and interactive use), not *the* API — the pure
+analysis functions are. Each ``Workspace`` owns its own ``SessionCatalog`` so
+multiple workspaces coexist with independent user-registered scales/chords.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Iterable, Mapping
+from typing import Any, Iterable, Mapping
 
 from .analysis import (
     ScaleAnalysisRequest,
@@ -22,6 +19,7 @@ from .analysis import (
     analyze_scale,
     analyze_chord,
 )
+from .analysis.results import ScaleAnalysisResult, ChordAnalysisResult
 from .analysis.builders import (
     ManualScaleBuilder,
     ManualChordBuilder,
@@ -55,13 +53,7 @@ class Workspace:
     _session: SessionCatalog = field(
         default_factory=SessionCatalog.empty, init=False, repr=False, compare=False
     )
-    _listeners: list[Callable[[str, object | None], None]] = field(
-        default_factory=list, init=False, repr=False, compare=False
-    )
     display_context: DisplayContext = field(default_factory=DisplayContext, init=False, repr=False, compare=False)
-
-    def __post_init__(self) -> None:
-        self.display_context.add_listener(self._on_display_context_change)
 
     def refresh_catalogs(self) -> tuple[Mapping[str, Scale], Mapping[str, ChordQuality]]:
         """Return the latest scale/chord catalogs (including this workspace's session entries)."""
@@ -82,7 +74,6 @@ class Workspace:
             tonic_pc=None,
             degrees=self.scale.degrees,
         )
-        self._notify("scale", self.scale)
         return self.scale
 
     def register_scale(self, builder: ManualScaleBuilder) -> Scale:
@@ -95,10 +86,9 @@ class Workspace:
             tonic_pc=None,
             degrees=self.scale.degrees,
         )
-        self._notify("scale", self.scale)
         return self.scale
 
-    def analyze_scale(self, **kwargs) -> dict[str, object]:
+    def analyze_scale(self, **kwargs) -> ScaleAnalysisResult:
         if not self.scale:
             raise ValueError("No scale is currently selected.")
         request = ScaleAnalysisRequest(scale=self.scale, **kwargs)
@@ -117,7 +107,6 @@ class Workspace:
         self.chord = Chord.from_quality(root_pc, chords[quality_name])
         self._apply_context(self._session.chord_context.get(self.chord.quality.name))
         update_context_with_chord_root(self.display_context, root_pc)
-        self._notify("chord", self.chord)
         return self.chord
 
     def register_chord(self, builder: ManualChordBuilder, *, root_pc: int = 0) -> Chord:
@@ -127,10 +116,9 @@ class Workspace:
         self.chord = Chord.from_quality(root_pc, quality)
         self._apply_context(result.get("context"))
         update_context_with_chord_root(self.display_context, root_pc)
-        self._notify("chord", self.chord)
         return self.chord
 
-    def analyze_chord(self, **kwargs) -> dict[str, object]:
+    def analyze_chord(self, **kwargs) -> ChordAnalysisResult:
         if not self.chord:
             raise ValueError("No chord is currently selected.")
         request = ChordAnalysisRequest(chord=self.chord, **kwargs)
@@ -149,9 +137,6 @@ class Workspace:
         self.context_absolute_midi = tuple()
         update_context_with_scale(self.display_context, None, [])
         update_context_with_chord_root(self.display_context, None)
-        self._notify("scale", None)
-        self._notify("chord", None)
-        self._notify("context", self._context_payload())
 
     # --- Session management ----------------------------------------------
 
@@ -171,8 +156,6 @@ class Workspace:
         """Persist this workspace's session to disk."""
         self._session.save(path or SESSION_FILE)
 
-    # --- Session metadata (legacy static access removed; use instance methods above) ---
-
     def _apply_context(self, context: dict[str, object] | None) -> None:
         if not context:
             self.context_scope = "abstract"
@@ -183,32 +166,6 @@ class Workspace:
             self.context_tokens = tuple(context.get("tokens", []))
             absolute = tuple(int(v) for v in context.get("absolute_midi", []) or [])
             self.context_absolute_midi = absolute
-        self._notify("context", self._context_payload())
-
-    def add_listener(self, callback: Callable[[str, object | None], None]) -> None:
-        """Register a listener for workspace change events."""
-        if callback not in self._listeners:
-            self._listeners.append(callback)
-
-    def remove_listener(self, callback: callable[[str, object | None], None]) -> None:
-        """Remove a previously registered listener."""
-        try:
-            self._listeners.remove(callback)
-        except ValueError:
-            pass
-
-    def _notify(self, event: str, payload: object | None) -> None:
-        if not self._listeners:
-            return
-        for listener in tuple(self._listeners):
-            listener(event, payload)
-
-    def _context_payload(self) -> dict[str, Any]:
-        return {
-            "scope": self.context_scope,
-            "tokens": tuple(self.context_tokens),
-            "absolute_midi": tuple(self.context_absolute_midi),
-        }
 
     # --- Display context helpers ------------------------------------------
 
@@ -217,13 +174,6 @@ class Workspace:
 
     def set_display_setting(self, key: str, value: Any, *, layer: str = "session") -> None:
         self.display_context.set(key, value, layer=layer)
-
-    def _on_display_context_change(self, event: str, payload: object) -> None:
-        self._notify("display_context", {"event": event, "payload": payload})
-
-    # TODO: integrate persistence/export for session-defined objects.
-    # TODO: surface change notifications for GUI/interactive layers.
-    # TODO: bridge MIDI ingestion once events_from_midi_file is implemented.
 
 
 __all__ = ["Workspace"]

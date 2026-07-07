@@ -74,8 +74,8 @@ class VoicePairMotion:
 class VoiceMotionResult:
     """All classified voice-pair transitions of a sequence."""
 
-    transitions: list[VoicePairMotion]
-    voices: list[str]
+    transitions: tuple[VoicePairMotion, ...]
+    voices: tuple[str, ...]
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""
@@ -179,7 +179,7 @@ def voice_motion(sequence: Sequence) -> VoiceMotionResult:
                     b_rested_between=b_reach < to_beat - _EPS,
                 )
             )
-    return VoiceMotionResult(transitions=transitions, voices=list(voices))
+    return VoiceMotionResult(transitions=tuple(transitions), voices=tuple(voices))
 
 
 __all__ = ["VoiceMotionResult", "VoicePairMotion", "voice_motion"]

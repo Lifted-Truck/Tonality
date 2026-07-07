@@ -3,7 +3,7 @@
 from .core.scale import Scale
 from .core.quality import ChordQuality
 from .core.chord import Chord
-from .layouts.push3 import Push3Layout
+from .representation.push_layout import Push3Layout
 
 __all__ = [
     "Scale",

@@ -1,4 +1,10 @@
-"""Push-3 layout mapping."""
+"""Push-3 pad layout — a render-agnostic pc grid descriptor (Phase 5).
+
+Numeric only: ``grid()`` returns the pitch class at each 8x8 pad. Painting the
+pads (ANSI, hardware LEDs, pixels) is an edge concern — the terminal renderer
+lives at the CLI edge (``mts/cli/push_grid.py``). Moved here from the removed
+``mts/layouts/`` package (RE-6a).
+"""
 
 from __future__ import annotations
 

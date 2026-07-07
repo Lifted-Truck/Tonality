@@ -59,21 +59,14 @@ def name_for_pc(pc: int, *, prefer: SpellingPref = "auto", key_signature: int | 
     if naturals:
         return naturals[0]
 
-    # Helper pickers
+    # Helper pickers — only ever called when their family is present (guarded by
+    # has_flats/has_sharps below), so single-then-multi is exhaustive; the old
+    # cross-family + names[0] fallbacks were unreachable (RE-6e).
     def pick_flats() -> str:
-        if single_flats: return single_flats[0]
-        if multi_flats:  return multi_flats[0]
-        # if no flats, fall back to anything available
-        if single_sharps: return single_sharps[0]
-        if multi_sharps:  return multi_sharps[0]
-        return names[0]
+        return single_flats[0] if single_flats else multi_flats[0]
 
     def pick_sharps() -> str:
-        if single_sharps: return single_sharps[0]
-        if multi_sharps:  return multi_sharps[0]
-        if single_flats:  return single_flats[0]
-        if multi_flats:   return multi_flats[0]
-        return names[0]
+        return single_sharps[0] if single_sharps else multi_sharps[0]
 
     has_flats = bool(single_flats or multi_flats)
     has_sharps = bool(single_sharps or multi_sharps)

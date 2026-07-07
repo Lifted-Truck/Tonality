@@ -176,7 +176,7 @@ def test_voice_pair_motion_over_event_quadruples():
         [0, 1, 67, "tenor"], [1, 1, 69, "tenor"],
     ]
     result = _json_safe(tools.voice_pair_motion(events))
-    assert result["voices"] == ["bass", "tenor"]
+    assert result["voices"] == ("bass", "tenor")
     transition = result["transitions"][0]
     assert (transition["motion"], transition["interval_class_to"]) == ("parallel", 7)
     # RE-4a: 3-element events are valid canonical input everywhere; the honest
@@ -203,12 +203,12 @@ def test_melodic_analysis_with_and_without_harmony():
 def test_rhythmic_analysis_with_meter():
     events = [[0, 1.5, 60], [1.5, 2.5, 62]]  # Charleston figure in 4/4
     result = _json_safe(tools.rhythmic_analysis(events))
-    assert result["placements"] == ["downbeat", "offbeat"]
+    assert result["placements"] == ("downbeat", "offbeat")
     assert result["syncopation_count"] == 1
     compound = _json_safe(
         tools.rhythmic_analysis([[1.5, 0.5, 60]], numerator=6, denominator=8)
     )
-    assert compound["placements"] == ["beat"]  # the second dotted-quarter beat
+    assert compound["placements"] == ("beat",)  # the second dotted-quarter beat
     with pytest.raises(ValueError, match="onset_beats"):
         tools.rhythmic_analysis([[0, 1]])
 

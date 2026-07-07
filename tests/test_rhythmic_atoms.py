@@ -46,7 +46,7 @@ def test_placement_classes_in_common_time():
     result = analyze_rhythm(
         _seq([(0.0, 0.25), (1.0, 0.25), (1.5, 0.25), (1.75, 0.25)])
     )
-    assert result.placements == ["downbeat", "beat", "offbeat", "subdivision"]
+    assert result.placements == ("downbeat", "beat", "offbeat", "subdivision")
 
 
 def test_placement_uses_the_compound_felt_beat():
@@ -96,7 +96,7 @@ def test_downbeats_are_never_syncopated():
 def test_charleston_figure_counts_one_syncopation():
     # dotted-quarter + eighth-tied figure: onset 1.5 held through beat 2
     result = analyze_rhythm(_seq([(0.0, 1.5), (1.5, 2.5)]))
-    assert result.placements == ["downbeat", "offbeat"]
+    assert result.placements == ("downbeat", "offbeat")
     assert result.syncopation_count == 1
     assert result.notes[1].is_syncopated is True
 
@@ -106,8 +106,8 @@ def test_charleston_figure_counts_one_syncopation():
 
 def test_durations_and_inter_onset_intervals():
     result = analyze_rhythm(_seq([(0.0, 0.5), (1.0, 1.0), (3.0, 1.0)]))
-    assert result.durations == [0.5, 1.0, 1.0]
-    assert result.iois == [1.0, 2.0]
+    assert result.durations == (0.5, 1.0, 1.0)
+    assert result.iois == (1.0, 2.0)
     assert result.notes[0].ioi_to_next == 1.0
     assert result.notes[-1].ioi_to_next is None
 

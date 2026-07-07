@@ -117,13 +117,11 @@ def name_chord(
     cites the weight-table version used.
     """
 
+    # ``.pcs`` is uniform now — a field on Chord, a property on Scale and
+    # Realization (RE-6d) — so no method-vs-attribute probe; a raw iterable
+    # (no ``.pcs``) is used directly.
     pcs_attr = getattr(material, "pcs", None)
-    if pcs_attr is None:
-        pcs: Iterable[int] = material
-    elif callable(pcs_attr):  # Scale.pcs is a method; Chord.pcs an attribute
-        pcs = pcs_attr()
-    else:
-        pcs = pcs_attr
+    pcs: Iterable[int] = material if pcs_attr is None else pcs_attr
     pc_set = sorted({int(pc) % 12 for pc in pcs})
     if not pc_set:
         raise ValueError("name_chord needs at least one pitch class.")

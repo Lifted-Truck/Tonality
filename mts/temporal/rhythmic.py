@@ -85,10 +85,10 @@ class RhythmicAnalysis:
     """A line's rhythmic atoms: per-note detail plus line-level sequences."""
 
     voice: str | None
-    notes: list[RhythmicNoteAtoms]
-    durations: list[float]
-    iois: list[float]
-    placements: list[str]
+    notes: tuple[RhythmicNoteAtoms, ...]
+    durations: tuple[float, ...]
+    iois: tuple[float, ...]
+    placements: tuple[str, ...]
     syncopation_count: int
 
     def to_dict(self) -> dict:
@@ -157,10 +157,10 @@ def analyze_rhythm(sequence: Sequence, *, voice: str | None = None) -> RhythmicA
 
     return RhythmicAnalysis(
         voice=voice,
-        notes=notes,
-        durations=[e.duration for e in events],
-        iois=iois,
-        placements=[n.placement for n in notes],
+        notes=tuple(notes),
+        durations=tuple(e.duration for e in events),
+        iois=tuple(iois),
+        placements=tuple(n.placement for n in notes),
         syncopation_count=syncopation_count,
     )
 
@@ -202,7 +202,7 @@ class SwingAnalysis:
     mean_fraction: float
     swing_ratio: float
     fraction_stddev: float
-    divisions: list[SwingDivision]
+    divisions: tuple[SwingDivision, ...]
     divided_beats: int  # beats with any interior onset (incl. ineligible)
     eligible_divisions: int  # beats with exactly one interior onset
     prior_version: str
@@ -272,7 +272,7 @@ def analyze_swing(
         mean_fraction=mean,
         swing_ratio=mean / (1.0 - mean),
         fraction_stddev=stddev,
-        divisions=divisions,
+        divisions=tuple(divisions),
         divided_beats=len(interior_by_beat),
         eligible_divisions=len(divisions),
         prior_version=priors.version,

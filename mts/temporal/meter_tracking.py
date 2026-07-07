@@ -105,8 +105,8 @@ class MeterRegion:
 class MeterTrackingResult:
     """Meter regions plus the per-window evidence and the cited parameters."""
 
-    regions: list[MeterRegion]
-    windows: list[MeterWindow]
+    regions: tuple[MeterRegion, ...]
+    windows: tuple[MeterWindow, ...]
     window_beats: float
     hop_beats: float
     profile_version: str
@@ -270,8 +270,8 @@ def track_meter(
         )
 
     return MeterTrackingResult(
-        regions=regions,
-        windows=windows,
+        regions=tuple(regions),
+        windows=tuple(windows),
         window_beats=window_beats,
         hop_beats=hop_beats,
         profile_version=profiles.version,

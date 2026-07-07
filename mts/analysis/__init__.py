@@ -1,9 +1,9 @@
-"""Analysis toolkit stubs for scales, chords, and builders.
+"""The enrichment engine: typed analysis over ``core`` identities.
 
-These modules are intentionally lightweight scaffolding.  They provide
-entry points for forthcoming analytical routines (symmetry detection,
-enharmonic traversal, etc.) and can be imported from CLI tools or
-future GUI/API integrations.
+Pure functions that turn pitch-class identities and realizations into typed
+results (naming, key induction, voice leading, containment, set-class data,
+comparisons). See ``mts/analysis/CLAUDE.md`` for the per-module map; direction
+lives in ROADMAP.md.
 """
 
 from __future__ import annotations

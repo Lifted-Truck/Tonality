@@ -34,7 +34,7 @@ def test_humanized_chords_segment_cleanly_after_coalescing():
     # cluster's (earliest) anchor — anchor semantics apply to every member
     assert cleaned.moved_events == 5
     assert cleaned.max_shift_beats == pytest.approx(0.021)
-    assert cleaned.dropped == []
+    assert cleaned.dropped == ()
 
 
 def test_humanized_melody_places_on_the_beat_after_coalescing():
@@ -43,9 +43,9 @@ def test_humanized_melody_places_on_the_beat_after_coalescing():
         Event(1.008, 0.5, Pitch.from_midi(62)),
         Event(2.01, 0.5, Pitch.from_midi(64)),
     ])
-    assert analyze_rhythm(raw).placements == ["subdivision"] * 3
+    assert analyze_rhythm(raw).placements == ("subdivision",) * 3
     cleaned = coalesce(raw, onset_window_beats=0.0, snap_grid_beats=0.25)
-    assert analyze_rhythm(cleaned.sequence).placements == ["downbeat", "beat", "beat"]
+    assert analyze_rhythm(cleaned.sequence).placements == ("downbeat", "beat", "beat")
 
 
 # --- mechanics ---------------------------------------------------------------------------

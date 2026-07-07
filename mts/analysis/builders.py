@@ -9,11 +9,6 @@ with standalone scripts and the CLI.  The ``SESSION_*`` module attributes
 are **aliases to the same dict objects** inside that default session,
 so existing code (scripts, tests) that does ``SESSION_SCALES["x"] = v``
 or ``SESSION_SCALES.clear()`` continues to work transparently.
-
-TODO:
-    - Integrate with persistence once the scale/chord databases expand.
-    - Provide binary/decimal bitmask parsing helpers.
-    - Surface matching algorithms for nearest known scales/chords.
 """
 
 from __future__ import annotations
@@ -267,7 +262,7 @@ class ManualScaleBuilder:
     absolute: tuple[Pitch, ...] = ()
 
     def to_scale(self) -> Scale:
-        # TODO: expose bitmask constructors for non-12TET systems.
+        # 12-TET only; the tuning substrate is renegotiated in ROADMAP Phase 6.
         normalized = _normalize_degrees(self.degrees)
         # Placeholder naming uses an empty registry; register_scale handles
         # collision checking against the active session and catalog.
@@ -285,7 +280,7 @@ class ManualChordBuilder:
     absolute: tuple[Pitch, ...] = ()
 
     def to_quality(self) -> ChordQuality:
-        # TODO: support arbitrary tuning systems.
+        # 12-TET only; arbitrary tunings are ROADMAP Phase 6.
         normalized_intervals = _normalize_intervals(self.intervals)
         normalized_tensions = tuple(_normalize_degrees(self.tensions)) if self.tensions else ()
         # Placeholder naming uses an empty registry; register_chord handles

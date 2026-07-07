@@ -39,7 +39,10 @@ class Scale:
     def rotational_period(self) -> int:
         return rotational_period(self.mask)
 
+    @property
     def pcs(self) -> list[int]:
+        """The scale's pitch classes. A property (not a method) so ``.pcs`` is
+        uniform across Scale/Chord/Realization (RE-6d)."""
         return list(self.degrees)
 
     def complementary_pcs(self) -> list[int]:
