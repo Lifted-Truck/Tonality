@@ -101,9 +101,9 @@ class MelodicAnalysis:
     """A line's melodic atoms: per-note detail plus line-level summaries."""
 
     voice: str | None
-    notes: list[MelodicNoteAtoms]
-    intervals: list[int]
-    interval_classes: list[str]
+    notes: tuple[MelodicNoteAtoms, ...]
+    intervals: tuple[int, ...]
+    interval_classes: tuple[str, ...]
     parsons_code: str  # *, then u/d/r per interval (Parsons 1975)
     ambitus_semitones: int
     lowest_midi: int
@@ -242,9 +242,9 @@ def analyze_melody(
 
     return MelodicAnalysis(
         voice=voice,
-        notes=notes,
-        intervals=intervals,
-        interval_classes=[interval_class_name(iv) for iv in intervals],
+        notes=tuple(notes),
+        intervals=tuple(intervals),
+        interval_classes=tuple(interval_class_name(iv) for iv in intervals),
         parsons_code=parsons,
         ambitus_semitones=max(midis) - min(midis),
         lowest_midi=min(midis),

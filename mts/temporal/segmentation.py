@@ -57,7 +57,7 @@ class HarmonicRhythm:
     mean_duration_beats: float
     mean_duration_seconds: float
     changes_per_bar: float
-    durations_beats: list[float]
+    durations_beats: tuple[float, ...]
 
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
@@ -160,7 +160,7 @@ def harmonic_rhythm(sequence: Sequence) -> HarmonicRhythm:
         mean_duration_beats=mean_beats,
         mean_duration_seconds=mean_seconds,
         changes_per_bar=changes_per_bar,
-        durations_beats=durations,
+        durations_beats=tuple(durations),
     )
 
 

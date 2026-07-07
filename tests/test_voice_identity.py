@@ -68,13 +68,13 @@ def test_similar_contrary_and_oblique():
 
 def test_static_pairs_make_no_transition():
     seq = _two_voices([(60, 0, 1), (60, 1, 1)], [(67, 0, 1), (67, 1, 1)])
-    assert voice_motion(seq).transitions == []
+    assert voice_motion(seq).transitions == ()
 
 
 def test_ambiguous_double_stop_makes_no_claim():
     seq = _two_voices([(60, 0, 1), (62, 1, 1)], [(67, 0, 1), (69, 1, 1)])
     seq = Sequence.from_events(seq.events + (_ev(76, 0, 1, "b"),))  # b sounds 2 notes
-    assert voice_motion(seq).transitions == []  # b has no single position at beat 0
+    assert voice_motion(seq).transitions == ()  # b has no single position at beat 0
 
 
 def test_fewer_than_two_voices_raises():

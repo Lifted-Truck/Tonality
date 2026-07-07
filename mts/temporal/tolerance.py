@@ -65,7 +65,7 @@ class CoalesceResult:
     snap_grid_beats: float | None
     moved_events: int
     max_shift_beats: float
-    dropped: list[DroppedEvent]
+    dropped: tuple[DroppedEvent, ...]
 
     def to_dict(self) -> dict:
         """Parameters + evidence (the sequence itself is not JSON; events are
@@ -151,7 +151,7 @@ def coalesce(
         snap_grid_beats=snap_grid_beats,
         moved_events=moved,
         max_shift_beats=max_shift,
-        dropped=dropped,
+        dropped=tuple(dropped),
     )
 
 

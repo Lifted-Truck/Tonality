@@ -95,8 +95,8 @@ class KeyRegion:
 class KeyTrackingResult:
     """Key regions plus the per-window evidence and the cited parameters."""
 
-    regions: list[KeyRegion]
-    windows: list[KeyWindow]
+    regions: tuple[KeyRegion, ...]
+    windows: tuple[KeyWindow, ...]
     window_beats: float
     hop_beats: float
     profile_version: str
@@ -386,8 +386,8 @@ def track_keys(
         )
 
     return KeyTrackingResult(
-        regions=regions,
-        windows=windows,
+        regions=tuple(regions),
+        windows=tuple(windows),
         window_beats=window_beats,
         hop_beats=hop_beats,
         profile_version=profiles.version,
