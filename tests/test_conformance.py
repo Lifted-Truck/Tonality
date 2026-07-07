@@ -277,6 +277,25 @@ CASES: list[tuple[str, dict]] = [
             "events": _satb_events(),
         },
     ),
+    # include_firings on: each applicable rule also reports its located firings
+    # (considered-and-held) — the positive complement to violations (wont, gap 20).
+    (
+        "evaluate_ruleset",
+        {
+            "ruleset": {
+                "name": "firings-smoke", "version": "t.1",
+                "rules": [
+                    {"id": "leaps-resolve-by-step", "family": "melody",
+                     "where": {"approach_class": "leap"},
+                     "require": {"departure_class": {"in": ["step", "unison"]}},
+                     "polarity": "soft", "weight": 2.0},
+                ],
+            },
+            "events": _satb_events(),
+            "include_firings": True,
+        },
+    ),
+    ("ruleset_field_manifest", {}),
     ("induce_rules", {"corpus": _induction_corpus(), "family": "voice_motion"}),
     ("induce_rules", {"corpus": _induction_merge_corpus(), "family": "voice_motion"}),
     (

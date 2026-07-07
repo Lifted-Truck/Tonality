@@ -48,6 +48,26 @@ class Violation:
 
 
 @dataclass(frozen=True)
+class Firing:
+    """One considered item where a rule *held* — the positive complement to a
+    :class:`Violation` (same location + evidence shape).
+
+    Every considered item is exactly one of a firing or a violation, so
+    ``items_considered == len(firings) + len(violations)`` whenever firings were
+    computed. Emitted only when ``evaluate(..., include_firings=True)`` (the
+    default keeps output byte-identical); a saliency/credit-assignment consumer
+    correlates *where a rule was satisfied* with an external signal (A10 wont),
+    which the violations-only stream cannot express.
+    """
+
+    location: dict
+    evidence: dict
+
+    def to_dict(self) -> dict:
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
 class RuleResult:
     rule_id: str
     polarity: str
@@ -59,9 +79,18 @@ class RuleResult:
     violations: list[Violation]
     conformance: float | None  # None when not applicable or nothing considered
     holds: bool | None  # hard rules: no violations; soft rules: None
+    # None = firings were not requested; a list (possibly empty) = requested and
+    # computed. Distinct from [] so "not computed" never reads as "none held".
+    firings: list[Firing] | None = None
 
     def to_dict(self) -> dict:
-        return dataclasses.asdict(self)
+        data = dataclasses.asdict(self)
+        # Omit the key entirely when not requested, so include_firings=False
+        # output is byte-identical to before this field existed (the golden /
+        # port surface only moves for callers that opt in).
+        if self.firings is None:
+            del data["firings"]
+        return data
 
 
 @dataclass(frozen=True)
@@ -79,7 +108,14 @@ class ConformanceReport:
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""
-        return dataclasses.asdict(self)
+        return {
+            "ruleset_name": self.ruleset_name,
+            "ruleset_version": self.ruleset_version,
+            "hard_rules_hold": self.hard_rules_hold,
+            "hard_violation_count": self.hard_violation_count,
+            "soft_score": self.soft_score,
+            "results": [r.to_dict() for r in self.results],
+        }
 
 
 @dataclass(frozen=True)
@@ -148,9 +184,10 @@ def _build_stream(family: str, sequence: Sequence, harmony) -> _Stream:
     return _line_streams(sequence, analyze_rhythm, harmony)  # "rhythm"
 
 
-def _evaluate_rule(rule: Rule, stream: _Stream) -> RuleResult:
+def _evaluate_rule(rule: Rule, stream: _Stream, *, include_firings: bool = False) -> RuleResult:
     considered = 0
     violations: list[Violation] = []
+    firings: list[Firing] | None = [] if include_firings else None
     referenced = sorted(rule.referenced_fields())
     for item, location in stream.items:
         if not all(c.matches(getattr(item, c.field)) for c in rule.where):
@@ -169,6 +206,13 @@ def _evaluate_rule(rule: Rule, stream: _Stream) -> RuleResult:
                     evidence={f: getattr(item, f) for f in referenced},
                 )
             )
+        elif firings is not None:
+            firings.append(
+                Firing(
+                    location=location,
+                    evidence={f: getattr(item, f) for f in referenced},
+                )
+            )
     conformance = 1.0 - len(violations) / considered if considered else None
     return RuleResult(
         rule_id=rule.id,
@@ -181,6 +225,7 @@ def _evaluate_rule(rule: Rule, stream: _Stream) -> RuleResult:
         violations=violations,
         conformance=conformance,
         holds=(not violations) if rule.polarity == "hard" else None,
+        firings=firings,
     )
 
 
@@ -204,6 +249,7 @@ def evaluate(
     sequence: Sequence,
     *,
     harmony: Iterable[tuple[float, float, Iterable[int]]] | None = None,
+    include_firings: bool = False,
 ) -> ConformanceReport:
     """Evaluate every rule against *sequence*; nothing is silently skipped.
 
@@ -211,7 +257,10 @@ def evaluate(
     here, raising :class:`RulesetValidationError` with the full error list).
     ``harmony`` spans are required only by rules referencing
     harmony-dependent melodic fields; such rules without harmony come back
-    ``applicable=False``, never guessed.
+    ``applicable=False``, never guessed. ``include_firings`` adds the located
+    *firings* (considered items where the rule held) to each applicable
+    result — the positive complement to violations, for saliency/credit-
+    assignment consumers; off by default (output byte-identical when off).
     """
 
     if not isinstance(ruleset, Ruleset):
@@ -245,7 +294,7 @@ def evaluate(
         if stream.unavailable_reason is not None:
             results.append(_not_applicable(rule, stream.unavailable_reason, stream.skipped_voices))
             continue
-        results.append(_evaluate_rule(rule, stream))
+        results.append(_evaluate_rule(rule, stream, include_firings=include_firings))
 
     hard = [r for r in results if r.polarity == "hard" and r.applicable]
     hard_violations = sum(len(r.violations) for r in hard)

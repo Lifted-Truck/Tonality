@@ -11556,6 +11556,327 @@
   },
   {
    "kwargs": {
+    "events": [
+     [
+      0,
+      2,
+      48,
+      "bass"
+     ],
+     [
+      2,
+      2,
+      50,
+      "bass"
+     ],
+     [
+      0,
+      2,
+      55,
+      "tenor"
+     ],
+     [
+      2,
+      2,
+      57,
+      "tenor"
+     ],
+     [
+      0,
+      2,
+      64,
+      "alto"
+     ],
+     [
+      2,
+      2,
+      62,
+      "alto"
+     ],
+     [
+      0,
+      2,
+      72,
+      "soprano"
+     ],
+     [
+      2,
+      2,
+      69,
+      "soprano"
+     ]
+    ],
+    "include_firings": true,
+    "ruleset": {
+     "name": "firings-smoke",
+     "rules": [
+      {
+       "family": "melody",
+       "id": "leaps-resolve-by-step",
+       "polarity": "soft",
+       "require": {
+        "departure_class": {
+         "in": [
+          "step",
+          "unison"
+         ]
+        }
+       },
+       "weight": 2.0,
+       "where": {
+        "approach_class": "leap"
+       }
+      }
+     ],
+     "version": "t.1"
+    }
+   },
+   "result": {
+    "hard_rules_hold": null,
+    "hard_violation_count": 0,
+    "results": [
+     {
+      "applicable": true,
+      "conformance": null,
+      "firings": [],
+      "holds": null,
+      "items_considered": 0,
+      "polarity": "soft",
+      "reason": null,
+      "rule_id": "leaps-resolve-by-step",
+      "skipped_voices": [],
+      "violations": [],
+      "weight": 2.0
+     }
+    ],
+    "ruleset_name": "firings-smoke",
+    "ruleset_version": "t.1",
+    "soft_score": null
+   },
+   "tool": "evaluate_ruleset"
+  },
+  {
+   "kwargs": {},
+   "result": {
+    "condition_ops": [
+     "in",
+     "gte",
+     "lte",
+     "eq"
+    ],
+    "families": {
+     "melody": {
+      "fields": {
+       "approach_class": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": [
+         "unison",
+         "step",
+         "skip",
+         "leap"
+        ]
+       },
+       "approach_interval": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "departure_class": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": [
+         "unison",
+         "step",
+         "skip",
+         "leap"
+        ]
+       },
+       "departure_interval": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "duration": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "is_chord_tone": {
+        "harmony_dependent": true,
+        "kind": "bool",
+        "values": null
+       },
+       "midi": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "nht_type": {
+        "harmony_dependent": true,
+        "kind": "str",
+        "values": [
+         "pedal",
+         "suspension",
+         "anticipation",
+         "passing",
+         "neighbor",
+         "appoggiatura",
+         "escape",
+         "free"
+        ]
+       },
+       "onset": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "pc": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       }
+      }
+     },
+     "rhythm": {
+      "fields": {
+       "bar": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "beat_in_bar": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "beat_unit": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "duration_beats": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "ioi_to_next": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "is_syncopated": {
+        "harmony_dependent": false,
+        "kind": "bool",
+        "values": null
+       },
+       "midi": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "onset": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "placement": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": [
+         "downbeat",
+         "beat",
+         "offbeat",
+         "subdivision"
+        ]
+       }
+      }
+     },
+     "voice_motion": {
+      "fields": {
+       "a_from_midi": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "a_to_midi": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "b_from_midi": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "b_to_midi": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "from_beat": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "interval_class_from": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "interval_class_to": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "interval_from": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "interval_to": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "motion": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": [
+         "parallel",
+         "similar",
+         "contrary",
+         "oblique"
+        ]
+       },
+       "to_beat": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "voice_a": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": null
+       },
+       "voice_b": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": null
+       }
+      }
+     }
+    },
+    "manifest_version": "ruleset-fields.1",
+    "polarities": [
+     "hard",
+     "soft"
+    ]
+   },
+   "tool": "ruleset_field_manifest"
+  },
+  {
+   "kwargs": {
     "corpus": [
      [
       [

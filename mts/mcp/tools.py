@@ -843,6 +843,7 @@ def evaluate_ruleset(
     ruleset: dict,
     events: list[list],
     harmony: list[list] | None = None,
+    include_firings: bool = False,
 ) -> dict:
     """Evaluate a ruleset (Phase 4.6 DSL) against events — the canonical
     event form [onset_beats, duration_beats, midi_note, velocity?, voice?] —
@@ -851,7 +852,10 @@ def evaluate_ruleset(
     conformance frequencies, hard/soft rollups. Rules referencing
     harmony-dependent fields (nht_type, is_chord_tone) need harmony spans
     [start_beat, end_beat, [pcs]] and are reported not-applicable without
-    them. Invalid rulesets raise with the full error list (use
+    them. Set include_firings=true to ALSO get each rule's located firings
+    (considered items where it HELD — the positive complement to violations,
+    for saliency/credit-assignment; firings is null per rule when not
+    requested). Invalid rulesets raise with the full error list (use
     validate_ruleset first)."""
     from ..rules import evaluate
 
@@ -863,7 +867,22 @@ def evaluate_ruleset(
             raise ValueError(
                 f"Each harmony span must be [start_beat, end_beat, [pcs]]: {exc}"
             ) from exc
-    return evaluate(ruleset, _canonical_sequence(events), harmony=spans).to_dict()
+    return evaluate(
+        ruleset, _canonical_sequence(events), harmony=spans,
+        include_firings=bool(include_firings),
+    ).to_dict()
+
+
+def ruleset_field_manifest() -> dict:
+    """The ruleset DSL's field vocabulary as a versioned, machine-readable
+    manifest: per atom family (voice_motion / melody / rhythm), each legal
+    where/check field with its kind, closed value vocabulary (when an enum),
+    and harmony-dependence; plus the condition operators and rule polarities.
+    The same data validate_ruleset enforces — use it to check field usage
+    ahead of time and stay correct as the vocabulary grows."""
+    from ..rules import ruleset_field_manifest as _manifest
+
+    return _manifest()
 
 
 def induce_rules(
@@ -1281,6 +1300,7 @@ TOOLS = (
     apply_groove,
     validate_ruleset,
     evaluate_ruleset,
+    ruleset_field_manifest,
     induce_rules,
     combine_rulesets,
     specialize_ruleset,
