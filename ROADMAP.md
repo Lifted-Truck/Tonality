@@ -1109,6 +1109,31 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     construction — build only if the binary liked/disliked split proves too
     coarse. The learner project is an **anticipated consumer** (files its own
     intake brief when it exists). Not scheduled.
+21. **Rhythmic constraint search** (added 2026-07-07, prompted by Julian —
+    assessment artifact `docs/reviews/2026-07_rhythm-search-assessment.html`).
+    Not an analogy — the identity layer's own mathematics on a circle of time:
+    a rhythm cycle (onsets in N subdivision slots) is a bitmask over **Z_N**
+    exactly as a pc-set is one over Z_12, and the field vocabulary maps
+    column-for-column (cardinality→onset density, interval vector→IOI content
+    [Toussaint], rotational_period→isorhythmic period, is_achiral→retrograde
+    symmetry, df1..df6→pulse alignment / syncopation complement [Amiot],
+    maximal evenness→Euclidean rhythms [Bjorklund, Clough–Douthett],
+    contains→figure-at-some-rotation, complement_mask→the interlocking part).
+    Proof-by-example on record: mask {0,2,4,5,7,9,11} is the diatonic scale
+    *and* the bembé bell pattern — same steps 2212221, same ME, same vector.
+    **Design constraints (recorded with the gap, not to be relitigated):**
+    (a) needs a small **Z_N-generic cyclic substrate** (core is hard-12 by
+    doctrine) — deliberately the same machinery Phase 6 needs, so rhythm is
+    the low-risk proving ground that pre-pays it (see Phase 6 note); (b) the
+    **granularity default flips vs Decision 12**: rotation moves the downbeat
+    (a rotated tresillo is a different groove), so the rhythmic default is
+    **rooted** (slot 0 = downbeat), necklace/bracelet folding opt-in; (c)
+    **identity-only** — onset masks are the rhythmic identity key; durations/
+    velocity/micro-timing are the realization side, already owned by groove
+    extract/apply + swing analysis (clean seam, no overlap). Build when
+    pulled (likely first consumers: A9 Wend — conditional/asymmetric meter,
+    groove — or drum-generator work); explicitly does **not** jump gap 19's
+    queue. Not scheduled.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
@@ -2235,6 +2260,11 @@ bracelet identity views.)*
   12-TET assumption stays behind the reduction boundary (Decision 6). When this
   phase lands, generalizing means replacing the reduction + substrate, not the
   identity model layered on top.
+- *Sequencing note (2026-07-07):* **gap 21 (rhythmic constraint search) would
+  build the Z_N-generic cyclic substrate this phase needs** — masks, rotation,
+  IOI/interval vectors, prime forms over arbitrary N — in a domain with no
+  enharmonics, no spelling, and no priors. If gap 21 gets pulled first, this
+  phase inherits a tested cyclic core instead of greenfielding one.
 - **Known 12-TET footprint collisions (accepted limitations, not bugs).** 12-TET
   cannot faithfully hold every named scale, so distinct cultural/tuning scales can
   share a 12-TET footprint. These are *documented equivalences*, allowlisted so the

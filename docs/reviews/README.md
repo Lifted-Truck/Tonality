@@ -16,6 +16,9 @@ the PR/phase named below. Decisions they informed live in
 | [2026-07_re6b-plan.html](2026-07_re6b-plan.html) | 2026-07 | RE-6b (PR #146) | The module-relayering plan (notation/session below `io/`) and the retire-vs-keep-the-default-session fork. |
 | [2026-07_next-frontier.html](2026-07_next-frontier.html) | 2026-07-07 | Post rigor-&-efficiency review | The four open build frontiers after RE-1→RE-6, with the recommendation that led to picking Phase 4 constraint search. |
 | [2026-07_search-identities-review.html](2026-07_search-identities-review.html) | 2026-07-07 | Phase 4 · `search_identities` (PR #147) | The build review with live engine output — the marquee query, exact set-class oracles, strict validation, and Decision 12. |
+| [2026-07_search-voicings-design.html](2026-07_search-voicings-design.html) | 2026-07-07 | gap 17 · design brief (pre-PR #157) | The `search_voicings` design: the bounded register space, reused primitives, and the four design forks (A–D) put to review. |
+| [2026-07_search-voicings-review.html](2026-07_search-voicings-review.html) | 2026-07-07 | gap 17 slice 1 · `search_voicings` (PR #157) | The build review — live ranked-voicing evidence, the Fable-pass design deltas, and the honesty guarantees. |
+| [2026-07_rhythm-search-assessment.html](2026-07_rhythm-search-assessment.html) | 2026-07-07 | gap 21 (recorded, unscheduled) | The rhythmic-constraint-search assessment — the pitch/rhythm isomorphism (diatonic = bembé), field mapping, and the three design realities behind gap 21. |
 
 Also published as claude.ai artifacts at build time; these committed copies are the
 version-controlled record that travels with the repo.

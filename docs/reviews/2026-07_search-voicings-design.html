@@ -1,0 +1,213 @@
+<title>search_voicings — design brief</title>
+<style>
+  :root{
+    --paper:#f4f2ec; --paper-2:#eceae2; --ink:#1b1d22; --ink-soft:#4a4e57;
+    --line:#d7d3c8; --indigo:#3a3d8f; --indigo-soft:#5c60b8; --indigo-wash:#e9e9f4;
+    --gold:#a8792c; --green:#3f7d5a; --red:#a4443a; --rule:#c9c4b6;
+    --mono:'SFMono-Regular',ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:980px;margin:0 auto;padding:52px 32px 80px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--indigo);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:40px;line-height:1.06;margin:0 0 12px;letter-spacing:-.01em;text-wrap:balance}
+  .lede{font-size:17px;color:var(--ink-soft);max-width:68ch;margin:0 0 20px}
+  .lede b{color:var(--ink);font-weight:600}
+  .thesis{border-left:3px solid var(--indigo);background:var(--indigo-wash);padding:16px 22px;border-radius:0 8px 8px 0;margin:0 0 34px;font-size:15px}
+  .thesis b{color:var(--indigo)}
+  h2{font-family:var(--serif);font-weight:600;font-size:25px;margin:44px 0 6px;letter-spacing:-.01em}
+  h2 .num{font-family:var(--mono);font-size:14px;color:var(--indigo);margin-right:12px;font-weight:400}
+  .sub{color:var(--ink-soft);font-size:14.5px;margin:0 0 22px;max-width:70ch}
+  code{font-family:var(--mono);font-size:.86em;background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:4px}
+  p{max-width:72ch}
+  p b{font-weight:600}
+
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+  @media(max-width:680px){.pair{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:11px;background:#fbfaf6;padding:18px 20px}
+  .card h3{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 10px;color:var(--ink-soft)}
+  .card.now h3{color:var(--green)} .card.next h3{color:var(--indigo)}
+  .card p{font-size:13.5px;color:var(--ink-soft);margin:0}
+  .card .q{font-family:var(--mono);font-size:12px;color:var(--ink);display:block;margin-top:6px}
+
+  .fig{border:1px solid var(--line);border-radius:12px;background:#fbfaf6;padding:22px;margin:20px 0}
+  .fig .cap{font-size:12.5px;color:var(--ink-soft);margin-top:14px;text-align:center;line-height:1.5}
+  .fig .cap b{color:var(--ink)}
+
+  table{border-collapse:collapse;width:100%;font-size:13.5px;margin:6px 0}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding:8px 12px 8px 0;font-weight:400}
+  td{padding:9px 12px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  td code{white-space:nowrap}
+  .tag{display:inline-block;font-family:var(--mono);font-size:9.5px;padding:1px 6px;border-radius:4px;background:var(--indigo-wash);color:var(--indigo);margin-left:4px}
+  .tag.wend{background:#eef5f0;color:var(--green)}
+
+  .fork{border:1px solid var(--line);border-radius:11px;background:#fbfaf6;padding:18px 20px;margin:14px 0}
+  .fork .head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+  .fork .k{font-family:var(--mono);font-size:11px;color:var(--indigo);letter-spacing:.08em}
+  .fork h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:0}
+  .fork p{font-size:13.5px;color:var(--ink-soft);margin:6px 0 0}
+  .fork .rec{margin-top:10px;font-size:13px;background:var(--indigo-wash);border-radius:7px;padding:9px 13px}
+  .fork .rec b{color:var(--indigo)}
+
+  .term{background:#1b1d22;border-radius:10px;padding:16px 18px;font-family:var(--mono);font-size:12px;line-height:1.65;color:#d7d3c8;overflow-x:auto;margin:14px 0}
+  .term .c{color:#8a8f9a} .term .k{color:#a7a9e0} .term .g{color:#8fc0a4} .term .y{color:#d8b57a}
+
+  .board{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px}
+  @media(max-width:720px){.board{grid-template-columns:1fr}}
+  .lane{border:1px solid var(--line);border-radius:11px;background:#fbfaf6;padding:16px 18px}
+  .lane .pin{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  .lane.hot{border-color:var(--indigo);box-shadow:0 0 0 2px var(--indigo-wash)}
+  .lane.hot .pin{color:var(--indigo)}
+  .lane h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:4px 0 6px}
+  .lane p{font-size:12.5px;color:var(--ink-soft);margin:0}
+  .lane .seam{font-family:var(--mono);font-size:11px;color:var(--ink);margin-top:8px;display:block}
+
+  .foot{margin-top:42px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-soft)}
+  .foot b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Tonality · Phase 4 / gap 17 · design brief · 2026-07-07</p>
+  <h1>search_voicings — inventing register, exactly</h1>
+  <p class="lede">The register-aware sibling of <code>search_identities</code>, and the last piece of the <code>search/</code> layer. Where identity search asks <b>which pitch-class sets</b> satisfy constraints, voicing search asks <b>how to voice a given one</b> — enumerating concrete registered chords under spacing, bass, and smoothness constraints.</p>
+  <div class="thesis"><b>The cardinal-rule crux.</b> Choosing register from a pitch-class identity is <i>the</i> generative act the whole engine is built around not doing by accident. <code>search_voicings</code> does it <b>on purpose, exhaustively, and bounded</b> — it lives in <code>search/</code> (generative-side), returns a register-bearing <code>Realization</code>, and is never on the analysis path. This is the underexpressed "registered" corner of the data-model lattice, made first-class.</p>
+
+  <h2><span class="num">01</span>The shape of the problem</h2>
+  <p class="sub">A pitch-class set can be voiced across unbounded octaves — so the search space is <b>infinite until you bound the register</b>. That bound is the central design input: given an identity + a register window, a <i>voicing</i> is one assignment of each pitch class to a specific octave (with optional doublings) inside that window. The space is then finite and exactly enumerable.</p>
+  <div class="fig">
+    <svg id="reg" viewBox="0 0 900 240" width="100%" role="img" aria-label="Register-enumeration space for Cmaj9 in a C3–C6 window"></svg>
+    <div class="cap">The space for <b>Cmaj9</b> {C E G B D} in <b>C3–C6</b>: each faint tick is a candidate pitch (a pc × octave in the window). A <b style="color:var(--indigo)">voicing</b> selects one tick per voice — here a closed rooted voicing, <b>spread 14</b>, no ♭9 over the bass. <code>search_voicings</code> enumerates every such selection that satisfies the constraints.</div>
+  </div>
+
+  <h2><span class="num">02</span>What it reuses — the layer already holds most of this</h2>
+  <p class="sub">Like <code>search_identities</code>, the new code is small: a bounded enumerator + a voicing field vocabulary. The hard parts already exist and are reused, not reimplemented.</p>
+  <div class="pair">
+    <div class="card now"><h3>Reused (already shipped)</h3><p>
+      • <code>Condition</code> (eq/in/gte/lte) — the <b>same predicate</b>, now pointed a third way.<br>
+      • <code>voice_leading_realized</code> — the <b>smoothness</b> primitive (VL cost vs a previous voicing).<br>
+      • <code>Realization</code> — the register-bearing output type (this <i>is</i> the VOICING spec level).<br>
+      • <code>voicing_shapes</code> / <code>analyze_voicing</code> — label a result <i>closed / drop-2 / rootless / shell</i> by recognition.
+    </p></div>
+    <div class="card next"><h3>New (this slice)</h3><p>
+      • The <b>register enumerator</b> — the bounded octave-assignment generator.<br>
+      • A <b>voicing field vocabulary</b> — spread, bass, intervals-over-bass, doublings, voice count, smoothness.<br>
+      • <code>VoicingMatch</code> / <code>VoicingSearchResult</code> — typed, with per-voicing metrics for ranking (rule 7).<br>
+      • A <b>bounded-space guard</b> — a hard cap + <code>truncated</code>, so exhaustive never means explosive.
+    </p></div>
+  </div>
+
+  <h2><span class="num">03</span>The field vocabulary</h2>
+  <p class="sub">Every field Wend pre-named for its <code>realize_voicing</code> seam maps to one of these. Scalar fields reuse the <code>Condition</code> machinery; structural fields (bass, intervals-over-bass) take small arguments.</p>
+  <table>
+    <thead><tr><th>Field</th><th>Meaning</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>register</code></td><td>the MIDI window that <i>bounds the space</i> (required)</td><td><code>[48, 84]</code> (C3–C6)</td></tr>
+      <tr><td><code>spread</code></td><td>total semitone span, lowest→highest voice</td><td><code>{"lte": 19}</code> <span class="tag">ROADMAP ex.</span></td></tr>
+      <tr><td><code>voices</code></td><td>voice count (with doublings)</td><td><code>{"gte": 4, "lte": 5}</code></td></tr>
+      <tr><td><code>bass_pc</code></td><td>which pitch class is in the bass</td><td><code>0</code> (root position)</td></tr>
+      <tr><td><code>no_interval_over_bass</code></td><td>forbid these intervals above the bass</td><td><code>[1, 13]</code> (no ♭9/m9) <span class="tag">ROADMAP ex.</span></td></tr>
+      <tr><td><code>doublings</code></td><td>which pcs may double / max doubled voices</td><td><code>{"root": true, "max": 1}</code></td></tr>
+      <tr><td><code>voicing_type</code></td><td>match a named shape (reuse <code>voicing_shapes</code>)</td><td><code>{"in": ["drop2","drop3"]}</code></td></tr>
+      <tr><td><code>max_voice_leading</code> + <code>from_voicing</code></td><td><b>smoothness</b>: VL-cost ceiling from a reference voicing</td><td><code>6</code> from <code>[60,64,67,71]</code> <span class="tag wend">Wend</span></td></tr>
+      <tr><td><code>register_center</code> / <code>contour</code></td><td>center of mass; melodic-top constraint</td><td><span class="tag wend">Wend</span> — see fork 4</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="num">04</span>The design forks — your calls</h2>
+  <p class="sub">Four decisions define the slice. Each carries a recommendation; none is locked.</p>
+
+  <div class="fork">
+    <div class="head"><span class="k">FORK A</span><h3>How is the space bounded?</h3></div>
+    <p>The register must be finite. Options: (a) explicit MIDI window <code>[lo, hi]</code>; (b) register center + max span; (c) voice count + window.</p>
+    <div class="rec"><b>Recommend (a):</b> an explicit <code>register=[lo, hi]</code> window, required. Simplest, exactly bounds the space, and reads directly off the ROADMAP example ("voicings … under 19 semitones of spread"). Center/contour become <i>derived</i> fields, not the bound.</div>
+  </div>
+  <div class="fork">
+    <div class="head"><span class="k">FORK B</span><h3>Enumerate the full space, or the named-voicing vocabulary?</h3></div>
+    <p>Full octave-assignment enumeration is exhaustive but larger; the <code>suggest_voicings</code> vocabulary (closed/drop-2/…) is tiny but not exhaustive.</p>
+    <div class="rec"><b>Recommend full bounded enumeration, with labels attached.</b> Exhaustive-and-exact is what makes it <i>search</i> (not suggestion); reuse <code>voicing_shapes</code> to <i>label</i> each result when it matches a named shape. You get completeness <i>and</i> the vocabulary — <code>suggest_voicings</code> becomes a fast special case.</div>
+  </div>
+  <div class="fork">
+    <div class="head"><span class="k">FORK C</span><h3>Doublings: forbidden, allowed, or a constraint?</h3></div>
+    <p>Doublings multiply the space (each pc can appear in several octaves). Default matters for both size and musical realism.</p>
+    <div class="rec"><b>Recommend: no doublings by default; a <code>doublings</code> field opts in.</b> Keeps the base space small and predictable; SATB-style doubling is available when asked, bounded by a max-voices cap.</div>
+  </div>
+  <div class="fork">
+    <div class="head"><span class="k">FORK D</span><h3>Is it stateful across a progression?</h3></div>
+    <p>Wend's real loop voices <i>chord after chord</i>, each smooth from the last. That needs a <code>from_voicing</code> reference + a VL ceiling — making the query carry prior state.</p>
+    <div class="rec"><b>Recommend: support <code>from_voicing</code> + <code>max_voice_leading</code> as optional fields</b> (via <code>voice_leading_realized</code>), and expose <code>vl_from</code> on every match so the caller ranks by smoothness. This is the field that turns enumeration into a realizer — Wend's <code>realize_voicing</code> becomes a per-step <code>search_voicings</code> call. <code>contour</code> (hold the melodic top) is a v2 field; register-center filtering ships in v1.</div>
+  </div>
+
+  <h2><span class="num">05</span>The worked query</h2>
+  <p class="sub">The ROADMAP's marquee example plus Wend's smoothness step — the shape of the call and its result.</p>
+  <div class="term">
+<span class="c"># "voice Cmaj9 in C3–C6, spread ≤ 19, no ♭9 over the bass,</span>
+<span class="c">#  and stay within 6 semitones of the previous voicing"</span>
+<span class="k">search_voicings</span>(
+    identity=[0,4,7,11,2], root=0,
+    constraints={<span class="y">"register"</span>:[48,84], <span class="y">"spread"</span>:{<span class="y">"lte"</span>:19},
+                 <span class="y">"no_interval_over_bass"</span>:[1,13], <span class="y">"bass_pc"</span>:0,
+                 <span class="y">"max_voice_leading"</span>:6}, from_voicing=[60,64,67,71],
+    limit=50)
+<span class="c">#  → VoicingSearchResult{ count, truncated, voicings:[ VoicingMatch{</span>
+<span class="c">#       midi:[…], spread, bass_pc, voices, voicing_type?, vl_from } … ] }</span>
+<span class="g">#  every match is a real Realization — register-bearing, exactly enumerated,</span>
+<span class="g">#  ranked by the caller on spread / vl_from (plural outputs, rule 7).</span>
+  </div>
+
+  <h2><span class="num">06</span>Where it sits — and two new arrivals</h2>
+  <p class="sub">Wend's brief-3 (just merged) opened two <i>new</i> fronts alongside this one. All three are Wend-pulled and roadmap-real; this brief is the deep dive on the first, and frames the board so you can sequence.</p>
+  <div class="board">
+    <div class="lane hot"><span class="pin">gap 17 · designed here</span><h3>search_voicings</h3><p>The "how to voice it" half. Bounded register enumeration; reuses VL + Realization. Pairs with the identity search Wend already adopted.</p><span class="seam">→ Wend seam: realize_voicing</span></div>
+    <div class="lane"><span class="pin">brief-3 R1 · new</span><h3>melodic_tendency</h3><p>Note-to-note attraction: which pitches resolve where, how strongly, per key/chord. A versioned prior (Lerdahl-class). Distinct from next_chord — the <i>melodic</i> sibling.</p><span class="seam">→ Wend seam: _snap_stable</span></div>
+    <div class="lane"><span class="pin">brief-3 R2 · new</span><h3>satisfaction hooks</h3><p>Preference-weighted ruleset induction / scoring for a modular learner. Mostly a Phase 4.6 <i>recipe-vs-engine-support</i> question — may need little new code.</p><span class="seam">→ feature vocab = Tonality's</span></div>
+  </div>
+
+  <div class="foot">
+    <p><b>What this brief is for:</b> so you can hold the <code>search_voicings</code> shape — the bounded space, the reused primitives, the four forks — before I scope it into an acceptance-blocked PR. <b>Not decided here:</b> forks A–D (recommendations above), and whether <code>search_voicings</code> goes next or yields to brief-3's <code>melodic_tendency</code> (also strong, also Wend-pulled).</p>
+    <p style="margin-top:10px"><b>Next actions on the table:</b> (1) I still owe Wend a <code>response-3</code> triaging brief-3's R1/R2 — that's a separate protocol obligation I can take now; (2) pick the fork answers and I turn this into the build; (3) or reprioritize to <code>melodic_tendency</code> first. Your call on order.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const svg=document.getElementById('reg'); if(!svg) return;
+  const NS='http://www.w3.org/2000/svg';
+  const LO=48, HI=84;                    // C3..C6
+  const pcs=[0,4,7,11,2];                // Cmaj9: C E G B D
+  const chosen=[60,64,67,71,74];         // C4 E4 G4 B4 D5 — closed rooted Cmaj9, spread 14
+  const names=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const W=900,H=240, padL=54,padR=24, top=24, bot=54;
+  const x=m=> padL + (m-LO)/(HI-LO)*(W-padL-padR);
+  function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+  // octave gridlines (C at each octave)
+  for(let m=48;m<=84;m+=12){
+    svg.appendChild(el('line',{x1:x(m),y1:top,x2:x(m),y2:H-bot,stroke:'#d7d3c8','stroke-dasharray':'2 4','stroke-width':1}));
+    const t=el('text',{x:x(m),y:H-bot+18,'text-anchor':'middle','font-size':11,'font-family':'ui-monospace,monospace',fill:'#8a8f9a'});
+    t.textContent='C'+(Math.floor(m/12)-1); svg.appendChild(t);
+  }
+  // baseline
+  svg.appendChild(el('line',{x1:padL,y1:(top+H-bot)/2,x2:W-padR,y2:(top+H-bot)/2,stroke:'#c9c4b6','stroke-width':1}));
+  const yMid=(top+H-bot)/2;
+  // candidate ticks: every midi in window whose pc is in the chord
+  for(let m=LO;m<=HI;m++){
+    if(!pcs.includes(m%12)) continue;
+    const on=chosen.includes(m);
+    svg.appendChild(el('line',{x1:x(m),y1:yMid-(on?26:12),x2:x(m),y2:yMid+(on?26:12),
+      stroke:on?'#3a3d8f':'#c3beb0','stroke-width':on?3:1.4}));
+    if(on){
+      svg.appendChild(el('circle',{cx:x(m),cy:yMid-26,r:4,fill:'#3a3d8f'}));
+      const lab=el('text',{x:x(m),y:yMid-34,'text-anchor':'middle','font-size':10,'font-family':'ui-monospace,monospace',fill:'#3a3d8f','font-weight':'700'});
+      lab.textContent=names[m%12]; svg.appendChild(lab);
+    }
+  }
+  // spread bracket over the chosen voicing
+  const lo=Math.min(...chosen), hi=Math.max(...chosen);
+  svg.appendChild(el('line',{x1:x(lo),y1:top+6,x2:x(hi),y2:top+6,stroke:'#a8792c','stroke-width':1.5}));
+  svg.appendChild(el('line',{x1:x(lo),y1:top+2,x2:x(lo),y2:top+10,stroke:'#a8792c','stroke-width':1.5}));
+  svg.appendChild(el('line',{x1:x(hi),y1:top+2,x2:x(hi),y2:top+10,stroke:'#a8792c','stroke-width':1.5}));
+  const sp=el('text',{x:(x(lo)+x(hi))/2,y:top+1,'text-anchor':'middle','font-size':11,'font-family':'ui-monospace,monospace',fill:'#a8792c'});
+  sp.textContent='spread '+(hi-lo); svg.appendChild(sp);
+})();
+</script>

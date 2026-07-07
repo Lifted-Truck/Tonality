@@ -1,0 +1,134 @@
+<title>search_voicings — build review</title>
+<style>
+  :root{
+    --paper:#f4f2ec; --ink:#1b1d22; --ink-soft:#4a4e57; --line:#d7d3c8;
+    --indigo:#3a3d8f; --indigo-soft:#5c60b8; --indigo-wash:#e9e9f4;
+    --gold:#a8792c; --green:#3f7d5a; --rule:#c9c4b6;
+    --mono:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:52px 32px 72px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--indigo);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:37px;line-height:1.08;margin:0 0 10px;letter-spacing:-.01em;text-wrap:balance}
+  .lede{font-size:16px;color:var(--ink-soft);max-width:66ch;margin:0 0 26px}
+  .lede b{color:var(--ink)}
+  .status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);border:1px solid #bcd6c7;background:#eef5f0;padding:5px 11px;border-radius:20px;margin-bottom:28px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+  h2{font-family:var(--serif);font-weight:600;font-size:22px;margin:38px 0 6px}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 18px;max-width:70ch}
+  code{font-family:var(--mono);font-size:.87em;background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:4px}
+  .fig{border:1px solid var(--line);border-radius:12px;background:#fbfaf6;padding:20px;margin:16px 0}
+  .fig .cap{font-size:12.5px;color:var(--ink-soft);margin-top:12px;text-align:center}
+  .fig .cap b{color:var(--ink)}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding:7px 10px 7px 0;font-weight:400}
+  td{padding:8px 10px 8px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  td .m{font-family:var(--mono);font-size:12px}
+  tr.hi td{background:var(--indigo-wash)}
+  tr.hi .m{color:var(--indigo);font-weight:600}
+  .pill{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:20px;border:1px solid var(--line);color:var(--ink-soft);background:#fff}
+  .pill.g{color:var(--green);border-color:#bcd6c7}
+  .deltas{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+  @media(max-width:680px){.deltas{grid-template-columns:1fr}}
+  .d{border:1px solid var(--line);border-left:3px solid var(--indigo);border-radius:0 9px 9px 0;background:#fbfaf6;padding:13px 16px}
+  .d h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);margin:0 0 5px}
+  .d p{font-size:13px;color:var(--ink-soft);margin:0}
+  .d p b{color:var(--ink)}
+  .proof{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px}
+  @media(max-width:620px){.proof{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:#fbfaf6;border:1px solid var(--line);border-radius:10px;padding:14px 16px;text-align:center}
+  .stat .n{font-family:var(--serif);font-size:25px;font-weight:600;color:var(--indigo)}
+  .stat .l{font-size:11px;color:var(--ink-soft);margin-top:3px}
+  .foot{margin-top:38px;padding-top:16px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink-soft)}
+  .foot b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Tonality · gap 17 slice 1 · build review · 2026-07-07</p>
+  <h1>search_voicings, shipped: register invented on purpose, ranked by smoothness</h1>
+  <p class="lede">The <code>search/</code> layer is now complete for its first arc: <code>search_identities</code> finds <b>which</b> sets; <code>search_voicings</code> finds <b>how to voice one</b> — every registered voicing in a caller-declared MIDI window, exhaustively, with exact voice-leading ranking from a reference voicing.</p>
+  <div class="status"><span class="dot"></span>PR open · 758 passing · golden +155/−0 · pin untouched</div>
+
+  <h2>Evidence — the marquee query, run live</h2>
+  <p class="sub">"Voice <b>Cmaj9</b> in C3–C6, spread ≤ 19, no ♭9 over the bass, within 8 semitones of my closed Cmaj7." Of a <b>324-voicing space</b>, exactly <b>4</b> survive — returned ranked by exact VL cost.</p>
+  <div class="fig">
+    <svg id="rank" viewBox="0 0 880 300" width="100%" role="img" aria-label="Ranked voicings from closed Cmaj7 reference"></svg>
+    <div class="cap">Grey = the reference (closed Cmaj7, C4–B4). Indigo = the four survivors, ranked by <b>vl_from</b>. The winner adds the 9th <b>inside the hand</b> (vl 2, still labeled <code>closed</code>); the engine reports all four with margins — the caller's policy picks.</div>
+  </div>
+  <table>
+    <thead><tr><th>rank</th><th>vl_from</th><th>midi</th><th>spread</th><th>type</th><th>center</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td>1</td><td class="m">2</td><td class="m">60 62 64 67 71</td><td>11</td><td class="m">closed</td><td>64.8</td></tr>
+      <tr><td>2</td><td class="m">3</td><td class="m">62 64 67 71 72</td><td>10</td><td class="m">—</td><td>67.2</td></tr>
+      <tr><td>3</td><td class="m">3</td><td class="m">60 64 67 71 74</td><td>14</td><td class="m">—</td><td>67.2</td></tr>
+      <tr><td>4</td><td class="m">7</td><td class="m">60 62 67 71 76</td><td>16</td><td class="m">—</td><td>67.2</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The Fable-pass deltas (what changed from the approved brief)</h2>
+  <p class="sub">You asked for a final pass in case the recommendations could improve. Four did — each verified against code or the ROADMAP's own record before building.</p>
+  <div class="deltas">
+    <div class="d"><h4>Honest count, not a truncation flag</h4><p>The brief said "hard cap + <code>truncated</code>" — but truncating mid-enumeration makes <code>count</code> a lie. The raw space is computable <b>upfront</b> (∏ per-pc candidates), so an over-large window now <b>raises with advice</b>. <code>truncated</code> only ever means <code>limit</code>.</p></div>
+    <div class="d"><h4>Templates were already promised</h4><p>Gap 17's own text names "the <b>registered+rootless voicing-template corner</b> made operational" — so <code>root</code> is optional: <code>root=None</code> searches templates. The lattice corner the root CLAUDE.md calls underexpressed is now expressible.</p></div>
+    <div class="d"><h4>Doublings cut from v1 entirely</h4><p>Not just "off by default" — each pc is voiced exactly once, keeping the space injective and small. <b>N ≠ cardinality</b> (A8's resonator ask) is the explicit, recorded slice 2 rather than a half-shipped default.</p></div>
+    <div class="d"><h4>Ranking ships in-slice</h4><p>Gap 17 promised "<b>ranked</b> candidates with margins." Verified <code>voice_leading_realized</code> handles unequal cardinality (surjection both ways) — so with <code>from_voicing</code>, matches return sorted by exact <code>vl_from</code>, margins as continuous values.</p></div>
+  </div>
+
+  <h2>Proof it works</h2>
+  <div class="proof">
+    <div class="stat"><div class="n">758</div><div class="l">tests passing (1 skip)</div></div>
+    <div class="stat"><div class="n">22</div><div class="l">new tests incl. brute-force-equality oracle</div></div>
+    <div class="stat"><div class="n">+155</div><div class="l">golden lines — purely additive</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">consumer notices: Wend · AURICLE · port</div></div>
+  </div>
+
+  <div class="foot">
+    <p><b>The doctrinal detail worth keeping:</b> <code>register: [lo, hi]</code> is <b>required, never defaulted</b> — the cardinal rule expressed as API. Inventing register is a generative act, so the engine makes the caller declare the bound; a defaulted window would be the engine quietly choosing register after all.</p>
+    <p style="margin-top:8px"><b>Consumers:</b> Wend's <code>realize_voicing</code> seam can swap now (notice includes the recipe: constraints from policy state, <code>from_voicing</code> = previous bar, take <code>matches[0]</code> or re-rank under the surprise budget). AURICLE holds the slice-2 door (N-voice enumeration). The port got its promised drift notice with the exact semantics to reproduce.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const svg=document.getElementById('rank'); if(!svg) return;
+  const NS='http://www.w3.org/2000/svg';
+  const rows=[
+    {label:'ref · closed Cmaj7', midi:[60,64,67,71], vl:null, ref:true},
+    {label:'#1 · vl 2 · closed', midi:[60,62,64,67,71], vl:2},
+    {label:'#2 · vl 3', midi:[62,64,67,71,72], vl:3},
+    {label:'#3 · vl 3', midi:[60,64,67,71,74], vl:3},
+    {label:'#4 · vl 7', midi:[60,62,67,71,76], vl:7},
+  ];
+  const LO=55, HI=80, W=880, padL=150, padR=30;
+  const x=m=> padL + (m-LO)/(HI-LO)*(W-padL-padR);
+  const names=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+  // octave C gridlines
+  for(let m=60;m<=72;m+=12){
+    svg.appendChild(el('line',{x1:x(m),y1:14,x2:x(m),y2:270,stroke:'#e0dccf','stroke-width':1,'stroke-dasharray':'2 4'}));
+    const t=el('text',{x:x(m),y:288,'text-anchor':'middle','font-size':10,'font-family':'ui-monospace,monospace',fill:'#8a8f9a'});
+    t.textContent='C'+(m/12-1); svg.appendChild(t);
+  }
+  rows.forEach((r,i)=>{
+    const y=36+i*52;
+    const lab=el('text',{x:padL-12,y:y+4,'text-anchor':'end','font-size':11.5,
+      'font-family':'ui-monospace,monospace',fill:r.ref?'#8a8f9a':(i===1?'#3a3d8f':'#4a4e57'),
+      'font-weight':i===1?'700':'400'});
+    lab.textContent=r.label; svg.appendChild(lab);
+    // span line
+    svg.appendChild(el('line',{x1:x(Math.min(...r.midi)),y1:y,x2:x(Math.max(...r.midi)),y2:y,
+      stroke:r.ref?'#c3beb0':(i===1?'#3a3d8f':'#8f92c9'),'stroke-width':r.ref?1.5:2}));
+    r.midi.forEach(m=>{
+      svg.appendChild(el('circle',{cx:x(m),cy:y,r:i===1?7:6,
+        fill:r.ref?'#eceae2':(i===1?'#3a3d8f':'#c9cae8'),
+        stroke:r.ref?'#a9a496':(i===1?'#3a3d8f':'#5c60b8'),'stroke-width':1.3}));
+      const t=el('text',{x:x(m),y:y-12,'text-anchor':'middle','font-size':9,
+        'font-family':'ui-monospace,monospace',fill:r.ref?'#a9a496':(i===1?'#3a3d8f':'#8a8f9a')});
+      t.textContent=names[m%12]; svg.appendChild(t);
+    });
+  });
+})();
+</script>
