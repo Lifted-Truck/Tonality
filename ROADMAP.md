@@ -1622,14 +1622,29 @@ they used. Same input + same prior version → same output.
       the register/orientation-aware `search_voicings` slice. **Next:**
       `search_voicings` (a bounded register enumerator over `suggest_voicings`'
       space) under the same predicate contract.
-      **Pilot consumer (2026-07-07):** **A9 Wend** invited to pilot
-      `search_identities` against its `pivots_between` / `tonicization_targets`
-      seams (identity-level constraint queries — the nearer-term half of its
-      gap-17/Phase-7 needs); notice
-      `integrations/wend/notice-search-identities.md`. Two open questions put to
-      it: field-vocabulary fit (df1..df6 / rooted `contains_at` / catalog
-      filtering on demand) and whether Decision 12's set-class default should
-      flip to rooted for a rooted-material consumer — awaiting its ack/brief-2.
+      **Pilot consumer — A9 Wend (brief-2, 2026-07-07, adopted):** Wend replaced
+      both identity seams (`pivots_between`, `tonicization_targets`) on
+      `search_identities` with **576/576** + **24/24** exact parity vs its prior
+      heuristic (~2.6 ms/query). Outcomes:
+      - **R1 bug fixed:** in the rooted (`all_masks`) universe `contained_in`
+        transposed the *enumerated identity* then reported it untransposed, so
+        matches contradicted their own echo (`(0,1,3)` returned as "⊆ C major").
+        The enumerated identity is never transposed — `contained_in` is now a
+        literal subset test in `all_masks` (transpositional only in the rootless
+        set-class universe). Regression-tested (C(7,k) counts); golden unaffected.
+      - **Default-universe posture DECIDED (keep `set_classes`):** despite Wend
+        using `expand_transpositions=True` on every query, the default stays the
+        223 canonical set classes — the discovery/analytical answer, and the one
+        the test+golden suite encodes. Rooted is the *generative* mode declared by
+        one explicit kwarg (the permanent posture, not a workaround). Flipping
+        would force analytical callers to dedup 12× redundancy — the worse footgun.
+      - **Vocabulary (R3) — next field slice, Wend named:** `df5` (and the
+        `df1..df6` DFT-magnitude family) as graded diatonicity/fifthiness fields,
+        `{"gte": x}`-testable — a clean add (already computed + cached in
+        `dft_magnitudes`, T/I-invariant so honest set-class fields). Prioritized;
+        Wend ranks enumerated pivots by color as a surprise-budget signal. Then
+        `contains_at` (rooted-absolute) as a lower-priority ergonomic add.
+      Exchange: `integrations/wend/{notice-search-identities,brief-2,response-2}.md`.
 
 ### Phase 4.5 — Contextual & statistical interpretation (corpus-driven)
 The intelligence payoff: move from *enumerating* interpretations to *weighing* them
