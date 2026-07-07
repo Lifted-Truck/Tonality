@@ -1641,10 +1641,14 @@ they used. Same input + same prior version → same output.
       - **Vocabulary (R3) — next field slice, Wend named:** `df5` (and the
         `df1..df6` DFT-magnitude family) as graded diatonicity/fifthiness fields,
         `{"gte": x}`-testable — a clean add (already computed + cached in
-        `dft_magnitudes`, T/I-invariant so honest set-class fields). Prioritized;
-        Wend ranks enumerated pivots by color as a surprise-budget signal. Then
-        `contains_at` (rooted-absolute) as a lower-priority ergonomic add.
-      Exchange: `integrations/wend/{notice-search-identities,brief-2,response-2}.md`.
+        `dft_magnitudes`, T/I-invariant so honest set-class fields). Wend ranks
+        enumerated pivots by color as a surprise-budget signal.
+        **DELIVERED (2026-07-07):** `df1..df6` float fields (gte/lte only — eq/in
+        rejected as float footguns), and every match now carries the full
+        `|f1..f6|` `dft_magnitudes` vector so callers rank, not just filter.
+        Still open: `contains_at` (rooted-absolute) as a lower-priority ergonomic
+        add.
+      Exchange: `integrations/wend/{notice-search-identities,brief-2,response-2,notice-df-fields}.md`.
 
 ### Phase 4.5 — Contextual & statistical interpretation (corpus-driven)
 The intelligence payoff: move from *enumerating* interpretations to *weighing* them

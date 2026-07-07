@@ -252,9 +252,13 @@ def search_identities(
     constraints is {field: condition}. Scalar fields — cardinality, ic1..ic6
     (interval-vector entries), rotational_period, is_achiral,
     no_consecutive_semitones — take a literal (equality), {"in": [...]},
-    {"gte": n}, or {"lte": n}. Structural fields — contains / contained_in —
+    {"gte": n}, or {"lte": n}. Float fields — df1..df6 (DFT magnitudes |f1..f6|;
+    df5 = diatonicity/fifthiness, df6 = whole-tone-ness) — are range-queried with
+    {"gte": x} / {"lte": x} only. Structural fields — contains / contained_in —
     take a pc-set matched at ANY transposition; a `contains` match reports the
-    roots where the shape appears. Fields AND together.
+    roots where the shape appears. Fields AND together. Every match also carries
+    its full |f1..f6| `dft_magnitudes` spectrum, so callers can rank, not just
+    filter.
 
     Default universe is the 223 set classes (prime forms); expand_transpositions
     widens to every rooted image. limit caps reported matches (count stays the

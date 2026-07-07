@@ -12,8 +12,11 @@ and `rules/` and never reimplements either.
 
 - `fields.py` — `IDENTITY_FIELDS` (scalar extractors over the `core.setclass` /
   `core.bitmask` substrate: cardinality, ic1..ic6, rotational_period,
-  is_achiral, no_consecutive_semitones) + the structural `contains` /
-  `contained_in` predicates. Every field is a pure, cached mask function.
+  is_achiral, no_consecutive_semitones, and the float `df1..df6` DFT magnitudes
+  — range-queried, gte/lte only) + the structural `contains` / `contained_in`
+  predicates. Every field is a pure, cached mask function. `df*` are T/I-invariant
+  (so honest set-class fields) and the full `|f1..f6|` vector is echoed on every
+  match as `dft_magnitudes` for ranking, not just filtering.
 - `identities.py` — `search_identities(constraints)`: strict-total validation
   (the blind-agent ruleset contract — collect *all* errors), enumeration,
   typed result. Default universe is the 223 set classes; `expand_transpositions`

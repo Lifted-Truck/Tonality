@@ -90,6 +90,44 @@ def test_is_achiral_matches_chirality():
     assert _prime_pcs([0, 4, 7]) not in {m.pcs for m in result.matches}
 
 
+# --- DFT-magnitude fields (df1..df6) -----------------------------------------
+
+def test_df6_isolates_the_whole_tone_set_class():
+    # |f6| == 6 exactly iff all pcs share parity — only the whole-tone scale
+    # reaches it (its two parities are one transposition, i.e. one set class).
+    result = search_identities({"df6": {"gte": 5.999}})
+    assert result.count == 1
+    assert result.matches[0].pcs == (0, 2, 4, 6, 8, 10)
+
+
+def test_df5_ranks_diatonicity_and_filters():
+    # |f5| is fifthiness/diatonicity; the diatonic scale maximizes it among
+    # 7-note sets (|f5| = 2 + sqrt(3) ~ 3.732).
+    result = search_identities({"cardinality": 7, "df5": {"gte": 3.7}})
+    assert _prime_pcs([0, 2, 4, 5, 7, 9, 11]) in {m.pcs for m in result.matches}
+    assert all(m.dft_magnitudes[4] >= 3.7 for m in result.matches)
+
+
+def test_every_match_carries_the_full_spectrum():
+    # The |f1..f6| vector is always reported (for ranking, not just filtering).
+    m = search_identities({"cardinality": 3}).matches[0]
+    assert len(m.dft_magnitudes) == 6
+    assert all(isinstance(x, float) for x in m.dft_magnitudes)
+
+
+def test_df_threshold_accepts_int_or_float():
+    assert search_identities({"df6": {"gte": 6}}).count == 1     # int
+    assert search_identities({"df6": {"gte": 6.0}}).count == 1   # float
+
+
+def test_float_field_rejects_equality_and_in():
+    # A float field is range-queried; eq/in are footguns on irrational magnitudes.
+    for bad in ({"df5": 3.7}, {"df5": {"in": [3.7]}}):
+        with pytest.raises(SearchConstraintError) as exc:
+            search_identities(bad)
+        assert any("float field" in e for e in exc.value.errors)
+
+
 # --- structural containment --------------------------------------------------
 
 def test_contains_is_set_class_containment_and_reports_roots():
