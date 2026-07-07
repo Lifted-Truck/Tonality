@@ -49,6 +49,14 @@ no session state here (that lives in `workspace`/`SessionCatalog`).
   seam flags aug-6/secondary-dominant/Neapolitan instead of penalizing their
   chromaticism. `name_chord_across_keys` maps it over ranked `infer_key`
   candidates: per-key conditional namings + key-weighted combined view.
+- `tendency.py` — `melodic_tendency`: ranked note-to-note resolutions + the
+  12-pc stability landing table (gap 19, A9 Wend — the melodic sibling of
+  `next_chord`). Anchoring attraction `(s_q/s_p)/d²` (Lerdahl) over a
+  **versioned prior** (`data/melodic_tendency.json`, stabilities frozen from
+  kk-1982.1 — never read live). Target policy is a caller parameter
+  (`diatonic_steps` default, `chromatic_steps` opt-in); chord context boosts
+  chord-tone stability (both roles, cited factor). Major/minor only; the
+  caller owns the snap policy (margin-as-signal seam).
 - `voice_leading.py` — `voice_leading`: minimal voice-leading distance between
   two pc-set identities (total circular motion under the optimal non-crossing
   assignment; exact, brute-force-verified in tests). **Analytical** — measures,

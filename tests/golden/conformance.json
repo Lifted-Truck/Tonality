@@ -10368,6 +10368,146 @@
   },
   {
    "kwargs": {
+    "chord_pcs": [
+     0,
+     4,
+     7
+    ],
+    "mode": "major",
+    "pc": "D",
+    "tonic": "C"
+   },
+   "result": {
+    "chord_pcs": [
+     0,
+     4,
+     7
+    ],
+    "mode": "major",
+    "prior_version": "melodic-tendency.1",
+    "resolutions": [
+     {
+      "distance": 2,
+      "evidence": [
+       "whole-step neighbor (d=2)",
+       "target stability 9.525 vs source 3.48",
+       "target is the tonic (degree 1)",
+       "chord tone (anchor boost x1.5)"
+      ],
+      "in_key": true,
+      "is_chord_tone": true,
+      "strength": 0.6843,
+      "target_pc": 0
+     },
+     {
+      "distance": 2,
+      "evidence": [
+       "whole-step neighbor (d=2)",
+       "target stability 6.57 vs source 3.48",
+       "target is the mediant (degree 3)",
+       "chord tone (anchor boost x1.5)"
+      ],
+      "in_key": true,
+      "is_chord_tone": true,
+      "strength": 0.472,
+      "target_pc": 4
+     }
+    ],
+    "source_degree": 2,
+    "source_pc": 2,
+    "stability": [
+     {
+      "degree": 1,
+      "in_key": true,
+      "is_chord_tone": true,
+      "pc": 0,
+      "value": 9.525
+     },
+     {
+      "degree": 5,
+      "in_key": true,
+      "is_chord_tone": true,
+      "pc": 7,
+      "value": 7.785
+     },
+     {
+      "degree": 3,
+      "in_key": true,
+      "is_chord_tone": true,
+      "pc": 4,
+      "value": 6.57
+     },
+     {
+      "degree": 4,
+      "in_key": true,
+      "is_chord_tone": false,
+      "pc": 5,
+      "value": 4.09
+     },
+     {
+      "degree": 6,
+      "in_key": true,
+      "is_chord_tone": false,
+      "pc": 9,
+      "value": 3.66
+     },
+     {
+      "degree": 2,
+      "in_key": true,
+      "is_chord_tone": false,
+      "pc": 2,
+      "value": 3.48
+     },
+     {
+      "degree": 7,
+      "in_key": true,
+      "is_chord_tone": false,
+      "pc": 11,
+      "value": 2.88
+     },
+     {
+      "degree": null,
+      "in_key": false,
+      "is_chord_tone": false,
+      "pc": 6,
+      "value": 2.52
+     },
+     {
+      "degree": null,
+      "in_key": false,
+      "is_chord_tone": false,
+      "pc": 8,
+      "value": 2.39
+     },
+     {
+      "degree": null,
+      "in_key": false,
+      "is_chord_tone": false,
+      "pc": 3,
+      "value": 2.33
+     },
+     {
+      "degree": null,
+      "in_key": false,
+      "is_chord_tone": false,
+      "pc": 10,
+      "value": 2.29
+     },
+     {
+      "degree": null,
+      "in_key": false,
+      "is_chord_tone": false,
+      "pc": 1,
+      "value": 2.23
+     }
+    ],
+    "targets": "diatonic_steps",
+    "tonic_pc": 0
+   },
+   "tool": "melodic_tendency"
+  },
+  {
+   "kwargs": {
     "source_pcs": [
      0,
      4,

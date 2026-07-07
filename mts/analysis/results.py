@@ -747,6 +747,89 @@ class NextChordRecommendation:
         return dataclasses.asdict(self)
 
 
+@dataclass(frozen=True)
+class TendencyResolution:
+    """One ranked resolution of a source pitch class (gap 19).
+
+    ``strength`` is the anchoring attraction ``(s_target/s_source)/d**n`` under
+    the cited prior; ``distance`` is circular semitones; ``in_key`` flags scale
+    membership (chromatic-step targets report ``False``); ``is_chord_tone`` is
+    ``None`` when no chord context was given. ``evidence`` names the signals
+    (Decision 7 — a strength is inspectable, never an opaque number).
+    """
+
+    target_pc: int
+    strength: float
+    distance: int
+    in_key: bool
+    is_chord_tone: bool | None
+    evidence: tuple[str, ...]
+
+    def to_dict(self) -> dict:
+        return {
+            "target_pc": self.target_pc,
+            "strength": self.strength,
+            "distance": self.distance,
+            "in_key": self.in_key,
+            "is_chord_tone": self.is_chord_tone,
+            "evidence": list(self.evidence),
+        }
+
+
+@dataclass(frozen=True)
+class StabilityEntry:
+    """One pc's stability in the key context (the ranked landing table)."""
+
+    pc: int
+    degree: int | None  # 1..7 for scale members, None for chromatic pcs
+    value: float
+    in_key: bool
+    is_chord_tone: bool | None
+
+    def to_dict(self) -> dict:
+        return {
+            "pc": self.pc,
+            "degree": self.degree,
+            "value": self.value,
+            "in_key": self.in_key,
+            "is_chord_tone": self.is_chord_tone,
+        }
+
+
+@dataclass(frozen=True)
+class TendencyResult:
+    """Melodic tendency of one pitch class in a key (gap 19, A9 Wend).
+
+    ``resolutions`` are ranked strongest-first under the ``targets`` policy;
+    ``stability`` is the full 12-pc landing table, descending (the cited
+    replacement for a caller's root>third hand rule). The caller owns the snap
+    policy; the engine reports pulls with evidence and cites ``prior_version``.
+    """
+
+    source_pc: int
+    source_degree: int | None
+    tonic_pc: int
+    mode: str
+    targets: str
+    chord_pcs: tuple[int, ...] | None
+    resolutions: tuple[TendencyResolution, ...]
+    stability: tuple[StabilityEntry, ...]
+    prior_version: str
+
+    def to_dict(self) -> dict:
+        return {
+            "source_pc": self.source_pc,
+            "source_degree": self.source_degree,
+            "tonic_pc": self.tonic_pc,
+            "mode": self.mode,
+            "targets": self.targets,
+            "chord_pcs": list(self.chord_pcs) if self.chord_pcs is not None else None,
+            "resolutions": [r.to_dict() for r in self.resolutions],
+            "stability": [s.to_dict() for s in self.stability],
+            "prior_version": self.prior_version,
+        }
+
+
 __all__ = [
     "AnalyticalContextSnapshot",
     "CatalogContainer",
@@ -779,6 +862,9 @@ __all__ = [
     "TonnetzAnalysis",
     "TonicContext",
     "RealizedVoiceLeading",
+    "StabilityEntry",
+    "TendencyResolution",
+    "TendencyResult",
     "VoiceLeadingResult",
     "VoicingAnalysis",
     "VoicingEntry",

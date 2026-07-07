@@ -461,6 +461,43 @@ def next_chord(
     ).to_dict()
 
 
+def melodic_tendency(
+    pc: int | str | None = None,
+    degree: int | None = None,
+    tonic: int | str = 0,
+    mode: str = "major",
+    chord_pcs: list[int | str] | None = None,
+    targets: str = "diatonic_steps",
+    prior_version: str | None = None,
+) -> dict:
+    """Where a pitch wants to resolve, and how strongly — the melodic sibling
+    of next_chord (gap 19). Ranked resolutions with evidence + the full 12-pc
+    stability landing table, in one call.
+
+    Provide EXACTLY ONE of pc (note name or 0-11) or degree (1-7, resolved
+    through the mode's scale). mode: 'major' or 'minor'. Model: anchoring
+    attraction (s_target/s_source)/d^2 with stabilities from a versioned prior
+    (melodic-tendency.1 — frozen from the kk-1982.1 profiles); ti->do ranks
+    strongest by construction, stable tones barely tend anywhere. chord_pcs
+    opts into chord-tone anchoring (boost cited in the prior). targets selects
+    the resolution-target policy: 'diatonic_steps' (default — scale members
+    within a step; a leap is not a resolution) or 'chromatic_steps' (all step
+    neighbors; out-of-key targets flagged in_key=false). The stability table is
+    the cited replacement for root>third hand rules; the caller owns any snap
+    policy (strengths are continuous signals, Decision 7)."""
+    from ..analysis import melodic_tendency as _melodic_tendency
+
+    return _melodic_tendency(
+        _pc(pc) if pc is not None else None,
+        degree=int(degree) if degree is not None else None,
+        tonic_pc=_pc(tonic),
+        mode=str(mode),
+        chord_pcs=[_pc(c) for c in chord_pcs] if chord_pcs is not None else None,
+        targets=str(targets),
+        prior_version=prior_version,
+    ).to_dict()
+
+
 def key_tracking(
     events: list[list],
     window_beats: float = 8.0,
@@ -1232,6 +1269,7 @@ TOOLS = (
     structural_keys,
     cadences,
     next_chord,
+    melodic_tendency,
     name_pcs_in_inferred_keys,
     voice_leading_distance,
     voice_pair_motion,

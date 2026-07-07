@@ -221,6 +221,12 @@ CASES: list[tuple[str, dict]] = [
         "next_chord",
         {"current": ["C", "maj"], "tonic": "C", "mode": "major", "vl_neighbours": True},
     ),
+    # gap 19: re over a C-major chord — exercises the chord-anchor boost, the
+    # ranked resolutions, and the full stability table in one row.
+    (
+        "melodic_tendency",
+        {"pc": "D", "tonic": "C", "mode": "major", "chord_pcs": [0, 4, 7]},
+    ),
     ("voice_leading_distance", {"source_pcs": [0, 4, 7], "target_pcs": [5, 9, 0]}),
     ("realized_voice_leading", {"source_midi": [60, 64, 67], "target_midi": [59, 62, 67]}),
     ("voice_pair_motion", {"events": _satb_events()}),
