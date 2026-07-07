@@ -11,7 +11,7 @@ from ..core.bitmask import validate_pc
 from ..core.interval import Interval
 from ..core.quality import ChordQuality
 from ..core.scale import Scale
-from ..analysis.builders import SessionCatalog, _DEFAULT_SESSION
+from ..session import SessionCatalog
 from ..theory.functions import (
     DEFAULT_FEATURES_MAJOR,
     DEFAULT_FEATURES_MINOR,
@@ -37,7 +37,7 @@ _VERSIONED_CACHE: dict[str, tuple[int, tuple]] = {}
 # (RE-5b), keyed by scales.json + chord_qualities.json mtimes.
 _FUNCTION_MAPPINGS_CACHE: tuple[tuple[int, int], dict[tuple, list]] | None = None
 # (key, index) — chord-quality mask index (RE-5c), keyed by base-catalog
-# identity + default-session chord fingerprint.
+# identity + the given session's chord fingerprint (RE-6b).
 _CHORD_MASK_INDEX_CACHE: tuple[tuple, dict[int, tuple]] | None = None
 
 
@@ -620,13 +620,12 @@ def load_scales(session: SessionCatalog | None = None) -> dict[str, Scale]:
     ----------
     session:
         The ``SessionCatalog`` whose user-defined scales should be merged in.
-        When *None* the module-level default session is used, preserving the
-        original behaviour for standalone scripts and the CLI.
+        When *None* (RE-6b) the base catalog is returned as-is — there is no
+        given session (RE-6b): with none, the base catalog is returned.
     """
-    _session = session if session is not None else _DEFAULT_SESSION
     scales = dict(_base_scales())
-    if _session.scales:
-        for manual in _session.scales.values():
+    if session is not None and session.scales:
+        for manual in session.scales.values():
             if manual.name not in scales:
                 scales[manual.name] = manual
     return scales
@@ -677,12 +676,11 @@ def load_chord_qualities(session: SessionCatalog | None = None) -> dict[str, Cho
     ----------
     session:
         The ``SessionCatalog`` whose user-defined chord qualities should be
-        merged in.  When *None* the module-level default session is used.
+        merged in.  When *None* (RE-6b) the base catalog is returned as-is.
     """
-    _session = session if session is not None else _DEFAULT_SESSION
     qualities = dict(_base_chord_qualities())
-    if _session.chords:
-        for manual in _session.chords.values():
+    if session is not None and session.chords:
+        for manual in session.chords.values():
             if manual.name not in qualities:
                 qualities[manual.name] = manual
     return qualities
@@ -695,13 +693,14 @@ def chord_qualities_by_mask(
     collapsed) — the lookup `interpret_chord` needs per root (RE-5c).
 
     Cached on the *base* catalog object (itself mtime-cached) plus a fingerprint
-    of the default session's chords, so the per-segment `interpret_chord` path
+    of the given session's chords, so the per-segment `interpret_chord` path
     stops rebuilding this index (and copying the whole catalog dict) every call.
+    ``session=None`` (RE-6b) indexes the base catalog only.
     """
     global _CHORD_MASK_INDEX_CACHE
-    _session = session if session is not None else _DEFAULT_SESSION
+    session_chords = session.chords if session is not None else {}
     base = _base_chord_qualities()
-    session_fingerprint = tuple(sorted(_session.chords)) if _session.chords else ()
+    session_fingerprint = tuple(sorted(session_chords)) if session_chords else ()
     key = (id(base), session_fingerprint)
     cached = _CHORD_MASK_INDEX_CACHE
     if cached is not None and cached[0] == key:
@@ -711,7 +710,7 @@ def chord_qualities_by_mask(
     seen_names: set[str] = set()
     # Base first (its .values() include alias entries → dedup by name), then any
     # session chords whose name isn't already taken — matching load_chord_qualities.
-    for source in (base.values(), _session.chords.values() if _session.chords else ()):
+    for source in (base.values(), session_chords.values() if session_chords else ()):
         for quality in source:
             if quality.name in seen_names:
                 continue

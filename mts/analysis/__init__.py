@@ -25,7 +25,7 @@ from ..core.realization import Realization
 from ..core.spec_level import Registral, SpecLevel, Transpositional
 from .summaries import ChordBrief, chord_brief
 from ..core.pitch import Pitch, parse_pitch_token, ParsedPitch
-from .builders import (
+from ..session import (
     ManualScaleBuilder,
     ManualChordBuilder,
     register_scale,
@@ -36,7 +36,7 @@ from .comparisons import (
     ScaleChordPlacement,
     compare_chord_qualities,
 )
-from .specs import (
+from ..notation import (
     ChordSpec,
     ChordParseResult,
     ScopeLiteral,

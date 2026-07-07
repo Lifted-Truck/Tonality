@@ -18,6 +18,7 @@ from ..core.quality import ChordQuality
 from ..core.scale import Scale
 from .pcset_math import containing_roots
 from .results import CatalogContainer, CatalogContainment
+from ..io.loaders import load_chord_qualities, load_scales
 
 
 def _containers(
@@ -62,11 +63,9 @@ def find_containers(
     if query_mask == 0:
         raise ValueError("find_containers needs at least one pitch class.")
     if catalog_scales is None:
-        from ..io.loaders import load_scales
 
         catalog_scales = load_scales()
     if catalog_qualities is None:
-        from ..io.loaders import load_chord_qualities
 
         catalog_qualities = load_chord_qualities()
     return CatalogContainment(

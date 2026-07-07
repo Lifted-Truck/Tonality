@@ -34,7 +34,7 @@ by key confidence under a versioned marginalization scheme.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..core.bitmask import mask_from_pcs
 from ..core.quality import ChordQuality
@@ -53,9 +53,8 @@ from .results import (
     NamingUnderKey,
     RankedInterpretation,
 )
+from ..io.loaders import NamingWeights, load_chord_qualities, load_function_mappings, load_naming_weights
 
-if TYPE_CHECKING:  # lazy at runtime: io.loaders imports analysis.builders
-    from ..io.loaders import NamingWeights
 
 # Modes for which generated functional-harmony tables exist (3.5b mapping).
 _MODE_FOR_KEY = {"Ionian": "major", "Aeolian": "minor"}
@@ -127,11 +126,9 @@ def name_chord(
         raise ValueError("name_chord needs at least one pitch class.")
 
     if catalog is None:
-        from ..io.loaders import load_chord_qualities
 
         catalog = load_chord_qualities()
     if weights is None:
-        from ..io.loaders import load_naming_weights
 
         weights = load_naming_weights()
     w = weights.weights
@@ -179,7 +176,6 @@ def name_chord(
                 )
             mode = _MODE_FOR_KEY.get(context.key.name)
             if mode is not None:
-                from ..io.loaders import load_function_mappings
 
                 for mapping in load_function_mappings(mode):
                     if (
@@ -281,7 +277,6 @@ def name_chord_across_keys(
     """
 
     if weights is None:
-        from ..io.loaders import load_naming_weights
 
         weights = load_naming_weights()
     top_n = int(weights.marginalization.get("top_n", 3))

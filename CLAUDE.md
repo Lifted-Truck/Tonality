@@ -55,7 +55,15 @@ a register-less identity for register-dependent analysis.
 ```
 core/        Identity layer: bitmask, pitch, scale, chord, quality, enharmonics, symmetry
   ↓
-analysis/    Enrichment engine: specs (parser), *_analysis, comparisons, summaries, results
+notation.py  Multi-notation parser (RE-6b; was analysis/specs.py). Below io/ so
+             loaders can consume it without a cycle. Re-exported from mts.analysis.
+  ↓
+session.py   SessionCatalog + manual registration (RE-6b; was analysis/builders.py).
+             Sessions are instances; no module-level default. Below io/.
+  ↓
+io/          Loads catalogs from mts/data/*.json; merges a session's catalogs on request.
+  ↓
+analysis/    Enrichment engine: *_analysis, comparisons, summaries, results
   ↓
 temporal/    Time layer (Phase 2): Event/Sequence + tempo/meter; window → realization → key.
              Segmentation, harmonic rhythm, local key tracking, voice identity/motion,
@@ -76,9 +84,12 @@ mcp/         Thin adapter (Phase 4): one tool per analysis entry point. tools.py
              extra (`python -m mts.mcp`). Intelligence stays below this line.
 ```
 
-`io/` loads catalogs from `mts/data/*.json` (inside the package, so installed copies work). `theory/functions.py` generates functional
-harmony. `workspace.py` is a stateful session facade (one `SessionCatalog` each —
-keep it lean; it is *a* entry point, not *the* API).
+`io/` loads catalogs from `mts/data/*.json` (inside the package, so installed
+copies work) and sits **above** `notation.py`/`session.py` so it can consume both
+without an import cycle (RE-6b untangled the old `io ↔ analysis` cycle by moving
+those two modules below it). `theory/functions.py` generates functional harmony.
+`workspace.py` is a stateful session facade (one `SessionCatalog` each — keep it
+lean; it is *a* entry point, not *the* API).
 
 ## Conventions
 

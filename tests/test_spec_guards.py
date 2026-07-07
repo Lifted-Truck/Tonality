@@ -11,7 +11,7 @@ from mts.analysis import (
     require_realization,
     suggest_voicings,
 )
-from mts.analysis.specs import parse_chord_spec
+from mts.notation import parse_chord_spec
 from mts.core.chord import Chord
 from mts.io.loaders import load_chord_qualities
 

@@ -80,17 +80,18 @@ def test_cached_index_covers_all_masks_identically_to_inline_build():
 
 
 def test_session_registered_chord_appears_via_cached_index():
-    from mts.analysis.builders import ManualChordBuilder, register_chord
-    from mts.io.loaders import _DEFAULT_SESSION
+    # RE-5c cached index + RE-6b explicit session: a chord registered in an
+    # explicit session shows up in that session's mask index (the fingerprint
+    # keys the cache per session); the base-only index never sees it.
+    from mts.session import ManualChordBuilder, SessionCatalog, register_chord
+    from mts.io.loaders import chord_qualities_by_mask
+    from mts.core.bitmask import mask_from_pcs
 
-    try:
-        register_chord(ManualChordBuilder(name="Re5cProbe", intervals=[0, 1, 2]))
-        names = {i.quality for i in interpret_chord([0, 1, 2]).interpretations}
-        assert "Re5cProbe" in names  # session fingerprint invalidated the cache
-    finally:
-        _DEFAULT_SESSION.chords.clear()
-        _DEFAULT_SESSION.chord_specs.clear()
-        _DEFAULT_SESSION.chord_context.clear()
-    assert "Re5cProbe" not in {
-        i.quality for i in interpret_chord([0, 1, 2]).interpretations
-    }
+    sess = SessionCatalog()
+    register_chord(ManualChordBuilder(name="Re5cProbe", intervals=[0, 1, 2]), session=sess)
+    probe_mask = mask_from_pcs([0, 1, 2])
+
+    with_session = chord_qualities_by_mask(session=sess)
+    base_only = chord_qualities_by_mask()  # session=None → base catalog only
+    assert any(q.name == "Re5cProbe" for q in with_session.get(probe_mask, ()))
+    assert not any(q.name == "Re5cProbe" for q in base_only.get(probe_mask, ()))

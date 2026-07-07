@@ -16,23 +16,23 @@ from mts.analysis import (
     ManualScaleBuilder,
     ManualChordBuilder,
     ParsedPitch,
-    register_scale,
-    register_chord,
     chord_brief,
     parse_pitch_token,
 )
-from mts.analysis.builders import (
+from mts.session import (
     degrees_from_mask,
     mask_from_text,
     match_scale,
     match_chord,
-    SESSION_SCALES,
-    SESSION_CHORDS,
-    SESSION_SCALE_CONTEXT,
-    SESSION_CHORD_CONTEXT,
+    register_scale,
+    register_chord,
+    SessionCatalog,
     load_session_catalog,
     save_session_catalog,
 )
+
+# This CLI owns its session explicitly (no library-level default, RE-6b).
+_session = SessionCatalog()
 def _parse_pitch_list(text: str | None) -> tuple[list[int], list[ParsedPitch]]:
     if text is None:
         return [], []
@@ -110,24 +110,24 @@ def resolve_intervals(
 
 
 def scale_command(args: argparse.Namespace) -> None:
-    load_session_catalog()
+    load_session_catalog(_session)
     catalog = load_scales()
     if args.list_session:
-        if not SESSION_SCALES:
+        if not _session.scales:
             print("No session-defined scales.")
         else:
             print("Session-defined scales:")
-            for name, scale in sorted(SESSION_SCALES.items()):
-                context = SESSION_SCALE_CONTEXT.get(name, {})
+            for name, scale in sorted(_session.scales.items()):
+                context = _session.scale_context.get(name, {})
                 tokens = ", ".join(context.get("tokens", []))
                 scope = context.get("scope", "abstract")
                 suffix = f" ({scope}{f': {tokens}' if tokens else ''})"
                 print(f" - {name}: {list(scale.degrees)}{suffix}")
         return
     if args.clear_session:
-        SESSION_SCALES.clear()
-        SESSION_SCALE_CONTEXT.clear()
-        save_session_catalog()
+        _session.scales.clear()
+        _session.scale_context.clear()
+        save_session_catalog(_session)
         print("Cleared session-defined scales.")
         return
     degrees, tokens, absolute, context_level = resolve_degrees(args.degrees, args.mask)
@@ -148,7 +148,7 @@ def scale_command(args: argparse.Namespace) -> None:
         tokens=tokens,
         absolute=absolute,
     )
-    result = register_scale(builder, catalog=catalog, persist=True)
+    result = register_scale(builder, catalog=catalog, session=_session, persist=True)
     scale = result["scale"]
     if result["match"]:
         print(f"Reusing catalog scale: {scale.name} -> {list(scale.degrees)}")
@@ -158,25 +158,25 @@ def scale_command(args: argparse.Namespace) -> None:
 
 
 def chord_command(args: argparse.Namespace) -> None:
-    load_session_catalog()
+    load_session_catalog(_session)
     catalog = load_chord_qualities()
     scale_catalog = load_scales()
     if getattr(args, "list_session", False):
-        if not SESSION_CHORDS:
+        if not _session.chords:
             print("No session-defined chord qualities.")
         else:
             print("Session-defined chord qualities:")
-            for name, quality in sorted(SESSION_CHORDS.items()):
-                context = SESSION_CHORD_CONTEXT.get(name, {})
+            for name, quality in sorted(_session.chords.items()):
+                context = _session.chord_context.get(name, {})
                 tokens = ", ".join(context.get("tokens", []))
                 scope = context.get("scope", "abstract")
                 suffix = f" ({scope}{f': {tokens}' if tokens else ''})"
                 print(f" - {name}: {list(quality.intervals)}{suffix}")
         return
     if getattr(args, "clear_session", False):
-        SESSION_CHORDS.clear()
-        SESSION_CHORD_CONTEXT.clear()
-        save_session_catalog()
+        _session.chords.clear()
+        _session.chord_context.clear()
+        save_session_catalog(_session)
         print("Cleared session-defined chord qualities.")
         return
     intervals, tokens, absolute, context_level = resolve_intervals(args.intervals, args.mask)
@@ -197,7 +197,7 @@ def chord_command(args: argparse.Namespace) -> None:
         tokens=tokens,
         absolute=absolute,
     )
-    result = register_chord(builder, catalog=catalog, persist=True)
+    result = register_chord(builder, catalog=catalog, session=_session, persist=True)
     quality = result["quality"]
     if result["match"]:
         print(f"Reusing catalog quality: {quality.name} -> {list(quality.intervals)}")
@@ -211,22 +211,22 @@ def chord_command(args: argparse.Namespace) -> None:
 
 
 def session_command(args: argparse.Namespace) -> None:
-    load_session_catalog()
+    load_session_catalog(_session)
     if args.clear:
-        SESSION_SCALES.clear()
-        SESSION_CHORDS.clear()
-        SESSION_SCALE_CONTEXT.clear()
-        SESSION_CHORD_CONTEXT.clear()
-        save_session_catalog()
+        _session.scales.clear()
+        _session.chords.clear()
+        _session.scale_context.clear()
+        _session.chord_context.clear()
+        save_session_catalog(_session)
         print("Cleared session-defined scales and chords.")
         if not args.list:
             return
 
     if args.list or not args.clear:
-        if SESSION_SCALES:
+        if _session.scales:
             print("Session-defined scales:")
-            for name, scale in sorted(SESSION_SCALES.items()):
-                context = SESSION_SCALE_CONTEXT.get(name, {})
+            for name, scale in sorted(_session.scales.items()):
+                context = _session.scale_context.get(name, {})
                 tokens = ", ".join(context.get("tokens", []))
                 scope = context.get("scope", "abstract")
                 suffix = f" ({scope}{f': {tokens}' if tokens else ''})"
@@ -234,10 +234,10 @@ def session_command(args: argparse.Namespace) -> None:
         else:
             print("No session-defined scales.")
 
-        if SESSION_CHORDS:
+        if _session.chords:
             print("\nSession-defined chord qualities:")
-            for name, quality in sorted(SESSION_CHORDS.items()):
-                context = SESSION_CHORD_CONTEXT.get(name, {})
+            for name, quality in sorted(_session.chords.items()):
+                context = _session.chord_context.get(name, {})
                 tokens = ", ".join(context.get("tokens", []))
                 scope = context.get("scope", "abstract")
                 suffix = f" ({scope}{f': {tokens}' if tokens else ''})"

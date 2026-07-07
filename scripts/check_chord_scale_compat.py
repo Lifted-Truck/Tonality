@@ -21,7 +21,10 @@ from mts.core.quality import ChordQuality
 from mts.core.scale import Scale
 from mts.core.enharmonics import pc_from_name
 from mts.analysis import chord_brief
-from mts.analysis.builders import is_session_chord, SESSION_CHORD_CONTEXT
+from mts.session import SessionCatalog, SESSION_FILE
+
+_session = SessionCatalog()
+_session.load(SESSION_FILE)
 from mts.context import DisplayContext
 from mts.context.formatters import format_pitch_class
 from mts.context.result_format import interval_label
@@ -164,7 +167,7 @@ def _session_chord_summary(quality: ChordQuality) -> str:
         return cached
     brief = chord_brief(quality)
     parts: list[str] = [f"IC {brief.interval_fingerprint}"]
-    context = SESSION_CHORD_CONTEXT.get(quality.name)
+    context = _session.chord_context.get(quality.name)
     if context and context.get("tokens"):
         parts.append(f"Tokens {', '.join(context['tokens'])}")
     if brief.compatible_scales:
@@ -243,7 +246,7 @@ def run_overview(
             roots = compatibility_positions(scale, quality)
             if roots:
                 summary = None
-                if is_session_chord(quality.name):
+                if _session.is_chord(quality.name):
                     summary = _session_chord_summary(quality)
                 root_display = _format_root_positions(
                     roots,
@@ -294,10 +297,10 @@ def run_specific(
     }
     # NB: name the session metadata distinctly so it never shadows ``display``
     # (the parked branch's bug crashed here by reusing the name ``context``).
-    session_context = SESSION_CHORD_CONTEXT.get(quality.name)
+    session_context = _session.chord_context.get(quality.name)
     if session_context:
         result["context"] = session_context
-    if is_session_chord(quality.name):
+    if _session.is_chord(quality.name):
         result["session_summary"] = _session_chord_summary(quality)
     roots = compatibility_positions(scale, quality)
     if roots:

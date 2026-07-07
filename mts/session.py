@@ -4,11 +4,9 @@
 multiple independent ``Workspace`` instances can coexist without
 sharing global registries.
 
-A module-level ``_DEFAULT_SESSION`` is kept for backward compatibility
-with standalone scripts and the CLI.  The ``SESSION_*`` module attributes
-are **aliases to the same dict objects** inside that default session,
-so existing code (scripts, tests) that does ``SESSION_SCALES["x"] = v``
-or ``SESSION_SCALES.clear()`` continues to work transparently.
+There is no module-level default session (RE-6b): every caller owns an
+explicit ``SessionCatalog``. ``load_scales`` / ``load_chord_qualities`` with
+no ``session`` return the base catalog only.
 """
 
 from __future__ import annotations
@@ -21,12 +19,12 @@ import os
 import sys
 from typing import Iterable, Mapping, Sequence, cast
 
-from ..core.bitmask import mask_from_pcs, pcs_from_mask
-from ..core.enharmonics import pc_from_name
-from ..core.pitch import Pitch
-from ..core.scale import Scale
-from ..core.quality import ChordQuality
-from .specs import ChordSpec, ScopeLiteral
+from .core.bitmask import mask_from_pcs, pcs_from_mask
+from .core.enharmonics import pc_from_name
+from .core.pitch import Pitch
+from .core.scale import Scale
+from .core.quality import ChordQuality
+from .notation import ChordSpec, ScopeLiteral
 
 
 # ---------------------------------------------------------------------------
@@ -228,24 +226,13 @@ class SessionCatalog:
 
 
 # ---------------------------------------------------------------------------
-# Module-level default session (backward compat for scripts / CLI)
+# Default session-file location (a convenience path; sessions are owned by
+# callers — there is no module-level default session, RE-6b).
 # ---------------------------------------------------------------------------
 
-DEFAULT_SESSION_PATH = Path(__file__).resolve().parents[2] / ".tonality_session.json"
+DEFAULT_SESSION_PATH = Path(__file__).resolve().parents[1] / ".tonality_session.json"
 SESSION_FILE = Path(os.environ.get("TONALITY_SESSION_FILE", DEFAULT_SESSION_PATH))
 _SAVE_SESSION_ERROR_REPORTED = False
-
-_DEFAULT_SESSION: SessionCatalog = SessionCatalog.empty()
-
-# Backward-compatible module-level aliases.  These reference the *same* dict
-# objects that live inside ``_DEFAULT_SESSION``, so code that does
-# ``SESSION_SCALES["k"] = v`` or ``SESSION_SCALES.clear()`` mutates the
-# default session transparently.
-SESSION_SCALES: dict[str, Scale] = _DEFAULT_SESSION.scales
-SESSION_CHORDS: dict[str, ChordQuality] = _DEFAULT_SESSION.chords
-SESSION_SCALE_CONTEXT: dict[str, dict[str, object]] = _DEFAULT_SESSION.scale_context
-SESSION_CHORD_CONTEXT: dict[str, dict[str, object]] = _DEFAULT_SESSION.chord_context
-SESSION_CHORD_SPECS: dict[str, ChordSpec] = _DEFAULT_SESSION.chord_specs
 
 
 # ---------------------------------------------------------------------------
@@ -418,12 +405,13 @@ def register_scale(
     persist: bool = False,
     session_path: Path | None = None,
 ) -> dict[str, object]:
-    """Register a scale in *session* (defaults to the module-level default session).
-
-    Passing an explicit ``session`` lets each ``Workspace`` maintain independent
-    state without touching the global default.
-    """
-    _session = session if session is not None else _DEFAULT_SESSION
+    """Register a scale in *session* (required — each ``Workspace`` owns one)."""
+    if session is None:
+        raise ValueError(
+            "register_scale requires an explicit session (the module-level "
+            "default was retired, RE-6b). Pass session=SessionCatalog()."
+        )
+    _session = session
     catalog = catalog or {}
     context_payload = _builder_context_payload(builder)
     matches = match_scale(builder.degrees, catalog)
@@ -455,12 +443,13 @@ def register_chord(
     persist: bool = False,
     session_path: Path | None = None,
 ) -> dict[str, object]:
-    """Register a chord quality in *session* (defaults to the module-level default session).
-
-    Passing an explicit ``session`` lets each ``Workspace`` maintain independent
-    state without touching the global default.
-    """
-    _session = session if session is not None else _DEFAULT_SESSION
+    """Register a chord quality in *session* (required — each ``Workspace`` owns one)."""
+    if session is None:
+        raise ValueError(
+            "register_chord requires an explicit session (the module-level "
+            "default was retired, RE-6b). Pass session=SessionCatalog()."
+        )
+    _session = session
     catalog = catalog or {}
     context_payload = _builder_context_payload(builder)
     base_spec = builder.to_spec()
@@ -528,42 +517,18 @@ def mask_from_text(text: str) -> int:
 
 
 # ---------------------------------------------------------------------------
-# Backward-compat module-level helpers (delegate to _DEFAULT_SESSION)
+# Session helpers — the caller owns the session (no module-level default, RE-6b)
 # ---------------------------------------------------------------------------
-
-def is_session_scale(name: str, session: SessionCatalog | None = None) -> bool:
-    """Return True if *name* is registered in *session* (default: module default)."""
-    return (session if session is not None else _DEFAULT_SESSION).is_scale(name)
-
-
-def is_session_chord(name: str, session: SessionCatalog | None = None) -> bool:
-    """Return True if *name* is registered in *session* (default: module default)."""
-    return (session if session is not None else _DEFAULT_SESSION).is_chord(name)
-
 
 def load_session_catalog(
-    path: Path | None = None,
-    session: SessionCatalog | None = None,
+    session: SessionCatalog, path: Path | None = None
 ) -> SessionLoadReport:
-    """Load a session JSON file into *session* (default: module default).
+    """Load a session JSON file into *session*.
 
     Returns the itemized :class:`SessionLoadReport` (RE-3g)."""
-    return (session if session is not None else _DEFAULT_SESSION).load(path or SESSION_FILE)
+    return session.load(path or SESSION_FILE)
 
 
-def save_session_catalog(
-    path: Path | None = None,
-    session: SessionCatalog | None = None,
-) -> None:
-    """Persist *session* to disk (default: module default)."""
-    (session if session is not None else _DEFAULT_SESSION).save(path or SESSION_FILE)
-
-
-# ---------------------------------------------------------------------------
-# Auto-load the default session from disk at import time
-# ---------------------------------------------------------------------------
-
-try:
-    _DEFAULT_SESSION.load(SESSION_FILE)
-except Exception:
-    pass
+def save_session_catalog(session: SessionCatalog, path: Path | None = None) -> None:
+    """Persist *session* to disk."""
+    session.save(path or SESSION_FILE)

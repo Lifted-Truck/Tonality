@@ -10,6 +10,7 @@ from .pcset_math import compatibility_roots as _compatibility_roots
 from ..core.chord import Chord
 from ..core.quality import ChordQuality
 from ..core.scale import Scale
+from ..io.loaders import load_function_mappings, load_scales
 
 
 @dataclass
@@ -35,7 +36,6 @@ class ChordBrief:
 
 def _function_mappings(mode: str) -> list[Any]:
     # The loader is cached now (RE-5b) — the local lru_cache workaround is gone.
-    from ..io.loaders import load_function_mappings
 
     return load_function_mappings(mode)
 
@@ -58,7 +58,6 @@ def chord_brief(
     fingerprint = _format_interval_fingerprint(histogram, limit=3)
 
     if catalog_scales is None:
-        from ..io.loaders import load_scales
 
         scales = load_scales()
     else:

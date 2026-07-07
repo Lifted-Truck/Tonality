@@ -1,6 +1,6 @@
 """Tests for chord-quality aliases (parity with scale aliases)."""
 
-from mts.analysis.specs import parse_chord_spec
+from mts.notation import parse_chord_spec
 from mts.core.quality import ChordQuality
 from mts.io.loaders import load_chord_qualities
 

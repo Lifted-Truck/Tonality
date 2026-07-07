@@ -2,7 +2,7 @@
 
 import pytest
 
-from mts.analysis.specs import from_scope, to_scope
+from mts.notation import from_scope, to_scope
 from mts.core.spec_level import (
     INTERVAL_SHAPE,
     NAMED_CHORD,

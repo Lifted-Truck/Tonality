@@ -1,13 +1,9 @@
 import pytest
 
-from mts.analysis.builders import (
+from mts.session import (
     ManualScaleBuilder,
     ManualChordBuilder,
-    SESSION_SCALES,
-    SESSION_CHORDS,
-    SESSION_SCALE_CONTEXT,
-    SESSION_CHORD_CONTEXT,
-    SESSION_CHORD_SPECS,
+    SessionCatalog,
     register_scale,
     register_chord,
     degrees_from_mask,
@@ -17,6 +13,9 @@ from mts.analysis.builders import (
     load_session_catalog,
     save_session_catalog,
 )
+
+# Each test owns an explicit session (no library default, RE-6b).
+_S = SessionCatalog()
 from mts.analysis import ChordAnalysisRequest, analyze_chord, chord_brief
 from mts.analysis.voicings import suggest_voicings
 from mts.core.chord import Chord
@@ -26,19 +25,10 @@ from mts.io.loaders import load_scales, load_chord_qualities
 
 @pytest.fixture(autouse=True)
 def _clear_sessions():
-    """Ensure session registries do not leak between tests."""
-
-    SESSION_SCALES.clear()
-    SESSION_CHORDS.clear()
-    SESSION_SCALE_CONTEXT.clear()
-    SESSION_CHORD_CONTEXT.clear()
-    SESSION_CHORD_SPECS.clear()
+    """A fresh session per test (no cross-test leakage)."""
+    _S.clear()
     yield
-    SESSION_SCALES.clear()
-    SESSION_CHORDS.clear()
-    SESSION_SCALE_CONTEXT.clear()
-    SESSION_CHORD_CONTEXT.clear()
-    SESSION_CHORD_SPECS.clear()
+    _S.clear()
 
 
 def test_register_scale_matches_catalog():
@@ -46,11 +36,12 @@ def test_register_scale_matches_catalog():
     result = register_scale(
         ManualScaleBuilder(name=None, degrees=[0, 2, 4, 5, 7, 9, 11]),
         catalog=catalog,
+        session=_S,
     )
     assert result["match"], "Expected Ionian scale to match the catalog"
     scale = result["scale"]
     assert scale.name == "Ionian"
-    assert SESSION_SCALES["Ionian"] is scale
+    assert _S.scales["Ionian"] is scale
 
 
 def test_register_scale_placeholder_for_unknown():
@@ -59,13 +50,14 @@ def test_register_scale_placeholder_for_unknown():
     result = register_scale(
         ManualScaleBuilder(name=None, degrees=custom_degrees),
         catalog=catalog,
+        session=_S,
     )
     scale = result["scale"]
     assert not result["match"]
     assert scale.name.startswith("ManualScale-")
     assert sorted(scale.degrees) == sorted(custom_degrees)
-    assert scale.name in SESSION_SCALES
-    assert SESSION_SCALE_CONTEXT[scale.name]["scope"] == "abstract"
+    assert scale.name in _S.scales
+    assert _S.scale_context[scale.name]["scope"] == "abstract"
 
 
 def test_register_scale_with_note_names():
@@ -73,6 +65,7 @@ def test_register_scale_with_note_names():
     result = register_scale(
         ManualScaleBuilder(name="NoteScale", degrees=["C", "E", "G"]),
         catalog=catalog,
+        session=_S,
     )
     scale = result["scale"]
     assert list(scale.degrees) == [0, 4, 7]
@@ -91,7 +84,7 @@ def test_mask_helpers_round_trip():
 def test_register_chord_runs_analysis():
     catalog = load_chord_qualities()
     builder = ManualChordBuilder(name=None, intervals=[0, 1, 4])
-    result = register_chord(builder, catalog=catalog)
+    result = register_chord(builder, catalog=catalog, session=_S)
     quality = result["quality"]
     spec = result["spec"]
     assert not result["match"]
@@ -114,8 +107,8 @@ def test_register_chord_runs_analysis():
     # Voicings are generative (register is chosen, not analyzed).
     voicings = suggest_voicings(chord)
     assert voicings.get("closed") is not None
-    assert quality.name in SESSION_CHORDS
-    assert SESSION_CHORD_CONTEXT[quality.name]["scope"] == "abstract"
+    assert quality.name in _S.chords
+    assert _S.chord_context[quality.name]["scope"] == "abstract"
 
 
 def test_register_chord_with_note_names():
@@ -123,6 +116,7 @@ def test_register_chord_with_note_names():
     result = register_chord(
         ManualChordBuilder(name="NoteChord", intervals=["C", "Eb", "G"]),
         catalog=catalog,
+        session=_S,
     )
     quality = result["quality"]
     spec = result["spec"]
@@ -143,10 +137,10 @@ def test_register_chord_with_absolute_tokens_updates_context():
             Pitch.from_components(pc=4, octave=3),
         ),
     )
-    result = register_chord(builder, catalog={})
+    result = register_chord(builder, catalog={}, session=_S)
     quality = result["quality"]
     spec = result["spec"]
-    context = SESSION_CHORD_CONTEXT[quality.name]
+    context = _S.chord_context[quality.name]
     assert context["scope"] == "absolute"
     assert context["tokens"] == ["C3", "Db3", "E3"]
     assert context["absolute_midi"] == [48, 49, 52]
@@ -172,13 +166,16 @@ def test_match_helpers_deduplicate_results():
 def test_loaders_include_session_objects():
     custom_scale = register_scale(
         ManualScaleBuilder(name="CustomScale", degrees=[0, 2, 5, 6, 9]),
+        session=_S,
     )["scale"]
     custom_chord = register_chord(
         ManualChordBuilder(name="CustomChord", intervals=[0, 2, 5, 9]),
+        session=_S,
     )["quality"]
 
-    all_scales = load_scales()
-    all_chords = load_chord_qualities()
+    # RE-6b: to see session objects you pass the session (no library default).
+    all_scales = load_scales(session=_S)
+    all_chords = load_chord_qualities(session=_S)
 
     assert custom_scale.name in all_scales
     assert custom_chord.name in all_chords
@@ -188,23 +185,25 @@ def test_session_persistence_round_trip(tmp_path):
     session_path = tmp_path / "session.json"
     register_scale(
         ManualScaleBuilder(name="PersistScale", degrees=[0, 3, 6]),
+        session=_S,
         persist=True,
         session_path=session_path,
     )
     register_chord(
         ManualChordBuilder(name="PersistChord", intervals=[0, 2, 7]),
+        session=_S,
         persist=True,
         session_path=session_path,
     )
     assert session_path.exists()
 
-    SESSION_SCALES.clear()
-    SESSION_CHORDS.clear()
-    load_session_catalog(session_path)
-    assert "PersistScale" in SESSION_SCALES
-    assert "PersistChord" in SESSION_CHORDS
-    assert SESSION_SCALE_CONTEXT["PersistScale"]["scope"] == "abstract"
-    assert SESSION_CHORD_CONTEXT["PersistChord"]["scope"] == "abstract"
+    _S.scales.clear()
+    _S.chords.clear()
+    load_session_catalog(_S, session_path)
+    assert "PersistScale" in _S.scales
+    assert "PersistChord" in _S.chords
+    assert _S.scale_context["PersistScale"]["scope"] == "abstract"
+    assert _S.chord_context["PersistChord"]["scope"] == "abstract"
 
 
 def test_chord_brief_contains_expected_components():
@@ -219,7 +218,6 @@ def test_chord_brief_contains_expected_components():
 
 
 def test_corrupt_session_file_is_reported_not_swallowed(tmp_path):
-    from mts.analysis.builders import SessionCatalog
 
     path = tmp_path / "corrupt.json"
     path.write_text("{not json", encoding="utf-8")
@@ -232,7 +230,6 @@ def test_corrupt_session_file_is_reported_not_swallowed(tmp_path):
 def test_bad_entries_are_itemized_and_good_ones_still_load(tmp_path):
     import json as _json
 
-    from mts.analysis.builders import SessionCatalog
 
     path = tmp_path / "session.json"
     path.write_text(_json.dumps({
@@ -255,7 +252,6 @@ def test_bad_entries_are_itemized_and_good_ones_still_load(tmp_path):
 
 
 def test_missing_session_file_is_a_clean_empty_report(tmp_path):
-    from mts.analysis.builders import SessionCatalog
 
     report = SessionCatalog().load(tmp_path / "absent.json")
     assert report.file_found is False and report.file_error is None
