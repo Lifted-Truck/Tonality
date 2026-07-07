@@ -552,7 +552,7 @@ class RankedInterpretation:
 
     interpretation: ChordInterpretation
     score: float
-    rank: int
+    rank: int  # 1-based ordinal: rank 1 is the best-scoring naming (RE-6d)
     functional_role: str | None = None    # "tonic" | "predominant" | "dominant"
     root_degree: int | None = None        # 0-based degree of the root in the key
     function_category: str | None = None  # special-function flag (aug6, V/x, ...)
@@ -713,7 +713,7 @@ class NextChordCandidate:
     modal_label: str | None   # roman label (functional, not spelling); None if out of vocabulary
     role: str | None          # "tonic" | "predominant" | "dominant" | None
     score: float
-    rank: int
+    rank: int  # 1-based ordinal: rank 1 is the top recommendation (RE-6d)
     tags: tuple[str, ...]
     vl_distance: int
     common_tones: int

@@ -3014,7 +3014,7 @@
        "quality": "maj6",
        "root_pc": 0
       },
-      "rank": 1,
+      "rank": 2,
       "root_degree": 2,
       "score": 2.25
      }
@@ -3058,7 +3058,7 @@
       "quality": "min7",
       "root_pc": 9
      },
-     "rank": 0,
+     "rank": 1,
      "root_degree": 0,
      "score": 5.75
     },
@@ -4370,7 +4370,7 @@
        "quality": "min7",
        "root_pc": 9
       },
-      "rank": 0,
+      "rank": 1,
       "root_degree": null,
       "score": 4.25
      },
@@ -4399,7 +4399,7 @@
        "quality": "maj6",
        "root_pc": 0
       },
-      "rank": 1,
+      "rank": 2,
       "root_degree": null,
       "score": 3.6594044913918395
      }
@@ -4449,7 +4449,7 @@
           "quality": "min7",
           "root_pc": 9
          },
-         "rank": 1,
+         "rank": 2,
          "root_degree": 5,
          "score": 4.25
         }
@@ -4484,7 +4484,7 @@
          "quality": "maj6",
          "root_pc": 0
         },
-        "rank": 0,
+        "rank": 1,
         "root_degree": 0,
         "score": 4.25
        },
@@ -4540,7 +4540,7 @@
           "quality": "maj6",
           "root_pc": 0
          },
-         "rank": 1,
+         "rank": 2,
          "root_degree": 4,
          "score": 2.25
         }
@@ -4579,7 +4579,7 @@
          "quality": "min7",
          "root_pc": 9
         },
-        "rank": 0,
+        "rank": 1,
         "root_degree": 2,
         "score": 4.25
        },
@@ -4644,7 +4644,7 @@
           "quality": "min7",
           "root_pc": 9
          },
-         "rank": 1,
+         "rank": 2,
          "root_degree": 1,
          "score": 4.25
         }
@@ -4679,7 +4679,7 @@
          "quality": "maj6",
          "root_pc": 0
         },
-        "rank": 0,
+        "rank": 1,
         "root_degree": 3,
         "score": 4.25
        },
@@ -15448,7 +15448,7 @@
            "quality": "maj",
            "root_pc": 0
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 0,
           "score": 5.75
          },
@@ -15611,7 +15611,7 @@
            "quality": "maj",
            "root_pc": 5
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 3,
           "score": 5.75
          },
@@ -15774,7 +15774,7 @@
            "quality": "maj",
            "root_pc": 7
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 4,
           "score": 5.75
          },
@@ -15937,7 +15937,7 @@
            "quality": "maj",
            "root_pc": 0
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 0,
           "score": 5.75
          },
@@ -16100,7 +16100,7 @@
            "quality": "maj",
            "root_pc": 5
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 3,
           "score": 5.75
          },
@@ -16263,7 +16263,7 @@
            "quality": "maj",
            "root_pc": 7
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 4,
           "score": 5.75
          },
@@ -16426,7 +16426,7 @@
            "quality": "maj",
            "root_pc": 0
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 3,
           "score": 5.75
          },
@@ -16589,7 +16589,7 @@
            "quality": "maj",
            "root_pc": 2
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 4,
           "score": 5.75
          },
@@ -16752,7 +16752,7 @@
            "quality": "maj",
            "root_pc": 7
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 0,
           "score": 5.75
          },
@@ -16915,7 +16915,7 @@
            "quality": "maj",
            "root_pc": 2
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 4,
           "score": 5.75
          },
@@ -17078,7 +17078,7 @@
            "quality": "maj",
            "root_pc": 7
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 0,
           "score": 5.75
          },
@@ -17241,7 +17241,7 @@
            "quality": "maj",
            "root_pc": 2
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 4,
           "score": 5.75
          },
@@ -17404,7 +17404,7 @@
            "quality": "maj",
            "root_pc": 7
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 0,
           "score": 5.75
          },
@@ -17567,7 +17567,7 @@
            "quality": "maj",
            "root_pc": 2
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 4,
           "score": 5.75
          },
@@ -17730,7 +17730,7 @@
            "quality": "maj",
            "root_pc": 7
           },
-          "rank": 0,
+          "rank": 1,
           "root_degree": 0,
           "score": 5.75
          },
