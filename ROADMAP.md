@@ -1622,6 +1622,14 @@ they used. Same input + same prior version → same output.
       the register/orientation-aware `search_voicings` slice. **Next:**
       `search_voicings` (a bounded register enumerator over `suggest_voicings`'
       space) under the same predicate contract.
+      **Pilot consumer (2026-07-07):** **A9 Wend** invited to pilot
+      `search_identities` against its `pivots_between` / `tonicization_targets`
+      seams (identity-level constraint queries — the nearer-term half of its
+      gap-17/Phase-7 needs); notice
+      `integrations/wend/notice-search-identities.md`. Two open questions put to
+      it: field-vocabulary fit (df1..df6 / rooted `contains_at` / catalog
+      filtering on demand) and whether Decision 12's set-class default should
+      flip to rooted for a rooted-material consumer — awaiting its ack/brief-2.
 
 ### Phase 4.5 — Contextual & statistical interpretation (corpus-driven)
 The intelligence payoff: move from *enumerating* interpretations to *weighing* them
