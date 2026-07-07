@@ -1159,18 +1159,23 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     ρ=1 limit); pool each run's liked spans into one pseudo-piece so
     `pieces = runs`, restoring independence, and read every piece floor
     (`min_support_pieces`, `exploratory_floor_pieces`) against **runs**, not
-    spans. Recipe answer, no engine work. **(2) Field-manifest export
-    (sub-item, open):** `rules.schema.FAMILIES` already carries the per-family
-    field/kind/vocab manifest; a sanctioned `ruleset_field_manifest()` versioned
-    export (~20 lines) is offered so consumers bind to a contract, not the
-    internal dict — ships on request. **(3) Firing-location extraction
-    (contingent slice):** `evaluate_ruleset` emits violations-with-locations but
-    not located positive firings; the "considered-and-held" complement is the
-    clean addition wont's saliency layer would need — build when pulled. **(4)
-    Boundary ruling:** satisfaction labels stay wont-schema, engine records
-    embedded by reference — no sanctioned satisfaction side-car in Tonality's
-    interchange vocabulary (satisfaction is consumer-side aggregation, the
-    AI/deterministic boundary). Still not scheduled (recipes unblock wont today).
+    spans. Recipe answer, no engine work. **(2) Field-manifest export —
+    DELIVERED (2026-07-07):** `ruleset_field_manifest()` (rules + MCP tool), a
+    versioned (`ruleset-fields.1`) machine-readable enumeration of every family's
+    where/check fields (kind, closed vocab, harmony-dependence) + ops +
+    polarities, pinned by `test_manifest_is_current_with_FAMILIES` so a
+    vocabulary change can't silently drift the contract. **(3) Firing-location
+    extraction — DELIVERED (2026-07-07):** `evaluate(..., include_firings=True)`
+    → each applicable `RuleResult.firings` carries the located *considered-and-
+    held* items (the positive complement to violations;
+    `considered == firings + violations`). Opt-in, `None` when not requested and
+    the key is omitted from `to_dict` — so default output stays byte-identical
+    (golden/port surface unchanged for existing callers). **(4) Boundary
+    ruling:** satisfaction labels stay wont-schema, engine records embedded by
+    reference — no sanctioned satisfaction side-car in Tonality's interchange
+    vocabulary (satisfaction is consumer-side aggregation, the AI/deterministic
+    boundary). Graded sample-weights on induction remain the one open contingent
+    engine slice; the v1 recipes + these two exports unblock wont fully.
 21. **Rhythmic constraint search** (added 2026-07-07, prompted by Julian —
     assessment artifact `docs/reviews/2026-07_rhythm-search-assessment.html`).
     Not an analogy — the identity layer's own mathematics on a circle of time:

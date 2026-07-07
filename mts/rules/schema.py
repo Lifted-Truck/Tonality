@@ -316,6 +316,48 @@ def parse_ruleset(payload: object) -> Ruleset:
     )
 
 
+# Manifest schema version — bump when the DSL field vocabulary changes (a new
+# family, field, operator, or enum value). `test_field_manifest_is_current`
+# pins the manifest so any FAMILIES edit that forgets this bump fails loudly.
+FIELD_MANIFEST_VERSION = "ruleset-fields.1"
+
+
+def ruleset_field_manifest() -> dict:
+    """Machine-readable manifest of the ruleset DSL's field vocabulary.
+
+    A versioned, JSON-serializable enumeration of the legal ``where`` / check
+    fields per atom family — each field's ``kind``, its closed ``values``
+    vocabulary (when it is an enum, else ``None``), and whether it is
+    ``harmony_dependent`` (needs caller-supplied harmony spans). This is the
+    *same* data the strict validator enforces (:data:`FAMILIES` +
+    :data:`HARMONY_DEPENDENT_FIELDS`), exposed as a stable contract so a consumer
+    (e.g. an induction/learning client mapping its scopes to families) can
+    validate its field usage ahead of time and stay correct as the vocabulary
+    grows — rather than importing the internal dict. Also names the condition
+    operators and rule polarities so the whole DSL surface is self-describing.
+    """
+
+    return {
+        "manifest_version": FIELD_MANIFEST_VERSION,
+        "condition_ops": list(_CONDITION_OPS) + ["eq"],
+        "polarities": ["hard", "soft"],
+        "families": {
+            family: {
+                "fields": {
+                    name: {
+                        "kind": spec.kind,
+                        "values": list(spec.values) if spec.values is not None else None,
+                        "harmony_dependent": name
+                        in HARMONY_DEPENDENT_FIELDS.get(family, set()),
+                    }
+                    for name, spec in fields.items()
+                }
+            }
+            for family, fields in FAMILIES.items()
+        },
+    }
+
+
 def _condition_to_payload(condition: Condition) -> object:
     """The JSON form of one condition's value (inverse of ``_parse_conditions``)."""
 
@@ -357,6 +399,7 @@ def ruleset_to_payload(ruleset: Ruleset) -> dict:
 __all__ = [
     "FAMILIES",
     "HARMONY_DEPENDENT_FIELDS",
+    "FIELD_MANIFEST_VERSION",
     "Condition",
     "FieldSpec",
     "Rule",
@@ -364,6 +407,7 @@ __all__ = [
     "RulesetValidationError",
     "parse_ruleset",
     "validation_errors",
+    "ruleset_field_manifest",
     "rule_to_payload",
     "ruleset_to_payload",
 ]
