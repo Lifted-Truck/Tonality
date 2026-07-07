@@ -1,0 +1,336 @@
+<style>
+  :root {
+    --paper: #f3f4f6;
+    --card: #ffffff;
+    --ink: #171b21;
+    --slate: #5a646f;
+    --faint: #8b939c;
+    --hair: #e0e3e6;
+    --indigo: #3b49c0;
+    --indigo-soft: #eceef9;
+    --amber: #9c6a12;
+    --amber-soft: #f7efdd;
+    --green: #2c724f;
+    --green-soft: #e5f0ea;
+    --red: #ac3644;
+    --red-soft: #f6e6e8;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  .wrap {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 20px 72px;
+  }
+  .col { max-width: 800px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase;
+    color: var(--slate); font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 40px); line-height: 1.08; letter-spacing: -0.02em;
+    margin: 12px 0 10px; text-wrap: balance; font-weight: 700;
+  }
+  .standfirst { font-size: 17px; color: var(--slate); max-width: 62ch; margin: 0; }
+
+  /* progress rail */
+  .rail { display: flex; gap: 6px; margin: 26px 0 6px; flex-wrap: wrap; }
+  .step {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 600;
+    padding: 5px 10px; border-radius: 5px; letter-spacing: 0.02em;
+    border: 1px solid var(--hair); background: var(--card); color: var(--faint);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .step.done { color: var(--green); border-color: var(--green-soft); background: var(--green-soft); }
+  .step.now  { color: var(--indigo); border-color: #cfd4f2; background: var(--indigo-soft); }
+  .step .tick { font-size: 10px; }
+  .railnote { font-size: 12.5px; color: var(--faint); font-family: var(--mono); margin: 2px 0 0; }
+
+  hr.rule { border: none; border-top: 1px solid var(--hair); margin: 40px 0; }
+
+  /* decision card */
+  .card {
+    background: var(--card); border: 1px solid var(--hair); border-radius: 12px;
+    padding: 26px 28px 28px; margin: 22px 0;
+  }
+  .cardhead { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+  .num { font-family: var(--mono); font-size: 13px; color: var(--faint); font-weight: 600; }
+  .chip {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 4px; white-space: nowrap;
+  }
+  .chip.amber { background: var(--amber-soft); color: var(--amber); }
+  .chip.green { background: var(--green-soft); color: var(--green); }
+  .chip.indigo { background: var(--indigo-soft); color: var(--indigo); }
+  .chip.red { background: var(--red-soft); color: var(--red); }
+  h2 { font-size: 21px; letter-spacing: -0.01em; margin: 8px 0 4px; font-weight: 680; }
+  .q { font-size: 15.5px; color: var(--slate); margin: 0 0 18px; max-width: 64ch; }
+  .q b { color: var(--ink); font-weight: 620; }
+
+  p { margin: 0 0 12px; }
+  .body { font-size: 15px; }
+  .body b { font-weight: 620; }
+  code { font-family: var(--mono); font-size: 0.88em; background: #f0f1f4; padding: 1px 5px; border-radius: 4px; }
+
+  /* comparison table */
+  .tbl-scroll { overflow-x: auto; margin: 4px 0 18px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--hair); }
+  thead th {
+    font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--slate); font-weight: 600; border-bottom: 1px solid var(--ink);
+  }
+  td.num-col, th.num-col { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: center; width: 78px; }
+  .rank0 { color: var(--red); font-weight: 700; }
+  .rank1 { color: var(--green); font-weight: 700; }
+  tbody td:first-child { color: var(--ink); }
+
+  /* code before/after */
+  .codepair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 6px 0 16px; }
+  @media (max-width: 620px){ .codepair { grid-template-columns: 1fr; } .split { grid-template-columns: 1fr !important; } }
+  pre {
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.5; margin: 0;
+    background: #14181e; color: #d6dbe2; border-radius: 8px; padding: 14px 16px; overflow-x: auto;
+  }
+  pre .lbl { color: #7d8797; display: block; margin-bottom: 6px; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+  pre .del { color: #e08a94; }
+  pre .add { color: #86cfa6; }
+  pre .same { color: #d6dbe2; }
+  pre .dim { color: #6b7480; }
+
+  /* split boxes (trade-off) */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0 6px; }
+  .box { border: 1px solid var(--hair); border-radius: 9px; padding: 14px 16px; background: #fbfbfc; }
+  .box h4 { margin: 0 0 8px; font-size: 12.5px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em; }
+  .box.pro h4 { color: var(--green); }
+  .box.con h4 { color: var(--red); }
+  .box ul { margin: 0; padding-left: 18px; font-size: 14px; color: var(--slate); }
+  .box li { margin: 5px 0; }
+  .box li b { color: var(--ink); font-weight: 620; }
+
+  /* recommendation */
+  .rec {
+    display: flex; gap: 12px; align-items: flex-start; margin-top: 18px;
+    background: var(--indigo-soft); border: 1px solid #cfd4f2; border-radius: 9px; padding: 14px 16px;
+  }
+  .rec .tag {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--indigo); background: #fff; border: 1px solid #cfd4f2; border-radius: 4px; padding: 3px 8px; white-space: nowrap; margin-top: 1px;
+  }
+  .rec p { margin: 0; font-size: 14.5px; color: #2b3350; }
+  .rec p b { color: var(--indigo); font-weight: 680; }
+
+  /* diagram */
+  .diagram { margin: 8px 0 18px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .caption { font-size: 12.5px; color: var(--faint); font-family: var(--mono); margin: 6px 2px 0; }
+
+  .footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--hair); }
+  .footer p { font-size: 13.5px; color: var(--slate); }
+  .footer b { color: var(--ink); }
+</style>
+
+<div class="wrap"><div class="col">
+
+  <div class="eyebrow">Tonality · Rigor &amp; Efficiency review</div>
+  <h1>Three decisions to close out RE-6</h1>
+  <p class="standfirst">The review is one workstream from done. Most of RE-6 landed as pure cleanup — but three items ask a question rather than answer one. Here's each, with the trade-off and a recommendation, so you can decide without reading the diff.</p>
+
+  <div class="rail">
+    <span class="step done"><span class="tick">✓</span>RE-1 packaging</span>
+    <span class="step done"><span class="tick">✓</span>RE-2 wrong-output</span>
+    <span class="step done"><span class="tick">✓</span>RE-3 silent-loss</span>
+    <span class="step done"><span class="tick">✓</span>RE-4 MCP surface</span>
+    <span class="step done"><span class="tick">✓</span>RE-5 efficiency</span>
+    <span class="step now">RE-6 cleanup · PR #144 open</span>
+  </div>
+  <p class="railnote">#144 carries RE-6 a / c / e + the safe half of d — goldens &amp; port pin untouched, 706 tests green.</p>
+
+  <hr class="rule" />
+
+  <!-- DECISION 1 -->
+  <div class="card">
+    <div class="cardhead">
+      <span class="num">01</span>
+      <span class="chip red">Consumer-visible · needs your call</span>
+      <span class="chip amber">changes goldens</span>
+    </div>
+    <h2>Rank base: 0-based or 1-based?</h2>
+    <p class="q">The <code>rank</code> field is emitted <b>0-based by naming</b> (<code>rank = i</code>) and <b>1-based by succession</b> (<code>rank = i+1</code>). Same concept, two conventions, both visible in results consumers read. Pick one.</p>
+
+    <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Ranked candidate (a G-major "next chord")</th>
+          <th class="num-col">naming today</th>
+          <th class="num-col">succession today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>C major — the tonic resolution</td><td class="num-col rank0">0</td><td class="num-col rank1">1</td></tr>
+        <tr><td>E minor — deceptive</td><td class="num-col rank0">1</td><td class="num-col rank1">2</td></tr>
+        <tr><td>A minor — predominant return</td><td class="num-col rank0">2</td><td class="num-col rank1">3</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="split">
+      <div class="box pro">
+        <h4>Option A — 1-based everywhere</h4>
+        <ul>
+          <li>A rank emitted to a consumer is an <b>ordinal</b> — "1st, 2nd, 3rd" — not an array index. 0-based reads as an implementation leak.</li>
+          <li>Flip <b>naming</b> to match succession: touches <b>~25 golden fields</b> (name_pcs, dataset namings).</li>
+          <li>next_chord (71 rank fields, Wend's surface) stays put.</li>
+        </ul>
+      </div>
+      <div class="box con">
+        <h4>Option B — 0-based everywhere</h4>
+        <ul>
+          <li>Matches Python indexing; <code>candidates[rank]</code> just works.</li>
+          <li>Flip <b>succession</b>: touches <b>71 golden fields</b> — the larger diff.</li>
+          <li>Reframes "rank 1 = best" as "rank 0 = best" on the recommendation surface.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="body" style="font-size:14px;color:var(--slate);margin-top:14px;">Either way: regenerate the two affected goldens in the fix PR, and file a one-line courtesy notice. <b>No consumer has pinned a base in any notice</b>, so this breaks no standing contract — it's tidiness, not a migration.</p>
+
+    <div class="rec">
+      <span class="tag">Recommend</span>
+      <p><b>1-based everywhere</b> — ordinal semantics, and the smaller blast radius (~25 vs 71 golden fields, and it leaves Wend's next_chord surface unchanged).</p>
+    </div>
+  </div>
+
+  <!-- DECISION 2 -->
+  <div class="card">
+    <div class="cardhead">
+      <span class="num">02</span>
+      <span class="chip green">Zero output change</span>
+      <span class="chip amber">~40 mechanical edits</span>
+    </div>
+    <h2>Frozen result dataclasses: <code>list</code> → <code>tuple</code> fields?</h2>
+    <p class="q">16 frozen result dataclasses in <code>temporal/</code> hold <b>mutable list fields</b> (where <code>StructuralKeyResult</code> already uses tuples). The doctrine says core objects are frozen <i>and</i> hashable — a frozen class with a list field is neither. But the wire output is identical.</p>
+
+    <div class="codepair">
+      <pre><span class="lbl">The change</span><span class="dim"># temporal/voice_motion.py</span>
+<span class="del">- transitions: list[VoicePairMotion]</span>
+<span class="add">+ transitions: tuple[VoicePairMotion, ...]</span>
+<span class="dim"># ...×16 fields, + tuple() at</span>
+<span class="dim"># each construction site</span></pre>
+      <pre><span class="lbl">to_dict() / JSON — unchanged</span><span class="same">{"transitions": [</span>
+<span class="same">  {"motion": "parallel", ...}</span>
+<span class="same">]}</span>
+<span class="dim"># tuples serialize as JSON</span>
+<span class="dim"># arrays — byte-identical.</span>
+<span class="dim"># goldens don't move.</span></pre>
+    </div>
+
+    <div class="split">
+      <div class="box pro">
+        <h4>What it buys</h4>
+        <ul>
+          <li>Results become <b>truly immutable + hashable</b> — matches the doctrine and <code>StructuralKeyResult</code>.</li>
+          <li>Removes a real "frozen but mutable" inconsistency the review flagged.</li>
+        </ul>
+      </div>
+      <div class="box con">
+        <h4>What it costs</h4>
+        <ul>
+          <li><b>~40 edits</b>: 16 fields + construction sites + ~10 test assertions that compare against <code>[list]</code> literals.</li>
+          <li>No functional or output effect — these results are never used as dict keys or in sets today.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rec">
+      <span class="tag">Recommend</span>
+      <p><b>Skip for now</b> unless you want the doctrine-purity on record. It's genuinely cosmetic — I'd rather not spend the churn without your go-ahead. One word and I'll do it cleanly.</p>
+    </div>
+  </div>
+
+  <!-- DECISION 3 -->
+  <div class="card">
+    <div class="cardhead">
+      <span class="num">03</span>
+      <span class="chip indigo">Architectural · own PR</span>
+      <span class="chip green">real value</span>
+    </div>
+    <h2>RE-6b — untangle the session / import cycle. Now, or after #144?</h2>
+    <p class="q">The one RE-6 item with teeth. <code>analysis/builders.py</code> holds a <b>module-level mutable registry</b> (<code>_DEFAULT_SESSION</code>) with import-time disk I/O, and it creates an <code>io ↔ analysis</code> import cycle papered over by <b>~24 lazy imports across 10 analysis modules</b>.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Import cycle and session-leak diagram">
+        <defs>
+          <marker id="arw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#5a646f"/>
+          </marker>
+          <marker id="arwR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#ac3644"/>
+          </marker>
+        </defs>
+
+        <!-- the cycle -->
+        <text x="12" y="20" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#8b939c" letter-spacing="0.06em">THE CYCLE — TODAY</text>
+
+        <rect x="14" y="36" width="200" height="60" rx="9" fill="#fff" stroke="#e0e3e6"/>
+        <text x="30" y="62" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#171b21" font-weight="600">analysis/ (10 modules)</text>
+        <text x="30" y="80" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#8b939c">naming, cadence, succession…</text>
+
+        <rect x="300" y="36" width="200" height="60" rx="9" fill="#fff" stroke="#e0e3e6"/>
+        <text x="316" y="62" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#171b21" font-weight="600">io/loaders.py</text>
+        <text x="316" y="80" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#8b939c">load_scales / _qualities</text>
+
+        <rect x="546" y="36" width="200" height="60" rx="9" fill="#fff" stroke="#e0e3e6"/>
+        <text x="562" y="62" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#171b21" font-weight="600">analysis/builders.py</text>
+        <text x="562" y="80" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#8b939c">SessionCatalog</text>
+
+        <!-- arrows forming the cycle -->
+        <line x1="214" y1="58" x2="298" y2="58" stroke="#5a646f" stroke-width="1.6" marker-end="url(#arw)"/>
+        <text x="230" y="50" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#9c6a12">lazy import ×24</text>
+        <line x1="500" y1="58" x2="544" y2="58" stroke="#5a646f" stroke-width="1.6" marker-end="url(#arw)"/>
+        <text x="500" y="50" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#5a646f">imports</text>
+        <!-- back edge -->
+        <path d="M646,96 L646,120 L114,120 L114,98" fill="none" stroke="#5a646f" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arw)"/>
+        <text x="300" y="115" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#5a646f">imports back → the cycle</text>
+
+        <!-- the leak -->
+        <text x="12" y="168" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#8b939c" letter-spacing="0.06em">THE LEAK — WHY IT MATTERS</text>
+        <rect x="14" y="182" width="230" height="52" rx="9" fill="#f6e6e8" stroke="#e6c7cc"/>
+        <text x="30" y="204" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#ac3644" font-weight="600">register_scale(...)</text>
+        <text x="30" y="222" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#ac3644">writes _DEFAULT_SESSION</text>
+
+        <line x1="244" y1="208" x2="330" y2="208" stroke="#ac3644" stroke-width="1.6" marker-end="url(#arwR)"/>
+
+        <rect x="332" y="182" width="230" height="52" rx="9" fill="#fff" stroke="#e0e3e6"/>
+        <text x="348" y="204" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#171b21" font-weight="600">load_scales(session=None)</text>
+        <text x="348" y="222" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#8b939c">merges the module default</text>
+
+        <line x1="562" y1="208" x2="648" y2="208" stroke="#ac3644" stroke-width="1.6" marker-end="url(#arwR)"/>
+
+        <rect x="650" y="182" width="96" height="52" rx="9" fill="#f6e6e8" stroke="#e6c7cc"/>
+        <text x="666" y="204" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#ac3644" font-weight="600">every MCP</text>
+        <text x="666" y="222" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#ac3644" font-weight="600">call sees it</text>
+      </svg>
+    </div>
+    <p class="caption">A registration in one request bleeds into every later call of a long-lived server — the one consumer where session isolation matters most.</p>
+
+    <p class="body">The fix — move <code>SessionCatalog</code> below <code>io/</code> — kills the module-level mutable state <i>and</i> lets the ~24 lazy imports become normal top-of-file imports. Real architectural value, but it touches ten modules, so it's correctly its own PR.</p>
+
+    <div class="rec">
+      <span class="tag">Recommend</span>
+      <p><b>Hold until #144 is reviewed</b>, then I take it as a dedicated PR. It's the riskiest change in the review; I'd rather land it clean against a settled main than stack it on an open cleanup branch.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p><b>On the pattern going forward.</b> This is the shape I'll use whenever a choice is genuinely yours: a short visual brief that states the question, shows the trade-off in the material itself — a table, a diff, a diagram — and gives a recommendation, so you can decide from the summary and dive into code only if you want to. I'll follow it with the crisp multiple-choice so your answer is one click.</p>
+  </div>
+
+</div></div>

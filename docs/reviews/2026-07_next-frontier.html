@@ -1,0 +1,154 @@
+<title>Tonality — Next Frontier</title>
+<style>
+  :root{
+    --paper:#f4f2ec; --paper-2:#eceae2; --ink:#1b1d22; --ink-soft:#4a4e57;
+    --line:#d7d3c8; --indigo:#3a3d8f; --indigo-soft:#5c60b8; --indigo-wash:#e9e9f4;
+    --gold:#a8792c; --green:#3f7d5a; --rule:#c9c4b6;
+    --mono:'SFMono-Regular',ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:940px;margin:0 auto;padding:56px 32px 72px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--indigo);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:40px;line-height:1.08;margin:0 0 10px;
+    letter-spacing:-.01em;text-wrap:balance}
+  .lede{font-size:16px;color:var(--ink-soft);max-width:64ch;margin:0 0 34px}
+  .lede b{color:var(--ink);font-weight:600}
+
+  /* phase rail */
+  .rail-label{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-soft);margin:0 0 12px}
+  .rail{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 44px;align-items:stretch}
+  .ph{border:1px solid var(--line);border-radius:7px;background:#fbfaf6;padding:9px 11px;
+    min-width:82px;flex:1 1 auto}
+  .ph .n{font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
+  .ph .t{font-size:12.5px;font-weight:600;margin-top:2px;line-height:1.25}
+  .ph .s{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+  .ph.done{background:var(--paper-2);border-color:var(--rule)}
+  .ph.done .s{color:var(--green)}
+  .ph.done .t,.ph.done .n{color:var(--ink-soft)}
+  .ph.partial .s{color:var(--gold)}
+  .ph.open{border-color:var(--indigo-soft);box-shadow:0 0 0 1px var(--indigo-wash) inset}
+  .ph.open .s{color:var(--indigo)}
+
+  h2{font-family:var(--serif);font-weight:600;font-size:24px;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 26px}
+
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:680px){.cards{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:11px;background:#fbfaf6;padding:20px 20px 18px;
+    display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .card.rec{border-color:var(--indigo);box-shadow:0 1px 0 var(--indigo-wash),0 0 0 3px var(--indigo-wash)}
+  .card .tag{position:absolute;top:0;right:0;font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.16em;text-transform:uppercase;background:var(--indigo);color:#fff;
+    padding:4px 9px;border-bottom-left-radius:8px}
+  .card .ph-id{font-family:var(--mono);font-size:11px;color:var(--indigo);letter-spacing:.08em}
+  .card h3{font-family:var(--serif);font-size:19px;font-weight:600;margin:5px 0 8px;line-height:1.15}
+  .card p{font-size:13.5px;color:var(--ink-soft);margin:0 0 14px}
+  .card p b{color:var(--ink);font-weight:600}
+  .meta{margin-top:auto;border-top:1px solid var(--line);padding-top:12px;display:grid;gap:7px}
+  .meta .row{display:flex;gap:10px;font-size:12px}
+  .meta .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-soft);flex:0 0 76px;padding-top:1px}
+  .meta .v{color:var(--ink)}
+  .chip{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:20px;
+    border:1px solid var(--line);color:var(--ink-soft);background:#fff}
+  .chip.hi{color:var(--indigo);border-color:var(--indigo-soft);background:var(--indigo-wash)}
+  .chip.lift-lo{color:var(--green);border-color:#bcd6c7}
+  .chip.lift-hi{color:var(--gold);border-color:#e2d0ab}
+
+  .note{margin-top:38px;border-left:3px solid var(--indigo);background:var(--indigo-wash);
+    padding:16px 20px;border-radius:0 8px 8px 0}
+  .note h4{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--indigo);margin:0 0 8px}
+  .note p{margin:0;font-size:13.5px;color:var(--ink)}
+  .note code{font-family:var(--mono);font-size:12px;background:#fff;border:1px solid var(--line);
+    padding:1px 5px;border-radius:4px}
+  .foot{margin-top:34px;font-size:12px;color:var(--ink-soft);font-family:var(--mono);letter-spacing:.04em}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Tonality · direction review · 2026-07-07</p>
+  <h1>The review is closed. Where does the engine grow next?</h1>
+  <p class="lede">RE-1 → RE-6 have all landed — the library is packaged, the outputs
+    are correct, the MCP surface is unified, and the last import cycle is gone.
+    <b>Four build frontiers are genuinely open.</b> Below: where we stand, then the
+    four moves — pick one and I'll scope it.</p>
+
+  <p class="rail-label">Build sequence — status at a glance</p>
+  <div class="rail">
+    <div class="ph done"><div class="n">0–1.5</div><div class="t">Identity model & vocabulary</div><div class="s">Done</div></div>
+    <div class="ph done"><div class="n">2</div><div class="t">Temporal layer</div><div class="s">Done</div></div>
+    <div class="ph done"><div class="n">3–3.5</div><div class="t">Dataset & key induction</div><div class="s">Done</div></div>
+    <div class="ph partial"><div class="n">4</div><div class="t">MCP endpoint · 54 tools</div><div class="s">Core shipped</div></div>
+    <div class="ph open"><div class="n">4·search</div><div class="t">Constraint / inverse</div><div class="s">Unbuilt</div></div>
+    <div class="ph open"><div class="n">4.5</div><div class="t">Corpus statistics</div><div class="s">Open</div></div>
+    <div class="ph partial"><div class="n">4.6</div><div class="t">Rulesets · engine live</div><div class="s">Libraries open</div></div>
+    <div class="ph partial"><div class="n">5</div><div class="t">Representation · 9 views</div><div class="s">Schema open</div></div>
+  </div>
+
+  <h2>Four moves</h2>
+  <p class="sub">Each is self-contained enough to ship as its own arc. Cost is rough effort; leverage is toward the North Star (agent-facing dataset foundation).</p>
+
+  <div class="cards">
+    <!-- A -->
+    <div class="card rec">
+      <span class="tag">Recommended</span>
+      <span class="ph-id">Phase 4 · constraint search</span>
+      <h3>Inverse analysis: query the identity universe</h3>
+      <p><code style="font-family:var(--mono);font-size:12px">search_identities()</code> / <code style="font-family:var(--mono);font-size:12px">search_voicings()</code> — exact queries over the 4096-identity space and voicing spaces. <b>"All 7-note scales containing this tetrachord with no consecutive semitones"; "all Cmaj9 voicings under 19 semitones with no ♭9 on the bass."</b> The marquee agent tool, and the one new <i>capability class</i> vs. polish.</p>
+      <div class="meta">
+        <div class="row"><span class="k">Why now</span><span class="v">Substrate (3.5a tables) is already built; substrate accrues nothing new by waiting</span></div>
+        <div class="row"><span class="k">Cost</span><span class="v"><span class="chip lift-lo">focused</span> greenfield, well-fenced</span></div>
+        <div class="row"><span class="k">Serves</span><span class="v"><span class="chip hi">North Star ★</span> <span class="chip">generative-side</span></span></div>
+      </div>
+    </div>
+
+    <!-- C -->
+    <div class="card">
+      <span class="ph-id">Phase 4.6 · ruleset libraries</span>
+      <h3>Fill the ruleset vocabulary</h3>
+      <p>Engine is live (schema + evaluator + induction + composition, ~1.4k lines). What's open is <b>content</b>: a named ruleset library, the harmony/progression rule family, and sequential patterns/schemata as first-class objects.</p>
+      <div class="meta">
+        <div class="row"><span class="k">Why now</span><span class="v">Turns a working engine into a usable one; each rule family ships independently</span></div>
+        <div class="row"><span class="k">Cost</span><span class="v"><span class="chip lift-lo">incremental</span> per family</span></div>
+        <div class="row"><span class="k">Serves</span><span class="v"><span class="chip">extract / impose rules</span></span></div>
+      </div>
+    </div>
+
+    <!-- B -->
+    <div class="card">
+      <span class="ph-id">Phase 4.5 · corpus statistics</span>
+      <h3>Weigh interpretations, don't just enumerate</h3>
+      <p>The intelligence payoff: rank competing chord/key/segmentation readings by <b>corpus-learned statistics</b>, surfacing novel readings with evidence. Governed by Decision 7 — ranked, versioned, reproducible.</p>
+      <div class="meta">
+        <div class="row"><span class="k">Why now</span><span class="v">Biggest analytical leap — but needs a corpus + reproducible model first</span></div>
+        <div class="row"><span class="k">Cost</span><span class="v"><span class="chip lift-hi">large</span> open-ended; data ingestion</span></div>
+        <div class="row"><span class="k">Serves</span><span class="v"><span class="chip">novel readings</span></span></div>
+      </div>
+    </div>
+
+    <!-- D -->
+    <div class="card">
+      <span class="ph-id">Phase 5 · representation</span>
+      <h3>Stabilize projections as a contract</h3>
+      <p>Nine view descriptors exist (keyboard, piano-roll, bracelet, Tonnetz, chord-network…). What's open: <b>stable output schemas</b> consumers can pin, plus descriptor tracks (control signals as data) for the synth/visualizer consumers.</p>
+      <div class="meta">
+        <div class="row"><span class="k">Why now</span><span class="v">Unblocks Julian's downstream synths/visualizers on a versioned contract</span></div>
+        <div class="row"><span class="k">Cost</span><span class="v"><span class="chip lift-lo">moderate</span> mostly schema hardening</span></div>
+        <div class="row"><span class="k">Serves</span><span class="v"><span class="chip">consumer projects</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>The sequencing nuance behind the recommendation</h4>
+    <p>The ROADMAP's own note: <i>"a search constraint and a checkable rule are the same predicate pointed in different directions — build the constraint vocabulary once."</i> Phase 4.6's evaluator already <b>is</b> that predicate layer. So the smart version of the recommended move isn't a standalone search engine — it's <b>constraint search built on the existing <code>rules/</code> predicate vocabulary</b>, which delivers the marquee tool <i>and</i> unifies search + rules under one predicate contract. That's the plan I'd scope if you pick A.</p>
+  </div>
+
+  <p class="foot">Housekeeping I'll fold into whichever branch: RE-1…RE-5 still show <code style="font-family:var(--mono)">[ ]</code> in the ROADMAP though merged — mark them DELIVERED for an honest record.</p>
+</div>
