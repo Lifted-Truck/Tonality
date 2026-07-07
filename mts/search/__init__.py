@@ -17,11 +17,16 @@ from __future__ import annotations
 
 from .fields import IDENTITY_FIELDS
 from .identities import search_identities
-from .results import IdentityMatch, IdentitySearchResult
+from .results import IdentityMatch, IdentitySearchResult, VoicingMatch, VoicingSearchResult
+from .voicings import VOICING_FIELDS, search_voicings
 
 __all__ = [
     "IDENTITY_FIELDS",
     "IdentityMatch",
     "IdentitySearchResult",
+    "VOICING_FIELDS",
+    "VoicingMatch",
+    "VoicingSearchResult",
     "search_identities",
+    "search_voicings",
 ]

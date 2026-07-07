@@ -53,6 +53,11 @@ def _check_scalar_value(spec: ScalarField, value: object, ctx: str, errors: list
     if spec.kind == "bool":
         if not isinstance(value, bool):
             errors.append(f"{ctx}: expected bool, got {type(value).__name__} {value!r}")
+    elif spec.kind == "str":
+        if not isinstance(value, str):
+            errors.append(f"{ctx}: expected str, got {type(value).__name__} {value!r}")
+        elif spec.values is not None and value not in spec.values:
+            errors.append(f"{ctx}: {value!r} is not one of {list(spec.values)}")
     else:  # int
         if isinstance(value, bool) or not isinstance(value, int):
             errors.append(f"{ctx}: expected int, got {type(value).__name__} {value!r}")

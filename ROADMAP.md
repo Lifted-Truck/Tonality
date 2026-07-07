@@ -1031,6 +1031,23 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     hold — and the Phase 7 generative work all want it). Client-supplied
     voicings remain valid ranking input regardless; this gap lags gap 16
     without blocking it (hand-authored voicings are valid contracts).
+    **Slice 1 DELIVERED (2026-07-07): `mts/search/voicings.py` —
+    `search_voicings(pcs, root=, constraints=, from_voicing=)`.** Bounded
+    register enumeration (`register: [lo, hi]` **required, never defaulted** —
+    the cardinal rule as API: the caller declares the generative bound); the
+    raw space is computed upfront and an over-large window raises with advice,
+    so `count` is never a truncated lie (`truncated` only ever means `limit`).
+    Fields: spread / bass_pc / top_pc / top_midi / center / voicing_type
+    (named-shape registry) / no_interval_over_bass (directed pc-intervals,
+    mod-12) / max_voice_leading. The **ranking half ships in-slice**: with
+    `from_voicing`, matches carry exact `vl_from` (`voice_leading_realized`,
+    `doubling.1`) and return ranked by it — margins are the continuous vl
+    values, ties broken by a deterministic secondary order. `root=None`
+    searches **voicing templates** — the registered+rootless corner named
+    above, now operational. **Slice 2 (open):** voice count N ≠ cardinality
+    (doublings/omissions — A8's resonator ask), contour-hold curves,
+    handedness-sensitive fields. MCP tool + conformance case; additive golden;
+    22 tests incl. a brute-force-equality oracle.
 18. **Catalog contract + pitch-answer scorer** (added 2026-07-04 from A6
     brief-19 — CHROMA, the first music-education module; design handshake in
     `integrations/audiology/response-19.md`). The second **Decision 11**
@@ -1593,9 +1610,10 @@ they used. Same input + same prior version → same output.
       `list_chord_qualities`); inputs accept note names or pc ints; the server
       instructions tell agents that ranked alternatives + `is_ambiguous` are
       part of the answer, not noise.
-- [~] **Constraint search / "inverse analysis":**
+- [x] **Constraint search / "inverse analysis":**
       `search_identities(constraints)` **DELIVERED (2026-07-07)** ·
-      `search_voicings(identity, constraints)` still parked.
+      `search_voicings(pcs, root=, constraints=)` **DELIVERED (2026-07-07,
+      gap 17 slice 1 — see the gap entry for scope + slice 2)**.
       — exhaustive, exact queries over the 4096-identity universe and the small
       voicing spaces ("all 7-note scales containing this tetrachord with no
       consecutive semitones"; "all voicings of Cmaj9 under 19 semitones of spread
@@ -1619,9 +1637,10 @@ they used. Same input + same prior version → same output.
       are strictly rooted in `expand_transpositions`/`all_masks` (where `[0,4,7]`
       means the major triad, not the minor). *Signed* chirality is deliberately
       absent from the set-class field vocabulary for the same reason — it awaits
-      the register/orientation-aware `search_voicings` slice. **Next:**
-      `search_voicings` (a bounded register enumerator over `suggest_voicings`'
-      space) under the same predicate contract.
+      a register/orientation-aware field slice. **`search_voicings` shipped**
+      under the same predicate contract (gap 17 slice 1: required register
+      window, upfront space guard, vl_from ranking, templates via `root=None` —
+      design deltas from the 2026-07-07 Fable review pass recorded on gap 17).
       **Pilot consumer — A9 Wend (brief-2, 2026-07-07, adopted):** Wend replaced
       both identity seams (`pivots_between`, `tonicization_targets`) on
       `search_identities` with **576/576** + **24/24** exact parity vs its prior

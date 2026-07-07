@@ -143,6 +143,15 @@ CASES: list[tuple[str, dict]] = [
         {"constraints": {"cardinality": 7, "contains": [0, 4, 7],
                          "no_consecutive_semitones": True}},
     ),
+    # the gap-17 marquee: Cmaj9 in C3-C6, spread<=19, no b9 over the bass,
+    # ranked from a closed Cmaj7 reference (exercises vl_from + labeling).
+    (
+        "search_voicings",
+        {"pcs": [0, 4, 7, 11, 2], "root": 0,
+         "constraints": {"register": [48, 84], "spread": {"lte": 19},
+                         "no_interval_over_bass": [1], "max_voice_leading": 8},
+         "from_voicing": [60, 64, 67, 71], "limit": 10},
+    ),
     ("chord_in_key", {"root": "D", "quality": "min7", "tonic": "C", "key_name": "Ionian"}),
     (
         "name_pcs",

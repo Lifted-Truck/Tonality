@@ -21,7 +21,19 @@ and `rules/` and never reimplements either.
   (the blind-agent ruleset contract — collect *all* errors), enumeration,
   typed result. Default universe is the 223 set classes; `expand_transpositions`
   widens to every rooted image.
-- `results.py` — `IdentitySearchResult` / `IdentityMatch` (`to_dict()`).
+- `voicings.py` — `search_voicings(pcs, root=, constraints=, from_voicing=)`
+  (gap 17 slice 1): bounded register enumeration. **`register: [lo, hi]` is
+  required — the engine never defaults a register** (the cardinal rule in API
+  form: inventing register is the caller's declared generative act). The raw
+  space is computed *before* enumerating and an over-large window **raises**
+  with advice — enumeration is never silently truncated, so `count` is always
+  the true total (`truncated` only ever means `limit`). Slice 1 voices each pc
+  exactly once (doublings/omissions = slice 2). `root=None` searches voicing
+  **templates** (the registered+rootless lattice corner). With `from_voicing`,
+  matches carry `vl_from` (exact `voice_leading_realized`, `doubling.1`) and
+  come back ranked by it — gap 17's ranking half; callers may re-rank (rule 7).
+- `results.py` — `IdentitySearchResult` / `IdentityMatch` /
+  `VoicingSearchResult` / `VoicingMatch` (`to_dict()`).
 
 **Decision 12 (containment granularity) — read before adding fields.** In the
 set-class universe, `contains`/`contained_in` fold inversions (a shape and its
