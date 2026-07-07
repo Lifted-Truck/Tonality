@@ -129,6 +129,32 @@ def test_contained_in_enumerates_subsets():
     assert {m.pcs for m in result.matches} == {(0, 1, 2), (0, 1, 3)}
 
 
+def test_contained_in_rooted_is_literal_not_transposed():
+    # R1 (Wend brief-2): in all_masks the enumerated identity is a rooted literal,
+    # so contained_in must be a literal subset test — every reported match must
+    # ACTUALLY be a subset of the outer set, not merely transposable into it.
+    c_major = [0, 2, 4, 5, 7, 9, 11]
+    c_set = set(c_major)
+    result = search_identities(
+        {"cardinality": 3, "contained_in": c_major}, expand_transpositions=True
+    )
+    # C(7,3) = 35 literal 3-note subsets; the pre-fix bug returned 180.
+    assert result.count == 35
+    # No match may contradict its own echo (the blind-agent contract).
+    assert all(set(m.pcs) <= c_set for m in result.matches)
+
+
+def test_contained_in_rooted_counts_are_binomial():
+    from math import comb
+
+    c_major = [0, 2, 4, 5, 7, 9, 11]
+    for k in range(1, 8):
+        got = search_identities(
+            {"cardinality": k, "contained_in": c_major}, expand_transpositions=True
+        ).count
+        assert got == comb(7, k), f"cardinality {k}: {got} != C(7,{k})"
+
+
 # --- limit / truncation ------------------------------------------------------
 
 def test_limit_truncates_but_count_stays_total():

@@ -18,7 +18,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from functools import lru_cache
 
-from ..core.bitmask import interval_vector_from_mask, pcs_from_mask
+from ..core.bitmask import interval_vector_from_mask, is_subset, pcs_from_mask
 from ..core.setclass import chirality_sign, prime_form_mask
 from ..core.symmetry import rotational_period
 from ..rules.schema import Condition
@@ -176,10 +176,18 @@ def search_identities(
         )
         if contains_q and not roots:
             continue
-        if contained_q and not contained_in_roots(
-            mask, contained_q, include_inversion=include_inversion
-        ):
-            continue
+        if contained_q:
+            # The enumerated identity is NEVER transposed. In all_masks it is a
+            # literal rooted set, so contained_in is a literal subset test —
+            # transposing M while reporting it unchanged returned matches that
+            # contradicted their own echo (R1, Wend brief-2: (0,1,3) reported as
+            # "⊆ C major" because (4,5,7) fit). In set_classes the identity is a
+            # rootless class, so any T/I placement inside the outer set counts.
+            if expand_transpositions:
+                if not is_subset(mask, contained_q):
+                    continue
+            elif not contained_in_roots(mask, contained_q, include_inversion=True):
+                continue
         matches.append(
             IdentityMatch(
                 mask=mask,
