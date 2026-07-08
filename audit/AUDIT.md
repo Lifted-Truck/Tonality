@@ -51,6 +51,14 @@ Because `audit/checks/` is **out of `tests/`**, a dev-loop fix can never redden 
 audit's strict-xfails in the dev Stop hook, and vice versa. Run audit checks
 explicitly: `pytest audit/checks`.
 
+> **CI runs `audit/checks/` too (added 2026-07-08, `.github/workflows/ci.yml`).**
+> A *committed* audit check is now **enforced on every PR** — a strict-xfail that
+> flips to a failure (a fixed bug, or a new regression) is loud at PR time, not
+> only in a manual run. This sharpens the split: the audit thread's job is to
+> **find what isn't yet covered** and add checks; the checks it commits are then
+> guarded by CI automatically. The repeatable per-cycle procedure is in
+> **[RUNBOOK.md](RUNBOOK.md)**.
+
 ## 4. How to flag findings
 
 **Bugs → GitHub issues** (primary, visible, triageable):
