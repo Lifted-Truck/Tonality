@@ -976,6 +976,27 @@ list as new applications come into view.
     tag is weight-0 (informational, never scores); default off → existing output +
     golden unchanged. Still deferred: register-aware ranking; the per-style corpus
     transition priors (the *historical* tags).
+    **Distribution primitive DELIVERED (gap 14 slice 1, 2026-07-08): the
+    *sampleable* half of a style profile.** `mts/rules/transition.py`
+    `build_transition_matrix(chord_corpus, *, state="degree", smoothing="laplace",
+    alpha=None, source=None, session=None)` (MCP `transition_matrix`) — aggregates
+    a chord-stream corpus (the same input harmony induction reads) into a
+    first-order, degree-keyed, row-normalized `TransitionMatrix`. **Smoothing is a
+    selectable, cited knob** (Julian's call): `"laplace"` (default, add-α, no hard
+    zeros — right for sampling) or `"none"` (raw empirical, exact zeros); **raw
+    integer `counts` are preserved either way** so a caller can re-normalize; α is
+    the versioned `distribution.1` prior, cited on the result. `state` keys over
+    the atom vocabulary (`degree` default / `role` / `quality` / `roman`).
+    Sampleable **deterministically** — seeded `sample` / `walk` (generation is a
+    client act, but the seeded draw is reproducible; no wall-clock/unseeded RNG,
+    per the AI-boundary). Provenance block (`source`/`prior_version`/`alpha`/
+    `n_transitions`/`n_pieces`) + JSON round-trip (`to_dict`/`from_dict`). Composes
+    with `segment_chords` — raw MIDI → chords → distribution, no hand annotation.
+    16 tests; golden purely additive (2 `transition_matrix` cases); port pin
+    untouched. **This is the distribution half the style-profile bundle needs** —
+    remaining gap-14: the **bundle+provenance schema** (slice 2, bundles a ruleset
+    + distributions) and **real per-style data priors** derived offline from CC0/
+    CC-BY corpora (slice 3 — the license-gated data asset above).
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.
@@ -1853,9 +1874,15 @@ from. Governed by Decision 7 (ranked, explicit, reproducible — never a black b
       timing are largely shipped; the *horizontal* — progression/tendency over
       time — was the frontier, so **gap B** (harmony progressions) was taken as
       the committed unblocker of the harmony row (slice 1 delivered). Remaining
-      for a first real style profile: gap-B harmony *induction* (slice 1b), the
-      gap-14 distribution priors, and the bundle+provenance schema. Not yet
-      scheduled as a unit; its pieces advance independently.
+      for a first real style profile: ~~gap-B harmony *induction* (slice 1b)~~
+      **✅ delivered 2026-07-08**, ~~the gap-14 distribution priors~~ **✅ the
+      distribution *primitive* delivered 2026-07-08 (`build_transition_matrix`;
+      real per-style data priors still to derive)**, and the **bundle+provenance
+      schema** (the last piece — the object that carries a ruleset + distributions
+      + provenance together). With harmony induction, segmentation, and the
+      distribution primitive all shipped, the bundle schema is now the single
+      remaining step to a first assemblable style profile. Not yet scheduled as a
+      unit; its pieces advance independently.
 - [ ] **The determinism-boundary program** — *proposal on record, not yet
       assessed/sliced* (`docs/boundary-brief.md`, from the 2026-07-07 assessment
       session; a research-direction superset of the style-profile idea). Thesis:
