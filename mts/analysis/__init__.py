@@ -11,7 +11,7 @@ from __future__ import annotations
 from .scale_analysis import ScaleAnalysisRequest, analyze_scale
 from .chord_analysis import ChordAnalysisRequest, analyze_chord, analyze_voicing
 from .voicings import suggest_voicings
-from .equivalence import interpret_chord
+from .equivalence import interpret_chord, interpret_scale
 from .analytical_context import AnalyticalContext, ChordInKey, contextualize_chord
 from .containment import find_containers
 from .cadence import detect_cadences
@@ -58,6 +58,8 @@ from .results import (
     ChordAnalysisResult,
     ChordInterpretation,
     ChordInterpretations,
+    ScaleName,
+    ScaleNames,
     AnalyticalContextSnapshot,
     ChordIntervalSummary,
     ChordNaming,
@@ -114,6 +116,7 @@ __all__ = [
     "analyze_voicing",
     "suggest_voicings",
     "interpret_chord",
+    "interpret_scale",
     "AnalyticalContext",
     "ChordInKey",
     "contextualize_chord",
@@ -162,6 +165,8 @@ __all__ = [
     "ChordAnalysisResult",
     "ChordInterpretation",
     "ChordInterpretations",
+    "ScaleName",
+    "ScaleNames",
     "ChordIntervalSummary",
     "Inversion",
     "ModeRotation",

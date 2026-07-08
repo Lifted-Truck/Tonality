@@ -22,11 +22,18 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 
-from ..core.bitmask import mask_from_pcs, rotate_mask
+from ..core.bitmask import interval_vector_from_mask, mask_from_pcs, rotate_mask
 from ..core.quality import ChordQuality
+from ..core.scale import Scale
+from ..core.setclass import prime_form, prime_form_mask
 from ..core.symmetry import rotational_period
-from .results import ChordInterpretation, ChordInterpretations
-from ..io.loaders import chord_qualities_by_mask
+from .results import (
+    ChordInterpretation,
+    ChordInterpretations,
+    ScaleName,
+    ScaleNames,
+)
+from ..io.loaders import chord_qualities_by_mask, load_scales
 
 
 def interpret_chord(
@@ -84,4 +91,58 @@ def interpret_chord(
     )
 
 
-__all__ = ["interpret_chord"]
+def interpret_scale(
+    pcs: Iterable[int],
+    *,
+    catalog: Mapping[str, Scale] | None = None,
+) -> ScaleNames:
+    """Enumerate every catalog-scale naming of a pitch-class set (brief-20 v1).
+
+    The scale sibling of :func:`interpret_chord`: trying each present tone as the
+    tonic, match the set against the scale catalog — so a modal-ambiguous set
+    names at several roots (the diatonic set is Ionian, Dorian, … at different
+    tonics). Identity-level and register-free; set-class identity (prime form) is
+    the boundary, ``forte_number`` is ``None`` (deferred — prime form is the id),
+    and names carry the catalog's ``aliases``. Spell roots at the display edge.
+    """
+
+    pc_set = sorted({int(p) % 12 for p in pcs})
+    if not pc_set:
+        raise ValueError("interpret_scale needs at least one pitch class.")
+
+    if catalog is None:
+        catalog = load_scales()
+    # Mask index, deduped by canonical name (aliases never split a match).
+    by_mask: dict[int, list[Scale]] = {}
+    seen_names: set[str] = set()
+    for scale in catalog.values():
+        if scale.name in seen_names:
+            continue
+        seen_names.add(scale.name)
+        by_mask.setdefault(scale.mask, []).append(scale)
+
+    mask = mask_from_pcs(pc_set)
+    names: list[ScaleName] = []
+    for root in pc_set:
+        relative_mask = rotate_mask(mask, -root)
+        for scale in by_mask.get(relative_mask, ()):
+            names.append(
+                ScaleName(root_pc=root, name=scale.name, aliases=list(scale.aliases))
+            )
+    names.sort(key=lambda n: (n.root_pc, n.name))
+
+    return ScaleNames(
+        pcs=pc_set,
+        mask=mask,
+        cardinality=len(pc_set),
+        prime_form=list(prime_form(mask)),
+        prime_form_mask=prime_form_mask(mask),
+        interval_vector=list(interval_vector_from_mask(mask)),
+        forte_number=None,
+        is_scale=bool(names),
+        rotational_period=rotational_period(mask),
+        names=names,
+    )
+
+
+__all__ = ["interpret_chord", "interpret_scale"]

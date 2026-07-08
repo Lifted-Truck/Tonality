@@ -204,6 +204,51 @@ class ChordInterpretations:
 
 
 @dataclass(frozen=True)
+class ScaleName:
+    """One catalog scale a pitch-class set matches, and at which root (tonic).
+
+    A modal family names at several roots (the diatonic set is Ionian at one
+    tonic, Dorian at another, …); ``aliases`` are the catalog's alternate names
+    for that mode (e.g. Ionian → ["Major"]). ``tradition`` / ``source`` are
+    provenance slots for a future sourced name corpus — empty until one is
+    vetted and vendored (brief-20).
+    """
+    root_pc: int
+    name: str
+    aliases: list[str]
+    tradition: str | None = None
+    source: str | None = None
+
+
+@dataclass(frozen=True)
+class ScaleNames:
+    """Every catalog-scale naming of a pitch-class set (the scale sibling of
+    :class:`ChordInterpretations`).
+
+    Set-class identity (``prime_form`` / ``interval_vector`` / ``cardinality``) is
+    the boundary; ``forte_number`` is ``None`` — a recorded deferral (Forte names
+    need a vetted table; prime form is the unambiguous set-class name). ``is_scale``
+    is True when any catalog scale matched. Plural + honest: a modal-ambiguous set
+    names as several modes (pick one by root context, exactly as with
+    ``interpret_chord``), so there is no fabricated single "canonical".
+    """
+    pcs: list[int]
+    mask: int
+    cardinality: int
+    prime_form: list[int]
+    prime_form_mask: int
+    interval_vector: list[int]
+    forte_number: str | None
+    is_scale: bool
+    rotational_period: int
+    names: list[ScaleName]
+
+    def to_dict(self) -> dict:
+        """Return a plain-dict representation suitable for JSON serialisation."""
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
 class VoicingAnalysis:
     """Register-aware analysis of an actual realization (voicing or template).
 
