@@ -20743,6 +20743,65 @@
     ]
    },
    "tool": "transition_matrix"
+  },
+  {
+   "kwargs": {
+    "name": "cmaj-style",
+    "provenance": {
+     "method": "hand-authored",
+     "source": "synthetic"
+    },
+    "ruleset": {
+     "name": "cmaj",
+     "rules": [
+      {
+       "family": "harmony",
+       "id": "v-i",
+       "polarity": "soft",
+       "require": {
+        "next_role": "tonic"
+       },
+       "weight": 2.0,
+       "where": {
+        "role": "dominant"
+       }
+      }
+     ],
+     "version": "1"
+    },
+    "version": "1"
+   },
+   "result": {
+    "description": "",
+    "distributions": [],
+    "name": "cmaj-style",
+    "provenance": {
+     "method": "hand-authored",
+     "source": "synthetic"
+    },
+    "ruleset": {
+     "description": "",
+     "name": "cmaj",
+     "rules": [
+      {
+       "family": "harmony",
+       "id": "v-i",
+       "polarity": "soft",
+       "require": {
+        "next_role": "tonic"
+       },
+       "weight": 2.0,
+       "where": {
+        "role": "dominant"
+       }
+      }
+     ],
+     "version": "1"
+    },
+    "schema_version": "style-profile.1",
+    "version": "1"
+   },
+   "tool": "build_style_profile"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",
