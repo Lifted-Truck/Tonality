@@ -12,6 +12,7 @@ from .tempo import TempoChange, TempoMap
 from .meter import TimeSignature, MetricPosition, MeterChange, MeterMap
 from .sequence import Event, Sequence
 from .segmentation import Segment, HarmonicRhythm, segment, harmonic_rhythm
+from .harmonic_segmentation import ChordSpan, ChordSegmentation, segment_to_chords
 from .key_tracking import KeyRegion, KeyTrackingResult, KeyWindow, track_keys
 from .meter_tracking import MeterRegion, MeterTrackingResult, MeterWindow, track_meter
 from .structural_key import (
@@ -50,6 +51,9 @@ __all__ = [
     "Sequence",
     "Segment",
     "HarmonicRhythm",
+    "ChordSpan",
+    "ChordSegmentation",
+    "segment_to_chords",
     "segment",
     "harmonic_rhythm",
     "KeyRegion",

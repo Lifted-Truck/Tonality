@@ -998,6 +998,48 @@ def induce_rules(
     ).to_dict()
 
 
+def segment_chords(
+    events: list[list],
+    key: list | None = None,
+    subdivisions: int = 1,
+    min_pc_weight: float = 0.1,
+    downbeat_emphasis: float = 2.0,
+) -> dict:
+    """Reduce a note stream to a chord stream on a metric grid (gap B slice-2a) —
+    the bridge from raw MIDI to the harmony family. events: the canonical event
+    form [onset_beats, duration_beats, midi_note, velocity?, voice?]. One chord
+    per metric window (a bar by default; subdivisions splits each bar into that
+    many equal windows). Within a window, pitch classes are weighted by sounding
+    duration × downbeat_emphasis (notes onsetting on a downbeat count more), the
+    salient set is thresholded at min_pc_weight (fraction of the window's weighted
+    content — drops brief non-harmonic tones), and named against the catalog in
+    the key. key (optional [tonic, mode]) fixes the key; omit to infer it once
+    globally (the result reports key_inferred + key_margin). A window that names
+    NO catalog chord is returned with root_pc=null and a reason — never
+    fabricated (error, not guess). Returns {tonic_pc, mode, key_inferred,
+    key_margin, spans[], chords[[root, quality], …]}; `chords` + [tonic_pc, mode]
+    feed evaluate_ruleset / induce_rules(family='harmony') directly. Honest
+    limits: single global key (no local regions yet); NHT handling is only the
+    salience threshold (no full nesting). Raises on an empty stream."""
+    from ..temporal import segment_to_chords
+
+    key_pair = None
+    if key is not None:
+        try:
+            key_pair = (_pc(key[0]), str(key[1]))
+        except (TypeError, ValueError, IndexError) as exc:
+            raise ValueError(
+                f"key must be [tonic, mode] (mode 'major'|'minor'): {exc}"
+            ) from exc
+    return segment_to_chords(
+        _canonical_sequence(events),
+        key=key_pair,
+        subdivisions=int(subdivisions),
+        min_pc_weight=float(min_pc_weight),
+        downbeat_emphasis=float(downbeat_emphasis),
+    ).to_dict()
+
+
 def combine_rulesets(
     rulesets: list[dict], name: str, version: str, description: str = ""
 ) -> dict:
@@ -1374,6 +1416,7 @@ TOOLS = (
     list_named_rulesets,
     load_named_ruleset,
     induce_rules,
+    segment_chords,
     combine_rulesets,
     specialize_ruleset,
     compare_rulesets,
