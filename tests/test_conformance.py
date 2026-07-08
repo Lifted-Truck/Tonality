@@ -409,6 +409,15 @@ CASES: list[tuple[str, dict]] = [
     # gap 14 slice 1: degree-transition distribution (both smoothing modes).
     ("transition_matrix", {"chord_corpus": _transition_corpus()}),
     ("transition_matrix", {"chord_corpus": _transition_corpus(), "smoothing": "none", "state": "role"}),
+    # gap 14 slice 2: the style-profile bundle (ruleset-only keeps the golden small).
+    (
+        "build_style_profile",
+        {"name": "cmaj-style", "version": "1",
+         "provenance": {"source": "synthetic", "method": "hand-authored"},
+         "ruleset": {"name": "cmaj", "version": "1", "rules": [
+             {"id": "v-i", "family": "harmony", "where": {"role": "dominant"},
+              "require": {"next_role": "tonic"}, "polarity": "soft", "weight": 2.0}]}},
+    ),
 ]
 
 

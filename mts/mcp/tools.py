@@ -1040,6 +1040,34 @@ def transition_matrix(
     ).to_dict()
 
 
+def build_style_profile(
+    name: str,
+    version: str,
+    provenance: dict | None = None,
+    ruleset: dict | None = None,
+    distributions: list[dict] | None = None,
+    description: str = "",
+) -> dict:
+    """Assemble a STYLE PROFILE (Phase 4.5, gap 14 slice 2) — the one object that
+    bundles a style's two halves into a versioned, portable artifact: a ruleset
+    (constraints, from induce_rules / the DSL) + distributions (the sampleable
+    spread, from transition_matrix) + a provenance block. Pure assembly of
+    already-built parts — nothing is re-derived. ruleset: a DSL ruleset payload
+    (validated) or omitted. distributions: a list of transition_matrix payloads
+    (each {state, states, counts, probabilities, ...}). provenance: a free-form
+    dict naming where it came from (e.g. {'source': 'billboard-cc0', 'method':
+    'induced+aggregated'}). A profile must carry at least one half; an empty
+    ruleset (0 rules) is treated as absent. Returns the bundled artifact
+    {schema_version, name, version, description, provenance, ruleset,
+    distributions[]}, which round-trips through the loader."""
+    from ..rules import build_style_profile as _build
+
+    return _build(
+        str(name), str(version), provenance=provenance, ruleset=ruleset,
+        distributions=distributions, description=str(description),
+    ).to_dict()
+
+
 def segment_chords(
     events: list[list],
     key: list | None = None,
@@ -1459,6 +1487,7 @@ TOOLS = (
     load_named_ruleset,
     induce_rules,
     transition_matrix,
+    build_style_profile,
     segment_chords,
     combine_rulesets,
     specialize_ruleset,

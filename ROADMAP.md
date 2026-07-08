@@ -993,10 +993,21 @@ list as new applications come into view.
     `n_transitions`/`n_pieces`) + JSON round-trip (`to_dict`/`from_dict`). Composes
     with `segment_chords` — raw MIDI → chords → distribution, no hand annotation.
     16 tests; golden purely additive (2 `transition_matrix` cases); port pin
-    untouched. **This is the distribution half the style-profile bundle needs** —
-    remaining gap-14: the **bundle+provenance schema** (slice 2, bundles a ruleset
-    + distributions) and **real per-style data priors** derived offline from CC0/
-    CC-BY corpora (slice 3 — the license-gated data asset above).
+    untouched. **This is the distribution half the style-profile bundle needs.**
+    **Bundle schema DELIVERED (gap 14 slice 2, 2026-07-08): the style-profile
+    object.** `mts/rules/style_profile.py` `StyleProfile` +
+    `build_style_profile(name, version, *, provenance, ruleset, distributions,
+    description)` (MCP `build_style_profile`) — the one object that bundles a
+    ruleset (constraints) + 0+ `TransitionMatrix` distributions (the spread) + a
+    provenance block into one versioned (`style-profile.1`), round-trippable
+    artifact. Pure **assembly** of already-built parts (accepts parsed objects or
+    raw payloads), invents nothing; a profile must carry ≥1 half, and an empty
+    ruleset (induction found nothing) is coerced to absent. 10 tests; golden
+    additive (1 case); port pin untouched. **The style profile is now
+    assemblable** — corpus → segment → (induce ‖ transition-matrix) → bundle. Only
+    remaining gap-14: **real per-style data priors** derived offline from CC0/CC-BY
+    corpora (slice 3 — the license-gated data asset above), and the optional
+    Dirichlet smoothing (candidate above).
     *Smoothing extension — Dirichlet prior (candidate, added 2026-07-08, Julian).*
     `build_transition_matrix` ships `smoothing="laplace"` (add-α, the default) and
     `"none"` (raw). Add a third mode `smoothing="dirichlet"` with a per-state
@@ -1923,12 +1934,15 @@ from. Governed by Decision 7 (ranked, explicit, reproducible — never a black b
       for a first real style profile: ~~gap-B harmony *induction* (slice 1b)~~
       **✅ delivered 2026-07-08**, ~~the gap-14 distribution priors~~ **✅ the
       distribution *primitive* delivered 2026-07-08 (`build_transition_matrix`;
-      real per-style data priors still to derive)**, and the **bundle+provenance
-      schema** (the last piece — the object that carries a ruleset + distributions
-      + provenance together). With harmony induction, segmentation, and the
-      distribution primitive all shipped, the bundle schema is now the single
-      remaining step to a first assemblable style profile. Not yet scheduled as a
-      unit; its pieces advance independently.
+      real per-style data priors still to derive)**, and ~~the bundle+provenance
+      schema~~ **✅ delivered 2026-07-08 (`StyleProfile` / `build_style_profile`)**.
+      **A first style profile is now ASSEMBLABLE** end-to-end: corpus →
+      `segment_chords` → (`induce_ruleset` ‖ `build_transition_matrix`) →
+      `build_style_profile`. What remains is not machinery but **content + eval**:
+      real per-style *data* priors derived offline from CC0/CC-BY corpora (gap-14
+      slice 3, license-gated), and a corpus eval harness to score a profile's
+      spread against held-out material (the boundary-metric direction). The
+      pipeline is built; the first *named, real* style profile is a data exercise.
 - [ ] **The determinism-boundary program** — *proposal on record, not yet
       assessed/sliced* (`docs/boundary-brief.md`, from the 2026-07-07 assessment
       session; a research-direction superset of the style-profile idea). Thesis:

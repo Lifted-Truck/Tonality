@@ -41,6 +41,7 @@ from .composition import (
 from .induction import InductionResult, RuleEvidence, induce_ruleset
 from .library import list_named_rulesets, load_named_ruleset
 from .transition import TransitionMatrix, build_transition_matrix
+from .style_profile import StyleProfile, build_style_profile
 
 __all__ = [
     "InductionResult",
@@ -48,6 +49,8 @@ __all__ = [
     "induce_ruleset",
     "TransitionMatrix",
     "build_transition_matrix",
+    "StyleProfile",
+    "build_style_profile",
     "list_named_rulesets",
     "load_named_ruleset",
     "FAMILIES",
