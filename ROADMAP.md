@@ -280,6 +280,12 @@ list as new applications come into view.
   case). *Symmetric risk accepted:* a piece ending in a sustained non-returning
   modulation gets a closing-frame vote for that key — zero such regressions on SWD,
   but it surfaced on a synthetic walk-test (which now pins the legacy anchor).
+  *Candidate — a no-home mode (added 2026-07-08, A9 Wend brief-4):* a wandering
+  generator that modulates away and never returns wants the `areas` timeline
+  **without** a forced anchor; `most_prevalent_region` is the better home for it
+  today, and `areas` is already anchor-free, but a first-class
+  `anchor_method="none"` (emit `areas`, leave `home_tonic_pc` null) would let the
+  result formally decline a home. Small; unscheduled; consume `areas` meanwhile.
   *Honest partial:* it fixes **1 of 6** global-key misses (D911-07 +60pp) — it can
   only promote a tonic region the local track already proposes; the residual 5 are
   **upstream of the anchor** (next paragraph).
@@ -593,7 +599,15 @@ list as new applications come into view.
   **gap 19** — slice 1 ✅ **shipped** (`melodic_tendency`, notice
   `notice-melodic-tendency.md`; the `_snap_stable`/`_snap_chord` swap is open) ·
   satisfaction-loop hooks = **gap 20** (v1 recipe-answered; feature vocabulary
-  is Tonality's, Decision 11).
+  is Tonality's, Decision 11) · **brief-4** (`response-4.md`, 2026-07-08):
+  declared-vs-inferred key — coordination, not a bug. Ruled: Wend's "three grains"
+  (local `track_keys` / structural `structural_keys` / global `infer_key`) is
+  correct and matches the engine's tonicization-vs-modulation model; divergence is
+  the surface **under-asserting its centre** (a Wend-side authoring fix), and
+  `segment_chords` now gives a declared-vs-inferred **self-consistency check**.
+  Durable output: **`integrations/key-grain-alignment.md`** — a consumer-neutral
+  contract (grain vocabulary + pinned `window_beats`/`hop_beats`/`profile_version`)
+  so Wend + A6 read a key strip identically; relayed to the Audiology channel.
 - **A10 — WONT** *(added 2026-07-07 from its intake brief, direct route —
   `integrations/wont/`; project: synthetic-worlds/wont)*. The **modular
   preference-learner** anticipated in Wend brief-3 R2, now real: consumes
