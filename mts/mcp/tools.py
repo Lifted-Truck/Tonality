@@ -924,9 +924,10 @@ def load_named_ruleset(name: str) -> dict:
 
 
 def induce_rules(
-    corpus: list[list[list]],
-    family: str,
+    corpus: list[list[list]] | None = None,
+    family: str = "voice_motion",
     harmony: list[list[list]] | None = None,
+    chord_corpus: list[list] | None = None,
     scoring_prior: str | None = None,
     merge_disjunctions: bool = True,
 ) -> dict:
@@ -936,18 +937,49 @@ def induce_rules(
     BH-FDR q-value). Apriori frequent-pattern mining over the where-lattice
     (closed itemsets, arity cap 3) + Fisher's exact test vs an
     independence-given-marginals null, BH-FDR at q=0.05; weights are a versioned
-    scoring prior cited in the result. corpus: a list of pieces, each a list of
-    [onset_beats, duration_beats, midi_note] (or [..., voice_label] — voices
-    needed for the voice_motion family). family: 'voice_motion' | 'melody' |
-    'rhythm'. harmony: optional per-piece list of [start_beat, end_beat, [pcs]]
-    spans (only melody's nht_type/is_chord_tone consult it). Below ~30 pieces
-    the result is flagged exploratory. merge_disjunctions (default true)
-    collapses same-(where, field) single-value rules into one `in`-rule
+    scoring prior cited in the result. NOTE families ('voice_motion' | 'melody'
+    | 'rhythm') read corpus: a list of pieces, each a list of [onset_beats,
+    duration_beats, midi_note] (or [..., voice_label] — voices needed for
+    voice_motion). harmony: optional per-piece list of [start_beat, end_beat,
+    [pcs]] spans (only melody's nht_type/is_chord_tone consult it). The HARMONY
+    family instead reads chord_corpus: a list of pieces, each [chords, key] with
+    chords=[[root, quality], ...] and key=[tonic, mode] ('major'|'minor') — it
+    mines role/next_role/cadence/is_diatonic/degree/root_motion (an unknown
+    chord quality raises; open-vocabulary roman/quality are a follow-on). Below
+    ~30 pieces the result is flagged exploratory. merge_disjunctions (default
+    true) collapses same-(where, field) single-value rules into one `in`-rule
     (forbid ic in {0,7} rather than two forbids), re-tested with Fisher — the
     human-readable form; set false for the raw single-value rules. The emitted
     ruleset round-trips through the validator."""
     from ..rules import induce_ruleset
 
+    if str(family) == "harmony":
+        if chord_corpus is None:
+            raise ValueError(
+                "The harmony family reads chord_corpus=[[chords, key], ...] with "
+                "chords=[[root, quality], ...] and key=[tonic, mode] — not the note "
+                "`corpus`."
+            )
+        try:
+            pieces = [
+                (
+                    [(_pc(root), str(quality)) for root, quality in chords],
+                    (_pc(key[0]), str(key[1])),
+                )
+                for chords, key in chord_corpus
+            ]
+        except (TypeError, ValueError, IndexError) as exc:
+            raise ValueError(
+                "Each harmony piece must be [chords, key] where "
+                f"chords=[[root, quality], ...] and key=[tonic, mode]: {exc}"
+            ) from exc
+        return induce_ruleset(
+            family="harmony", chord_corpus=pieces, scoring_prior=scoring_prior,
+            merge_disjunctions=bool(merge_disjunctions),
+        ).to_dict()
+
+    if corpus is None:
+        raise ValueError(f"family {family!r} reads a note `corpus` (a list of pieces).")
     pieces = [_canonical_sequence(piece) for piece in corpus]
     spans = None
     if harmony is not None:

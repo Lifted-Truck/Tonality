@@ -62,6 +62,12 @@ _BOUNDED_INT_FIELDS = {
     "voice_motion": {"interval_class_from", "interval_class_to"},
     "melody": {"pc"},
     "rhythm": set(),
+    # harmony: the idiom-bearing bounded ints. degree ∈ 1..7 (None off-diatonic),
+    # root_motion ∈ 0..11 (directed) — the descending-fifths / step-motion
+    # signatures a style leans on. The open-vocabulary str fields (roman /
+    # quality / next_roman, values=None) are NOT mined in slice 1b — high
+    # cardinality; a bounded roman/quality enum is a recorded follow-on.
+    "harmony": {"degree", "root_motion"},
 }
 
 Literal = tuple[str, object]  # (field, value)
@@ -205,10 +211,19 @@ class InductionResult:
 # --- the pipeline -----------------------------------------------------------------------
 
 
+def _literals_of(item, fields: list[str]) -> frozenset[Literal]:
+    """The mineable ``(field, value)`` set for one atom item; a ``None`` field
+    contributes no literal (mirrors the evaluator's "no claim")."""
+
+    return frozenset(
+        (f, getattr(item, f)) for f in fields if getattr(item, f) is not None
+    )
+
+
 def _build_transactions(
     sequences: list[Sequence], family: str, harmony: list | None
 ) -> tuple[list[frozenset[Literal]], list[int]]:
-    """Per-item literal sets + the piece index each item came from."""
+    """Per-item literal sets + the piece index each item came from (note families)."""
 
     fields = _mineable_fields(family)
     transactions: list[frozenset[Literal]] = []
@@ -217,32 +232,74 @@ def _build_transactions(
         spans = harmony[p] if harmony is not None else None
         stream = _build_stream(family, sequence, spans)
         for item, _location in stream.items:
-            literals = {
-                (f, getattr(item, f))
-                for f in fields
-                if getattr(item, f) is not None
-            }
-            transactions.append(frozenset(literals))
+            transactions.append(_literals_of(item, fields))
+            piece_of.append(p)
+    return transactions, piece_of
+
+
+# A chord-stream corpus piece: a named progression ``[(root_pc, quality), …]``
+# paired with its key ``(tonic_pc, mode)`` — the harmony family's atom source
+# (harmony atoms come from chords+key, not a note Sequence).
+ChordPiece = tuple[list[tuple[int, str]], tuple[int, str]]
+
+
+def _build_harmony_transactions(
+    corpus: list[ChordPiece], session
+) -> tuple[list[frozenset[Literal]], list[int]]:
+    """Per-chord literal sets over a chord-stream corpus (gap B slice-1b).
+
+    Each ``(chords, key)`` progression is one *piece*; every chord-in-context
+    item it yields is one transaction. Reuses :func:`build_harmony_stream`, so
+    an unknown chord quality raises there (error, not guess) and a modal key
+    yields no items (unsupported mode — the piece simply contributes nothing).
+    """
+
+    from .harmony_stream import build_harmony_stream
+
+    fields = _mineable_fields("harmony")
+    transactions: list[frozenset[Literal]] = []
+    piece_of: list[int] = []
+    for p, (chords, key) in enumerate(corpus):
+        items, _reason = build_harmony_stream(
+            list(chords), key[0], key[1], session=session
+        )
+        for item, _location in items:
+            transactions.append(_literals_of(item, fields))
             piece_of.append(p)
     return transactions, piece_of
 
 
 def induce_ruleset(
-    sequences: Iterable[Sequence],
+    sequences: Iterable[Sequence] = (),
     *,
     family: str,
     harmony: list | None = None,
+    chord_corpus: list[ChordPiece] | None = None,
+    session=None,
     scoring_prior: str | None = None,
     merge_disjunctions: bool = True,
     name: str | None = None,
     version: str = "induced.1",
 ) -> InductionResult:
-    """Induce a soft ruleset from *sequences* for one atom ``family``.
+    """Induce a soft ruleset from a corpus for one atom ``family``.
 
-    ``family`` is ``"voice_motion"`` / ``"melody"`` / ``"rhythm"``. ``harmony``,
-    when given, is a per-sequence list of ``(start, end, pcs)`` span lists (only
-    melody's ``nht_type`` / ``is_chord_tone`` consult it). Raises on an unknown
-    family. Below the prior's ``exploratory_floor_pieces`` the result is flagged
+    Note families (``"voice_motion"`` / ``"melody"`` / ``"rhythm"``) read
+    *sequences* — a corpus of note :class:`Sequence`\\ s; ``harmony``, when
+    given, is a per-sequence list of ``(start, end, pcs)`` span lists (only
+    melody's ``nht_type`` / ``is_chord_tone`` consult it).
+
+    The ``"harmony"`` family (gap B slice-1b) instead reads **``chord_corpus``**
+    — a list of ``(chords, key)`` progressions, ``chords=[(root_pc, quality), …]``
+    and ``key=(tonic_pc, mode)`` — since harmony atoms derive from an explicit
+    chord stream + key, not a note Sequence. ``session`` merges that session's
+    registered chord qualities (an unknown quality raises — error, not guess).
+    It mines the bounded harmony fields (``role / next_role / cadence /
+    is_diatonic / degree / root_motion``); the open-vocabulary ``roman /
+    quality / next_roman`` are a recorded follow-on.
+
+    Raises on an unknown family, and on the wrong corpus kind for a family
+    (``chord_corpus`` with a note family, or a note corpus with ``harmony``).
+    Below the prior's ``exploratory_floor_pieces`` the result is flagged
     ``exploratory`` but still returned (surfaced, never hidden).
 
     ``merge_disjunctions`` (default on): collapse same-``(where, kind, field)``
@@ -254,23 +311,32 @@ def induce_ruleset(
     if family not in FAMILIES:
         known = ", ".join(sorted(FAMILIES))
         raise ValueError(f"Unknown family {family!r} (known: {known}).")
-    if family == "harmony":
-        # gap B slice 1 ships harmony *evaluation*; mining it needs a chord-stream
-        # corpus interface (harmony atoms come from chords+key, not the note
-        # Sequence this induction consumes) — the recorded slice-1b follow-on.
-        raise ValueError(
-            "harmony-family induction is not yet supported: harmony atoms derive "
-            "from an explicit chord stream + key, not the note Sequence corpus this "
-            "miner reads (gap B slice-1b — the chord-stream corpus interface)."
-        )
 
     from ..io.loaders import load_scoring_prior
 
     prior = load_scoring_prior(scoring_prior)
-    sequences = list(sequences)
     name = name or f"induced-{family}"
 
-    transactions, piece_of = _build_transactions(sequences, family, harmony)
+    if family == "harmony":
+        if chord_corpus is None:
+            raise ValueError(
+                "harmony induction reads a chord-stream corpus: pass "
+                "chord_corpus=[(chords, key), …] with chords=[(root_pc, quality), …] "
+                "and key=(tonic_pc, mode) (harmony atoms come from chords+key, not "
+                "note sequences)."
+            )
+        corpus = list(chord_corpus)
+        n_pieces = len(corpus)
+        transactions, piece_of = _build_harmony_transactions(corpus, session)
+    else:
+        if chord_corpus is not None:
+            raise ValueError(
+                f"chord_corpus is only for family='harmony', not {family!r} "
+                "(note families read the sequences corpus)."
+            )
+        sequences = list(sequences)
+        n_pieces = len(sequences)
+        transactions, piece_of = _build_transactions(sequences, family, harmony)
     n_tx = len(transactions)
 
     # Vertical (tidset) index: transaction indices containing each literal, and
@@ -471,7 +537,7 @@ def induce_ruleset(
         ))
 
     ruleset = Ruleset(name=name, version=version, description=(
-        f"Induced from {len(sequences)} piece(s) over the {family} family "
+        f"Induced from {n_pieces} piece(s) over the {family} family "
         f"({prior.version}; soft rules, Fisher's exact + BH-FDR q={prior.fdr_q})."
     ), rules=tuple(rules))
     # Valid by construction when non-empty; an empty result (no significant
@@ -481,9 +547,9 @@ def induce_ruleset(
         errors = validation_errors(ruleset_to_payload(ruleset))
         assert not errors, f"induced ruleset is invalid: {errors}"
 
-    exploratory = len(sequences) < prior.exploratory_floor_pieces
+    exploratory = n_pieces < prior.exploratory_floor_pieces
     caveat = (
-        f"Exploratory: {len(sequences)} piece(s) is below the "
+        f"Exploratory: {n_pieces} piece(s) is below the "
         f"{prior.exploratory_floor_pieces}-piece floor for confirmatory induction; "
         "treat rules as hypotheses (Fisher has little power on a handful of pieces)."
     ) if exploratory else None
@@ -494,7 +560,7 @@ def induce_ruleset(
         evidence=evidence,
         scoring_prior=dataclasses.asdict(prior),
         tests_performed=m,
-        pieces=len(sequences),
+        pieces=n_pieces,
         items=n_tx,
         exploratory=exploratory,
         caveat=caveat,

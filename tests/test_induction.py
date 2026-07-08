@@ -18,9 +18,18 @@ from fractions import Fraction
 import pytest
 
 from mts.core.pitch import Pitch
-from mts.rules import evaluate, induce_ruleset, parse_ruleset, validation_errors
+from mts.mcp.tools import _canonical_sequence
+from mts.rules import (
+    evaluate,
+    induce_ruleset,
+    parse_ruleset,
+    ruleset_to_payload,
+    validation_errors,
+)
 from mts.rules.induction import _bh_qvalues, _fisher_one_sided
 from mts.temporal import Event, Sequence
+
+EMPTY_SEQ = _canonical_sequence([])  # harmony rules read chords, not notes
 
 
 # --- Fisher's exact -----------------------------------------------------------------------
@@ -210,11 +219,101 @@ def test_unknown_family_raises():
         induce_ruleset([], family="not-a-family")
 
 
-def test_harmony_induction_is_not_yet_supported():
-    # harmony IS a family now (gap B), but mining it needs the chord-stream
-    # corpus interface (slice 1b) — a clear error, not a silent empty result.
-    with pytest.raises(ValueError, match="harmony-family induction is not yet supported"):
-        induce_ruleset([], family="harmony")
+# --- harmony-family induction (gap B slice-1b: the chord-stream corpus) --------
+
+_CMAJ = (0, "major")
+
+
+def _harmony_corpus(n_pieces: int = 8):
+    """Progressions in C major where every V (degree 5) resolves to I — the
+    planted dominant→tonic idiom the miner should recover."""
+    predominants = [(5, "maj"), (9, "min"), (2, "min"), (4, "min")]  # IV vi ii iii
+    return [
+        ([(0, "maj"), predominants[i % len(predominants)], (7, "maj"), (0, "maj")], _CMAJ)
+        for i in range(n_pieces)
+    ]
+
+
+def test_harmony_induction_recovers_the_dominant_resolves_to_tonic_idiom():
+    result = induce_ruleset(family="harmony", chord_corpus=_harmony_corpus())
+    assert result.family == "harmony" and result.pieces == 8
+    # the planted idiom: some rule requires next_role=tonic where the item is the
+    # dominant (by role, or its degree-5 proxy) — V resolves to I.
+    hits = [
+        r for r in result.ruleset.rules
+        if r.check_kind == "require"
+        and any(c.field == "next_role" and c.value == "tonic" for c in r.check)
+        and any(
+            (c.field == "role" and c.value == "dominant")
+            or (c.field == "degree" and c.value == 5)
+            for c in r.where
+        )
+    ]
+    assert hits, "planted dominant→tonic idiom not recovered"
+
+
+def test_harmony_induced_rules_are_soft_and_valid():
+    result = induce_ruleset(family="harmony", chord_corpus=_harmony_corpus())
+    assert result.ruleset.rules and all(r.polarity == "soft" for r in result.ruleset.rules)
+    assert not validation_errors(ruleset_to_payload(result.ruleset))
+
+
+def test_harmony_corpus_conforms_to_its_own_induced_rules():
+    corpus = _harmony_corpus()
+    result = induce_ruleset(family="harmony", chord_corpus=corpus)
+    # evaluate the induced ruleset back over a corpus progression: high conformance
+    report = evaluate(result.ruleset, EMPTY_SEQ, chords=corpus[0][0], key=corpus[0][1])
+    soft = [r for r in report.results if r.applicable and r.conformance is not None]
+    assert soft and sum(r.conformance for r in soft) / len(soft) > 0.5
+
+
+def test_harmony_induction_is_deterministic():
+    corpus = _harmony_corpus()
+    a = induce_ruleset(family="harmony", chord_corpus=corpus).to_dict()
+    b = induce_ruleset(family="harmony", chord_corpus=list(reversed(corpus))).to_dict()
+    # order-independent up to the piece-index labels (rules key on fields, not order)
+    assert a["ruleset"]["rules"] == b["ruleset"]["rules"]
+
+
+def test_harmony_requires_chord_corpus_not_sequences():
+    with pytest.raises(ValueError, match="chord-stream corpus"):
+        induce_ruleset(family="harmony")  # no chord_corpus
+
+
+def test_chord_corpus_rejected_for_note_families():
+    with pytest.raises(ValueError, match="only for family='harmony'"):
+        induce_ruleset(family="melody", chord_corpus=_harmony_corpus())
+
+
+def test_harmony_induction_unknown_quality_raises():
+    with pytest.raises(ValueError, match="Unknown chord quality"):
+        induce_ruleset(family="harmony", chord_corpus=[([(0, "maj"), (7, "bogus")], _CMAJ)])
+
+
+def test_unknown_family_still_raises_before_corpus_dispatch():
+    with pytest.raises(ValueError, match="Unknown family"):
+        induce_ruleset(family="not-a-family")
+
+
+def test_mcp_induce_rules_harmony_matches_engine():
+    from mts.mcp import tools
+
+    corpus = _harmony_corpus()
+    engine = induce_ruleset(family="harmony", chord_corpus=corpus).to_dict()
+    # same corpus expressed in the MCP tool's [chords, key] JSON shape (note names ok)
+    mcp_corpus = [
+        [[[root, quality] for root, quality in chords], [key[0], key[1]]]
+        for chords, key in corpus
+    ]
+    tool = tools.induce_rules(family="harmony", chord_corpus=mcp_corpus)
+    assert tool == engine
+
+
+def test_mcp_induce_rules_harmony_needs_chord_corpus():
+    from mts.mcp import tools
+
+    with pytest.raises(ValueError, match="chord_corpus"):
+        tools.induce_rules(family="harmony", corpus=[[[0.0, 1.0, 60]]])
 
 
 # --- disjunction (`in`) merge pass --------------------------------------------------------
