@@ -2202,14 +2202,31 @@ to be informed by what 1–3 teach about the DSL's seams).
       port pin untouched. **This unblocks A10 wont's mining** — the interim
       tag-contrast stand-in (`method: tag-contrast.1`/`exploratory`) can now be
       re-derived against real induced rules (see `integrations/wont/`).
-      **Honest limits (slice-2+):** (a) the open-vocabulary **roman / quality /
-      next_roman** fields are **not** mined (high cardinality; a bounded
+      **Slice 2a DELIVERED (2026-07-08): harmonic segmentation — a note
+      `Sequence` → a chord stream.** `mts/temporal/harmonic_segmentation.py`
+      `segment_to_chords(sequence, *, key=None, subdivisions=1, min_pc_weight=0.1,
+      downbeat_emphasis=2.0, session=None)` (MCP `segment_chords`). The chosen
+      **metric-grid model** (design brief 2026-07-08): one chord per metric window
+      (a bar by default; `subdivisions` splits it), pcs weighted by sounding
+      duration × downbeat emphasis, thresholded, and named (`name_chord`) in the
+      inferred-or-supplied key. An analytical reduction that **errors, not
+      guesses** — a window naming no catalog chord is surfaced (`root_pc=None` +
+      reason), never fabricated; consecutive identical labels collapse. Added
+      `MeterMap.bar_spans(until_beat)` (meter-aware bar enumeration). Output
+      (`.chords` + `.key`) feeds `build_harmony_stream` / `evaluate` /
+      `induce_ruleset(family="harmony")` unchanged — so evaluation + induction now
+      run on **raw note corpora**, not just hand-annotated progressions. 18 tests;
+      golden purely additive (2 `segment_chords` cases appended); port pin
+      untouched. **Honest limits (slice-2b+):** (a) the open-vocabulary **roman /
+      quality / next_roman** fields are **not** mined (high cardinality; a bounded
       roman/quality enum is the recorded follow-on) — so "no ♭VII" surfaces via
-      `is_diatonic` / `degree`, not a `roman` literal; (b) auto-deriving the chord
-      stream from a `Sequence` (harmonic segmentation) is deferred; (c) Wend's
-      "authentic cadence within 4 bars of a section end" is still only
-      half-unblocked — gap B gives the `cadence` field, phrase-position needs the
-      deferred phrase scope; (d) major/minor only (functions), consecutive-run
+      `is_diatonic` / `degree`, not a `roman` literal; (b) segmentation uses a
+      **single global key** (per-window local-key regions deferred) and
+      **approximates** non-harmonic tones by the salience threshold only (true NHT
+      nesting under a parent harmony deferred — the Phase 2 refinement at line
+      1523); (c) Wend's "authentic cadence within 4 bars of a section end" is still
+      only half-unblocked — gap B gives the `cadence` field, phrase-position needs
+      the deferred phrase scope; (d) major/minor only (functions), consecutive-run
       limits need gap C.
 - [ ] **Pattern layer — sequential patterns/schemata as first-class objects**
       (added 2026-07-01 — gap C; the largest design lift, sequenced last).

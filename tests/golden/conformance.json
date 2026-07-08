@@ -20098,6 +20098,375 @@
     "spec_level": "registered_time"
    },
    "tool": "piano_roll_view"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
+      0.0,
+      4.0,
+      60
+     ],
+     [
+      0.0,
+      4.0,
+      64
+     ],
+     [
+      0.0,
+      4.0,
+      67
+     ],
+     [
+      4.0,
+      4.0,
+      65
+     ],
+     [
+      4.0,
+      4.0,
+      69
+     ],
+     [
+      4.0,
+      4.0,
+      72
+     ],
+     [
+      8.0,
+      4.0,
+      67
+     ],
+     [
+      8.0,
+      4.0,
+      71
+     ],
+     [
+      8.0,
+      4.0,
+      74
+     ],
+     [
+      12.0,
+      4.0,
+      60
+     ],
+     [
+      12.0,
+      4.0,
+      64
+     ],
+     [
+      12.0,
+      4.0,
+      67
+     ],
+     [
+      1.0,
+      0.25,
+      62
+     ]
+    ]
+   },
+   "result": {
+    "chords": [
+     [
+      0,
+      "maj"
+     ],
+     [
+      5,
+      "maj"
+     ],
+     [
+      7,
+      "maj"
+     ],
+     [
+      0,
+      "maj"
+     ]
+    ],
+    "key_inferred": true,
+    "key_margin": 0.3426042302673059,
+    "mode": "major",
+    "spans": [
+     {
+      "bar": 0,
+      "end_beat": 4.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 0,
+      "salient_pcs": [
+       0,
+       4,
+       7
+      ],
+      "start_beat": 0.0
+     },
+     {
+      "bar": 1,
+      "end_beat": 8.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 5,
+      "salient_pcs": [
+       0,
+       5,
+       9
+      ],
+      "start_beat": 4.0
+     },
+     {
+      "bar": 2,
+      "end_beat": 12.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 7,
+      "salient_pcs": [
+       2,
+       7,
+       11
+      ],
+      "start_beat": 8.0
+     },
+     {
+      "bar": 3,
+      "end_beat": 16.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 0,
+      "salient_pcs": [
+       0,
+       4,
+       7
+      ],
+      "start_beat": 12.0
+     }
+    ],
+    "tonic_pc": 0
+   },
+   "tool": "segment_chords"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
+      0.0,
+      4.0,
+      60
+     ],
+     [
+      0.0,
+      4.0,
+      64
+     ],
+     [
+      0.0,
+      4.0,
+      67
+     ],
+     [
+      4.0,
+      4.0,
+      65
+     ],
+     [
+      4.0,
+      4.0,
+      69
+     ],
+     [
+      4.0,
+      4.0,
+      72
+     ],
+     [
+      8.0,
+      4.0,
+      67
+     ],
+     [
+      8.0,
+      4.0,
+      71
+     ],
+     [
+      8.0,
+      4.0,
+      74
+     ],
+     [
+      12.0,
+      4.0,
+      60
+     ],
+     [
+      12.0,
+      4.0,
+      64
+     ],
+     [
+      12.0,
+      4.0,
+      67
+     ],
+     [
+      1.0,
+      0.25,
+      62
+     ]
+    ],
+    "key": [
+     "C",
+     "major"
+    ],
+    "subdivisions": 2
+   },
+   "result": {
+    "chords": [
+     [
+      0,
+      "maj"
+     ],
+     [
+      5,
+      "maj"
+     ],
+     [
+      7,
+      "maj"
+     ],
+     [
+      0,
+      "maj"
+     ]
+    ],
+    "key_inferred": false,
+    "key_margin": 0.0,
+    "mode": "major",
+    "spans": [
+     {
+      "bar": 0,
+      "end_beat": 2.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 0,
+      "salient_pcs": [
+       0,
+       4,
+       7
+      ],
+      "start_beat": 0.0
+     },
+     {
+      "bar": 0,
+      "end_beat": 4.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 0,
+      "salient_pcs": [
+       0,
+       4,
+       7
+      ],
+      "start_beat": 2.0
+     },
+     {
+      "bar": 1,
+      "end_beat": 6.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 5,
+      "salient_pcs": [
+       0,
+       5,
+       9
+      ],
+      "start_beat": 4.0
+     },
+     {
+      "bar": 1,
+      "end_beat": 8.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 5,
+      "salient_pcs": [
+       0,
+       5,
+       9
+      ],
+      "start_beat": 6.0
+     },
+     {
+      "bar": 2,
+      "end_beat": 10.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 7,
+      "salient_pcs": [
+       2,
+       7,
+       11
+      ],
+      "start_beat": 8.0
+     },
+     {
+      "bar": 2,
+      "end_beat": 12.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 7,
+      "salient_pcs": [
+       2,
+       7,
+       11
+      ],
+      "start_beat": 10.0
+     },
+     {
+      "bar": 3,
+      "end_beat": 14.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 0,
+      "salient_pcs": [
+       0,
+       4,
+       7
+      ],
+      "start_beat": 12.0
+     },
+     {
+      "bar": 3,
+      "end_beat": 16.0,
+      "is_ambiguous": false,
+      "quality": "maj",
+      "reason": null,
+      "root_pc": 0,
+      "salient_pcs": [
+       0,
+       4,
+       7
+      ],
+      "start_beat": 14.0
+     }
+    ],
+    "tonic_pc": 0
+   },
+   "tool": "segment_chords"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",

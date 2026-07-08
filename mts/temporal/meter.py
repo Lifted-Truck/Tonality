@@ -83,6 +83,35 @@ class MeterMap:
                 beat += (next_bar - change.bar) * change.signature.beats_per_bar
         return segments
 
+    def bar_spans(self, until_beat: float) -> list[tuple[float, float, int]]:
+        """``(start_beat, end_beat, bar_index)`` for every bar overlapping
+        ``[0, until_beat)``.
+
+        Meter-aware — honors mid-piece time-signature changes (each segment
+        emits its own bars). The final bar's end is clamped to ``until_beat``
+        when the content stops mid-bar. Empty when ``until_beat <= 0``.
+        """
+
+        if until_beat <= _EPS:
+            return []
+        spans: list[tuple[float, float, int]] = []
+        for start_beat, start_bar, signature, next_bar in self._segments():
+            if start_beat >= until_beat - _EPS:
+                break
+            bpb = signature.beats_per_bar
+            seg_end = (
+                start_beat + (next_bar - start_bar) * bpb if next_bar is not None else None
+            )
+            beat, bar = start_beat, start_bar
+            while beat < until_beat - _EPS and (seg_end is None or beat < seg_end - _EPS):
+                end = beat + bpb
+                if seg_end is not None:
+                    end = min(end, seg_end)
+                spans.append((beat, min(end, until_beat), bar))
+                beat += bpb
+                bar += 1
+        return spans
+
     def metric_position(self, beat: float) -> MetricPosition:
         """Convert an absolute quarter-note beat into a :class:`MetricPosition`."""
 

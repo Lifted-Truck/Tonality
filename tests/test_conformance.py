@@ -111,6 +111,18 @@ def _meter_change_events():
     return events
 
 
+def _segment_events():
+    # I - IV - V - I in C major, one block chord per 4/4 bar (a brief passing
+    # tone in bar 0 that the salience threshold should drop).
+    bars = [[0, 4, 7], [5, 9, 12], [7, 11, 14], [0, 4, 7]]
+    events = []
+    for bar, pcs in enumerate(bars):
+        for pc in pcs:
+            events.append([bar * 4.0, 4.0, 60 + pc])
+    events.append([1.0, 0.25, 62])  # passing D in bar 0
+    return events
+
+
 def _groove_loop():
     # Swung, accented loop: [onset, dur, midi, velocity] (groove event format).
     events = []
@@ -380,6 +392,10 @@ CASES: list[tuple[str, dict]] = [
         {"path": "$FIXTURES/pipeline.mid", "include_meter_regions": True},
     ),
     ("piano_roll_view", {"path": "$FIXTURES/pipeline.mid"}),
+    # gap B slice-2a: note stream → chord stream (metric grid). Appended last to
+    # keep the golden purely additive.
+    ("segment_chords", {"events": _segment_events()}),
+    ("segment_chords", {"events": _segment_events(), "key": ["C", "major"], "subdivisions": 2}),
 ]
 
 
