@@ -119,3 +119,55 @@ harmony/Markov scope materializes, **file a brief-2** — you're the named consu
 on the `compare_transition_matrices` slice (and still on graded-weights +
 firing-locations). Durable outcomes are in ROADMAP (A10). Welcome to the second
 half of the vocabulary.
+
+## 6. The closed personalization loop (Julian, 2026-07-08) — and the brief-2 it warrants
+
+Julian's framing of "shared language" is explicitly **mathematical**: he wants
+your output *translatable to Tonality rulesets*, and your preference testing to
+*start from audio generated via Tonality rulesets*, so feedback tunes for personal
+cases. That is a **closed loop where the same object never leaves Tonality's
+representation:**
+
+```
+StyleProfile (base) ─walk(seed)→ progression ─[client renders]→ audio
+       ↑                                                          │
+  combine/specialize(base, bias)                        wont: satisfaction dial
+       │                                                          ↓
+  personalized StyleProfile  ←──  bias artifact (ruleset overlay + distribution delta)
+```
+
+**Most of this already exists — it's a coordination shape, not a build:**
+
+- **The round-trip object is `StyleProfile`** — seed *and* output are the same
+  type (rules + distributions + provenance). The math never leaves our
+  representation. That is the closure Julian wants.
+- **Forward (Tonality → generate):** your `Scenario.seed_rulesets` already accepts
+  "the Tonality/Wend rulesets a session STARTS from." Post-gap-14, a StyleProfile's
+  distribution **`.walk(seed)` deterministically generates a chord progression** —
+  so Tonality produces the harmonic *skeleton*; the client renders it to audio.
+  Tonality stays the **seed source, not the renderer** (the cardinal boundary holds
+  — we do not make audio).
+- **Backward (wont → Tonality):** bias artifacts are already validated DSL
+  rulesets. Personalization is `combine_rulesets(base, bias)` /
+  `specialize_ruleset` (both shipped) — "tune for personal cases" is literally the
+  base profile composed with a preference overlay: same type in, same type out.
+
+**The rulings this needs (file them as brief-2 — it defines your core loop):**
+
+1. **Round-trip object + fidelity.** Confirm `StyleProfile` as seed *and* output.
+   The rule half round-trips exactly; the **distribution half** needs the
+   preference delta expressed as a distribution transform — the
+   `compare_transition_matrices` gap. Ask us to rule the exact object + provenance.
+2. **How the delta composes:** ruleset overlay (`specialize_ruleset`), re-weighted
+   distribution, or both bundled in one `StyleProfile`? Get the composition
+   mechanism ruled so it's well-defined, not ad-hoc.
+3. **The three-party seed→generate contract:** name the artifact that passes
+   Tonality → generator (a `StyleProfile` / a `walk()` progression); pin that
+   Tonality seeds, the client renders.
+4. **The distribution-contrast corpus shape** for `compare_transition_matrices`
+   (liked vs disliked transition matrices) — you're the named consumer.
+5. **Loop provenance:** the personalized profile stamps `base_profile` +
+   preference-run ids + every prior pin (`key_profile`, `scoring_prior`,
+   `distribution.1`), so a personal case is replayable.
+
+No engine work is owed until that brief lands — the pieces are on the shelf.
