@@ -885,6 +885,26 @@ def ruleset_field_manifest() -> dict:
     return _manifest()
 
 
+def list_named_rulesets() -> list[str]:
+    """The names of the citable rulesets shipped in the library (gap D) —
+    e.g. 'first-species-counterpoint'. Load one with load_named_ruleset."""
+    from ..rules import list_named_rulesets as _list
+
+    return _list()
+
+
+def load_named_ruleset(name: str) -> dict:
+    """Load a shipped, citable ruleset by name (see list_named_rulesets) as a
+    validated DSL payload — ready to feed evaluate_ruleset, or to read/adapt.
+    The description documents the ruleset's scope assumptions and the rules it
+    could NOT express in the current DSL (recorded expressiveness evidence).
+    Unknown names raise with the known list."""
+    from ..rules import load_named_ruleset as _load
+    from ..rules.schema import ruleset_to_payload
+
+    return ruleset_to_payload(_load(name))
+
+
 def induce_rules(
     corpus: list[list[list]],
     family: str,
@@ -1301,6 +1321,8 @@ TOOLS = (
     validate_ruleset,
     evaluate_ruleset,
     ruleset_field_manifest,
+    list_named_rulesets,
+    load_named_ruleset,
     induce_rules,
     combine_rulesets,
     specialize_ruleset,
