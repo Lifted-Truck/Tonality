@@ -31,9 +31,13 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from ..temporal import Sequence, analyze_melody, analyze_rhythm, voice_motion
 from .schema import HARMONY_DEPENDENT_FIELDS, Rule, Ruleset, parse_ruleset
+
+if TYPE_CHECKING:
+    from ..session import SessionCatalog
 
 
 @dataclass(frozen=True)
@@ -161,7 +165,9 @@ def _line_streams(sequence: Sequence, analyzer, harmony) -> _Stream:
     return _Stream(items, skipped, None)
 
 
-def _build_stream(family: str, sequence: Sequence, harmony, chords=None, key=None) -> _Stream:
+def _build_stream(
+    family: str, sequence: Sequence, harmony, chords=None, key=None, session=None
+) -> _Stream:
     if family == "harmony":
         if chords is None or key is None:
             missing = "chords" if chords is None else "key"
@@ -172,7 +178,7 @@ def _build_stream(family: str, sequence: Sequence, harmony, chords=None, key=Non
             )
         from .harmony_stream import build_harmony_stream
 
-        items, reason = build_harmony_stream(chords, key[0], key[1])
+        items, reason = build_harmony_stream(chords, key[0], key[1], session=session)
         return _Stream(items, [], reason)
     if family == "voice_motion":
         try:
@@ -263,6 +269,7 @@ def evaluate(
     harmony: Iterable[tuple[float, float, Iterable[int]]] | None = None,
     chords: Iterable[tuple[int, str]] | None = None,
     key: tuple[int, str] | None = None,
+    session: SessionCatalog | None = None,
     include_firings: bool = False,
 ) -> ConformanceReport:
     """Evaluate every rule against *sequence*; nothing is silently skipped.
@@ -275,7 +282,11 @@ def evaluate(
     ``harmony`` family (gap B): ``chords`` is ``[(root_pc, quality), …]`` and
     ``key`` is ``(tonic_pc, mode)``; harmony rules without both come back
     ``applicable=False`` (no chords, no claim) — the same discipline as harmony
-    spans. ``include_firings`` adds the located *firings* (considered items
+    spans. ``session`` merges that session's registered chord qualities into the
+    harmony family's catalog, so a user-defined quality resolves like a built-in
+    one; a quality that resolves in neither raises ``ValueError`` (a caller
+    error — error, not guess), like malformed harmony spans above.
+    ``include_firings`` adds the located *firings* (considered items
     where the rule held) to each applicable result — the positive complement to
     violations, for saliency/credit-
     assignment consumers; off by default (output byte-identical when off).
@@ -308,7 +319,9 @@ def evaluate(
             )
             continue
         if rule.family not in streams:
-            streams[rule.family] = _build_stream(rule.family, sequence, harmony, chords, key)
+            streams[rule.family] = _build_stream(
+                rule.family, sequence, harmony, chords, key, session
+            )
         stream = streams[rule.family]
         if stream.unavailable_reason is not None:
             results.append(_not_applicable(rule, stream.unavailable_reason, stream.skipped_voices))

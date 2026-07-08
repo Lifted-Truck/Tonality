@@ -111,6 +111,50 @@ def test_modal_key_is_not_applicable_not_guessed():
     assert "major/minor only" in r.reason
 
 
+# --- error, not guess: unknown quality raises (issue #168) --------------------
+
+def test_unknown_quality_raises_not_silently_undiatonic():
+    # An unrecognized quality has no pitch content, so is_diatonic cannot be
+    # computed — the family raises (like succession/notation) rather than
+    # collapsing it to a definite-but-wrong is_diatonic=False.
+    with pytest.raises(ValueError, match="Unknown chord quality 'bogus'"):
+        build_harmony_stream([(0, "maj"), (7, "bogus")], 0, "major")
+
+
+def test_unknown_quality_raises_through_evaluate():
+    rs = _rule(require={"is_diatonic": True}, polarity="soft", weight=1.0)
+    with pytest.raises(ValueError, match="Unknown chord quality"):
+        evaluate(rs, EMPTY, chords=[(0, "maj"), (7, "nope")], key=CMAJ)
+
+
+def test_session_registered_quality_resolves_not_treated_as_typo():
+    # A session-registered quality resolves like a built-in — is_diatonic is
+    # *computed* (True/False by pitch content), never raised or defaulted.
+    from mts.core.quality import ChordQuality
+    from mts.session import SessionCatalog
+
+    sess = SessionCatalog()
+    sess.chords["triad6"] = ChordQuality.from_intervals("triad6", (0, 4, 7))  # C-E-G: diatonic in C
+    sess.chords["cluster"] = ChordQuality.from_intervals("cluster", (0, 1, 6))  # C-Db-Gb: not
+
+    items = [
+        it
+        for it, _ in build_harmony_stream(
+            [(0, "triad6"), (0, "cluster")], 0, "major", session=sess
+        )[0]
+    ]
+    assert items[0].is_diatonic is True
+    assert items[1].is_diatonic is False   # computed, not a typo default
+
+    # and the same resolution flows through evaluate(session=…)
+    rs = _rule(require={"is_diatonic": True}, polarity="hard")
+    report = evaluate(
+        rs, EMPTY, chords=[(0, "triad6")], key=CMAJ, session=sess
+    )
+    assert report.results[0].applicable is True
+    assert report.hard_rules_hold is True
+
+
 # --- manifest + library + MCP -------------------------------------------------
 
 def test_manifest_includes_harmony_family():

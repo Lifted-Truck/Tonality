@@ -25,9 +25,13 @@ analysis.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from ..core.setclass import dft_magnitudes
 from ..io.loaders import load_chord_qualities, load_function_mappings
+
+if TYPE_CHECKING:
+    from ..session import SessionCatalog
 
 _MODE_SCALE: dict[str, tuple[int, ...]] = {
     "major": (0, 2, 4, 5, 7, 9, 11),
@@ -60,21 +64,41 @@ def _role_table(mode: str) -> dict[tuple[int, str], tuple[str, str]]:
     return table
 
 
-def _chord_pcs(root: int, quality: str, catalog) -> frozenset[int] | None:
+def _chord_pcs(root: int, quality: str, catalog) -> frozenset[int]:
     entry = catalog.get(quality)
     if entry is None:
-        return None
+        # Error, not guess (the cardinal rule): an unrecognized quality has no
+        # known pitch content, so is_diatonic cannot be computed. Returning it
+        # as False would be a definite *wrong* claim, not an absence — so raise,
+        # matching every peer catalog consumer (succession/notation raise
+        # ValueError on an unknown quality). A caller with custom qualities
+        # passes a session (below) so they resolve instead of being typos.
+        raise ValueError(
+            f"Unknown chord quality {quality!r} — not in the catalog. "
+            "Register it in the session (pass session=…) or fix the symbol; "
+            "the harmony family errors rather than guess is_diatonic for an "
+            "unrecognized quality."
+        )
     return frozenset((root + iv) % 12 for iv in entry.intervals)
 
 
 def build_harmony_stream(
-    chords: list[tuple[int, str]], tonic_pc: int, mode: str
+    chords: list[tuple[int, str]], tonic_pc: int, mode: str,
+    *, session: SessionCatalog | None = None,
 ) -> tuple[list[tuple[HarmonyItem, dict]], str | None]:
     """Build ``(item, location)`` pairs for a named progression in a key.
 
     Returns ``(items, None)`` on success, or ``([], reason)`` when the mode is
     unsupported (major/minor only) — the evaluator then reports harmony rules
     not-applicable, never guessed.
+
+    ``session`` merges that session's registered chord qualities into the
+    catalog (via :func:`load_chord_qualities`), so a user-defined quality
+    resolves like a built-in one. **Raises** ``ValueError`` on a chord quality
+    that resolves in neither the base catalog nor the session — a caller error
+    (typo / unregistered symbol), distinct from the *soft* not-applicable an
+    unsupported mode returns. This is the error-don't-guess rule: an unknown
+    quality has no pitch content, so no ``is_diatonic`` claim can be made.
     """
 
     mode_key = str(mode).lower()
@@ -91,7 +115,7 @@ def build_harmony_stream(
     scale_pcs = frozenset((tonic + s) % 12 for s in scale)
     degree_of = {(tonic + s) % 12: i + 1 for i, s in enumerate(scale)}
     table = _role_table(mode_key)
-    catalog = load_chord_qualities()
+    catalog = load_chord_qualities(session)
 
     # Cadence-arrival membership, reusing the shipped detector.
     from ..analysis.cadence import detect_cadences
@@ -110,8 +134,8 @@ def build_harmony_stream(
     for i, (root, quality) in enumerate(chords):
         rel = (int(root) % 12 - tonic) % 12
         role, roman = table.get((rel, str(quality)), (None, None))
-        pcs = pcs_list[i]
-        is_diatonic = pcs is not None and pcs <= scale_pcs
+        pcs = pcs_list[i]           # never None: an unknown quality raised above
+        is_diatonic = pcs <= scale_pcs
 
         nxt = i + 1
         if nxt < len(chords):
@@ -119,7 +143,7 @@ def build_harmony_stream(
             nrole, nroman = table.get((nrel, str(chords[nxt][1])), (None, None))
             root_motion = (int(chords[nxt][0]) % 12 - int(root) % 12) % 12
             npcs = pcs_list[nxt]
-            common = len(pcs & npcs) if (pcs is not None and npcs is not None) else None
+            common = len(pcs & npcs)
             if mags[i] is not None and mags[nxt] is not None:
                 color = round(sum(abs(a - b) for a, b in zip(mags[i], mags[nxt])), 10)
             else:
