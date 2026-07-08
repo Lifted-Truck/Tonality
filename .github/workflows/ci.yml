@@ -1,0 +1,38 @@
+name: CI
+
+# Enforce the "808 green" the project already achieves locally: run the dev
+# suite (tests/) and the audit invariants (audit/checks/) on every PR and on
+# main. Catches golden drift, the port-pin fingerprint, and regressions before
+# merge — the accountability the Stop-hook gives locally, made mandatory.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The supported floor and the dev version — the ends of requires-python.
+        python-version: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install (editable + dev extra)
+        # mido is a runtime dep (pulled by the base install); the one MCP-server
+        # test skips without the optional `mcp` extra, exactly as it does locally.
+        run: python -m pip install -e '.[dev]'
+      - name: Dev suite (the conformance golden + the port-pin fingerprint gate here)
+        run: python -m pytest tests/ -q
+      - name: Audit invariants (fenced out of the dev suite; run explicitly here)
+        run: python -m pytest audit/checks/ -q

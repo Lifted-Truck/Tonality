@@ -102,7 +102,7 @@ Python) can compute the same answers from the same data.
 | Door | For | Entry point |
 |---|---|---|
 | **Python library** | scripting, embedding | `import mts` — pure functions over frozen dataclasses |
-| **MCP endpoint** | AI agents | **46 tools**, one per analysis; `python -m mts.mcp` (needs the `mcp` extra) |
+| **MCP endpoint** | AI agents | **50+ tools**, one per analysis entry point; `python -m mts.mcp` (needs the `mcp` extra) |
 | **Dataset / JSON** | offline pipelines | versioned catalogs in `mts/data/`, dataset records from MIDI |
 
 The core data model is two structures: an **identity key** (a pitch-class set as a
