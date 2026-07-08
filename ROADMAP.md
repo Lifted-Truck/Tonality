@@ -718,6 +718,21 @@ list as new applications come into view.
    symmetric containers report every valid root; takes explicit catalog
    mappings so session catalogs are searchable. No ranking policy — pure
    subset combinatorics, deterministic ordering only.
+   *Follow-on — scale/set-class NAME catalog (A6 brief-20, `response-20`,
+   2026-07-08):* A6 wants canonical + alternate names (across traditions) keyed by
+   set-class, with Forte number. **The structure already ships** — `Scale`/
+   `ChordQuality` carry `name` + `aliases` — it's the **breadth** that's the new
+   data asset. Ruled shape: a **`scale_names(pcs|prime_form)` tool** returning
+   `{canonical, aliases:[{name,tradition?,source?}], prime_form, forte_number,
+   cardinality, is_scale}`, buildable as a **v1 over the existing catalog now**
+   (zero new data, `forte_number: null` — prime form is the id; Forte stays the
+   3.5a deferral pending a vetted table), plus a **bulk versioned export** when the
+   data grows. **Crux is sourcing/license — Julian's call, not the engine's:** Ian
+   Ring is our integer-convention reference but his *name corpus* is unvetted;
+   recommended license-safe path is **engine-authored names first** (modal/
+   symmetric/interval-vector structure — zero risk), external aliases (raga/maqam/
+   Zeitler) only from CC0/PD/BY-verified sources with per-alias `source`/`tradition`
+   provenance. v1 tool ships on A6's word.
 9. **The web door** (A6; the Phase 5 visualizer class) — browsers cannot
    spawn the stdio MCP server. Sanctioned shape, ruled 2026-06-11: a thin
    local HTTP bridge over the existing pure `mts.mcp.tools` functions
