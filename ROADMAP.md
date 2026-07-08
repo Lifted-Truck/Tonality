@@ -645,6 +645,21 @@ list as new applications come into view.
   analogue of `compare_rulesets` (the asymmetric case is covered today by
   `cross_entropy`). Not built speculatively; file a brief-2 when the Markov scope
   materializes.
+  *Closed personalization loop (direction on record, Julian 2026-07-08):* the
+  target is a loop where **the same object never leaves Tonality's representation**
+  — a `StyleProfile` (base) seeds generation (`walk()` samples the harmonic
+  skeleton; the client renders audio — Tonality is seed source, not renderer),
+  wont collects satisfaction, and the bias artifact composes back onto the base via
+  `combine_rulesets`/`specialize_ruleset` into a *personalized* `StyleProfile`.
+  Round-trip object = `StyleProfile`; forward-seed already supported (wont
+  `Scenario.seed_rulesets` + `TransitionMatrix.walk`); backward-translate already
+  supported (bias artifact = DSL ruleset, composed by the shipped
+  combine/specialize). Open rulings (awaiting wont **brief-2**): round-trip
+  fidelity of the distribution half (needs `compare_transition_matrices`), the
+  delta-composition mechanism (overlay vs re-weight vs both), the three-party
+  seed→generate contract, and loop provenance (stamp `base_profile` + run ids +
+  `key_profile`/`scoring_prior`/`distribution.1`). No engine work owed until the
+  brief lands — the pieces are on the shelf.
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
