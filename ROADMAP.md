@@ -2688,6 +2688,39 @@ and disposals:
 
 Next pass: at the next phase boundary (post-DSL v1).
 
+## Standing review — operational maturity (external audit 2026-07-07)
+
+An independent agent audited the GitHub repo: **internals ~8/10, release/ops
+~3/10** — "internally mature, operationally early." Confirmed findings and
+their disposition:
+- **No CI** (the biggest gap). FIXED: `.github/workflows/ci.yml` runs
+  `pytest tests/` + `pytest audit/checks/` on every PR + main, matrix py3.10 /
+  3.13 — the "808 green" is now enforced, not aspirational.
+- **Port pin failing on a fresh clone.** The audit led with "forgotten re-pin";
+  verification showed the deeper cause — the fingerprint hashed the set-class
+  table's **float** fields (DFT magnitudes/phases, the chirality family, and
+  reflection_residual, a golden-section minimizer) at full precision via exact
+  sha256, so it was platform-specific (green on the machine that generated it,
+  red on Linux/CI). FIXED: the fingerprint now hashes **only the exactly-
+  reproducible integer/combinatorial fields** — pure bit/integer arithmetic,
+  bit-identical everywhere. (A first attempt rounding floats to 1e-10 *still*
+  drifted macOS↔Linux in CI — exact-hashing transcendental/iterative floats is
+  inherently machine-specific, no rounding is robust; those fields are tolerance-
+  compared by the conformance harness + the port's parity harness instead.) Pin
+  regenerated; notice to tonality-core. A plain re-pin would have made CI *flap*.
+- **Python-floor untested.** CI's 3.10 leg revealed `test_packaging.py` imports
+  `tomllib` (stdlib only ≥3.11) — the `requires-python >=3.10` claim had never
+  actually run. FIXED: that module skips on 3.10 (the rest of the suite still
+  validates the floor); 3.11+ covers the packaging assertions.
+- **README tool count stale** (46 → 52). FIXED: reworded to "50+ tools"
+  (drift-resistant). The README already frames the Push CLI as legacy and
+  features the MCP endpoint, contrary to the audit's read — no other drift. The
+  "17 tools" reference is a *dated* delivered-note (accurate for 2026-06-10),
+  legitimately frozen, not live drift.
+- **No LICENSE** — the one hole NOT patched here: it is a product/legal decision
+  (RE-1; the intended BY-NC-SA boundary), Julian's to make. Flagged, not
+  assumed. It hard-blocks outside adoption until resolved, but nothing internal.
+
 ## Standing review — rigor & efficiency (pass #1 run 2026-07-02)
 
 The theory-grounding review asks *what the engine silently assumes about

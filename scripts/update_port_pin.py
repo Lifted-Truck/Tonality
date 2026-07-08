@@ -36,13 +36,43 @@ def _canonical_sha256(obj: object) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+# The fingerprint hashes ONLY the exactly-reproducible fields of the set-class
+# table — those whose entire derivation is integer / bit arithmetic, and are
+# therefore bit-identical on every conforming platform. The table's FLOAT fields
+# (DFT magnitudes/phases, the chirality family, and reflection_residual — a
+# golden-section minimizer) are transcendental / iterative and agree across
+# platforms only to ~ULP..1e-9, so an EXACT hash of them is inherently
+# machine-specific: rounding is not robustly safe (a value can always straddle a
+# boundary — CI proved a 1e-10 round still drifted macOS↔Linux). Those are the
+# wrong thing to exact-hash; they are tolerance-compared by the conformance
+# harness (1e-9) and by the port's own parity harness (PORT.md). The pin's job is
+# the FROZEN COMBINATORICS, which is exactly this integer surface.
+_FINGERPRINT_TABLE_FIELDS = (
+    "mask",
+    "cardinality",
+    "normal_order",
+    "prime_form",
+    "prime_form_mask",
+    "interval_vector",
+    "z_partner_prime_form",
+    "complement_prime_form",
+    "rotational_period",
+)
+
+
+def _fingerprint_table() -> list[dict[str, object]]:
+    """The exactly-reproducible (integer-only) projection of the set-class table."""
+    from mts.io.export import set_class_table
+
+    return [
+        {field: row[field] for field in _FINGERPRINT_TABLE_FIELDS}
+        for row in set_class_table()
+    ]
+
+
 def ported_surface_fingerprint() -> dict[str, object]:
     """The live engine's fingerprint of everything the port slice vendors."""
-    from mts.io.export import (
-        EXPORT_SCHEMA_VERSION,
-        SET_CLASS_TABLE_FIELDS,
-        set_class_table,
-    )
+    from mts.io.export import EXPORT_SCHEMA_VERSION, SET_CLASS_TABLE_FIELDS
 
     conformance = json.loads(CONFORMANCE_PATH.read_text())
     ported_cases = [
@@ -53,8 +83,12 @@ def ported_surface_fingerprint() -> dict[str, object]:
     return {
         "surface": "port.slice-1b",  # slice 1 + the chirality/DFT-phase family (export.2)
         "export_schema_version": EXPORT_SCHEMA_VERSION,
+        # The full export the port vendors (documentation of the surface)...
         "set_class_table_fields": list(SET_CLASS_TABLE_FIELDS),
-        "set_class_table_sha256": _canonical_sha256(set_class_table()),
+        # ...but the exact hash covers only the platform-deterministic integer
+        # fields; the float fields ride the tolerance harness (see above).
+        "set_class_table_sha256_fields": list(_FINGERPRINT_TABLE_FIELDS),
+        "set_class_table_sha256": _canonical_sha256(_fingerprint_table()),
         "ported_conformance_tools": list(PORTED_CONFORMANCE_TOOLS),
         "ported_conformance_cases_sha256": _canonical_sha256(ported_cases),
     }

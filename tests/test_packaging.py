@@ -13,8 +13,17 @@ import json
 import shutil
 import subprocess
 import sys
-import tomllib
 from pathlib import Path
+
+import pytest
+
+# tomllib is stdlib only on 3.11+; this file parses pyproject to check package
+# data. On the 3.10 floor it isn't present (and tomli isn't a dependency), so
+# skip just this module there — the rest of the suite still validates 3.10, and
+# 3.11+ CI covers the packaging assertions.
+if sys.version_info < (3, 11):
+    pytest.skip("test_packaging needs tomllib (Python 3.11+)", allow_module_level=True)
+import tomllib
 
 import mts
 from mts.io.loaders import DATA_DIR
