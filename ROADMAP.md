@@ -759,7 +759,17 @@ list as new applications come into view.
    recommended license-safe path is **engine-authored names first** (modal/
    symmetric/interval-vector structure — zero risk), external aliases (raga/maqam/
    Zeitler) only from CC0/PD/BY-verified sources with per-alias `source`/`tradition`
-   provenance. v1 tool ships on A6's word.
+   provenance. **v1 DELIVERED (2026-07-08, `notice-scale-names-shipped.md`):**
+   `interpret_scale` (`analysis/equivalence.py`, the scale sibling of
+   `interpret_chord`) + MCP `scale_names(pcs|prime_form)`. Returns the set-class
+   identity (`prime_form`/`prime_form_mask`/`interval_vector`/`cardinality`,
+   `forte_number: null`, `is_scale`, `rotational_period`) + **plural `names`**
+   `[{root_pc, name, aliases, tradition, source}]` — every catalog scale the set
+   matches at each tonic (the diatonic set → all 7 modes). **No fabricated single
+   `canonical`** — a modal-ambiguous set is honestly plural (pick by root context,
+   exactly as with `interpret_chord`); `tradition`/`source` are provenance slots
+   empty until a vetted corpus lands. Zero new data, breadth grows with the
+   catalog. 11 tests; golden additive; port pin untouched.
 9. **The web door** (A6; the Phase 5 visualizer class) — browsers cannot
    spawn the stdio MCP server. Sanctioned shape, ruled 2026-06-11: a thin
    local HTTP bridge over the existing pure `mts.mcp.tools` functions

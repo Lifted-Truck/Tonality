@@ -429,6 +429,8 @@ CASES: list[tuple[str, dict]] = [
              {"id": "v-i", "family": "harmony", "where": {"role": "dominant"},
               "require": {"next_role": "tonic"}, "polarity": "soft", "weight": 2.0}]}},
     ),
+    # A6 brief-20: scale naming (diatonic → 7 modes). Appended last (additive).
+    ("scale_names", {"pcs": [0, 2, 4, 5, 7, 9, 11]}),
 ]
 
 

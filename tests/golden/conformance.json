@@ -20909,6 +20909,109 @@
     "version": "1"
    },
    "tool": "build_style_profile"
+  },
+  {
+   "kwargs": {
+    "pcs": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9,
+     11
+    ]
+   },
+   "result": {
+    "cardinality": 7,
+    "forte_number": null,
+    "interval_vector": [
+     2,
+     5,
+     4,
+     3,
+     6,
+     1
+    ],
+    "is_scale": true,
+    "mask": 2741,
+    "names": [
+     {
+      "aliases": [
+       "Major"
+      ],
+      "name": "Ionian",
+      "root_pc": 0,
+      "source": null,
+      "tradition": null
+     },
+     {
+      "aliases": [],
+      "name": "Dorian",
+      "root_pc": 2,
+      "source": null,
+      "tradition": null
+     },
+     {
+      "aliases": [],
+      "name": "Phrygian",
+      "root_pc": 4,
+      "source": null,
+      "tradition": null
+     },
+     {
+      "aliases": [],
+      "name": "Lydian",
+      "root_pc": 5,
+      "source": null,
+      "tradition": null
+     },
+     {
+      "aliases": [],
+      "name": "Mixolydian",
+      "root_pc": 7,
+      "source": null,
+      "tradition": null
+     },
+     {
+      "aliases": [
+       "Natural Minor"
+      ],
+      "name": "Aeolian",
+      "root_pc": 9,
+      "source": null,
+      "tradition": null
+     },
+     {
+      "aliases": [],
+      "name": "Locrian",
+      "root_pc": 11,
+      "source": null,
+      "tradition": null
+     }
+    ],
+    "pcs": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9,
+     11
+    ],
+    "prime_form": [
+     0,
+     1,
+     3,
+     5,
+     6,
+     8,
+     10
+    ],
+    "prime_form_mask": 1387,
+    "rotational_period": 12
+   },
+   "tool": "scale_names"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",

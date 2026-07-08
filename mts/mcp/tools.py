@@ -23,6 +23,7 @@ from ..analysis import (
     find_containers,
     infer_key,
     interpret_chord,
+    interpret_scale,
     name_chord,
     name_chord_across_keys,
     parse_chord_spec,
@@ -233,6 +234,24 @@ def interpretations(pcs: list[int]) -> dict:
     """Every structurally-valid (root, quality) naming of a pc set
     (symmetric and ambiguous sets yield several)."""
     return interpret_chord(int(pc) % 12 for pc in pcs).to_dict()
+
+
+def scale_names(pcs: list[int] | None = None, prime_form: list[int] | None = None) -> dict:
+    """Name a pitch-class set as scales (A6 brief-20, v1 over the shipped catalog) —
+    the scale sibling of `interpretations`. Give `pcs` (pitch classes; note names
+    ok) OR `prime_form`. Returns {pcs, mask, cardinality, prime_form,
+    prime_form_mask, interval_vector, forte_number, is_scale, rotational_period,
+    names:[{root_pc, name, aliases, tradition, source}]}. PLURAL + honest: a
+    modal-ambiguous set names at several tonics (the diatonic set is Ionian /
+    Dorian / … at different roots), so there is no single fabricated "canonical" —
+    pick one by root context, exactly as with `interpretations`. forte_number is
+    null (a recorded deferral — prime form is the unambiguous set-class id);
+    tradition/source are provenance slots for a future vetted name corpus, empty
+    in v1. Numeric identity is the boundary; spell the roots at the display edge."""
+    source = pcs if pcs is not None else prime_form
+    if source is None:
+        raise ValueError("scale_names needs `pcs` or `prime_form`.")
+    return interpret_scale(_pc(p) for p in source).to_dict()
 
 
 def catalog_containment(pcs: list[int]) -> dict:
@@ -1491,6 +1510,7 @@ TOOLS = (
     scale_analysis,
     set_class_info,
     interpretations,
+    scale_names,
     catalog_containment,
     search_identities,
     chord_in_key,
