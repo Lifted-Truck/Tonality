@@ -1391,7 +1391,10 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     voicing enumeration, gap 17).
 
 *Efficiency & realtime-fitness — planned audit + the multithreading frame (added
-2026-07-08 with Julian).* The realtime contract is already **Decisions 10 + 11**:
+2026-07-08 with Julian; **first pass shipped same day** — `benchmarks/`,
+`baseline-2026-07-08.md`: freezability CLEAN, slowest tool 6.3 ms, contract
+artifacts sub-KB / µs-load — all green, nothing to act on).* The realtime contract
+is already **Decisions 10 + 11**:
 a real-time consumer never calls the engine on its hot path — it either reads a
 **frozen contract artifact** (Decision 11) or embeds the **C++ core** (Decision
 10). So the engine's own target is **offline / interactive** latency, not the
