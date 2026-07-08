@@ -1941,11 +1941,17 @@ from. Governed by Decision 7 (ranked, explicit, reproducible — never a black b
       schema~~ **✅ delivered 2026-07-08 (`StyleProfile` / `build_style_profile`)**.
       **A first style profile is now ASSEMBLABLE** end-to-end: corpus →
       `segment_chords` → (`induce_ruleset` ‖ `build_transition_matrix`) →
-      `build_style_profile`. What remains is not machinery but **content + eval**:
-      real per-style *data* priors derived offline from CC0/CC-BY corpora (gap-14
-      slice 3, license-gated), and a corpus eval harness to score a profile's
-      spread against held-out material (the boundary-metric direction). The
-      pipeline is built; the first *named, real* style profile is a data exercise.
+      `build_style_profile`. The **held-out eval primitive is now also DELIVERED
+      (2026-07-08): `TransitionMatrix.cross_entropy(held_out)`** (MCP
+      `transition_cross_entropy`) — mean surprisal (bits/transition) + perplexity
+      of a distribution on fresh material, OOV-counted, `None` on infinite surprise
+      (a raw matrix's unseen transition — which is *why* Laplace is the default).
+      This is the symbolic side of the boundary metric. What remains is **content,
+      not machinery**: real per-style *data* priors derived offline from CC0/CC-BY
+      corpora (gap-14 slice 3, license-gated — needs a corpus + license sign-off),
+      and, for the full determinism-boundary metric, the *neural baseline* to take
+      the cross-entropy **gap** against (below). The pipeline + its self-eval are
+      built; the first *named, real* style profile is a data exercise.
 - [ ] **The determinism-boundary program** — *proposal on record, not yet
       assessed/sliced* (`docs/boundary-brief.md`, from the 2026-07-07 assessment
       session; a research-direction superset of the style-profile idea). Thesis:
@@ -1956,7 +1962,13 @@ from. Governed by Decision 7 (ranked, explicit, reproducible — never a black b
       **boundary metric**: held-out cross-entropy gap vs a neural baseline,
       tracked as DSL expressiveness grows (Conklin-style), over a benchmark ladder
       (B1 first-species *generation* → B2 chorale/Riemenschneider → B3 galant
-      schemata → B4 long-range form). Freshness note vs its `34fff86` snapshot:
+      schemata → B4 long-range form). **Freshness (2026-07-08): the symbolic side
+      of that metric now exists** — `TransitionMatrix.cross_entropy(held_out)`
+      computes the held-out cross-entropy/perplexity of the deterministic model
+      (gap 14). What the boundary metric still needs is the *other* term — a neural
+      baseline scored on the same held-out set — to take the **gap**; wiring that
+      comparison (+ a held-out corpus split) is the harness this program would
+      build. Freshness note vs its `34fff86` snapshot:
       its candidate gap 1 (harmony atom family) = **gap B, delivered**; gap 5
       (soft rules/weights) **already exists** (hard/soft polarity + leverage-
       weighted `induce_ruleset`). Its still-open candidates map to recorded gaps:

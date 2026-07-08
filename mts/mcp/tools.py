@@ -1040,6 +1040,39 @@ def transition_matrix(
     ).to_dict()
 
 
+def transition_cross_entropy(matrix: dict, held_out_corpus: list[list]) -> dict:
+    """Score how well a transition distribution predicts a HELD-OUT corpus (gap 14,
+    the boundary metric). matrix: a transition_matrix payload. held_out_corpus: a
+    list of pieces, each [chords, key] (chords=[[root, quality], ...], key=[tonic,
+    mode]) — fresh material the matrix was NOT built from. Returns
+    {cross_entropy_bits, perplexity, scored_transitions, oov_transitions,
+    n_pieces, has_zero_probability}: the mean surprisal (bits/transition, lower =
+    better fit) over transitions whose states are in the matrix's vocabulary, and
+    perplexity = 2**bits (the effective branching factor). cross_entropy_bits /
+    perplexity are null when the score is infinite — a matrix that assigns ZERO
+    probability to an observed in-vocab transition (only under smoothing='none')
+    cannot predict it (has_zero_probability flags this; use Laplace). Transitions
+    touching an out-of-vocabulary state are counted (oov_transitions), not scored.
+    Deterministic."""
+    from ..rules import TransitionMatrix
+
+    m = TransitionMatrix.from_dict(matrix)
+    try:
+        held = [
+            (
+                [(_pc(root), str(quality)) for root, quality in chords],
+                (_pc(key[0]), str(key[1])),
+            )
+            for chords, key in held_out_corpus
+        ]
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            "Each held-out piece must be [chords, key] where "
+            f"chords=[[root, quality], ...] and key=[tonic, mode]: {exc}"
+        ) from exc
+    return m.cross_entropy(held).to_dict()
+
+
 def build_style_profile(
     name: str,
     version: str,
@@ -1487,6 +1520,7 @@ TOOLS = (
     load_named_ruleset,
     induce_rules,
     transition_matrix,
+    transition_cross_entropy,
     build_style_profile,
     segment_chords,
     combine_rulesets,
