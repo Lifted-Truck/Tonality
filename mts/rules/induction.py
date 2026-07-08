@@ -254,6 +254,15 @@ def induce_ruleset(
     if family not in FAMILIES:
         known = ", ".join(sorted(FAMILIES))
         raise ValueError(f"Unknown family {family!r} (known: {known}).")
+    if family == "harmony":
+        # gap B slice 1 ships harmony *evaluation*; mining it needs a chord-stream
+        # corpus interface (harmony atoms come from chords+key, not the note
+        # Sequence this induction consumes) — the recorded slice-1b follow-on.
+        raise ValueError(
+            "harmony-family induction is not yet supported: harmony atoms derive "
+            "from an explicit chord stream + key, not the note Sequence corpus this "
+            "miner reads (gap B slice-1b — the chord-stream corpus interface)."
+        )
 
     from ..io.loaders import load_scoring_prior
 

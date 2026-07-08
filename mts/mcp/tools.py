@@ -843,6 +843,8 @@ def evaluate_ruleset(
     ruleset: dict,
     events: list[list],
     harmony: list[list] | None = None,
+    chords: list[list] | None = None,
+    key: list | None = None,
     include_firings: bool = False,
 ) -> dict:
     """Evaluate a ruleset (Phase 4.6 DSL) against events — the canonical
@@ -852,11 +854,13 @@ def evaluate_ruleset(
     conformance frequencies, hard/soft rollups. Rules referencing
     harmony-dependent fields (nht_type, is_chord_tone) need harmony spans
     [start_beat, end_beat, [pcs]] and are reported not-applicable without
-    them. Set include_firings=true to ALSO get each rule's located firings
-    (considered items where it HELD — the positive complement to violations,
-    for saliency/credit-assignment; firings is null per rule when not
-    requested). Invalid rulesets raise with the full error list (use
-    validate_ruleset first)."""
+    them. HARMONY-family rules (gap B: chord succession — roman/role/degree/
+    quality/is_diatonic/root_motion/next_role/next_roman/common_tones/
+    color_shift/cadence) need chords=[[root, quality], ...] and key=[tonic,
+    mode] (mode 'major'|'minor'); without both they are not-applicable. Set
+    include_firings=true to ALSO get each rule's located firings (considered
+    items where it HELD). Invalid rulesets raise with the full error list (use
+    validate_ruleset first). events may be [] for a harmony-only ruleset."""
     from ..rules import evaluate
 
     spans = None
@@ -867,9 +871,23 @@ def evaluate_ruleset(
             raise ValueError(
                 f"Each harmony span must be [start_beat, end_beat, [pcs]]: {exc}"
             ) from exc
+    chord_stream = None
+    if chords is not None:
+        try:
+            chord_stream = [(_pc(root), str(quality)) for root, quality in chords]
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Each chord must be [root, quality] (root = note name or pc): {exc}"
+            ) from exc
+    key_pair = None
+    if key is not None:
+        try:
+            key_pair = (_pc(key[0]), str(key[1]))
+        except (TypeError, ValueError, IndexError) as exc:
+            raise ValueError(f"key must be [tonic, mode] (mode 'major'|'minor'): {exc}") from exc
     return evaluate(
         ruleset, _canonical_sequence(events), harmony=spans,
-        include_firings=bool(include_firings),
+        chords=chord_stream, key=key_pair, include_firings=bool(include_firings),
     ).to_dict()
 
 

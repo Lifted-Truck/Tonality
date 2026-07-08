@@ -1815,6 +1815,33 @@ from. Governed by Decision 7 (ranked, explicit, reproducible — never a black b
       where a statistically- or structurally-supported reinterpretation diverges
       from the conventional analysis. The engine proposes and evidences; the
       human/agent judges (semantic call stays in the caller, per Decision 7).
+- [ ] **Style profiles — the convergence object** (added 2026-07-07 from
+      Julian's corpus→style vision; artifacts
+      `docs/reviews/2026-07_style-ruleset-vision.html` + `…_gap-b-design.html`).
+      The articulated goal: *metabolize a corpus (a genre, an artist's oeuvre,
+      an academic text) into a named, citable artifact that captures the spread
+      of its basslines, harmonies, and melodies — timing and progression
+      tendencies — and lives among other derived profiles.* This is not a new
+      track; it is the **union** of ones already moving: corpus ingestion
+      (shipped MIDI→Sequence→dataset records), ruleset induction (4.6,
+      `induce_ruleset` — soft rules with leverage weights), the per-style
+      distribution priors (**gap 14** — degree-keyed transition matrices, the
+      literal *sampleable* "spread"), the named-ruleset library (**gap D**,
+      shipped — the shelf), and generative consumption (Phase 7 / the proven
+      Wend-wont client pattern: Tonality metabolizes + validates, the client
+      samples/generates). **The one genuinely new object:** a *style profile*
+      that bundles the interpretable ruleset **and** the sampleable
+      distributions **and** a provenance block (`source`/`method` — corpus vs.
+      academic vs. per-artist, the discipline already used for versioned priors
+      and wont's `tag-contrast.1` stamps). A ruleset (constraints) and a
+      distribution (the spread) are two representations of a style; the profile
+      carries both. **Diagnosis (2026-07-07):** the vertical (identity) and
+      timing are largely shipped; the *horizontal* — progression/tendency over
+      time — was the frontier, so **gap B** (harmony progressions) was taken as
+      the committed unblocker of the harmony row (slice 1 delivered). Remaining
+      for a first real style profile: gap-B harmony *induction* (slice 1b), the
+      gap-14 distribution priors, and the bundle+provenance schema. Not yet
+      scheduled as a unit; its pieces advance independently.
 
 ### Phase 4.6 — Rulesets: a constraint syntax over the analytical vocabulary
 Added 2026-06-11 (Decision 8). The articulated vision: **extract, impose, and
@@ -2124,6 +2151,31 @@ to be informed by what 1–3 teach about the DSL's seams).
       BH-FDR), ruled sound only with per-run (not per-span) presence counting
       and stamped `method: tag-contrast.1`/`exploratory` for re-derive-not-
       migrate when this ships (`integrations/wont/response.md` §3).*
+      **Slice 1 DELIVERED (2026-07-07): harmony evaluation.**
+      `mts/rules/harmony_stream.py` + the `harmony` family in `FAMILIES`
+      (manifest bumped `ruleset-fields.2`). Item = a chord-in-context carrying
+      fields `roman / role / degree / quality / is_diatonic / root_motion
+      (directed mod-12) / next_role / next_roman / common_tones / color_shift /
+      cadence`, built over an **explicit chord stream + key** (`evaluate(...,
+      chords=[(root,quality)], key=(tonic,mode))` — the fork decision: clean and
+      deterministic, isolating the vocabulary from segmentation noise). No new
+      theory — roman/role from `theory/functions.py`, cadence from
+      `detect_cadences`, colour from DFT. Makes "V resolves to I" (where
+      role=dominant require next_role=tonic), "no ♭VII", "forbid retrogression"
+      (dominant→predominant), "stay diatonic", "not a deceptive cadence"
+      authorable + checkable; MCP `evaluate_ruleset` gains `chords`/`key`;
+      library gains the illustrative `edm-minor-loop` (soft, hedged — a real
+      trance style is corpus-derived). 13 tests; golden additive (2 intended
+      message updates: family list + manifest version); port pin untouched.
+      **Honest limits (slice-2+):** (a) **induction over harmony** needs a
+      chord-stream corpus interface — the note-Sequence miner can't reach
+      harmony atoms, so `induce_rules(family="harmony")` **raises** for now
+      (A10 wont's mining blocked until this); (b) auto-deriving the chord stream
+      from a `Sequence` (harmonic segmentation) is deferred; (c) Wend's
+      "authentic cadence within 4 bars of a section end" is still only
+      half-unblocked — gap B gives the `cadence` field, phrase-position needs the
+      deferred phrase scope; (d) major/minor only (functions), consecutive-run
+      limits need gap C.
 - [ ] **Pattern layer — sequential patterns/schemata as first-class objects**
       (added 2026-07-01 — gap C; the largest design lift, sequenced last).
       Constraints say what is *forbidden/required*; patterns say what is

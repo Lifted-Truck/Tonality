@@ -21,6 +21,8 @@ the PR/phase named below. Decisions they informed live in
 | [2026-07_rhythm-search-assessment.html](2026-07_rhythm-search-assessment.html) | 2026-07-07 | gap 21 (recorded, unscheduled) | The rhythmic-constraint-search assessment — the pitch/rhythm isomorphism (diatonic = bembé), field mapping, and the three design realities behind gap 21. |
 | [2026-07_melodic-tendency-design.html](2026-07_melodic-tendency-design.html) | 2026-07-07 | gap 19 · design brief (pre-build) | The `melodic_tendency` design: Lerdahl attraction over frozen KK stabilities with live-computed evidence, and the three forks (stability source, target policy, chord anchoring). Minor-mode oracle corrected post-review. |
 | [2026-07_ruleset-library-findings.html](2026-07_ruleset-library-findings.html) | 2026-07-07 | gap D slice 1 · named ruleset library (PR) | The first-species counterpoint ruleset and the DSL expressiveness map — three gaps (cross-field comparison [new], phrase/global scope, run-length), each test-proven. |
+| [2026-07_style-ruleset-vision.html](2026-07_style-ruleset-vision.html) | 2026-07-07 | concept shaping (corpus→style) | The trance-song vision mapped against the engine: shipped vs. gaps, the ruleset-vs-distribution distinction, and the new 'style profile' bundle object. |
+| [2026-07_gap-b-design.html](2026-07_gap-b-design.html) | 2026-07-07 | gap B · design brief (pre-build) | The harmony/progression rule family design: the chord-in-context item, what it unblocks, the input-form fork, and the honest limits (phrase scope, gap C, major/minor). |
 
 Also published as claude.ai artifacts at build time; these committed copies are the
 version-controlled record that travels with the repo.

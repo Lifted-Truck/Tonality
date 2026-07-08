@@ -11406,7 +11406,7 @@
    },
    "result": {
     "errors": [
-     "rule 'r'.family: must be one of ['melody', 'rhythm', 'voice_motion'], got 'nope'"
+     "rule 'r'.family: must be one of ['harmony', 'melody', 'rhythm', 'voice_motion'], got 'nope'"
     ],
     "valid": false
    },
@@ -11665,6 +11665,79 @@
      "eq"
     ],
     "families": {
+     "harmony": {
+      "fields": {
+       "cadence": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": [
+         "authentic",
+         "plagal",
+         "deceptive",
+         "half",
+         "none"
+        ]
+       },
+       "color_shift": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "common_tones": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "degree": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "is_diatonic": {
+        "harmony_dependent": false,
+        "kind": "bool",
+        "values": null
+       },
+       "next_role": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": [
+         "tonic",
+         "predominant",
+         "dominant"
+        ]
+       },
+       "next_roman": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": null
+       },
+       "quality": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": null
+       },
+       "role": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": [
+         "tonic",
+         "predominant",
+         "dominant"
+        ]
+       },
+       "roman": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": null
+       },
+       "root_motion": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       }
+      }
+     },
      "melody": {
       "fields": {
        "approach_class": {
@@ -11867,7 +11940,7 @@
       }
      }
     },
-    "manifest_version": "ruleset-fields.1",
+    "manifest_version": "ruleset-fields.2",
     "polarities": [
      "hard",
      "soft"
@@ -11878,6 +11951,7 @@
   {
    "kwargs": {},
    "result": [
+    "edm-minor-loop",
     "first-species-counterpoint"
    ],
    "tool": "list_named_rulesets"
@@ -11973,6 +12047,93 @@
     "version": "fux-first-species.1"
    },
    "tool": "load_named_ruleset"
+  },
+  {
+   "kwargs": {
+    "chords": [
+     [
+      "C",
+      "maj"
+     ],
+     [
+      "F",
+      "maj"
+     ],
+     [
+      "G",
+      "maj"
+     ],
+     [
+      "A",
+      "min"
+     ]
+    ],
+    "events": [],
+    "key": [
+     "C",
+     "major"
+    ],
+    "ruleset": {
+     "name": "harmony-smoke",
+     "rules": [
+      {
+       "family": "harmony",
+       "id": "dominant-resolves",
+       "polarity": "hard",
+       "require": {
+        "next_role": "tonic"
+       },
+       "where": {
+        "role": "dominant"
+       }
+      },
+      {
+       "family": "harmony",
+       "id": "stay-diatonic",
+       "polarity": "soft",
+       "require": {
+        "is_diatonic": true
+       },
+       "weight": 2.0
+      }
+     ],
+     "version": "t.1"
+    }
+   },
+   "result": {
+    "hard_rules_hold": true,
+    "hard_violation_count": 0,
+    "results": [
+     {
+      "applicable": true,
+      "conformance": 1.0,
+      "holds": true,
+      "items_considered": 1,
+      "polarity": "hard",
+      "reason": null,
+      "rule_id": "dominant-resolves",
+      "skipped_voices": [],
+      "violations": [],
+      "weight": 1.0
+     },
+     {
+      "applicable": true,
+      "conformance": 1.0,
+      "holds": null,
+      "items_considered": 4,
+      "polarity": "soft",
+      "reason": null,
+      "rule_id": "stay-diatonic",
+      "skipped_voices": [],
+      "violations": [],
+      "weight": 2.0
+     }
+    ],
+    "ruleset_name": "harmony-smoke",
+    "ruleset_version": "t.1",
+    "soft_score": 1.0
+   },
+   "tool": "evaluate_ruleset"
   },
   {
    "kwargs": {

@@ -47,6 +47,8 @@ _CLASSES = ("unison", "step", "skip", "leap")
 _NHT = ("pedal", "suspension", "anticipation", "passing", "neighbor",
         "appoggiatura", "escape", "free")
 _PLACEMENT = ("downbeat", "beat", "offbeat", "subdivision")
+_ROLE = ("tonic", "predominant", "dominant")
+_CADENCE = ("authentic", "plagal", "deceptive", "half", "none")
 
 # The atom vocabulary rules may reference, per family. Field names mirror the
 # WS0 result dataclasses exactly (the rule engine reads them via getattr).
@@ -88,6 +90,23 @@ FAMILIES: dict[str, dict[str, FieldSpec]] = {
         "placement": FieldSpec("str", _PLACEMENT),
         "is_syncopated": FieldSpec("bool"),
         "ioi_to_next": FieldSpec("float"),
+    },
+    # Harmony (gap B): a chord in a key, carrying its move to the next. Fields
+    # mirror HarmonyItem exactly. Evaluated over an explicit chord stream +
+    # key (evaluate's chords=/key= args), not the note Sequence — so the family
+    # is CHORD_STREAM_DEPENDENT (below), reported not-applicable without them.
+    "harmony": {
+        "roman": FieldSpec("str"),
+        "role": FieldSpec("str", _ROLE),
+        "degree": FieldSpec("int"),
+        "quality": FieldSpec("str"),
+        "is_diatonic": FieldSpec("bool"),
+        "root_motion": FieldSpec("int"),
+        "next_role": FieldSpec("str", _ROLE),
+        "next_roman": FieldSpec("str"),
+        "common_tones": FieldSpec("int"),
+        "color_shift": FieldSpec("float"),
+        "cadence": FieldSpec("str", _CADENCE),
     },
 }
 
@@ -319,7 +338,7 @@ def parse_ruleset(payload: object) -> Ruleset:
 # Manifest schema version — bump when the DSL field vocabulary changes (a new
 # family, field, operator, or enum value). `test_field_manifest_is_current`
 # pins the manifest so any FAMILIES edit that forgets this bump fails loudly.
-FIELD_MANIFEST_VERSION = "ruleset-fields.1"
+FIELD_MANIFEST_VERSION = "ruleset-fields.2"
 
 
 def ruleset_field_manifest() -> dict:

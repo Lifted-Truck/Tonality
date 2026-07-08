@@ -1,0 +1,21 @@
+{
+  "name": "EDM minor-loop harmony (illustrative)",
+  "version": "edm-minor-loop.1",
+  "description": "A small, HAND-AUTHORED sketch of two harmonic tendencies common to loop-based electronic dance music (trance, progressive, etc.) in a natural-minor key: it stays inside the diatonic minor collection, and it moves with smooth common-tone voice-leading (the sustained-pad feel). It is deliberately all-SOFT — a style is a bundle of tendencies, not laws — and it demonstrates the gap-B harmony family. IMPORTANT: this is illustrative, not authoritative. A real trance style is a CORPUS-DERIVED profile (induce_rules over a corpus of trance MIDIs, plus the sampleable transition distributions of gap 14) with provenance, not a hand guess — that is the 'style profile' this file only gestures at. Evaluate with chords=[[root, quality], ...] and key=[tonic, 'minor'].",
+  "rules": [
+    {
+      "id": "stays-diatonic-minor",
+      "family": "harmony",
+      "require": {"is_diatonic": true},
+      "polarity": "soft",
+      "weight": 2.0
+    },
+    {
+      "id": "smooth-common-tone-motion",
+      "family": "harmony",
+      "require": {"common_tones": {"gte": 1}},
+      "polarity": "soft",
+      "weight": 1.0
+    }
+  ]
+}

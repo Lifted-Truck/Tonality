@@ -161,7 +161,19 @@ def _line_streams(sequence: Sequence, analyzer, harmony) -> _Stream:
     return _Stream(items, skipped, None)
 
 
-def _build_stream(family: str, sequence: Sequence, harmony) -> _Stream:
+def _build_stream(family: str, sequence: Sequence, harmony, chords=None, key=None) -> _Stream:
+    if family == "harmony":
+        if chords is None or key is None:
+            missing = "chords" if chords is None else "key"
+            return _Stream(
+                [], [],
+                f"the harmony family needs an explicit chord stream and key "
+                f"(missing: {missing}) — no chords, no claim",
+            )
+        from .harmony_stream import build_harmony_stream
+
+        items, reason = build_harmony_stream(chords, key[0], key[1])
+        return _Stream(items, [], reason)
     if family == "voice_motion":
         try:
             transitions = voice_motion(sequence).transitions
@@ -249,6 +261,8 @@ def evaluate(
     sequence: Sequence,
     *,
     harmony: Iterable[tuple[float, float, Iterable[int]]] | None = None,
+    chords: Iterable[tuple[int, str]] | None = None,
+    key: tuple[int, str] | None = None,
     include_firings: bool = False,
 ) -> ConformanceReport:
     """Evaluate every rule against *sequence*; nothing is silently skipped.
@@ -257,9 +271,13 @@ def evaluate(
     here, raising :class:`RulesetValidationError` with the full error list).
     ``harmony`` spans are required only by rules referencing
     harmony-dependent melodic fields; such rules without harmony come back
-    ``applicable=False``, never guessed. ``include_firings`` adds the located
-    *firings* (considered items where the rule held) to each applicable
-    result — the positive complement to violations, for saliency/credit-
+    ``applicable=False``, never guessed. **``chords`` + ``key``** feed the
+    ``harmony`` family (gap B): ``chords`` is ``[(root_pc, quality), …]`` and
+    ``key`` is ``(tonic_pc, mode)``; harmony rules without both come back
+    ``applicable=False`` (no chords, no claim) — the same discipline as harmony
+    spans. ``include_firings`` adds the located *firings* (considered items
+    where the rule held) to each applicable result — the positive complement to
+    violations, for saliency/credit-
     assignment consumers; off by default (output byte-identical when off).
     """
 
@@ -273,6 +291,7 @@ def evaluate(
         from ..temporal.melodic import _normalize_harmony
 
         _normalize_harmony(harmony)
+    chords = list(chords) if chords is not None else None
 
     streams: dict[str, _Stream] = {}
     results: list[RuleResult] = []
@@ -289,7 +308,7 @@ def evaluate(
             )
             continue
         if rule.family not in streams:
-            streams[rule.family] = _build_stream(rule.family, sequence, harmony)
+            streams[rule.family] = _build_stream(rule.family, sequence, harmony, chords, key)
         stream = streams[rule.family]
         if stream.unavailable_reason is not None:
             results.append(_not_applicable(rule, stream.unavailable_reason, stream.skipped_voices))
