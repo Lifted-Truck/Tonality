@@ -171,3 +171,37 @@ StyleProfile (base) ─walk(seed)→ progression ─[client renders]→ audio
    `distribution.1`), so a personal case is replayable.
 
 No engine work is owed until that brief lands — the pieces are on the shelf.
+
+## 7. "Markov" is one component, not the method — the preference-learning ladder
+
+Julian's word "Markov bot" was shorthand; the goal is *derive patterns from
+satisfaction feedback over a testing session*, and a first-order Markov chain is
+the right tool for **one narrow part** of that, not the whole job. The task is
+three sub-problems, each wanting a different (deliberately boring, reliable)
+method — and each with a defined translation to Tonality types:
+
+| sub-problem | recommended method | → Tonality representation |
+|---|---|---|
+| **which patterns *earn* satisfaction** (the core) | **sparse L1 linear/logistic regression** over the atom feature space (features = `ruleset_field_manifest()` fields; graded dial = the target) | each nonzero coefficient → a **soft rule**, `weight ∝ \|coef\|`, `check_kind` by sign (positive → require/prefer, negative → forbid/avoid). The fitted model **is** a weighted `Ruleset`/`StyleProfile`. |
+| **which patterns *differ*** liked vs disliked (discovery) | **contrast-induction** — `induce_rules` per corpus + `compare_rulesets` (significance-tested; wont v1) | shipped; DSL rulesets + contrast evidence |
+| **sequential / harmonic structure** | **transition-distribution contrast** (the actual "Markov" part, correctly scoped to sequences) | `build_transition_matrix(liked)` vs `(disliked)` → `compare_transition_matrices` (the recorded gap) → per-transition weights = harmony soft-rules or a re-weighted distribution |
+| **what to test next** (the "over the session" part) | **bandit / active-learning acquisition** (Thompson/UCB over `ParameterSpace`) | wont-side; no Tonality translation — Tonality just scores each run |
+
+**Recommendation:** the *preference engine* should be the **sparse linear model**,
+not a Markov chain — it is small-data-robust, interpretable, handles the **graded**
+dial natively (which quietly resolves the binary-too-coarse worry: the grading
+lives in the regression target, so graded *sample-weights* in the engine may prove
+unnecessary), and its coefficients map **directly** onto Tonality's weighted
+soft-rule DSL. Reliable-and-boring beats clever here. The **transition-distribution
+contrast** stays — it is the right *representation for sequential structure*, not
+the whole preference model; **contrast-induction** stays as the significance-tested
+*discovery* method for conjunctive patterns. Treat these as a **ladder** (discovery
+→ graded linear model → sequential contrast → adaptive acquisition), not competing
+choices. One caveat for the brief: a plain linear model over per-atom features
+yields arity-1 rules; conjunctive (arity > 1) patterns still want the where-lattice
+`induce_rules` or explicit interaction features — so the two methods compose.
+
+Whichever wont adopts, the **translation contract above is what makes the loop
+mathematical** (every method's output lands as a weighted `StyleProfile`). Update
+wont's DESIGN/DECISIONS to name the chosen method rather than "Markov bot"; this
+notice is Tonality's half of that language.

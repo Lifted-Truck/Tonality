@@ -660,6 +660,18 @@ list as new applications come into view.
   seed→generate contract, and loop provenance (stamp `base_profile` + run ids +
   `key_profile`/`scoring_prior`/`distribution.1`). No engine work owed until the
   brief lands — the pieces are on the shelf.
+  *Preference-method guidance (2026-07-08, notice §7):* "Markov bot" was Julian's
+  shorthand; the recommended engine is a **sparse L1 linear/logistic model** over
+  the atom feature space (not a Markov chain), whose signed coefficients map
+  **directly to weighted soft-rules** (`weight ∝ |coef|`, polarity by sign) — i.e.
+  the fitted model *is* a weighted `StyleProfile`. The Markov/transition-contrast
+  is retained only as the **representation for sequential structure**;
+  contrast-induction stays the significance-tested discovery method. **Reframes
+  gap 20:** a graded dial consumed as the linear model's *target* puts the grading
+  in the loss, so engine-side graded *sample-weights* may prove unnecessary — wont
+  remains the named consumer if a measured case still wants them. Method choice is
+  wont's (ML is theirs); Tonality's half is the translation contract (every
+  method's output lands as a weighted `StyleProfile`).
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
