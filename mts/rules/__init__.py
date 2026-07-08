@@ -40,11 +40,14 @@ from .composition import (
 )
 from .induction import InductionResult, RuleEvidence, induce_ruleset
 from .library import list_named_rulesets, load_named_ruleset
+from .transition import TransitionMatrix, build_transition_matrix
 
 __all__ = [
     "InductionResult",
     "RuleEvidence",
     "induce_ruleset",
+    "TransitionMatrix",
+    "build_transition_matrix",
     "list_named_rulesets",
     "load_named_ruleset",
     "FAMILIES",

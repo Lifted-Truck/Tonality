@@ -998,6 +998,48 @@ def induce_rules(
     ).to_dict()
 
 
+def transition_matrix(
+    chord_corpus: list[list],
+    state: str = "degree",
+    smoothing: str = "laplace",
+    alpha: float | None = None,
+    source: str | None = None,
+) -> dict:
+    """Aggregate a chord-stream corpus into a first-order degree-transition
+    distribution (Phase 4.5, gap 14) — the SAMPLEABLE half of a style profile
+    (the ruleset from induce_rules is the constraint half). chord_corpus: a list
+    of pieces, each [chords, key] with chords=[[root, quality], ...] and
+    key=[tonic, mode] — the same corpus induce_rules(family='harmony') reads; each
+    piece contributes its consecutive within-piece state transitions. state keys
+    the matrix over the harmony-atom vocabulary: 'degree' (default — scale degrees
+    1..7, non-diatonic roots bucketed 'chromatic'), 'role', 'quality', or 'roman'.
+    smoothing: 'laplace' (default — add-alpha, NO hard zeros, right for sampling a
+    rare-but-possible transition) or 'none' (raw empirical, exact zeros); raw
+    integer counts are returned either way, so the caller can re-normalize. alpha
+    defaults to the versioned distribution.1 prior. source records provenance.
+    Returns {state, states[], counts{}, probabilities{}, smoothing, alpha,
+    prior_version, n_transitions, n_pieces, source}. An unknown chord quality
+    raises (error, not guess). Deterministic."""
+    from ..rules import build_transition_matrix
+
+    try:
+        pieces = [
+            (
+                [(_pc(root), str(quality)) for root, quality in chords],
+                (_pc(key[0]), str(key[1])),
+            )
+            for chords, key in chord_corpus
+        ]
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ValueError(
+            "Each piece must be [chords, key] where chords=[[root, quality], ...] "
+            f"and key=[tonic, mode]: {exc}"
+        ) from exc
+    return build_transition_matrix(
+        pieces, state=str(state), smoothing=str(smoothing), alpha=alpha, source=source,
+    ).to_dict()
+
+
 def segment_chords(
     events: list[list],
     key: list | None = None,
@@ -1416,6 +1458,7 @@ TOOLS = (
     list_named_rulesets,
     load_named_ruleset,
     induce_rules,
+    transition_matrix,
     segment_chords,
     combine_rulesets,
     specialize_ruleset,

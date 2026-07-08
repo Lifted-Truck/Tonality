@@ -123,6 +123,16 @@ def _segment_events():
     return events
 
 
+def _transition_corpus():
+    # C-major progressions where V (degree 5) always resolves to I.
+    cmaj = [0, "major"]
+    return [
+        [[[0, "maj"], [5, "maj"], [7, "maj"], [0, "maj"]], cmaj],
+        [[[0, "maj"], [2, "min"], [7, "maj"], [0, "maj"]], cmaj],
+        [[[0, "maj"], [9, "min"], [7, "maj"], [0, "maj"]], cmaj],
+    ]
+
+
 def _groove_loop():
     # Swung, accented loop: [onset, dur, midi, velocity] (groove event format).
     events = []
@@ -396,6 +406,9 @@ CASES: list[tuple[str, dict]] = [
     # keep the golden purely additive.
     ("segment_chords", {"events": _segment_events()}),
     ("segment_chords", {"events": _segment_events(), "key": ["C", "major"], "subdivisions": 2}),
+    # gap 14 slice 1: degree-transition distribution (both smoothing modes).
+    ("transition_matrix", {"chord_corpus": _transition_corpus()}),
+    ("transition_matrix", {"chord_corpus": _transition_corpus(), "smoothing": "none", "state": "role"}),
 ]
 
 
