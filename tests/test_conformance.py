@@ -298,6 +298,26 @@ CASES: list[tuple[str, dict]] = [
     ("ruleset_field_manifest", {}),
     ("list_named_rulesets", {}),
     ("load_named_ruleset", {"name": "first-species-counterpoint"}),
+    # gap B: harmony family over an explicit chord stream + key. V->I holds,
+    # the deceptive move is flagged, and a borrowed chord scores the soft rule.
+    (
+        "evaluate_ruleset",
+        {
+            "ruleset": {
+                "name": "harmony-smoke", "version": "t.1",
+                "rules": [
+                    {"id": "dominant-resolves", "family": "harmony",
+                     "where": {"role": "dominant"}, "require": {"next_role": "tonic"},
+                     "polarity": "hard"},
+                    {"id": "stay-diatonic", "family": "harmony",
+                     "require": {"is_diatonic": True}, "polarity": "soft", "weight": 2.0},
+                ],
+            },
+            "events": [],
+            "chords": [["C", "maj"], ["F", "maj"], ["G", "maj"], ["A", "min"]],
+            "key": ["C", "major"],
+        },
+    ),
     ("induce_rules", {"corpus": _induction_corpus(), "family": "voice_motion"}),
     ("induce_rules", {"corpus": _induction_merge_corpus(), "family": "voice_motion"}),
     (

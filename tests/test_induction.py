@@ -207,6 +207,13 @@ def test_tiny_corpus_below_support_floor_emits_nothing():
 
 def test_unknown_family_raises():
     with pytest.raises(ValueError, match="Unknown family"):
+        induce_ruleset([], family="not-a-family")
+
+
+def test_harmony_induction_is_not_yet_supported():
+    # harmony IS a family now (gap B), but mining it needs the chord-stream
+    # corpus interface (slice 1b) — a clear error, not a silent empty result.
+    with pytest.raises(ValueError, match="harmony-family induction is not yet supported"):
         induce_ruleset([], family="harmony")
 
 

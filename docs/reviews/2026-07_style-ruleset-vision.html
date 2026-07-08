@@ -1,0 +1,135 @@
+<title>Corpus → style artifact — is Tonality aimed at this?</title>
+<style>
+  :root{
+    --paper:#f4f2ec; --ink:#1b1d22; --ink-soft:#4a4e57; --line:#d7d3c8;
+    --indigo:#3a3d8f; --indigo-soft:#5c60b8; --indigo-wash:#e9e9f4;
+    --gold:#a8792c; --gold-wash:#f2ead9; --green:#3f7d5a; --green-wash:#e8f1eb;
+    --red:#a4443a; --red-wash:#f3e3e1; --rule:#c9c4b6;
+    --mono:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  .wrap{max-width:980px;margin:0 auto;padding:52px 32px 76px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--indigo);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:37px;line-height:1.08;margin:0 0 12px;letter-spacing:-.01em;text-wrap:balance}
+  .lede{font-size:16.5px;color:var(--ink-soft);max-width:68ch;margin:0 0 20px}
+  .lede b{color:var(--ink)}
+  .verdict{border-left:3px solid var(--green);background:var(--green-wash);padding:15px 22px;border-radius:0 8px 8px 0;margin:0 0 32px;font-size:15px;max-width:76ch}
+  .verdict b{color:#2f6147}
+  h2{font-family:var(--serif);font-weight:600;font-size:23px;margin:42px 0 6px}
+  .sub{color:var(--ink-soft);font-size:14.5px;margin:0 0 20px;max-width:74ch}
+  code{font-family:var(--mono);font-size:.85em;background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:4px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin:0 0 14px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .d{width:9px;height:9px;border-radius:50%}
+  .d.g{background:var(--green)} .d.a{background:var(--gold)} .d.r{background:var(--red)}
+
+  .matrix{width:100%;border-collapse:separate;border-spacing:6px;font-size:12.5px}
+  .matrix th{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:400;text-align:center;padding:4px}
+  .matrix td.rowlab{font-family:var(--serif);font-size:16px;font-weight:600;text-align:right;padding-right:12px;width:110px;color:var(--ink)}
+  .cell{border:1px solid var(--line);border-radius:9px;padding:10px 11px;background:#fbfaf6;vertical-align:top}
+  .cell.g{border-left:3px solid var(--green)} .cell.a{border-left:3px solid var(--gold)} .cell.r{border-left:3px solid var(--red)}
+  .cell .cap{font-weight:600;font-size:12.5px;display:block;margin-bottom:3px}
+  .cell .st{font-family:var(--mono);font-size:10px;color:var(--ink-soft)}
+  .cell .st.g{color:var(--green)} .cell .st.a{color:var(--gold)} .cell .st.r{color:var(--red)}
+  .colnote{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:2px}
+
+  .pipe{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin-top:10px}
+  .stage{flex:1;min-width:130px;border:1px solid var(--line);border-radius:10px;background:#fbfaf6;padding:12px 13px;position:relative}
+  .stage.g{border-top:3px solid var(--green)} .stage.a{border-top:3px solid var(--gold)} .stage.r{border-top:3px solid var(--red)}
+  .stage h4{font-size:13px;margin:0 0 4px} .stage p{font-size:11.5px;color:var(--ink-soft);margin:0}
+  .stage .st{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;margin-top:6px;display:block}
+  .stage .st.g{color:var(--green)} .stage .st.a{color:var(--gold)} .stage .st.r{color:var(--red)}
+  .arrow{display:flex;align-items:center;color:var(--ink-soft);font-size:18px;padding:0 4px}
+  @media(max-width:720px){.arrow{transform:rotate(90deg)}.stage{min-width:0;flex-basis:100%}}
+
+  .fork{border:1px solid var(--line);border-radius:12px;background:#fbfaf6;padding:18px 22px;margin-top:14px}
+  .fork h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:0 0 8px}
+  .fork .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+  @media(max-width:640px){.fork .two{grid-template-columns:1fr}}
+  .fork .opt{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+  .fork .opt h5{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 6px;color:var(--indigo)}
+  .fork .opt p{font-size:12.5px;color:var(--ink-soft);margin:0}
+  .fork .rec{margin-top:12px;font-size:13.5px;background:var(--indigo-wash);border-radius:7px;padding:10px 14px}
+  .fork .rec b{color:var(--indigo)}
+
+  .foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-soft)}
+  .foot b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Tonality · concept shaping · 2026-07-07</p>
+  <h1>"Metabolize a corpus of trance into a style ruleset" — yes, that's the destination three tracks converge on</h1>
+  <p class="lede">Your trance tool isn't a departure from the architecture — it's the point the whole Phase 4.5/4.6 design has been walking toward. Most of the machinery exists; the honest gaps are specific and already named. But your phrasing — <b>"the spread … in terms of timing and progression tendencies"</b> — also surfaces one genuinely new object worth designing on purpose.</p>
+  <div class="verdict"><b>Short answer: aimed squarely at it.</b> The division of labor is already proven (Wend generates, wont learns, Tonality metabolizes + validates). What the trance case specifically needs that isn't built: the <b>harmony-progression vocabulary (gap B)</b>, a <b>distribution-valued prior</b> richer than soft-rule weights (gap 14), and a name for the <b>bundle</b> that holds a whole style.</p>
+
+  <h2>Your example, decomposed against the engine</h2>
+  <p class="sub">Basslines · harmonies · melodies, each across timing, pitch content, and progression-over-time. The pattern is stark: <b>the vertical (identity) and the timing are largely shipped; the horizontal (progression / tendency across time) is the frontier.</b></p>
+  <div class="legend">
+    <span><span class="d g"></span> shipped</span>
+    <span><span class="d a"></span> roadmapped gap</span>
+    <span><span class="d r"></span> new design</span>
+  </div>
+  <table class="matrix">
+    <tr><th></th><th>Timing / rhythm</th><th>Pitch / voicing</th><th>Progression tendency</th></tr>
+    <tr>
+      <td class="rowlab">Basslines</td>
+      <td class="cell g"><span class="cap">Offbeat / syncopation</span><span class="st g">rhythm family · swing · groove — shipped</span></td>
+      <td class="cell g"><span class="cap">Root-driven line</span><span class="st g">melody family — shipped</span></td>
+      <td class="cell a"><span class="cap">Tracks the harmony</span><span class="st a">follows gap B below</span></td>
+    </tr>
+    <tr>
+      <td class="rowlab">Harmonies</td>
+      <td class="cell g"><span class="cap">Harmonic rhythm</span><span class="st g">segmentation — shipped</span></td>
+      <td class="cell g"><span class="cap">Chords &amp; voicings</span><span class="st g">analysis · search_voicings — shipped</span></td>
+      <td class="cell a"><span class="cap">The trance progression</span><span class="st a">gap B + gap 14 — the key gap</span></td>
+    </tr>
+    <tr>
+      <td class="rowlab">Melodies</td>
+      <td class="cell g"><span class="cap">Motif timing</span><span class="st g">rhythm family — shipped</span></td>
+      <td class="cell g"><span class="cap">Contour &amp; tendency</span><span class="st g">melody family · melodic_tendency — shipped</span></td>
+      <td class="cell a"><span class="cap">Recurring motifs / sequences</span><span class="st a">gap C pattern layer</span></td>
+    </tr>
+  </table>
+
+  <h2>The pipeline — and it's already the Wend/wont shape</h2>
+  <p class="sub">"A tool that metabolizes a corpus and outputs the spread" is a <b>consumer of Tonality</b>, exactly like wont. Tonality does the deterministic metabolizing; the client samples/generates. Nothing here is a new architectural pattern — only new vocabulary in the middle.</p>
+  <div class="pipe">
+    <div class="stage g"><h4>Corpus</h4><p>trance MIDIs</p><span class="st g">SMF I/O shipped</span></div>
+    <div class="arrow">→</div>
+    <div class="stage g"><h4>Metabolize</h4><p>Sequences → dataset records → atoms (rhythm, melody, voice-motion, cadences)</p><span class="st g">shipped</span></div>
+    <div class="arrow">→</div>
+    <div class="stage a"><h4>Distill</h4><p><code>induce_ruleset</code> → soft rules + stats <i>(shipped)</i>; per-style transition <b>distributions</b> <i>(gap 14)</i></p><span class="st a">half shipped</span></div>
+    <div class="arrow">→</div>
+    <div class="stage r"><h4>Style artifact</h4><p>the bundle: per-family rulesets + distributions + provenance</p><span class="st r">to design</span></div>
+    <div class="arrow">→</div>
+    <div class="stage a"><h4>Generate</h4><p>a client samples the spread under the constraints</p><span class="st a">Phase 7 coupling</span></div>
+  </div>
+
+  <h2>The one thing your phrasing forces us to decide</h2>
+  <p class="sub">You said <i>"the <b>spread</b> … in terms of tendencies"</i> — that's distributional. The engine has two ways to hold a style, and a trance profile probably wants both:</p>
+  <div class="fork">
+    <h3>Constraints, or distributions?</h3>
+    <div class="two">
+      <div class="opt"><h5>Ruleset (constraints)</h5><p>forbid / require / soft-prefer. Interpretable, citable, composes &amp; specializes, feeds a generator as hard limits. But a soft-rule weight is a <i>lossy projection</i> of a distribution — it says "prefer X", not "X happens 62% of the time after Y".</p></div>
+      <div class="opt"><h5>Distribution (the spread)</h5><p>degree-keyed transition matrices, IOI histograms, voicing-spread densities. This is the literal "spread" — you can <i>sample</i> it. gap 14 already scopes these as small versioned JSON priors, per-style.</p></div>
+    </div>
+    <div class="rec"><b>Recommendation:</b> a <b>style profile</b> is a named, versioned artifact that <b>carries both</b> — the induced ruleset (the interpretable, enforceable rules) <i>and</i> the distributions (the sampleable spread) — plus a <b>provenance block</b> (corpus? academic source? one artist's oeuvre?). That's the object that "lives among other derived rulesets"; it generalizes the named-ruleset library (gap D, just shipped) from single rulesets to whole styles. It's the genuinely new design — everything under it exists or is scoped.</p></div>
+  </div>
+
+  <h2>"Living among other derived rulesets, academic ones, per-artist ones"</h2>
+  <p class="sub">This part is already the architecture, not a wish. The named-ruleset library shipped this week; each entry is validated + provenance-stamped. Your three sources map to one field:</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:6px" class="src">
+    <div class="cell g"><span class="cap">From a corpus</span><span class="st g">induce_ruleset · method:"induced" · source: the corpus + license</span></div>
+    <div class="cell g"><span class="cap">From an academic text</span><span class="st g">hand-authored (like Fux) · source: the citation</span></div>
+    <div class="cell a"><span class="cap">From an artist's oeuvre</span><span class="st a">induce_ruleset over their MIDIs · a corpus of one voice</span></div>
+  </div>
+  <p class="sub" style="margin-top:12px">All three are the same object with different <code>source</code>/<code>method</code> provenance — the discipline already used for versioned priors and for wont's <code>tag-contrast.1</code> stamps. A Fux ruleset and a Tiësto profile sit on the same shelf, honestly labeled by how each was derived.</p>
+
+  <div class="foot">
+    <p><b>So: are we aimed at that?</b> Yes — it's the union of the induction track (4.6, shipped), the per-style distribution track (gap 14, scoped), the named library (gap D, shipped), and generative consumption (Phase 7 / the Wend-wont client pattern, proven). The trance case's specific blockers are <b>gap B</b> (harmony progressions — without it, "harmonies … progression tendencies" can't be expressed as rules yet), the <b>distribution-valued prior</b> (gap 14, to make "the spread" sampleable, not just soft-preferred), and the <b>style-profile bundle</b> (the new object above).</p>
+    <p style="margin-top:10px"><b>If this is the direction you want to commit to,</b> the highest-leverage next build is <b>gap B</b> — it's the one hard blocker sitting between today and a trance harmony ruleset, it's already fully scoped in the ROADMAP, and it unblocks the harmony row for every future style. I can turn this into a recorded vision note + a gap-B design brief whenever you say go.</p>
+  </div>
+</div>

@@ -1,0 +1,110 @@
+<title>gap B — harmony/progression rule family — design brief</title>
+<style>
+  :root{
+    --paper:#f4f2ec; --ink:#1b1d22; --ink-soft:#4a4e57; --line:#d7d3c8;
+    --indigo:#3a3d8f; --indigo-soft:#5c60b8; --indigo-wash:#e9e9f4;
+    --gold:#a8792c; --gold-wash:#f2ead9; --green:#3f7d5a; --green-wash:#e8f1eb;
+    --red:#a4443a; --rule:#c9c4b6;
+    --mono:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:960px;margin:0 auto;padding:52px 32px 78px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--indigo);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:37px;line-height:1.08;margin:0 0 12px;letter-spacing:-.01em;text-wrap:balance}
+  .lede{font-size:16.5px;color:var(--ink-soft);max-width:68ch;margin:0 0 20px}
+  .lede b{color:var(--ink)}
+  .thesis{border-left:3px solid var(--indigo);background:var(--indigo-wash);padding:15px 22px;border-radius:0 8px 8px 0;margin:0 0 32px;font-size:14.5px;max-width:76ch}
+  .thesis b{color:var(--indigo)}
+  h2{font-family:var(--serif);font-weight:600;font-size:24px;margin:42px 0 6px}
+  h2 .num{font-family:var(--mono);font-size:13px;color:var(--indigo);margin-right:11px;font-weight:400}
+  .sub{color:var(--ink-soft);font-size:14.5px;margin:0 0 20px;max-width:74ch}
+  code{font-family:var(--mono);font-size:.85em;background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:4px}
+  .item{background:#fbfaf6;border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:12px 0}
+  .item h4{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 10px}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:6px 26px}
+  @media(max-width:640px){.fields{grid-template-columns:1fr}}
+  .fields div{font-size:12.5px;border-bottom:1px dotted var(--line);padding:4px 0;display:flex;justify-content:space-between;gap:10px}
+  .fields .fn{font-family:var(--mono);font-size:11.5px;color:var(--indigo)}
+  .fields .fd{color:var(--ink-soft);text-align:right}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding:8px 10px 8px 0;font-weight:400}
+  td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  td .r{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+  .was{color:var(--red);font-family:var(--mono);font-size:10.5px}
+  .now{color:var(--green);font-family:var(--mono);font-size:10.5px}
+  .fork{border:1px solid var(--line);border-radius:12px;background:#fbfaf6;padding:18px 22px;margin:14px 0}
+  .fork .k{font-family:var(--mono);font-size:11px;color:var(--indigo);letter-spacing:.08em}
+  .fork h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:4px 0 6px}
+  .fork p{font-size:13.5px;color:var(--ink-soft);margin:6px 0 0;max-width:74ch}
+  .fork .rec{margin-top:10px;font-size:13px;background:var(--indigo-wash);border-radius:7px;padding:9px 13px}
+  .fork .rec b{color:var(--indigo)}
+  .warn{border-left:3px solid var(--gold);background:var(--gold-wash);border-radius:0 8px 8px 0;padding:14px 20px;margin:12px 0;font-size:13.5px;max-width:76ch}
+  .warn b{color:#8a6420}
+  .foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-soft)}
+  .foot b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Tonality · gap B · design brief · 2026-07-07</p>
+  <h1>The harmony/progression rule family — the one blocker between today and a trance-harmony ruleset</h1>
+  <p class="lede">A <b>fourth atom family</b> for the ruleset DSL, alongside voice-motion, melody, and rhythm. It makes chord-succession rules — <i>"V resolves to I", "no ♭VII in this style", "prefer descending-fifth motion", "forbid retrogression"</i> — expressible for the first time. It's the harmony row of every style profile, trance included.</p>
+  <div class="thesis"><b>No new theory — a new vocabulary over shipped analysis.</b> Roman numerals + roles come from <code>theory/functions.py</code>; the dozen succession tags from <code>tag_transition</code>; cadence membership from <code>detect_cadences</code>. gap B is the field/enum registry + the chord-stream item builder + the same evaluator/induction wiring the other three families already use. The analysis exists; only the <i>rule vocabulary</i> is missing.</p>
+
+  <h2><span class="num">01</span>The item — a chord in context</h2>
+  <p class="sub">Each family quantifies over its natural item (a voice-pair transition, one note). Harmony's item is <b>a chord in a key, carrying its motion to the next</b> — so one item type supports both per-chord rules and adjacent-pair (transition) rules, exactly as <code>voice_motion</code> items already carry from/to.</p>
+  <div class="item">
+    <h4>harmony item · fields (all computable from shipped analysis)</h4>
+    <div class="fields">
+      <div><span class="fn">roman</span><span class="fd">I, ii, V, ♭VII … (str)</span></div>
+      <div><span class="fn">role</span><span class="fd">tonic / predominant / dominant</span></div>
+      <div><span class="fn">degree</span><span class="fd">scale degree of the root (1–7)</span></div>
+      <div><span class="fn">quality</span><span class="fd">maj, min, 7, dim … (str)</span></div>
+      <div><span class="fn">is_diatonic</span><span class="fd">in the key, or borrowed (bool)</span></div>
+      <div><span class="fn">root_motion</span><span class="fd">to next, in semitones (int)</span></div>
+      <div><span class="fn">succession_tag</span><span class="fd">descending_fifth, retrogression,<br>prolongation, applied_dominant … (str)</span></div>
+      <div><span class="fn">cadence</span><span class="fd">authentic / plagal / deceptive / half / none</span></div>
+      <div><span class="fn">common_tones</span><span class="fd">to next (int)</span></div>
+      <div><span class="fn">color_shift</span><span class="fd">DFT-magnitude delta (float)</span></div>
+    </div>
+  </div>
+
+  <h2><span class="num">02</span>What it unblocks — the payoff</h2>
+  <p class="sub">Rules that are inexpressible today become one-liners. These are the trance-harmony tendencies from the corpus vision, now authorable (and mineable — induction inherits the family for free).</p>
+  <table>
+    <thead><tr><th>Rule (plain English)</th><th>As a harmony rule</th></tr></thead>
+    <tbody>
+      <tr><td>V resolves to I <span class="was">was ✗</span></td><td class="r">where role=dominant → require succession_tag=dominant_resolution <span class="now">✓</span></td></tr>
+      <tr><td>No ♭VII in this style</td><td class="r">forbid roman="♭VII" <span class="now">✓</span></td></tr>
+      <tr><td>Prefer descending-fifth motion (trance loop)</td><td class="r">soft require succession_tag=descending_fifth <span class="now">✓</span></td></tr>
+      <tr><td>Forbid retrogression (V→IV)</td><td class="r">forbid succession_tag=retrogression <span class="now">✓</span></td></tr>
+      <tr><td>Stay diatonic / limited borrowing</td><td class="r">soft require is_diatonic=true <span class="now">✓</span></td></tr>
+      <tr><td>Cadence must be authentic (not deceptive)</td><td class="r">where cadence≠none → forbid cadence=deceptive <span class="now">✓</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="num">03</span>The fork — your call</h2>
+  <div class="fork">
+    <span class="k">FORK · input form</span>
+    <h3>Explicit chord stream, or auto-derive from a Sequence?</h3>
+    <p>The other three families derive their atoms from a raw <code>Sequence</code> (notes). Harmony could too — but chord <i>segmentation</i> from raw notes is a separate, noisier problem. The alternative: the caller hands over the named progression + key, the exact form <code>detect_cadences</code> already takes — <code>[(root_pc, quality), …]</code> in a key.</p>
+    <div class="rec"><b>Recommend: explicit chord stream for slice 1.</b> Clean, deterministic, and it isolates the deliverable — the <i>vocabulary</i> and its evaluation — from harmonic-segmentation quality. Auto-derive-from-Sequence (reusing the shipped segmentation + dataset records) is slice 2, added behind the same family once the vocabulary is proven. This matches how <code>detect_cadences</code> already works, so consumers have one consistent harmonic input form.</div>
+  </div>
+
+  <h2><span class="num">04</span>Honest limits (what gap B still won't do)</h2>
+  <div class="warn"><b>gap B is necessary but not sufficient for two marquee asks — worth stating plainly:</b>
+    <ul style="margin:8px 0 0;padding-left:20px;font-size:13px">
+      <li><b>Wend's "authentic cadence within 4 bars of a section end"</b> is only <i>half</i> unblocked: gap B supplies the <code>cadence</code> field, but "within 4 bars of a section end" needs <b>phrase/global scope</b> — the same deferred gap the Fux ruleset just surfaced. gap B + phrase-scope together finish it.</li>
+      <li><b>"No more than two consecutive borrowed chords"</b> needs <b>run-length</b> (gap C). gap B gives the field, gap C gives the sequential quantifier.</li>
+      <li><b>Major/minor only</b>, inherited from <code>theory/functions.py</code> — modal keys return no roles (the engine won't claim function it can't ground). Trance's natural-minor / Aeolian idiom mostly fits minor; true modal styles wait on a functions expansion.</li>
+    </ul>
+    None of these block the trance harmony <i>tendencies</i> (which are succession + diatonicity + cadence-type rules) — they block the <i>positional</i> and <i>run</i> refinements.
+  </div>
+
+  <div class="foot">
+    <p><b>Slice 1 plan:</b> the <code>harmony</code> family (field/enum registry + the chord-in-context item builder over an explicit <code>[(root,quality)]</code>+key stream), wired into <code>evaluate</code> and <code>induce_ruleset</code> (both inherit it), the manifest, and a trance-flavored example ruleset in the library. Full ship-first field set (all listed above already exist). Additive golden, port pin untouched, the usual test bar. Both named consumers — <b>A9 Wend</b> (R4) and <b>A10 wont</b> (harmony scope) — unblock (partially, per the limits above).</p>
+    <p style="margin-top:10px"><b>This is the leash I'm taking:</b> unless you redirect, I'll build slice 1 on the explicit-chord-stream fork, and record the style-profile vision + the gap-B-committed decision in that build's PR. The design is grounded enough that I don't think it needs a formal fork vote — but the input-form choice is the one place I'd want a "no" from you if you have one.</p>
+  </div>
+</div>
