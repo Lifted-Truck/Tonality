@@ -997,6 +997,16 @@ list as new applications come into view.
     remaining gap-14: the **bundle+provenance schema** (slice 2, bundles a ruleset
     + distributions) and **real per-style data priors** derived offline from CC0/
     CC-BY corpora (slice 3 — the license-gated data asset above).
+    *Smoothing extension — Dirichlet prior (candidate, added 2026-07-08, Julian).*
+    `build_transition_matrix` ships `smoothing="laplace"` (add-α, the default) and
+    `"none"` (raw). Add a third mode `smoothing="dirichlet"` with a per-state
+    concentration vector **α_i** — the Bayesian generalization (α_i all equal =
+    add-α, so Laplace is the uniform-Dirichlet special case). It lets a caller
+    encode an informative prior per target state (e.g. a music-theoretic base rate)
+    rather than the flat add-α floor. Small, additive (a new `smoothing` value +
+    an `alpha_vector` param, `distribution.2` prior); raw `counts` preserved as
+    always. Deferred until a consumer needs a non-uniform floor — the flat add-α
+    covers the "no hard zeros for sampling" need today.
 Local key tracking shipped 2026-06-11 (the 3.5b extension — see that entry):
 A1's key-change splitting and A6's renderable key regions are served by the
 windowed batch form; A4's *online* requirement remains with gap 5.
@@ -1379,6 +1389,42 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     in scope under this rule *as* generative — explicitly labeled, never
     disguised as analysis (the groove-apply precedent; applied first to
     voicing enumeration, gap 17).
+
+*Efficiency & realtime-fitness — planned audit + the multithreading frame (added
+2026-07-08 with Julian).* The realtime contract is already **Decisions 10 + 11**:
+a real-time consumer never calls the engine on its hot path — it either reads a
+**frozen contract artifact** (Decision 11) or embeds the **C++ core** (Decision
+10). So the engine's own target is **offline / interactive** latency, not the
+audio thread; "realtime-safe" here means *freezable, small, fast to load, cheap
+to read* — not "fast on the audio callback." A periodic **computational
+efficiency audit** (a group effort, sibling to the capability audit loop) is
+planned to hold that standard: measure (a) no core reads wall-clock or hides
+global mutable state that would bar freezing/reproducibility, (b) contract-artifact
+freeze size + load cost (e.g. the 2–6 KB transition-matrix target), (c) per-tool
+interactive latency, (d) allocation on the read/`sample` path. Division of labor:
+the dev loop keeps hot paths engine-free and results freezable; the **tonality-core
+port** owns low-latency in-process throughput (GIL-free, vectorizable); each
+consumer owns its own audio thread. The RE-5 series (caching, single-sweep,
+branchless mask ops) is the existing lineage this audit extends.
+  **Multithreading — where it fits, and where it doesn't.** *Determinism is the
+  hard constraint:* any parallelism must yield byte-identical output regardless of
+  thread scheduling (the conformance golden + reproducibility), so only
+  **embarrassingly-parallel map + canonical-order reduce** — no shared mutable
+  state, no race-ordered output. *CPython reality:* the GIL bars CPU-bound thread
+  speedup, so true parallelism needs **multiprocessing** or the **C++ port
+  releasing the GIL**; pure-Python threads help only I/O-bound concurrency (the
+  MCP/bridge serving concurrent requests). *Where it pays (offline/batch only):*
+  the **per-piece corpus map** — `induce_ruleset`, `build_transition_matrix`,
+  `segment_to_chords`, and dataset ingestion all loop independently over pieces, so
+  corpus-scale processing parallelizes cleanly behind a deterministic reduce; and
+  the **exhaustive search enumeration** (`search_identities` / `search_voicings`
+  over the 4096-identity universe / bounded register windows). *Where it does NOT
+  belong:* the identity-layer cores (bitmask / DFT / prime-form ops are
+  microseconds — thread dispatch dominates; **vectorization + the C++ port** are
+  the lever there), and any realtime consumer thread (barred by Decisions 10/11
+  regardless). Net: multithreading is a **batch-harness** concern (offline corpus
+  throughput), not a core or realtime one — and the audit should **measure before
+  building** (a parallel map pays only when per-piece work ≫ dispatch overhead).
 
 12. **Containment granularity follows universe granularity (constraint search).**
     (Decided 2026-07-07 building `search_identities`.) In the default
