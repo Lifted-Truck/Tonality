@@ -629,6 +629,22 @@ list as new applications come into view.
   contingent engine slice beyond graded-weights is **per-rule firing-location
   extraction** (the "considered-and-held" complement to `evaluate_ruleset`'s
   violation stream — build when its saliency layer needs it, wont named).
+  *Markov/distribution alignment (2026-07-08, `notice-markov-alignment.md`):* two
+  `response.md` open asks now **shipped** — `ruleset_field_manifest()`
+  (`ruleset-fields.2`) and `evaluate_ruleset(include_firings=True)`. And gap 14
+  gave the channel a Markov vocabulary it lacked: wont's deferred "Markov chains
+  over succession tags" (its DESIGN §9, trigger = harmony scope post-gap-B) is
+  Tonality's **`build_transition_matrix(state="roman"/"role")`** — consume it, do
+  not reimplement the transition/smoothing math (rule 3). The distribution half of
+  the by-reference discipline: a bias-artifact Markov payload embeds a
+  `TransitionMatrix`/`StyleProfile` verbatim (no bespoke wont matrix format); pin
+  the `distribution.1` smoothing prior alongside `scoring_prior`/`key_profile`;
+  `cross_entropy` is a ready recovery-harness metric. **New contingent slice, wont
+  named:** **`compare_transition_matrices`** — a symmetric two-distribution
+  contrast (KL divergence + per-transition preference log-odds), the Markov
+  analogue of `compare_rulesets` (the asymmetric case is covered today by
+  `cross_entropy`). Not built speculatively; file a brief-2 when the Markov scope
+  materializes.
 
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
