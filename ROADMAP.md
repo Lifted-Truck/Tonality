@@ -1842,6 +1842,27 @@ from. Governed by Decision 7 (ranked, explicit, reproducible — never a black b
       for a first real style profile: gap-B harmony *induction* (slice 1b), the
       gap-14 distribution priors, and the bundle+provenance schema. Not yet
       scheduled as a unit; its pieces advance independently.
+- [ ] **The determinism-boundary program** — *proposal on record, not yet
+      assessed/sliced* (`docs/boundary-brief.md`, from the 2026-07-07 assessment
+      session; a research-direction superset of the style-profile idea). Thesis:
+      empirically map the boundary where explicit rulesets stop advancing musical
+      outcomes and only statistical models proceed — reframed from "determinism
+      vs ML" to **feasible-set (rules) vs distribution (style)** — and push the
+      deterministic machinery to it. Its single most important deliverable is the
+      **boundary metric**: held-out cross-entropy gap vs a neural baseline,
+      tracked as DSL expressiveness grows (Conklin-style), over a benchmark ladder
+      (B1 first-species *generation* → B2 chorale/Riemenschneider → B3 galant
+      schemata → B4 long-range form). Freshness note vs its `34fff86` snapshot:
+      its candidate gap 1 (harmony atom family) = **gap B, delivered**; gap 5
+      (soft rules/weights) **already exists** (hard/soft polarity + leverage-
+      weighted `induce_ruleset`). Its still-open candidates map to recorded gaps:
+      aggregation/quantification (the run-length limit, gap C), ensemble/texture
+      scope, ruleset-driven *generation* (B1 — the nearest new capability), the
+      corpus cross-entropy harness, and the schema layer (gap-C-adjacent). §5
+      trims recorded in the brief ("genre via flat rulesets" restratified;
+      "determinism vs ML" reframed). **Next step (agent's + Julian's call per the
+      brief's §7): a full assessment pass that slices these into numbered gaps
+      and records the boundary metric as a decision — offered, not yet done.**
 
 ### Phase 4.6 — Rulesets: a constraint syntax over the analytical vocabulary
 Added 2026-06-11 (Decision 8). The articulated vision: **extract, impose, and
