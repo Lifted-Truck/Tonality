@@ -2188,11 +2188,25 @@ to be informed by what 1–3 teach about the DSL's seams).
       library gains the illustrative `edm-minor-loop` (soft, hedged — a real
       trance style is corpus-derived). 13 tests; golden additive (2 intended
       message updates: family list + manifest version); port pin untouched.
-      **Honest limits (slice-2+):** (a) **induction over harmony** needs a
-      chord-stream corpus interface — the note-Sequence miner can't reach
-      harmony atoms, so `induce_rules(family="harmony")` **raises** for now
-      (A10 wont's mining blocked until this); (b) auto-deriving the chord stream
-      from a `Sequence` (harmonic segmentation) is deferred; (c) Wend's
+      **Slice 1b DELIVERED (2026-07-08): harmony induction over a chord-stream
+      corpus.** `induce_ruleset(family="harmony", chord_corpus=[(chords, key), …])`
+      (and MCP `induce_rules(chord_corpus=[[chords, key], …])`): each progression
+      is one *piece*, every chord-in-context one transaction, mined by the same
+      family-agnostic Apriori/Fisher/BH-FDR pipeline. Mines the bounded fields
+      **role / next_role / cadence / is_diatonic / degree / root_motion** (added
+      `degree`, `root_motion` to `_BOUNDED_INT_FIELDS`); recovers the planted
+      dominant→tonic idiom on a synthetic corpus. Reuses `build_harmony_stream`,
+      so an unknown quality **raises** (the #168 error-not-guess fix) and a
+      session threads registered qualities. Golden unaffected (existing
+      `induce_rules` note case unchanged; new coverage is unit tests, 9 added);
+      port pin untouched. **This unblocks A10 wont's mining** — the interim
+      tag-contrast stand-in (`method: tag-contrast.1`/`exploratory`) can now be
+      re-derived against real induced rules (see `integrations/wont/`).
+      **Honest limits (slice-2+):** (a) the open-vocabulary **roman / quality /
+      next_roman** fields are **not** mined (high cardinality; a bounded
+      roman/quality enum is the recorded follow-on) — so "no ♭VII" surfaces via
+      `is_diatonic` / `degree`, not a `roman` literal; (b) auto-deriving the chord
+      stream from a `Sequence` (harmonic segmentation) is deferred; (c) Wend's
       "authentic cadence within 4 bars of a section end" is still only
       half-unblocked — gap B gives the `cadence` field, phrase-position needs the
       deferred phrase scope; (d) major/minor only (functions), consecutive-run
