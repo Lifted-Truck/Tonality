@@ -27,6 +27,7 @@ scale degrees 1..7, non-diatonic roots bucketed as ``"chromatic"``), ``"role"``
 from __future__ import annotations
 
 import dataclasses
+import math
 import random
 from dataclasses import dataclass
 
@@ -51,6 +52,34 @@ def _state_of(item, which: str) -> str:
     if which == "roman":
         return item.roman if item.roman is not None else "none"
     return item.quality  # "quality" — always present
+
+
+@dataclass(frozen=True)
+class CrossEntropyResult:
+    """How well a matrix predicts a held-out corpus — the boundary metric.
+
+    ``cross_entropy_bits`` is the mean ``-log2 P(next | cur)`` over the held-out
+    transitions **both of whose states are in the matrix's vocabulary**;
+    ``perplexity`` is ``2 ** cross_entropy_bits`` (the effective branching factor —
+    lower is a better fit). Both are ``None`` when the score is infinite or
+    undefined: a matrix that assigns **zero** probability to an observed in-vocab
+    transition (only possible under ``smoothing="none"``) cannot predict it —
+    ``has_zero_probability`` flags exactly that, and is why Laplace is the default
+    for a sampleable/scoreable distribution. ``oov_transitions`` counts held-out
+    transitions touching a state the matrix never saw (excluded from the score —
+    no probability mass exists to charge them against; a high OOV rate is itself a
+    fit signal).
+    """
+
+    cross_entropy_bits: float | None
+    perplexity: float | None
+    scored_transitions: int
+    oov_transitions: int
+    n_pieces: int
+    has_zero_probability: bool
+
+    def to_dict(self) -> dict:
+        return dataclasses.asdict(self)
 
 
 @dataclass(frozen=True)
@@ -135,6 +164,59 @@ class TransitionMatrix:
             out.append(nxt)
             current = nxt
         return out
+
+    def cross_entropy(self, held_out, *, session=None) -> CrossEntropyResult:
+        """Held-out cross-entropy — how well this matrix predicts a *fresh* corpus.
+
+        ``held_out`` is a chord-stream corpus ``[(chords, key), …]`` (same shape as
+        training). Each piece's state sequence is scored under this matrix's
+        ``state`` keying; the mean surprisal (bits/transition) over in-vocabulary
+        transitions is the metric. Out-of-vocabulary transitions (a state the
+        matrix never saw) are counted, not scored; a zero-probability in-vocab
+        transition (raw matrix, unseen pair) makes the score infinite — reported as
+        ``None`` + ``has_zero_probability``. Deterministic; the boundary-metric
+        primitive (train here, score on held-out).
+        """
+
+        from .harmony_stream import build_harmony_stream
+
+        total_bits = 0.0
+        scored = 0
+        oov = 0
+        n_pieces = 0
+        zero_prob = False
+        for chords, key in held_out:
+            items, _reason = build_harmony_stream(list(chords), key[0], key[1], session=session)
+            if not items:
+                continue
+            n_pieces += 1
+            labels = [_state_of(item, self.state) for item, _loc in items]
+            for cur, nxt in zip(labels, labels[1:]):
+                row = self.probabilities.get(cur)
+                if row is None or cur not in self.states or nxt not in self.states:
+                    oov += 1
+                    continue
+                p = row.get(nxt, 0.0)
+                scored += 1
+                if p <= 0.0:
+                    zero_prob = True
+                else:
+                    total_bits += -math.log2(p)
+
+        if zero_prob or scored == 0:
+            ce_bits: float | None = None
+            perplexity: float | None = None
+        else:
+            ce_bits = total_bits / scored
+            perplexity = 2.0 ** ce_bits
+        return CrossEntropyResult(
+            cross_entropy_bits=ce_bits,
+            perplexity=perplexity,
+            scored_transitions=scored,
+            oov_transitions=oov,
+            n_pieces=n_pieces,
+            has_zero_probability=zero_prob,
+        )
 
     def to_dict(self) -> dict:
         return {
@@ -251,4 +333,4 @@ def build_transition_matrix(
     )
 
 
-__all__ = ["TransitionMatrix", "build_transition_matrix"]
+__all__ = ["TransitionMatrix", "CrossEntropyResult", "build_transition_matrix"]

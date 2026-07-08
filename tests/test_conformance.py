@@ -133,6 +133,11 @@ def _transition_corpus():
     ]
 
 
+def _cross_entropy_matrix():
+    # A concrete transition_matrix payload to score against (built at import).
+    return tools.transition_matrix(_transition_corpus(), state="degree")
+
+
 def _groove_loop():
     # Swung, accented loop: [onset, dur, midi, velocity] (groove event format).
     events = []
@@ -409,6 +414,12 @@ CASES: list[tuple[str, dict]] = [
     # gap 14 slice 1: degree-transition distribution (both smoothing modes).
     ("transition_matrix", {"chord_corpus": _transition_corpus()}),
     ("transition_matrix", {"chord_corpus": _transition_corpus(), "smoothing": "none", "state": "role"}),
+    # gap 14: held-out cross-entropy (the boundary metric).
+    (
+        "transition_cross_entropy",
+        {"matrix": _cross_entropy_matrix(),
+         "held_out_corpus": [[[[0, "maj"], [7, "maj"], [0, "maj"]], [0, "major"]]]},
+    ),
     # gap 14 slice 2: the style-profile bundle (ruleset-only keeps the golden small).
     (
         "build_style_profile",
