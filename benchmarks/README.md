@@ -24,7 +24,7 @@ is `freezability.py`, which is deterministic and a **candidate to promote** into
 
 | Script | What it measures | Blocking-worthy? |
 |---|---|---|
-| `freezability.py` | static scan: no wall-clock / unseeded RNG in the pure layers (the invariant that makes outputs freezable + reproducible) | **deterministic** — promotable to `tests/` |
+| `freezability.py` | static scan: no wall-clock / unseeded RNG in the pure layers (the invariant that makes outputs freezable + reproducible) | **promoted 2026-07-08 → CI gate** at `tests/test_freezability.py`; this script is now a report that reuses the test's scan |
 | `latency.py` | per-MCP-tool call latency over the conformance workload, slowest-first | no (machine-specific) |
 | `artifacts.py` | contract-artifact serialized size + load round-trip cost | no (machine-specific) |
 
