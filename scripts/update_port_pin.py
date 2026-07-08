@@ -31,39 +31,48 @@ CONFORMANCE_PATH = REPO_ROOT / "tests" / "golden" / "conformance.json"
 PORTED_CONFORMANCE_TOOLS = ("set_class_info",)
 
 
-# The set-class table carries float fields (DFT magnitudes/phases, the chirality
-# family) computed via cmath/golden-section. Those agree across IEEE-754 platforms
-# only to the last few ULPs (~1e-15 at these magnitudes) — but the fingerprint is
-# an EXACT sha256 of the JSON, so raw floats made the pin machine-specific (green
-# on the machine that generated it, red on a fresh clone / CI). The rest of the
-# engine compares these values with a 1e-9 tolerance; the fingerprint now matches
-# that intent by rounding to 1e-10 (tighter than 1e-9, so real drift still shows)
-# before hashing. `+ 0.0` collapses -0.0/0.0 so a zero-crossing can't flip a hash.
-_FINGERPRINT_DECIMALS = 10
-
-
-def _round_floats(obj: object) -> object:
-    if isinstance(obj, float):
-        return round(obj, _FINGERPRINT_DECIMALS) + 0.0
-    if isinstance(obj, list):
-        return [_round_floats(x) for x in obj]
-    if isinstance(obj, dict):
-        return {k: _round_floats(v) for k, v in obj.items()}
-    return obj
-
-
 def _canonical_sha256(obj: object) -> str:
-    payload = json.dumps(_round_floats(obj), sort_keys=True, separators=(",", ":"))
+    payload = json.dumps(obj, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+# The fingerprint hashes ONLY the exactly-reproducible fields of the set-class
+# table — those whose entire derivation is integer / bit arithmetic, and are
+# therefore bit-identical on every conforming platform. The table's FLOAT fields
+# (DFT magnitudes/phases, the chirality family, and reflection_residual — a
+# golden-section minimizer) are transcendental / iterative and agree across
+# platforms only to ~ULP..1e-9, so an EXACT hash of them is inherently
+# machine-specific: rounding is not robustly safe (a value can always straddle a
+# boundary — CI proved a 1e-10 round still drifted macOS↔Linux). Those are the
+# wrong thing to exact-hash; they are tolerance-compared by the conformance
+# harness (1e-9) and by the port's own parity harness (PORT.md). The pin's job is
+# the FROZEN COMBINATORICS, which is exactly this integer surface.
+_FINGERPRINT_TABLE_FIELDS = (
+    "mask",
+    "cardinality",
+    "normal_order",
+    "prime_form",
+    "prime_form_mask",
+    "interval_vector",
+    "z_partner_prime_form",
+    "complement_prime_form",
+    "rotational_period",
+)
+
+
+def _fingerprint_table() -> list[dict[str, object]]:
+    """The exactly-reproducible (integer-only) projection of the set-class table."""
+    from mts.io.export import set_class_table
+
+    return [
+        {field: row[field] for field in _FINGERPRINT_TABLE_FIELDS}
+        for row in set_class_table()
+    ]
 
 
 def ported_surface_fingerprint() -> dict[str, object]:
     """The live engine's fingerprint of everything the port slice vendors."""
-    from mts.io.export import (
-        EXPORT_SCHEMA_VERSION,
-        SET_CLASS_TABLE_FIELDS,
-        set_class_table,
-    )
+    from mts.io.export import EXPORT_SCHEMA_VERSION, SET_CLASS_TABLE_FIELDS
 
     conformance = json.loads(CONFORMANCE_PATH.read_text())
     ported_cases = [
@@ -74,8 +83,12 @@ def ported_surface_fingerprint() -> dict[str, object]:
     return {
         "surface": "port.slice-1b",  # slice 1 + the chirality/DFT-phase family (export.2)
         "export_schema_version": EXPORT_SCHEMA_VERSION,
+        # The full export the port vendors (documentation of the surface)...
         "set_class_table_fields": list(SET_CLASS_TABLE_FIELDS),
-        "set_class_table_sha256": _canonical_sha256(set_class_table()),
+        # ...but the exact hash covers only the platform-deterministic integer
+        # fields; the float fields ride the tolerance harness (see above).
+        "set_class_table_sha256_fields": list(_FINGERPRINT_TABLE_FIELDS),
+        "set_class_table_sha256": _canonical_sha256(_fingerprint_table()),
         "ported_conformance_tools": list(PORTED_CONFORMANCE_TOOLS),
         "ported_conformance_cases_sha256": _canonical_sha256(ported_cases),
     }

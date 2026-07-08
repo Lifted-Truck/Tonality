@@ -1,7 +1,7 @@
 {
   "export_schema_version": "export.2",
-  "pinned_at_commit": "86ee10d44771378c611834fc49279bb53884dcac",
-  "ported_conformance_cases_sha256": "d55686d6f28aaeda320667386c6c87b4da9689602968ea8376af1e53e9731b83",
+  "pinned_at_commit": "8cf6e9e701ebfafccb8908beb465a6fed0023533",
+  "ported_conformance_cases_sha256": "421e5f61329bcbbf4fd48afb5b258cd1acd035087679cec391d4b4d0b38cc3b5",
   "ported_conformance_tools": [
     "set_class_info"
   ],
@@ -23,6 +23,17 @@
     "chirality",
     "reflection_residual"
   ],
-  "set_class_table_sha256": "16917db53c781864bcb91f116e8e669931efc1e9ebe254252ba1825f7c74a777",
+  "set_class_table_sha256": "0ca43424273267a3cc43940f7147b250c5d735f41eb63849a51f9f91f6e659ea",
+  "set_class_table_sha256_fields": [
+    "mask",
+    "cardinality",
+    "normal_order",
+    "prime_form",
+    "prime_form_mask",
+    "interval_vector",
+    "z_partner_prime_form",
+    "complement_prime_form",
+    "rotational_period"
+  ],
   "surface": "port.slice-1b"
 }

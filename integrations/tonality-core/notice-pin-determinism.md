@@ -17,19 +17,25 @@ The pin was effectively machine-specific.
 
 ## The fix (relevant to your parity harness)
 
-The **fingerprint** now rounds every float to **10 decimals** (`+ 0.0` to
-collapse `-0.0`/`0.0`) before hashing — tighter than the 1e-9 tolerance the
-conformance harness already uses, so real drift still trips it, but last-ULP
-platform noise no longer does. The change is in `scripts/update_port_pin.py`
-(`_round_floats` in `_canonical_sha256`); the **export itself
-(`set_class_table()`) is unchanged** — still full precision, so your vendored
-data is byte-identical to before.
+The **fingerprint now hashes only the exactly-reproducible integer/combinatorial
+fields** of the set-class table — `mask, cardinality, normal_order, prime_form,
+prime_form_mask, interval_vector, z_partner_prime_form, complement_prime_form,
+rotational_period` (recorded in the pin as `set_class_table_sha256_fields`).
+Those are pure bit/integer arithmetic, bit-identical on every conforming
+platform. The transcendental/iterative **float** fields (DFT magnitudes/phases,
+the chirality family, reflection_residual) are *dropped from the exact hash* —
+exact-hashing them is inherently machine-specific (we first tried rounding to
+1e-10; CI proved it still drifted macOS↔Linux). The **export itself
+(`set_class_table()`) is unchanged** — still full precision, all 16 fields
+(`set_class_table_fields` still lists them) — so your vendored data is
+byte-identical to before.
 
-**For your side:** nothing about the exported table moved. If your parity check
-compares the `set_class_table_sha256`, adopt the new value and, if you fingerprint
-the float fields yourself, apply the same round-to-10 (`+ 0.0`) rule so your
-Linux/macOS runs agree with ours. The conformance-case comparison is unaffected
-(it reads the committed golden, always deterministic).
+**For your side:** the exported table is unchanged; only what the pin
+*exact-hashes* narrowed to the integer surface. Compare the float fields the way
+this engine does — **with tolerance** (the conformance harness uses 1e-9; your
+parity harness already does the same per PORT.md), never by exact hash. The
+conformance-case comparison (`ported_conformance_cases_sha256`) is unaffected —
+it reads the committed golden, always deterministic.
 
 ## Also landing alongside
 
