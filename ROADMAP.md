@@ -629,6 +629,20 @@ list as new applications come into view.
   contingent engine slice beyond graded-weights is **per-rule firing-location
   extraction** (the "considered-and-held" complement to `evaluate_ruleset`'s
   violation stream — build when its saliency layer needs it, wont named).
+  *Brief-2 (`response-2.md`, 2026-07-08) — K scoped labelings of one run:* Wend
+  parallel-sessions a single `run_id` (K passes, different scope-sets + labels).
+  Ruling (recipe, no v1 engine work): the independence unit is **`(run, scope)`**,
+  but because each scope is mined as its **own corpus**, within any one corpus it
+  reduces to `pieces = runs` — the K sessions land in K *different* corpora, so
+  none sees the run twice (scope-separation = the §4 pooling fix one level up). Do
+  not pool across scopes, nor mine K sessions in one corpus. **Extends to the
+  distribution layer** verbatim, plus one stamp: `cross_entropy` held-out splits
+  must be **by run**, never by span/session (same music leaks). Parallel scoped
+  sessions are an **attribution + cross-scope-render-efficiency** lever, **not**
+  within-scope power (one run = +1 piece per scope, never +K). **New contingent
+  slice, wont named:** a `run_id` **grouping-key** on `induce_ruleset` (group-level
+  support) for the residual — *same-scope repeats* or a *cross-scope joint model*;
+  not built for v1.
   *Markov/distribution alignment (2026-07-08, `notice-markov-alignment.md`):* two
   `response.md` open asks now **shipped** — `ruleset_field_manifest()`
   (`ruleset-fields.2`) and `evaluate_ruleset(include_firings=True)`. And gap 14
