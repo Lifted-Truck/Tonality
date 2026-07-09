@@ -3245,6 +3245,69 @@ Cadence: re-run alongside the theory-grounding review at each phase
 boundary; the two reviews are complementary instruments (assumptions vs
 contracts) and should stay separate passes.
 
+## Horizon — speculative & ecosystem ideas
+
+> The home for **not-yet-committed** ideas — cross-project visions, "wouldn't it be
+> cool", things without an owning client yet. **This is not committed direction**
+> (that lives in the phases / gaps / target-applications above); entries here are
+> recorded so they aren't lost and so any agent can find them, *not* scheduled.
+> **Graduation:** when an idea earns a plan it moves *up* into a phase/gap/target-
+> application and leaves a pointer here. **Escalation:** if this bucket becomes a
+> genuine multi-project planning space (several projects co-owning roadmaps), spin
+> out a dedicated ecosystem repo; a single idea recorded from Tonality's vantage
+> fits here.
+
+- **H1 — Performance → analysis → personal style → pedagogy (the ecosystem-pull
+  build)** *(Julian, 2026-07-08; no owning client yet — likely surfaced through the
+  Audiology-as-education-platform effort).* A person performs in their own style;
+  the performance becomes MIDI; Tonality analyzes it for **feedback on all aspects
+  of performance** and **stylistic analysis**, and — over a corpus of their
+  playing — **derives their personal style** as a ruleset/profile. Wont is tagged
+  in so the style is both **learned and analyzed**; lesson plans are built (tagging
+  in **Portolan**, a curriculum/pathway project); it all surfaces in Audiology
+  extended into an **education platform**. Possibly one build that pulls the whole
+  ecosystem together, or several that do it different ways (per instrument/pedagogy
+  over one Tonality spine).
+
+  *Tonality's vantage — what's already shipped vs. genuinely new:*
+  - **performance → MIDI (audio transcription): OUT of scope.** Signal → symbolic
+    is not the 12-TET symbolic engine's domain — it's a front-end adapter / separate
+    tool. Tonality **consumes** MIDI; it does not transcribe audio. (The one clearly-
+    new front-end component.)
+  - **MIDI → feedback on all aspects: largely SHIPPED.** The enrichment engine
+    (`midi_file_analysis` + melodic / rhythmic / harmonic / key-tracking / groove /
+    cadence analysis). "Performance feedback" is mostly a *presentation* framing over
+    existing analysis, not new engine.
+  - **derive a personal style: SHIPPED this session (the spine).** The corpus →
+    style-profile pipeline (`segment_chords` → `induce_ruleset` ‖
+    `build_transition_matrix` → `build_style_profile`) pointed at *a person's
+    performance corpus* instead of a genre corpus — "perform in your own style →
+    derive a `StyleProfile`" is the personal-case instance of the closed loop
+    (`integrations/wont/notice-markov-alignment.md` §6).
+  - **style learned AND analyzed: the Wont closed loop** (A10) — Wont personalizes;
+    the `StyleProfile` is inspectable. Already aligned.
+  - **lesson plans: a separate curriculum project (Portolan)** — consumes the
+    learner's profile + the gap to a target style. Not Tonality-owned; Tonality
+    supplies the analysis + the style-gap signal.
+  - **Audiology-as-education-platform: the UI/front-end** (A6, extending into
+    education) — the surface that renders feedback, style, and lesson plans.
+
+  *The one genuinely-new Tonality capability it would pull for (candidate, if it
+  advances):* a **style-gap / profile-diff** analysis —
+  `compare_style_profiles(learner, target)` → per-dimension divergence: which rules
+  the learner follows/breaks vs. the target (`compare_rulesets`), the transition-
+  distribution divergence (`compare_transition_matrices`, already recorded for
+  wont), and the held-out cross-entropy gap (`cross_entropy`). **This is the core
+  pedagogical signal** — "how far from the target style, on which dimensions, what
+  to practice" — and it unifies three already-recorded pieces into one learner-vs-
+  target diff. Recorded here; not built speculatively (it graduates when a consumer —
+  Audiology-education or Portolan — needs it).
+
+  *Net:* this is an **integration vision, not a single build**, and Tonality is
+  mostly *ready* for its half — the spine shipped this session. The new work is the
+  audio→MIDI front-end (not ours), the Portolan curriculum layer (another project),
+  and the `compare_style_profiles` style-gap (a candidate gap when a consumer pulls it).
+
 ## Demoted / deferred (built for the old "app" frame)
 
 - `gui/` (Qt) and the audio backend — not on the library/MCP path. Don't delete;
