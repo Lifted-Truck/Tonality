@@ -1,0 +1,9 @@
+{
+  "schema_version": "pattern.1",
+  "name": "prinner-descent",
+  "version": "1",
+  "domain": "melody",
+  "abstraction": {"pitch": "degree", "time": "free"},
+  "elements": [6, 5, 4, 3],
+  "description": "The melodic skeleton of the Prinner riposte's upper voice (Gjerdingen): scale degrees 6-5-4-3, stepwise descent. Degree-relative and rhythm-free, so it matches in any key at any pacing. HONEST SCOPE: the full galant Prinner is a two-voice schema (this descent over a 4-3-2-1 bass); the two-voice pairing needs the cross-voice pattern scope - a recorded gap-C follow-on, not expressible in the melody domain."
+}

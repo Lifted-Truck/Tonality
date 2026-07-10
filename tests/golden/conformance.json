@@ -21208,6 +21208,184 @@
     "ruleset_name": "no-parallels"
    },
    "tool": "repair_ruleset"
+  },
+  {
+   "kwargs": {},
+   "result": [
+    "arch-contour",
+    "prinner-descent"
+   ],
+   "tool": "list_named_patterns"
+  },
+  {
+   "kwargs": {
+    "name": "prinner-descent"
+   },
+   "result": {
+    "abstraction": {
+     "pitch": "degree",
+     "time": "free"
+    },
+    "description": "The melodic skeleton of the Prinner riposte's upper voice (Gjerdingen): scale degrees 6-5-4-3, stepwise descent. Degree-relative and rhythm-free, so it matches in any key at any pacing. HONEST SCOPE: the full galant Prinner is a two-voice schema (this descent over a 4-3-2-1 bass); the two-voice pairing needs the cross-voice pattern scope - a recorded gap-C follow-on, not expressible in the melody domain.",
+    "domain": "melody",
+    "elements": [
+     6,
+     5,
+     4,
+     3
+    ],
+    "name": "prinner-descent",
+    "schema_version": "pattern.1",
+    "version": "1"
+   },
+   "tool": "load_named_pattern"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      1,
+      81,
+      "v"
+     ],
+     [
+      1,
+      1,
+      79,
+      "v"
+     ],
+     [
+      2,
+      1,
+      77,
+      "v"
+     ],
+     [
+      3,
+      1,
+      76,
+      "v"
+     ],
+     [
+      4,
+      0.5,
+      69,
+      "v"
+     ],
+     [
+      4.5,
+      0.5,
+      67,
+      "v"
+     ],
+     [
+      5,
+      1,
+      65,
+      "v"
+     ],
+     [
+      6,
+      2,
+      64,
+      "v"
+     ]
+    ],
+    "key": [
+     "C",
+     "major"
+    ],
+    "pattern": {
+     "abstraction": {
+      "pitch": "degree",
+      "time": "free"
+     },
+     "domain": "melody",
+     "elements": [
+      6,
+      5,
+      4,
+      3
+     ],
+     "name": "prinner-descent",
+     "schema_version": "pattern.1",
+     "version": "1"
+    }
+   },
+   "result": {
+    "count": 2,
+    "key": [
+     0,
+     "major"
+    ],
+    "occurrences": [
+     {
+      "degrees": [
+       6,
+       5,
+       4,
+       3
+      ],
+      "end_beat": 4.0,
+      "iois": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "midis": [
+       81,
+       79,
+       77,
+       76
+      ],
+      "moves": null,
+      "onsets": [
+       0.0,
+       1.0,
+       2.0,
+       3.0
+      ],
+      "start_beat": 0.0,
+      "voice": "v"
+     },
+     {
+      "degrees": [
+       6,
+       5,
+       4,
+       3
+      ],
+      "end_beat": 8.0,
+      "iois": [
+       0.5,
+       0.5,
+       1.0
+      ],
+      "midis": [
+       69,
+       67,
+       65,
+       64
+      ],
+      "moves": null,
+      "onsets": [
+       4.0,
+       4.5,
+       5.0,
+       6.0
+      ],
+      "start_beat": 4.0,
+      "voice": "v"
+     }
+    ],
+    "pattern_name": "prinner-descent",
+    "pattern_version": "1",
+    "pitch_level": "degree",
+    "time_level": "free",
+    "voices_skipped": []
+   },
+   "tool": "find_pattern"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",
