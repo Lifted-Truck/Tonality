@@ -48,7 +48,7 @@ include = ["mts*"]
 exclude = ["tests*", "audit*"]
 
 [tool.setuptools.package-data]
-mts = ["data/*.json"]
+mts = ["data/*.json", "data/rulesets/*.json", "data/patterns/*.json"]
 
 [project.scripts]
 # The MCP endpoint needs the optional extra: pip install 'mts[mcp]' (the

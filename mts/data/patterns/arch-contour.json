@@ -1,0 +1,9 @@
+{
+  "schema_version": "pattern.1",
+  "name": "arch-contour",
+  "version": "1",
+  "domain": "melody",
+  "abstraction": {"pitch": "contour", "time": "free"},
+  "elements": ["up", "up", "down", "down"],
+  "description": "A five-note melodic arch: rise twice, fall twice (Parsons contour *UUDD). Contour-only and rhythm-free - the most abstract lattice corner: it makes no pitch or timing claims at all, only shape."
+}

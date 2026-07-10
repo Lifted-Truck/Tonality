@@ -942,6 +942,65 @@ def load_named_ruleset(name: str) -> dict:
     return ruleset_to_payload(_load(name))
 
 
+def find_pattern(
+    pattern: dict,
+    events: list[list],
+    key: list | None = None,
+    voice: str | None = None,
+) -> dict:
+    """Find every occurrence of a melodic PATTERN in a note stream (gap C: rules
+    say what's forbidden/required, patterns say what's CHARACTERISTIC — motifs,
+    schemata). pattern: a pattern.1 payload — {name, version, domain: 'melody',
+    abstraction: {pitch: 'exact'|'degree'|'contour', time: 'exact'|'free'},
+    elements, iois?} — a sequential template with a DECLARED abstraction level
+    (the identity lattice at pattern grain), matched exactly under that
+    declaration (the lattice IS the fuzziness; no tolerance knobs). elements per
+    pitch level: exact = MIDI ints (transposition-sensitive quote); degree =
+    scale degrees 1..7 (key-relative — REQUIRES key=[tonic, mode], major/minor;
+    never inferred: error, don't guess); contour = 'up'/'down'/'same' moves
+    (shape only). time 'exact' needs iois (beats between notes); 'free' matches
+    any spacing and reports the actual IOIs (the time-warp is evidence, not
+    hidden). events: the canonical event form [onset_beats, duration_beats,
+    midi_note, velocity?, voice?]; occurrences are over CONTIGUOUS notes of one
+    voice line; overlapping occurrences all reported; a chordal 'line'
+    (simultaneous onsets) is skipped and named in voices_skipped. voice
+    restricts to one line. Returns {pattern_name, pattern_version, pitch_level,
+    time_level, key, count, occurrences: [{voice, start_beat, end_beat, midis,
+    onsets, iois, degrees, moves}], voices_skipped}. Validation is total (all
+    errors at once). See list_named_patterns for the shipped library."""
+    from ..patterns import find_pattern as _find
+
+    key_pair = None
+    if key is not None:
+        try:
+            key_pair = (_pc(key[0]), str(key[1]))
+        except (TypeError, ValueError, IndexError) as exc:
+            raise ValueError(f"key must be [tonic, mode] (mode 'major'|'minor'): {exc}") from exc
+    kwargs = {}
+    if voice is not None:
+        kwargs["voice"] = voice
+    return _find(_canonical_sequence(events), pattern, key=key_pair, **kwargs).to_dict()
+
+
+def list_named_patterns() -> list[str]:
+    """The names of the citable melodic patterns shipped in the library (gap C)
+    — e.g. 'prinner-descent', 'arch-contour'. Load one with load_named_pattern."""
+    from ..patterns import list_named_patterns as _list
+
+    return _list()
+
+
+def load_named_pattern(name: str) -> dict:
+    """Load a shipped, citable pattern by name (see list_named_patterns) as a
+    validated pattern.1 payload — ready to feed find_pattern, or to read/adapt.
+    The description documents scope honestly (e.g. prinner-descent notes the full
+    two-voice Prinner needs the cross-voice scope, a recorded gap-C follow-on).
+    Unknown names raise with the known list."""
+    from ..patterns import load_named_pattern as _load, pattern_to_payload
+
+    return pattern_to_payload(_load(name))
+
+
 def induce_rules(
     corpus: list[list[list]] | None = None,
     family: str = "voice_motion",
@@ -1577,6 +1636,9 @@ TOOLS = (
     ruleset_field_manifest,
     list_named_rulesets,
     load_named_ruleset,
+    find_pattern,
+    list_named_patterns,
+    load_named_pattern,
     induce_rules,
     transition_matrix,
     transition_cross_entropy,

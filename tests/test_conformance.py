@@ -442,6 +442,19 @@ CASES: list[tuple[str, dict]] = [
                     [0, 1, 65, "lower"], [1, 1, 67, "lower"]],
          "allowed_pcs": [0, 2, 4, 5, 7, 9, 11], "max_repairs": 3},
     ),
+    # gap C slice 1: the pattern layer (melodic motif; library + matcher).
+    ("list_named_patterns", {}),
+    ("load_named_pattern", {"name": "prinner-descent"}),
+    (
+        "find_pattern",
+        {"pattern": {"schema_version": "pattern.1", "name": "prinner-descent",
+                     "version": "1", "domain": "melody",
+                     "abstraction": {"pitch": "degree", "time": "free"},
+                     "elements": [6, 5, 4, 3]},
+         "events": [[0, 1, 81, "v"], [1, 1, 79, "v"], [2, 1, 77, "v"], [3, 1, 76, "v"],
+                    [4, 0.5, 69, "v"], [4.5, 0.5, 67, "v"], [5, 1, 65, "v"], [6, 2, 64, "v"]],
+         "key": ["C", "major"]},
+    ),
 ]
 
 

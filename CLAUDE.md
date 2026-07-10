@@ -69,6 +69,14 @@ temporal/    Time layer (Phase 2): Event/Sequence + tempo/meter; window → real
              Segmentation, harmonic rhythm, local key tracking, voice identity/motion,
              melodic + rhythmic atoms.
   ↓
+patterns/    Pattern layer (Phase 4.6, gap C): sequential templates as first-class
+             objects — a Pattern declares its abstraction (pitch exact/degree/contour
+             × time exact/free; the identity lattice at pattern grain) and
+             find_pattern matches exactly under that declaration. Patterns say what
+             is CHARACTERISTIC; rules say what is forbidden/required. Named library
+             in mts/data/patterns/. Slice 1 = melody domain; harmonic schemas,
+             rule-projection, and PrefixSpan induction are recorded follow-ons.
+  ↓
 rules/       Rulesets (Phase 4.6): declarative JSON rules over the atom vocabulary;
              strict total validation + deterministic conformance evaluator +
              composition/comparison (combine/specialize/diff). No code execution;

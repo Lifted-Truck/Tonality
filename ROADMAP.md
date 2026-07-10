@@ -2444,6 +2444,33 @@ to be informed by what 1–3 teach about the DSL's seams).
       global / aggregate) is this item's DSL-side landing spot. Design
       round deliberately deferred until the library + harmony family +
       repair slices have exposed the DSL's seams.
+      **Slice 1 DELIVERED (2026-07-09, design brief same day — forks decided
+      by Julian: melodic-motif domain first; scope = object + matcher, with
+      rule-projection and induction as their own slices).** `mts/patterns/`:
+      the `Pattern` object (`pattern.1` schema, total validation like
+      rulesets, payload round-trip) declaring `abstraction {pitch:
+      exact|degree|contour, time: exact|free}` — the lattice made concrete;
+      `find_pattern(sequence, pattern, *, key=, voice=)` locating every
+      (possibly overlapping) occurrence over contiguous notes of a voice
+      line, **exact under the declared abstraction** (the lattice IS the
+      fuzziness — no tolerance knobs; a knob would be a versioned prior
+      later). Honesty contract: degree-level needs `key=(tonic, mode)` —
+      **never inferred** (error, don't guess); a chromatic note has no
+      degree and cannot fudge a match; rhythm-free matches surface their
+      actual IOIs; chordal "lines" are skipped by name, never silently.
+      Named library `mts/data/patterns/` (mirroring gap D): `prinner-descent`
+      (degree×free, its description honestly noting the full two-voice
+      Prinner needs the cross-voice scope) + `arch-contour` (contour×free).
+      MCP `find_pattern` / `list_named_patterns` / `load_named_pattern`
+      (61 tools). Also fixed in passing: `package-data` now includes the
+      `data/rulesets/` + `data/patterns/` subdirs (a wheel would previously
+      have omitted rulesets — pre-existing gap, packaging test updated).
+      19 tests; golden additive (3 cases); port pin untouched. **Remaining
+      (slices 2+):** harmonic-schema domain (n-grams over the harmony
+      atoms — 12-bar blues, ii–V–I chains), rhythmic templates (clave),
+      cross-voice patterns (the Prinner proper), rule-projection (pattern
+      occurrence as a rule predicate — lands with the phrase/global scope
+      design), PrefixSpan-family induction, gapped/subsequence matching.
 - [ ] **Generation coupling** (lands with Phase 7): rulesets are the
       constraint/cost input to generative search — hard rules prune, soft
       rules score. This *is* Phase 7's "qualitative characteristics"
