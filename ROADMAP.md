@@ -687,6 +687,21 @@ list as new applications come into view.
   wont's (ML is theirs); Tonality's half is the translation contract (every
   method's output lands as a weighted `StyleProfile`).
 
+- **A11 — CORPUS WORKBENCH** *(anticipated 2026-07-09; seed packet filed —
+  `integrations/corpus-workbench/seed.md`; Julian approved the new-tool route and
+  will spin its agent; name provisional)*. The **batch corpus-exploration
+  surface** for the ruleset/pattern/style-profile stack — renders the corpus
+  exercise harness's JSON report + live per-piece descriptors over the HTTP
+  bridge. Deliberately NOT Audiology (which stays per-piece/live-instrument):
+  one product shape per project. Pure renderer/orchestrator — rule 3: zero
+  analysis of its own; one boundary module; refusals rendered as refusals and
+  `exploratory` rendered prominently (the engine's honesty must survive
+  rendering). First views: pattern-occurrence heatmap · conformance
+  distributions · induced-rule evidence browser. Likely the **first web
+  consumer** → the named trigger for Horizon H2's typed TS bridge client.
+  Registration completes when it files its own intake brief (the seed is
+  Tonality's vantage, not the project's voice).
+
 **Gaps this list surfaces (recorded, not yet scheduled):**
 1. **MIDI export** — ✅ shipped (Phase 2 addendum): `sequence_to_midi_file`
    (`Sequence → SMF`, single track, tempo/meter/velocity/channel preserved,
