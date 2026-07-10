@@ -1249,10 +1249,12 @@ def repair_ruleset(
 ) -> dict:
     """GENERATIVE: conformance REPAIR — minimally edit an existing piece so a
     ruleset's hard rules hold (the third ruleset operation: extract=induce_rules,
-    compare=compare_rulesets, impose=this). Slice 1: re-pitch edits only (no
-    rhythm/insert/delete), driven by hard VOICE-MOTION violations (e.g. fix
-    parallel fifths by moving one voice's note); hard violations in other
-    families are reported unrepairable-in-slice-1, never silently ignored — but
+    compare=compare_rulesets, impose=this). Slice 1+1b: re-pitch edits only (no
+    rhythm/insert/delete), driven by hard VOICE-MOTION violations (fix parallel
+    fifths by moving one voice's note) and hard MELODY violations (fix a melodic
+    tritone by re-pitching the note or its neighbors); hard violations in other
+    families (rhythm is pitch-independent; harmony repair = slice-2 chord
+    substitution) are refused honestly, never silently ignored — but
     the oracle re-check covers the WHOLE ruleset, so an edit that fixed the
     parallels while creating a new violation is rejected. events: the canonical
     event form [onset_beats, duration_beats, midi_note, velocity?, voice?] —

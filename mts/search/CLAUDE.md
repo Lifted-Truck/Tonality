@@ -35,8 +35,9 @@ and `rules/` and never reimplements either.
 - `repair.py` — `repair_sequence(sequence, ruleset, …)` (conformance repair,
   slice 1): impose a ruleset on existing material via **minimal re-pitch edits**
   — bounded, deterministic search with the Phase 4.6 **evaluator as the oracle**
-  (every candidate re-evaluated in full, whole ruleset). Voice-motion-driven
-  candidates; lexicographic minimality (fewest notes, then |semitones|; exact via
+  (every candidate re-evaluated in full, whole ruleset). Candidates from the two
+  pitch-driven families: voice-motion pair transitions (slice 1) + melody note
+  locations incl. same-voice neighbors (slice 1b); lexicographic minimality (fewest notes, then |semitones|; exact via
   iterative deepening); hard-must-hold, soft-must-not-worsen; honest refusals
   (non-voice-motion hard violations, budget exhaustion). Generative-side — edits
   invent pitches.
