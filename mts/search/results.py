@@ -122,4 +122,81 @@ class VoicingSearchResult:
         }
 
 
-__all__ = ["IdentityMatch", "IdentitySearchResult", "VoicingMatch", "VoicingSearchResult"]
+__all__ = [
+    "IdentityMatch", "IdentitySearchResult", "VoicingMatch", "VoicingSearchResult",
+    "RepairEdit", "Repair", "RepairResult",
+]
+
+
+@dataclass(frozen=True)
+class RepairEdit:
+    """One re-pitch edit: which note, from what, to what, and why.
+
+    ``fixes_rules`` is the provenance trace — the hard rules whose violations
+    implicated this note when the edit was chosen (Decision 7: evidence, not
+    just outcome).
+    """
+
+    voice: str
+    onset_beats: float
+    midi_from: int
+    midi_to: int
+    fixes_rules: list[str]
+
+    def to_dict(self) -> dict:
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
+class Repair:
+    """One complete repair: the edits, their cost, and the repaired events.
+
+    ``events`` is the full repaired piece in canonical event form
+    ``[onset_beats, duration_beats, midi, voice]`` — the caller gets the fixed
+    material, not just instructions. ``total_displacement`` is the lexicographic
+    tie-break (summed |semitones| across edits).
+    """
+
+    edits: list[RepairEdit]
+    total_displacement: int
+    soft_score_after: float | None
+    events: list[list] = dataclasses.field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return {
+            "edits": [e.to_dict() for e in self.edits],
+            "total_displacement": self.total_displacement,
+            "soft_score_after": self.soft_score_after,
+            "events": [list(e) for e in self.events],
+        }
+
+
+@dataclass(frozen=True)
+class RepairResult:
+    """Ranked minimal repairs of a sequence against a ruleset (or the honest no).
+
+    ``repairs`` is ranked lexicographically (edit count, then displacement) and
+    every entry's edit count is globally minimal (iterative deepening). An
+    unrepairable piece keeps ``repairs == []`` and says why in ``reason`` —
+    including the slice-1 scope refusal for non-voice-motion hard violations.
+    ``budget_exhausted`` marks an incomplete search honestly.
+    """
+
+    already_conformant: bool
+    repairs: list[Repair]
+    reason: str | None
+    evaluations: int
+    budget_exhausted: bool
+    before_hard_violations: int
+    ruleset_name: str
+
+    def to_dict(self) -> dict:
+        return {
+            "already_conformant": self.already_conformant,
+            "repairs": [r.to_dict() for r in self.repairs],
+            "reason": self.reason,
+            "evaluations": self.evaluations,
+            "budget_exhausted": self.budget_exhausted,
+            "before_hard_violations": self.before_hard_violations,
+            "ruleset_name": self.ruleset_name,
+        }

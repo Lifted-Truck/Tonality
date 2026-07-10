@@ -2736,6 +2736,28 @@ frame, recorded here so A2/A3 decompose onto named work):**
   violations, or move one voice to break parallel fifths — before any joint
   multi-dimension search. Ranked plural output with the violated-rule →
   edit trace as evidence (Decision 7 shape).
+  **Slice 1 DELIVERED (2026-07-09, design brief same day — forks decided by
+  Julian: voice-motion first; minimality = lexicographic fewest-notes-then-
+  smallest-|semitone|-motion).** `mts/search/repair.py`
+  `repair_sequence(sequence, ruleset, *, max_edits, pitch_window, allowed_pcs,
+  max_evaluations, max_repairs)` + MCP `repair_ruleset`. Edit vocabulary:
+  re-pitch a single note (no rhythm/insert/delete; one edit per note).
+  Candidates come from hard **voice-motion** violations' pair-transition
+  locations (the four implicated notes); the **evaluator is the oracle** — every
+  candidate re-evaluated over the WHOLE ruleset (an edit that fixes the
+  parallels but creates a melodic tritone is rejected), hard must hold, soft
+  must not worsen. Iterative deepening ⇒ returned edit count is exactly
+  minimal; ranked plural repairs each carry the edit list with per-edit
+  violated-rule provenance + the repaired events. Honest refusals: hard
+  violations outside voice-motion → unrepairable-in-slice-1 with rules named;
+  budget exhaustion flagged; already-conformant reported. Deterministic, capped
+  (`max_edits ≤ 6`, oracle-call budget). Proven on the shipped
+  `first-species-counterpoint` oracle (fix the parallel fifths, 1 note,
+  −1 semitone). 14 tests; golden additive (1 `repair_ruleset` case); port pin
+  untouched. **Remaining (slice 2+):** melody-driven candidates (same
+  machinery, one location field), harmony repair via chord substitution
+  (`next_chord`/`search_identities` candidate source — the different edit
+  vocabulary), joint multi-dimension search, rhythm edits/insert/delete.
 
 ### Phase 8 (future) — C++ core, dual implementation (Decision 10, revised 2026-06-29)
 A C++ core becomes the **performance / generative / embedded main**; the **Python

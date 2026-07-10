@@ -1239,6 +1239,43 @@ def voicing_suggestions(root: int | str, quality: str) -> dict:
     return suggest_voicings(chord).to_dict()
 
 
+def repair_ruleset(
+    ruleset: dict,
+    events: list[list],
+    max_edits: int = 2,
+    pitch_window: int = 7,
+    allowed_pcs: list | None = None,
+    max_repairs: int = 8,
+) -> dict:
+    """GENERATIVE: conformance REPAIR — minimally edit an existing piece so a
+    ruleset's hard rules hold (the third ruleset operation: extract=induce_rules,
+    compare=compare_rulesets, impose=this). Slice 1: re-pitch edits only (no
+    rhythm/insert/delete), driven by hard VOICE-MOTION violations (e.g. fix
+    parallel fifths by moving one voice's note); hard violations in other
+    families are reported unrepairable-in-slice-1, never silently ignored — but
+    the oracle re-check covers the WHOLE ruleset, so an edit that fixed the
+    parallels while creating a new violation is rejected. events: the canonical
+    event form [onset_beats, duration_beats, midi_note, velocity?, voice?] —
+    voiced events required (voice_motion needs voices). Repairs are ranked
+    lexicographically (fewest notes edited, then total |semitone| displacement;
+    iterative deepening makes the edit count exactly minimal) and each carries
+    its edit list with per-edit violated-rule provenance, the repaired events,
+    and soft_score_after (soft score must not worsen). allowed_pcs restricts
+    candidate pitches (e.g. a scale); pitch_window bounds each edit (±semitones).
+    An unrepairable piece says so with the reason; already-conformant input
+    returns already_conformant=true. Deterministic, capped (max_edits <= 6)."""
+    from ..search import repair_sequence
+
+    return repair_sequence(
+        _canonical_sequence(events),
+        ruleset,
+        max_edits=int(max_edits),
+        pitch_window=int(pitch_window),
+        allowed_pcs=[_pc(p) for p in allowed_pcs] if allowed_pcs is not None else None,
+        max_repairs=int(max_repairs),
+    ).to_dict()
+
+
 def search_voicings(
     pcs: list[int],
     root: int | None = None,
@@ -1556,6 +1593,7 @@ TOOLS = (
     voicing_analysis,
     voicing_suggestions,
     search_voicings,
+    repair_ruleset,
     quality_comparison,
     quality_brief,
     midi_file_analysis,

@@ -431,6 +431,17 @@ CASES: list[tuple[str, dict]] = [
     ),
     # A6 brief-20: scale naming (diatonic → 7 modes). Appended last (additive).
     ("scale_names", {"pcs": [0, 2, 4, 5, 7, 9, 11]}),
+    # conformance repair slice 1: fix parallel fifths by re-pitching one note.
+    (
+        "repair_ruleset",
+        {"ruleset": {"name": "no-parallels", "version": "1", "rules": [
+            {"id": "no-parallel-perfects", "family": "voice_motion",
+             "where": {"motion": "parallel"},
+             "forbid": {"interval_class_to": {"in": [0, 7]}}, "polarity": "hard"}]},
+         "events": [[0, 1, 72, "upper"], [1, 1, 74, "upper"],
+                    [0, 1, 65, "lower"], [1, 1, 67, "lower"]],
+         "allowed_pcs": [0, 2, 4, 5, 7, 9, 11], "max_repairs": 3},
+    ),
 ]
 
 

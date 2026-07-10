@@ -21012,6 +21012,202 @@
     "rotational_period": 12
    },
    "tool": "scale_names"
+  },
+  {
+   "kwargs": {
+    "allowed_pcs": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9,
+     11
+    ],
+    "events": [
+     [
+      0,
+      1,
+      72,
+      "upper"
+     ],
+     [
+      1,
+      1,
+      74,
+      "upper"
+     ],
+     [
+      0,
+      1,
+      65,
+      "lower"
+     ],
+     [
+      1,
+      1,
+      67,
+      "lower"
+     ]
+    ],
+    "max_repairs": 3,
+    "ruleset": {
+     "name": "no-parallels",
+     "rules": [
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "interval_class_to": {
+         "in": [
+          0,
+          7
+         ]
+        }
+       },
+       "id": "no-parallel-perfects",
+       "polarity": "hard",
+       "where": {
+        "motion": "parallel"
+       }
+      }
+     ],
+     "version": "1"
+    }
+   },
+   "result": {
+    "already_conformant": false,
+    "before_hard_violations": 1,
+    "budget_exhausted": false,
+    "evaluations": 33,
+    "reason": null,
+    "repairs": [
+     {
+      "edits": [
+       {
+        "fixes_rules": [
+         "no-parallel-perfects"
+        ],
+        "midi_from": 65,
+        "midi_to": 64,
+        "onset_beats": 0.0,
+        "voice": "lower"
+       }
+      ],
+      "events": [
+       [
+        0.0,
+        1.0,
+        64,
+        "lower"
+       ],
+       [
+        0.0,
+        1.0,
+        72,
+        "upper"
+       ],
+       [
+        1.0,
+        1.0,
+        67,
+        "lower"
+       ],
+       [
+        1.0,
+        1.0,
+        74,
+        "upper"
+       ]
+      ],
+      "soft_score_after": null,
+      "total_displacement": 1
+     },
+     {
+      "edits": [
+       {
+        "fixes_rules": [
+         "no-parallel-perfects"
+        ],
+        "midi_from": 72,
+        "midi_to": 71,
+        "onset_beats": 0.0,
+        "voice": "upper"
+       }
+      ],
+      "events": [
+       [
+        0.0,
+        1.0,
+        65,
+        "lower"
+       ],
+       [
+        0.0,
+        1.0,
+        71,
+        "upper"
+       ],
+       [
+        1.0,
+        1.0,
+        67,
+        "lower"
+       ],
+       [
+        1.0,
+        1.0,
+        74,
+        "upper"
+       ]
+      ],
+      "soft_score_after": null,
+      "total_displacement": 1
+     },
+     {
+      "edits": [
+       {
+        "fixes_rules": [
+         "no-parallel-perfects"
+        ],
+        "midi_from": 65,
+        "midi_to": 67,
+        "onset_beats": 0.0,
+        "voice": "lower"
+       }
+      ],
+      "events": [
+       [
+        0.0,
+        1.0,
+        67,
+        "lower"
+       ],
+       [
+        0.0,
+        1.0,
+        72,
+        "upper"
+       ],
+       [
+        1.0,
+        1.0,
+        67,
+        "lower"
+       ],
+       [
+        1.0,
+        1.0,
+        74,
+        "upper"
+       ]
+      ],
+      "soft_score_after": null,
+      "total_displacement": 2
+     }
+    ],
+    "ruleset_name": "no-parallels"
+   },
+   "tool": "repair_ruleset"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",
