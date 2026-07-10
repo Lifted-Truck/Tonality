@@ -2497,6 +2497,31 @@ to be informed by what 1–3 teach about the DSL's seams).
       MIDI ingestion already labels parts (per-track voices), so drums/bass/
       topline/harmony arrive as voice labels today. Not yet scheduled; slices
       1–2 are the natural next build after gap-C slice 1.
+- [ ] **Corpus exercise regime — rulesets + patterns over real MIDI** (added
+      2026-07-09, Julian: "more extensive tests for the ruleset and pattern
+      functionality that reach for real open-source MIDI corpuses").
+      **Slice 1 DELIVERED same day:** `validation/exercise_rules_patterns.py`
+      (Layer-E measured report: per-piece ingest → segment → all named rulesets
+      + patterns; corpus-level induction per family + degree-transition matrix
+      with **by-piece held-out** cross-entropy) + `tests/test_corpus_smoke.py`
+      (Layer-0, CI-gated invariants over the already-vendored **SWD score-MIDI**
+      smoke set — 5 Winterreise songs, CC BY: real-score ingest/segment, honest
+      refusals itemized, the pattern occurrence contract, induced-output
+      validity, by-piece splits, determinism). First real-music results: keys
+      inferred correctly (D911-01 → D minor), held-out perplexity 4.70 with 0
+      OOV, note-family induction honestly empty at 5 pieces (floors working),
+      harmony induction exploratory-flagged. **Open — corpus expansion is
+      license-gated (Julian's sign-off, the standing rule):** shortlist to vet —
+      **OpenScore Lieder / String Quartets (CC0)**, **Mutopia** (PD/CC
+      per-piece — check each), the **full SWD** (CC BY, fetch-on-demand);
+      barred: Lakh (scraped, unclear), MAESTRO (NC), When-in-Rome/DCML (NC-SA).
+      Vendor only small smoke subsets + ATTRIBUTION.md (the SWD pattern);
+      full corpora fetch on demand. **Visualization:** corpus-scale exploration
+      (occurrence heatmaps, conformance distributions, induced-rule browsers)
+      proposed as a NEW consumer tool ("corpus workbench") via the integrations
+      protocol — Julian to spin an agent; Audiology stays the per-piece
+      renderer it already is. The engine's half is already data-shaped
+      (reports are JSON; piano-roll/pattern-occurrence descriptors exist).
 - [ ] **Generation coupling** (lands with Phase 7): rulesets are the
       constraint/cost input to generative search — hard rules prune, soft
       rules score. This *is* Phase 7's "qualitative characteristics"
