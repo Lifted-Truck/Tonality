@@ -32,8 +32,17 @@ and `rules/` and never reimplements either.
   **templates** (the registered+rootless lattice corner). With `from_voicing`,
   matches carry `vl_from` (exact `voice_leading_realized`, `doubling.1`) and
   come back ranked by it — gap 17's ranking half; callers may re-rank (rule 7).
+- `repair.py` — `repair_sequence(sequence, ruleset, …)` (conformance repair,
+  slice 1): impose a ruleset on existing material via **minimal re-pitch edits**
+  — bounded, deterministic search with the Phase 4.6 **evaluator as the oracle**
+  (every candidate re-evaluated in full, whole ruleset). Voice-motion-driven
+  candidates; lexicographic minimality (fewest notes, then |semitones|; exact via
+  iterative deepening); hard-must-hold, soft-must-not-worsen; honest refusals
+  (non-voice-motion hard violations, budget exhaustion). Generative-side — edits
+  invent pitches.
 - `results.py` — `IdentitySearchResult` / `IdentityMatch` /
-  `VoicingSearchResult` / `VoicingMatch` (`to_dict()`).
+  `VoicingSearchResult` / `VoicingMatch` / `RepairResult` / `Repair` /
+  `RepairEdit` (`to_dict()`).
 
 **Decision 12 (containment granularity) — read before adding fields.** In the
 set-class universe, `contains`/`contained_in` fold inversions (a shape and its

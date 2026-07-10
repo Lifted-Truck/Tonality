@@ -17,7 +17,16 @@ from __future__ import annotations
 
 from .fields import IDENTITY_FIELDS
 from .identities import search_identities
-from .results import IdentityMatch, IdentitySearchResult, VoicingMatch, VoicingSearchResult
+from .results import (
+    IdentityMatch,
+    IdentitySearchResult,
+    Repair,
+    RepairEdit,
+    RepairResult,
+    VoicingMatch,
+    VoicingSearchResult,
+)
+from .repair import repair_sequence
 from .voicings import VOICING_FIELDS, search_voicings
 
 __all__ = [
@@ -29,4 +38,8 @@ __all__ = [
     "VoicingSearchResult",
     "search_identities",
     "search_voicings",
+    "Repair",
+    "RepairEdit",
+    "RepairResult",
+    "repair_sequence",
 ]
