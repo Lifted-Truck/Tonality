@@ -3308,6 +3308,28 @@ contracts) and should stay separate passes.
   audio→MIDI front-end (not ours), the Portolan curriculum layer (another project),
   and the `compare_style_profiles` style-gap (a candidate gap when a consumer pulls it).
 
+- **H2 — Client-linking middleware** *(Julian asked 2026-07-08; **tabled as a future
+  possibility**, not now).* Considered whether to develop middleware between the
+  engine and its clients. **Ruling: no central middleware / gateway.** The linking
+  roles are already filled — transport+contract by the three transports, coordination
+  by the `integrations/` protocol, stability by the golden/port-pin/versioned priors,
+  and per-client adaptation by **one boundary module per project** (rule 1,
+  deliberately *distributed* — a shared adapter is where forks + god-objects breed,
+  and a running gateway would re-implement the loopback bridge while reintroducing the
+  operational surface the local-first design avoids). **The one piece worth building,
+  on a trigger:** a thin, opt-in, **per-language client SDK** (a *library*, not a
+  service) packaging the repeated boundary mechanics — transport selection, canonical
+  (de)serialization, the degrade-visibly "which source answered" badge, typed result
+  shells — without centralizing client-specific logic. Gate on the **rule of three**
+  (2–3 same-language clients re-writing the same seam); the **strongest single case is
+  a typed TS/JS bridge client**, since Audiology-into-an-education-platform means more
+  web clients (types generatable from the golden/manifest source). Distinct from the
+  ecosystem **conductor** that would orchestrate the closed personalization loop (H1)
+  — that composes clients, is its own project, and is not "Tonality middleware."
+  **Triggers to watch:** (1) a second same-language client duplicating the boundary →
+  extract that language's SDK (TS first); (2) the closed loop gets a real consumer →
+  a separate conductor.
+
 ## Demoted / deferred (built for the old "app" frame)
 
 - `gui/` (Qt) and the audio backend — not on the library/MCP path. Don't delete;
