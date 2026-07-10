@@ -2471,6 +2471,32 @@ to be informed by what 1–3 teach about the DSL's seams).
       cross-voice patterns (the Prinner proper), rule-projection (pattern
       occurrence as a rule predicate — lands with the phrase/global scope
       design), PrefixSpan-family induction, gapped/subsequence matching.
+- [ ] **Part-relationship / texture vocabulary** (added 2026-07-09 — **gap E**,
+      from Julian: "will the patterns expose anything about the relationships
+      between MIDI sections — drums, harmony, topline, bass?"; the abstract form:
+      distinguish melodic vs rhythmic content and derive relationships between
+      multiple inputs. Also = the determinism-boundary brief's "ensemble/texture
+      scope" candidate, now sourced). What exists today for cross-part
+      relationships: `voice_motion` (pairwise pitch motion between voices),
+      `analyze_melody(harmony=…)` (topline↔harmony chord-tone/NHT per note),
+      per-part rhythm/groove atoms — but no *ensemble* vocabulary relating
+      labeled parts as parts. Design (recorded, sliced smallest-first):
+      **(1) part content descriptors** — per-voice *descriptive* facts (onset
+      density, pitch mobility, sustain ratio, register band) exposing how
+      melodic/rhythmic/harmonic a part's content is as continuous evidence,
+      never a hard classification (plural/evidenced; the caller judges);
+      **(2) pairwise relation atoms** between labeled parts, both axes —
+      rhythmic (onset-synchrony rate, interlock/complementarity, density ratio,
+      groove congruence) and pitch↔harmony (chord-tone support rate vs a
+      harmony part or chords+key, register separation/overlap, aggregate
+      motion mix via `voice_motion`); **(3) a `texture` rule family** over
+      those atoms ("bass doubles kick ≥ 80%", "topline stays chord-tone-
+      dominant") — induction inherits free (Decision 8 corollary); **(4)
+      cross-part patterns** — the pattern layer's cross-voice follow-on
+      generalized (the two-voice Prinner proper, call–response templates).
+      MIDI ingestion already labels parts (per-track voices), so drums/bass/
+      topline/harmony arrive as voice labels today. Not yet scheduled; slices
+      1–2 are the natural next build after gap-C slice 1.
 - [ ] **Generation coupling** (lands with Phase 7): rulesets are the
       constraint/cost input to generative search — hard rules prune, soft
       rules score. This *is* Phase 7's "qualitative characteristics"
@@ -2846,7 +2872,16 @@ acceptance plan: **[CPP_PORT.md](CPP_PORT.md)**.
       declared the briefs-15–17 chirality surface settled
       (`integrations/audiology/note-chirality-settled.md`), satisfying the
       slice-1b hold; asked by the port thread's first brief
-      (`integrations/tonality-core/brief.md`). The port pin tripped and was
+      (`integrations/tonality-core/brief.md`). *CI gap (2026-07-09,
+      `notice-ci-required.md`, ball: port):* tonality-core has **no CI and no
+      branch protection** — the parity ctests run only manually, single-machine,
+      while PORT.md's fixtures/PIN contract explicitly assumes "every agent and
+      CI run on any machine". The notice asks the port residents to stand up a
+      **ubuntu+macos matrix** workflow running the existing three parity ctests
+      on every PR + require them for merge (the pin-determinism incident is the
+      proof of why: green-on-one-machine is not parity). Tonality's half is
+      already enforced (`test_port_pin` in this repo's CI). Loop recorded closed
+      when the port replies on-channel. The port pin tripped and was
       regenerated in the same PR with the notice, per the protocol —
       the pin's first live firing.)*
       **Deferred follow-ons:** committing the table artifact + a
