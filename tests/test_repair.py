@@ -89,12 +89,14 @@ def test_already_conformant():
 
 
 def test_unsupported_family_is_refused_not_guessed():
-    melody_rule = {"name": "m", "version": "1", "rules": [{
-        "id": "no-melodic-tritone", "family": "melody",
-        "forbid": {"approach_interval": {"in": [6, -6]}}, "polarity": "hard"}]}
-    tritone = [[0, 1, 60, "v"], [1, 1, 66, "v"]]
-    r = repair_sequence(_seq(tritone), melody_rule)
-    assert r.repairs == [] and "slice 1" in r.reason and "no-melodic-tritone" in r.reason
+    # rhythm is pitch-independent — a re-pitch can never fix it; refuse honestly.
+    rhythm_rule = {"name": "r", "version": "1", "rules": [{
+        "id": "no-syncopation", "family": "rhythm",
+        "forbid": {"is_syncopated": True}, "polarity": "hard"}]}
+    syncopated = [[0.5, 1, 60, "v"], [1.5, 1, 62, "v"]]
+    r = repair_sequence(_seq(syncopated), rhythm_rule)
+    assert r.repairs == []
+    assert "voice_motion/melody" in r.reason and "no-syncopation" in r.reason
 
 
 def test_unrepairable_within_budget_is_honest():
@@ -111,6 +113,40 @@ def test_parameter_validation():
         repair_sequence(seq, NO_PARALLELS, max_edits=99)
     with pytest.raises(ValueError, match="pitch_window"):
         repair_sequence(seq, NO_PARALLELS, pitch_window=0)
+
+
+# --- slice 1b: melody-driven repair ---------------------------------------------
+
+MELODIC_TRITONE_RULE = {
+    "name": "m", "version": "1",
+    "rules": [{"id": "no-melodic-tritone", "family": "melody",
+               "forbid": {"approach_interval": {"in": [6, -6]}}, "polarity": "hard"}],
+}
+
+
+def test_melodic_tritone_repaired():
+    tritone = [[0, 1, 60, "v"], [1, 1, 66, "v"]]  # C4 → F#4
+    r = repair_sequence(_seq(tritone), MELODIC_TRITONE_RULE)
+    assert r.repairs and len(r.repairs[0].edits) == 1
+    assert r.repairs[0].total_displacement == 1  # a one-semitone fix exists
+    assert r.repairs[0].edits[0].fixes_rules == ["no-melodic-tritone"]
+    for rep in r.repairs:
+        assert evaluate(MELODIC_TRITONE_RULE, _seq(rep.events)).hard_rules_hold
+
+
+def test_melody_neighbors_are_implicated():
+    # the best fixes include re-pitching the PREDECESSOR (approach fields read
+    # the previous note) — neighbor implication, not just the located note.
+    tritone = [[0, 1, 60, "v"], [1, 1, 66, "v"]]
+    r = repair_sequence(_seq(tritone), MELODIC_TRITONE_RULE)
+    edited_onsets = {e.onset_beats for rep in r.repairs for e in rep.edits}
+    assert 0.0 in edited_onsets and 1.0 in edited_onsets
+
+
+def test_melody_repair_works_unvoiced():
+    tritone = [[0, 1, 60], [1, 1, 66]]  # no voice labels — a bare line
+    r = repair_sequence(_seq(tritone), MELODIC_TRITONE_RULE)
+    assert r.repairs and r.repairs[0].edits[0].voice is None
 
 
 # --- the whole-ruleset oracle + the species demo -----------------------------------

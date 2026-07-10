@@ -137,7 +137,7 @@ class RepairEdit:
     just outcome).
     """
 
-    voice: str
+    voice: str | None
     onset_beats: float
     midi_from: int
     midi_to: int

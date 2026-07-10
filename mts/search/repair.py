@@ -12,16 +12,19 @@ re-evaluated in full, so a repair can never *think* it fixed something — it ei
 passes ``evaluate`` or it is not a repair. Deterministic throughout (sorted
 enumeration, no RNG, no clock), capped by construction.
 
-Slice-1 scope (ROADMAP, and the 2026-07-08 design brief):
+Slice-1(+1b) scope (ROADMAP, and the 2026-07-08 design brief):
 
 - **Edit vocabulary: re-pitch a single note.** No rhythm edits, no insertion or
   deletion; one edit per note.
-- **Voice-motion–driven**: candidate notes come from the hard voice-motion
-  violations' locations (a pair transition names its two voices and two beats —
-  the four implicated notes). Hard violations in any *other* family are reported
-  honestly as out of slice-1 scope, never silently ignored. The oracle re-check
-  still covers the **whole** ruleset — an edit that fixed the parallels but
-  created a melodic tritone is rejected.
+- **Pitch-family–driven**: candidate notes come from the hard violations of the
+  two pitch-driven families — **voice_motion** (a pair transition names its two
+  voices and two beats — the four implicated notes; slice 1) and **melody** (a
+  note location, plus its immediate same-voice neighbors since melodic atoms
+  couple neighbors; slice 1b). Hard violations in any *other* family (rhythm is
+  pitch-independent; harmony repair is the recorded slice-2 chord-substitution)
+  are refused honestly, never silently ignored. The oracle re-check still covers
+  the **whole** ruleset — an edit that fixed the parallels but created a melodic
+  tritone is rejected, and vice versa.
 - **Minimality is lexicographic** (Julian's call): fewest notes edited first,
   total absolute semitone displacement as the tie-break. Implemented exactly via
   iterative deepening — depth k is only explored if no repair exists at depth
@@ -59,26 +62,50 @@ def _hard_violations(report) -> list[tuple[str, dict]]:
 
 def _implicated_notes(
     sequence: Sequence, violations: list[tuple[str, dict]]
-) -> dict[tuple[str, float], list[str]]:
+) -> dict[tuple[str | None, float], list[str]]:
     """Map each implicated note ``(voice, onset)`` to the rule_ids implicating it.
 
-    A voice-motion violation location names two voices and two beats; the notes
-    sounding for those voices at those beats are the edit candidates.
+    A **voice-motion** violation location names two voices and two beats — the
+    notes sounding for those voices at those beats are the candidates. A
+    **melody** violation location names one note (``onset_beats`` + optional
+    ``voice``) — the candidates are that note *and its immediate same-voice
+    neighbors* (slice 1b: melodic atoms couple neighbors — the approach fields
+    read the previous note, the departure fields the next, so re-pitching either
+    side can repair the interval).
     """
-    implicated: dict[tuple[str, float], list[str]] = {}
+    implicated: dict[tuple[str | None, float], list[str]] = {}
+
+    def add(voice: str | None, onset: float, rule_id: str) -> None:
+        rules = implicated.setdefault((voice, onset), [])
+        if rule_id not in rules:
+            rules.append(rule_id)
+
     for rule_id, location in violations:
         voices = location.get("voices")
-        if voices is None:
-            continue  # not a voice-motion location — out of slice-1 scope
-        beats = [location.get("from_beat"), location.get("to_beat")]
-        for event in sequence.events:
-            if event.voice not in voices:
-                continue
-            if any(b is not None and abs(event.onset - b) <= _EPS for b in beats):
-                key = (event.voice, event.onset)
-                rules = implicated.setdefault(key, [])
-                if rule_id not in rules:
-                    rules.append(rule_id)
+        if voices is not None:  # voice-motion pair transition
+            beats = [location.get("from_beat"), location.get("to_beat")]
+            for event in sequence.events:
+                if event.voice not in voices:
+                    continue
+                if any(b is not None and abs(event.onset - b) <= _EPS for b in beats):
+                    add(event.voice, event.onset, rule_id)
+            continue
+        onset = location.get("onset_beats")
+        if onset is None:
+            continue  # unlocatable — the family scope check already refused it
+        voice = location.get("voice")
+        line = sorted(
+            (e.onset for e in sequence.events if e.voice == voice),
+            key=float,
+        )
+        for i, o in enumerate(line):
+            if abs(o - onset) <= _EPS:
+                add(voice, o, rule_id)
+                if i > 0:
+                    add(voice, line[i - 1], rule_id)
+                if i + 1 < len(line):
+                    add(voice, line[i + 1], rule_id)
+                break
     return implicated
 
 
@@ -112,8 +139,8 @@ def repair_sequence(
     honest about incompleteness. Repairs are ranked lexicographically:
     ``(edit count, total |semitone| displacement)``; iterative deepening makes the
     edit count exactly minimal. Raises on out-of-range parameters; a piece whose
-    hard violations lie outside the voice-motion family is reported unrepairable
-    *in this slice* with the offending families named (error/report, not guess).
+    hard violations lie outside the pitch-driven families (voice_motion, melody)
+    is reported unrepairable with the offending rules named (report, not guess).
     """
 
     if not isinstance(ruleset, Ruleset):
@@ -153,17 +180,25 @@ def repair_sequence(
             before_hard_violations=0, ruleset_name=before.ruleset_name,
         )
 
-    # Slice-1 scope check: every hard violation must be voice-motion-locatable.
+    # Scope check (slice 1+1b): re-pitch edits can only answer for pitch-driven
+    # families. A hard violation in any other family (rhythm is pitch-independent;
+    # harmony reads a chord stream this oracle isn't given) is refused honestly.
+    family_of = {rule.id: rule.family for rule in ruleset.rules}
     unsupported = sorted(
-        {rule_id for rule_id, loc in before_hard if loc.get("voices") is None}
+        {
+            rule_id
+            for rule_id, _loc in before_hard
+            if family_of.get(rule_id) not in ("voice_motion", "melody")
+        }
     )
     if unsupported:
         return RepairResult(
             already_conformant=False, repairs=[],
             reason=(
-                "hard violations outside the voice-motion family cannot be repaired "
-                f"in slice 1 (rules: {unsupported}); re-pitch repair is driven by "
-                "pair-transition locations"
+                "hard violations outside the voice_motion/melody families cannot "
+                f"be repaired by re-pitch edits (rules: {unsupported}); rhythm is "
+                "pitch-independent and harmony repair is the recorded slice-2 "
+                "(chord substitution)"
             ),
             evaluations=evaluations, budget_exhausted=False,
             before_hard_violations=len(before_hard), ruleset_name=before.ruleset_name,

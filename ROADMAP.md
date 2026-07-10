@@ -2754,8 +2754,15 @@ frame, recorded here so A2/A3 decompose onto named work):**
   (`max_edits ≤ 6`, oracle-call budget). Proven on the shipped
   `first-species-counterpoint` oracle (fix the parallel fifths, 1 note,
   −1 semitone). 14 tests; golden additive (1 `repair_ruleset` case); port pin
-  untouched. **Remaining (slice 2+):** melody-driven candidates (same
-  machinery, one location field), harmony repair via chord substitution
+  untouched. **Slice 1b DELIVERED (2026-07-09): melody-driven candidates.**
+  A hard melody violation's note location (plus its immediate same-voice
+  neighbors — melodic atoms couple neighbors: approach reads the previous note,
+  departure the next, so re-pitching either side can repair) feeds the same
+  candidate machinery; unvoiced lines supported. The scope check is now by rule
+  **family** (voice_motion + melody = the pitch-driven families); rhythm is
+  refused as pitch-independent. Proven: a melodic tritone fixed by one note /
+  one semitone — including via the *predecessor* (neighbor implication paying
+  off). **Remaining (slice 2+):** harmony repair via chord substitution
   (`next_chord`/`search_identities` candidate source — the different edit
   vocabulary), joint multi-dimension search, rhythm edits/insert/delete.
 
