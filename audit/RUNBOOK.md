@@ -64,6 +64,18 @@ Bias toward subsystems that changed since the last cycle (check `git log` since
 the last audit tag/issue) and toward the newest surface (e.g. the `search/` and
 `harmony`-family code, `melodic_tendency`, the style-profile pieces).
 
+**Then run the semantic-coherence pass (charter §6a) — every cycle, not optional.**
+Unlike the families above, this is a *reading* pass, not a code run: check that the
+system still makes coherent sense across code + docs + decisions + `integrations/`
+rulings. Concretely each cycle: (a) does the doctrine actually hold in the changed
+code (error-don't-guess, plural/evidenced, priors cited, generative-labeled)? (b)
+do docstrings / per-layer `CLAUDE.md` / `README` / `INTEGRATION.md` / ROADMAP
+"shipped" claims match what the code now does? (c) is any term of art redefined
+between code and docs? (d) is any ROADMAP decision or `integrations/` response
+ruling contradicted by newer code or a newer notice? (e) did any frozen schema/prior
+version change without a bump? File contradictions as §4 findings (the two
+locations + the violated claim); a clean pass is logged, not silent.
+
 ## 4. File findings (charter §4 format — every finding needs all three)
 
 ```bash
