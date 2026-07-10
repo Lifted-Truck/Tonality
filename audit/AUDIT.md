@@ -112,6 +112,39 @@ false positives. High-value invariant families for this engine:
 - **External ground truth (stretch)** — cross-check interval vectors / symmetry /
   Forte numbers against Ian Ring's "A Study of Scales" (ROADMAP reference).
 
+### 6a. Semantic coherence — the judgment-layer check (run every cycle)
+
+The families above are **numerical / behavioral** — a machine can assert them. This
+one is **semantic**: does the system still *make coherent sense* — do its concepts,
+claims, and vocabulary agree across code, docs, decisions, and consumer rulings?
+Drift here doesn't crash a test; it quietly rots the project. It is exactly what an
+LLM-driven audit can catch and a `pytest` cannot, so **probe it every cycle** by
+*reading across* sources, not by running code. A finding is the **two contradicting
+locations** + which claim/contract they violate (still the §4 format). Sub-checks:
+
+- **Doctrine actually upheld in code.** The epistemic claims the README / CLAUDE.md
+  make must be *true*: register-dependent analysis **errors, doesn't guess**; a
+  result documented as *plural/ranked/evidenced* isn't silently collapsed to one; a
+  **versioned prior** the doctrine says is "cited in the result" really is stamped
+  there; a **generative** act is labeled generative and lives generative-side (not
+  disguised as analysis). A new function that guesses, invents register, or drops
+  the evidence is a coherence break even if every number is right.
+- **Docs ↔ code truth.** Docstrings, per-layer `CLAUDE.md` rules, `README.md`,
+  `INTEGRATION.md` describe what the code *actually* does now — signature, fields,
+  behavior. Flag: a ROADMAP/README "shipped" claim that raises or is absent; a tool
+  docstring naming result fields that aren't there; a layer rule an import violates.
+- **Vocabulary consistency.** A term of art means one thing everywhere — `identity`
+  vs `realization`, `piece` vs `run` vs `span`, `prime form` vs `set class`,
+  `hard`/`soft`, `scope`. A silent redefinition across code ↔ docs ↔ an
+  `integrations/` response is a finding.
+- **Decision & ruling non-contradiction.** ROADMAP decisions don't contradict each
+  other or the code; a boundary ruling or contract in an `integrations/` response is
+  still honored (e.g. "satisfaction stays wont-schema", a pinned prior version, a
+  by-reference embedding) and not quietly reversed by later code or a later notice.
+- **Provenance / versioning coherence.** A schema or prior **version is bumped when
+  its content changed** (a frozen `x.1` that silently changed is the worst drift);
+  every "stamped/cited" promise is kept on the artifact it names.
+
 ## 7. Known limitations — do NOT file these as bugs
 
 12-TET cannot faithfully represent every named scale, so distinct cultural/tuning
