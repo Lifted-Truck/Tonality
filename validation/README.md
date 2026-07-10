@@ -60,3 +60,23 @@ engine (the same rule that ruled out DCML's BY-NC-SA corpora for gap-14 priors).
 See ROADMAP **A6** and integrations/audiology/response-4.md for the full triage.
 Phase 2 (chord-level scoring against per-beat Roman numerals) is recorded as a
 separate round.
+
+## Corpus exercise harness — rulesets + patterns (added 2026-07-09)
+
+`exercise_rules_patterns.py` runs the whole Phase 4.6 stack over a MIDI corpus
+directory (default: the vendored SWD smoke set) — per piece: ingest →
+`segment_chords` → every named ruleset evaluated (harmony rules fed the
+segmented chords+key) → every named pattern matched; corpus level: rule
+induction per family (pieces = files), harmony induction over the segmented
+chord corpus, and a degree-transition matrix scored on a held-out piece by
+cross-entropy (**split by piece** — same music never straddles the split).
+Layer-E: measured, non-blocking. The Layer-0 invariants CI can gate (no-crash,
+honest refusals, occurrence contract, induced-output validity, determinism)
+live in `tests/test_corpus_smoke.py` over the same vendored set.
+
+```bash
+.venv/bin/python3.13 validation/exercise_rules_patterns.py [--corpus DIR] [--out report.json]
+```
+
+Corpus expansion is license-gated (the standing rule): candidates + the
+sign-off live in ROADMAP (Phase 4.6 corpus-exercise entry).
