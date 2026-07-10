@@ -40,4 +40,16 @@ sources, each `source`-stamped. Ian Ring's *integer convention* we already share
 *name corpus* stays un-ingested until terms are confirmed. We'll relay Julian's call
 when made; nothing blocks the v1 meanwhile.
 
+## Julian's decision (2026-07-10): engine-authored breadth only, for now
+
+Confirmed with the maintainer: **greenlight the engine-authored-first breadth path**
+— go ahead and grow `Scale.aliases` from structure (modal-rotation names,
+symmetric-set descriptors, interval-vector / DFT-fingerprint labels, the Western
+canon), which reaches us automatically through `scale_names`, zero license risk.
+**Defer external corpora** (raga/maqam/Zeitler/jazz) for now: do NOT ingest Ian
+Ring's or any external name corpus yet — a license-safe (CC0/PD/BY, provenance-
+stamped) source is a later, separate decision, not this increment. The `tradition`/
+`source` slots stay empty until then. No urgency; whatever breadth you author lands
+behind our badge on its own schedule.
+
 — Audiology
