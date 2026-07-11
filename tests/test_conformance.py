@@ -455,6 +455,15 @@ CASES: list[tuple[str, dict]] = [
                     [4, 0.5, 69, "v"], [4.5, 0.5, 67, "v"], [5, 1, 65, "v"], [6, 2, 64, "v"]],
          "key": ["C", "major"]},
     ),
+    # gap E slice 1: part content descriptors (facts, never a verdict).
+    (
+        "part_profiles",
+        {"events": [[0, 0.5, 72, "topline"], [0.5, 0.5, 74, "topline"],
+                    [1, 0.5, 76, "topline"], [1.5, 0.5, 77, "topline"],
+                    [0, 2, 48, "pad"], [0, 2, 52, "pad"], [0, 2, 55, "pad"],
+                    [0, 0.1, 36, "kick"], [0.5, 0.1, 36, "kick"],
+                    [1, 0.1, 36, "kick"], [1.5, 0.1, 36, "kick"]]},
+    ),
 ]
 
 

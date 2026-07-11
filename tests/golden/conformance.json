@@ -21386,6 +21386,128 @@
     "voices_skipped": []
    },
    "tool": "find_pattern"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      0.5,
+      72,
+      "topline"
+     ],
+     [
+      0.5,
+      0.5,
+      74,
+      "topline"
+     ],
+     [
+      1,
+      0.5,
+      76,
+      "topline"
+     ],
+     [
+      1.5,
+      0.5,
+      77,
+      "topline"
+     ],
+     [
+      0,
+      2,
+      48,
+      "pad"
+     ],
+     [
+      0,
+      2,
+      52,
+      "pad"
+     ],
+     [
+      0,
+      2,
+      55,
+      "pad"
+     ],
+     [
+      0,
+      0.1,
+      36,
+      "kick"
+     ],
+     [
+      0.5,
+      0.1,
+      36,
+      "kick"
+     ],
+     [
+      1,
+      0.1,
+      36,
+      "kick"
+     ],
+     [
+      1.5,
+      0.1,
+      36,
+      "kick"
+     ]
+    ]
+   },
+   "result": {
+    "profiles": [
+     {
+      "distinct_pcs": 1,
+      "n_events": 4,
+      "n_onsets": 4,
+      "onset_density": 2.5,
+      "pc_entropy_norm": 0.0,
+      "pitch_mobility": 0.0,
+      "register_hi": 36,
+      "register_lo": 36,
+      "register_mean": 36.0,
+      "simultaneity": 1.0,
+      "span_beats": 1.6,
+      "sustain_ratio": 0.25,
+      "voice": "kick"
+     },
+     {
+      "distinct_pcs": 3,
+      "n_events": 3,
+      "n_onsets": 1,
+      "onset_density": 0.5,
+      "pc_entropy_norm": 0.442114109,
+      "pitch_mobility": 0.0,
+      "register_hi": 55,
+      "register_lo": 48,
+      "register_mean": 51.666666667,
+      "simultaneity": 3.0,
+      "span_beats": 2.0,
+      "sustain_ratio": 3.0,
+      "voice": "pad"
+     },
+     {
+      "distinct_pcs": 4,
+      "n_events": 4,
+      "n_onsets": 4,
+      "onset_density": 2.0,
+      "pc_entropy_norm": 0.557885891,
+      "pitch_mobility": 1.666666667,
+      "register_hi": 77,
+      "register_lo": 72,
+      "register_mean": 74.75,
+      "simultaneity": 1.0,
+      "span_beats": 2.0,
+      "sustain_ratio": 1.0,
+      "voice": "topline"
+     }
+    ]
+   },
+   "tool": "part_profiles"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",

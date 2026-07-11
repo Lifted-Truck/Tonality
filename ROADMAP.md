@@ -2510,8 +2510,20 @@ to be informed by what 1–3 teach about the DSL's seams).
       cross-part patterns** — the pattern layer's cross-voice follow-on
       generalized (the two-voice Prinner proper, call–response templates).
       MIDI ingestion already labels parts (per-track voices), so drums/bass/
-      topline/harmony arrive as voice labels today. Not yet scheduled; slices
-      1–2 are the natural next build after gap-C slice 1.
+      topline/harmony arrive as voice labels today. **Slice 1 DELIVERED
+      (2026-07-09): part content descriptors.** `mts/temporal/parts.py`
+      `part_profiles(sequence)` (MCP `part_profiles`, 62 tools): per labeled
+      part — `onset_density`, `simultaneity` (mean notes/onset; the sharpest
+      melodic-vs-harmonic discriminator), `sustain_ratio` (raw; >1 =
+      overlap/pedal), `pitch_mobility` (mean |Δ| of onset-group mean pitches),
+      register lo/hi/mean, `distinct_pcs`, `pc_entropy_norm`. **Facts, never a
+      verdict** — no `kind` label is emitted (asserted in tests); the caller
+      judges from the evidence. Unvoiced events form their own part; empty
+      input raises. Verified on real Schubert: the vocal line reads
+      simultaneity 1.00 vs the piano's 4.03. 9 tests; golden additive (1 case);
+      port pin untouched. **Next: slice 2 — pairwise relation atoms** (onset
+      synchrony, interlock, density ratio, groove congruence; chord-tone
+      support, register separation, aggregate motion mix).
 - [ ] **Corpus exercise regime — rulesets + patterns over real MIDI** (added
       2026-07-09, Julian: "more extensive tests for the ruleset and pattern
       functionality that reach for real open-source MIDI corpuses").
