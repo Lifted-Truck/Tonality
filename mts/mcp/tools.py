@@ -606,6 +606,29 @@ def structural_keys(
     ).to_dict()
 
 
+def part_profiles(events: list[list]) -> dict:
+    """Content profiles for every labeled PART in a note stream (gap E slice 1 —
+    the part-relationship/texture vocabulary; parts = voice labels, e.g. drums/
+    bass/topline/harmony; MIDI ingestion seeds them per track/channel). Per part:
+    continuous DESCRIPTIVE facts exposing how melodic/rhythmic/harmonic its
+    content is — onset_density (distinct onsets per beat of the part's span),
+    simultaneity (mean sounding notes per onset; 1.0 = pure line, >>1 = chordal —
+    the sharpest melodic-vs-harmonic discriminator), sustain_ratio (sounding
+    time / span; percussive << 1, legato ~ 1, overlapping/pedaled > 1, raw),
+    pitch_mobility (mean |delta| of successive onset-group mean pitches; drums
+    ~ 0), register lo/hi/mean, distinct_pcs, pc_entropy_norm (0..1, duration-
+    weighted). FACTS, NEVER A VERDICT: no 'kind' label is emitted — the caller
+    judges what a part is from the evidence (plural/evidenced doctrine). events:
+    the canonical event form [onset_beats, duration_beats, midi_note, velocity?,
+    voice?]; unvoiced events form their own part (voice null, sorted last).
+    Raises on an empty stream. Pairwise part RELATIONS (onset synchrony,
+    interlock, chord-tone support, register separation) are the recorded gap-E
+    slice 2."""
+    from ..temporal import part_profiles as _profiles
+
+    return _profiles(_canonical_sequence(events)).to_dict()
+
+
 def voice_pair_motion(events: list[list]) -> dict:
     """Classify how voice pairs move (parallel/similar/contrary/oblique, with
     interval evidence) for voiced events — the canonical event form [onset_beats,
@@ -1624,6 +1647,7 @@ TOOLS = (
     melodic_tendency,
     name_pcs_in_inferred_keys,
     voice_leading_distance,
+    part_profiles,
     voice_pair_motion,
     melodic_analysis,
     rhythmic_analysis,
