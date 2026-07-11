@@ -1,4 +1,17 @@
-"""Dynamic functional harmony templates and generator."""
+"""Dynamic functional harmony templates and generator.
+
+Convention of record (documented 2026-07-11, issue #200's adjacent note): role
+grouping follows the Riemann three-function model — **I / iii / vi = tonic
+function, ii / IV = predominant, V / vii° = dominant**. In particular
+**iii-as-tonic-function** is a deliberate, defensible-but-contested choice
+(some traditions treat iii as dominant-adjacent); rules over `role` therefore
+match functional GROUPS, not literal triads — e.g. a hard "dominant resolves
+to tonic" rule is satisfied by V → vi (a deceptive cadence still lands on
+tonic FUNCTION). Callers needing literal-triad semantics should match on
+`roman`/`degree` instead of `role`. Changing this grouping would be a
+breaking, notice-worthy contract change (it feeds `harmony_stream`,
+`detect_cadences` context, and the succession tagger).
+"""
 
 from __future__ import annotations
 
