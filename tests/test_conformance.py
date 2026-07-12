@@ -325,8 +325,13 @@ CASES: list[tuple[str, dict]] = [
     ("ruleset_field_manifest", {}),
     ("list_named_rulesets", {}),
     ("load_named_ruleset", {"name": "first-species-counterpoint"}),
-    # gap B: harmony family over an explicit chord stream + key. V->I holds,
-    # the deceptive move is flagged, and a borrowed chord scores the soft rule.
+    # gap B: harmony family over an explicit chord stream + key. The dominant
+    # (G) resolves to Am — vi is a *tonic-function* chord (Riemann grouping:
+    # I/iii/vi = tonic, ii/IV = predominant, V/vii° = dominant; see
+    # theory/functions.py), so `dominant-resolves` holds with zero violations;
+    # `stay-diatonic` scores 1.0 because C–F–G–Am are all diatonic. Exercises
+    # functional-GROUP role matching, not literal-triad matching. (Comment
+    # corrected 2026-07-11, issue #200 — the golden was always right.)
     (
         "evaluate_ruleset",
         {
