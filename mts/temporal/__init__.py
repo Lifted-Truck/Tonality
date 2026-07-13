@@ -23,6 +23,7 @@ from .structural_key import (
     reduce_to_structural_keys,
 )
 from .voice_motion import VoiceMotionResult, VoicePairMotion, voice_motion
+from .relations import PartRelation, PartRelationsResult, part_relations
 from .melodic import MelodicAnalysis, MelodicNoteAtoms, analyze_melody
 from .tolerance import CoalesceResult, DroppedEvent, coalesce
 from .groove import (
@@ -75,6 +76,9 @@ __all__ = [
     "VoiceMotionResult",
     "VoicePairMotion",
     "voice_motion",
+    "PartRelation",
+    "PartRelationsResult",
+    "part_relations",
     "MelodicAnalysis",
     "MelodicNoteAtoms",
     "analyze_melody",

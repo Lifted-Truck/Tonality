@@ -469,6 +469,15 @@ CASES: list[tuple[str, dict]] = [
                     [0, 0.1, 36, "kick"], [0.5, 0.1, 36, "kick"],
                     [1, 0.1, 36, "kick"], [1.5, 0.1, 36, "kick"]]},
     ),
+    # gap E slice 2: pairwise part-relation atoms (facts, never a verdict).
+    (
+        "part_relations",
+        {"events": [[0, 0.5, 72, "topline"], [1, 0.5, 76, "topline"],
+                    [2, 0.5, 77, "topline"], [3, 0.5, 79, "topline"],
+                    [0, 4, 48, "pad"], [0, 4, 52, "pad"], [0, 4, 55, "pad"],
+                    [0, 0.1, 36, "bass"], [1, 0.1, 36, "bass"],
+                    [2, 0.1, 43, "bass"], [3, 0.1, 43, "bass"]]},
+    ),
 ]
 
 
