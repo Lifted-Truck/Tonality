@@ -1865,12 +1865,12 @@
      "z_partner_prime_form": null
     },
     "step_pattern": [
+     1,
+     2,
      2,
      1,
      2,
      2,
-     2,
-     1,
      2
     ],
     "symmetry": {

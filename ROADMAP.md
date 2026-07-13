@@ -1548,6 +1548,18 @@ branchless mask ops) is the existing lineage this audit extends.
     T/I-invariant) is; handedness-sensitive search awaits the register-aware
     `search_voicings` slice. The rule is teachable and keeps every field a true
     invariant of the universe it is queried in.
+13. **`ScaleAnalysisResult.step_pattern` is a transposition-invariant SHAPE
+    descriptor, not a tonic-relative field.** (Decided 2026-07-13 resolving audit
+    issue #205; the field was buggy — anchored at the numerically-smallest pc, so
+    neither invariant nor tonic-anchored.) It is the lexicographically-minimal
+    rotation of the cyclic ascending-step sequence — identical across all 12
+    transpositions, a sibling of `interval_vector`. The supplied `tonic_pc` does
+    **not** rotate it; the tonic-relative reading is `degrees`, and each mode's
+    root-anchored ascending pattern lives in the `modes` list. Chosen over
+    anchoring at `tonic_pc` because it is robust for the common no-tonic call,
+    avoids the tonic-not-in-scale edge case, and matches the field's placement
+    beside `interval_vector`. (`_ascending_steps` stays the root-anchored helper
+    the modal rotations use.)
 
 ## Build sequence
 
