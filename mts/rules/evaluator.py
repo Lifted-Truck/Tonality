@@ -197,6 +197,15 @@ def _build_stream(
             for t in transitions
         ]
         return _Stream(items, [], None)
+    if family == "texture":
+        from ..temporal import part_relations
+
+        try:
+            relations = part_relations(sequence).relations
+        except ValueError as exc:
+            return _Stream([], [], str(exc))  # fewer than two parts → no claim
+        items = [(r, {"voices": [r.voice_a, r.voice_b]}) for r in relations]
+        return _Stream(items, [], None)
     if family == "melody":
         return _line_streams(sequence, analyze_melody, harmony)
     return _line_streams(sequence, analyze_rhythm, harmony)  # "rhythm"

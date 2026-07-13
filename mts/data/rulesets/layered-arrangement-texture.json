@@ -1,0 +1,31 @@
+{
+  "name": "Layered-arrangement texture (illustrative)",
+  "version": "layered-arrangement-texture.1",
+  "description": "A small, HAND-AUTHORED sketch of three texture tendencies common to a layered pop/electronic arrangement, demonstrating the gap-E slice-3 `texture` family (rules over the pairwise part-relation atoms of temporal.part_relations): the bass locks rhythmically to the kick, the topline stays largely chord-tone over the pad, and the topline sits well above the bass in register. IMPORTANT — two caveats. (1) ILLUSTRATIVE, NOT AUTHORITATIVE: a real arrangement style is a CORPUS-DERIVED profile, not a hand guess; this only gestures at what induction would mine (note: texture induction over the CONTINUOUS relation atoms is a recorded follow-on — the slice-1 inducer mines categorical/bool/bounded-int fields only, so it does not yet learn these thresholds automatically). (2) LABEL-SCOPED: a texture rule's `where` matches the part labels the sequence actually carries, and PartRelation always orders a pair voice_a < voice_b (alphabetically; unvoiced None last) — so `where` must name them in that order (voice_a:bass, voice_b:kick), and the directional chord-tone atom is read accordingly (chord_tone_support_b_vs_a = does b stay chord-tone over a). MIDI ingestion labels parts t{n}c{n}, so this ruleset only fires on a sequence relabelled to bass/kick/pad/topline. All-soft — a texture is a bundle of tendencies, not laws.",
+  "rules": [
+    {
+      "id": "bass-locks-to-kick",
+      "family": "texture",
+      "where": {"voice_a": "bass", "voice_b": "kick"},
+      "require": {"onset_synchrony": {"gte": 0.75}},
+      "polarity": "soft",
+      "weight": 2.0
+    },
+    {
+      "id": "topline-chord-tone-over-pad",
+      "family": "texture",
+      "where": {"voice_a": "pad", "voice_b": "topline"},
+      "require": {"chord_tone_support_b_vs_a": {"gte": 0.6}},
+      "polarity": "soft",
+      "weight": 2.0
+    },
+    {
+      "id": "topline-sits-above-bass",
+      "family": "texture",
+      "where": {"voice_a": "bass", "voice_b": "topline"},
+      "require": {"register_gap_mean": {"gte": 7}},
+      "polarity": "soft",
+      "weight": 1.0
+    }
+  ]
+}

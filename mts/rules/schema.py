@@ -108,6 +108,38 @@ FAMILIES: dict[str, dict[str, FieldSpec]] = {
         "color_shift": FieldSpec("float"),
         "cadence": FieldSpec("str", _CADENCE),
     },
+    # Texture (gap E slice 3): one PART PAIR and how the two relate. Fields
+    # mirror PartRelation exactly (temporal.part_relations); the natural item is
+    # an unordered voice pair (voice_a < voice_b, unvoiced None last). The atoms
+    # are continuous rates, so texture rules are threshold predicates
+    # (gte/lte) — e.g. `where {voice_a: bass, voice_b: kick} require
+    # {onset_synchrony: {gte: 0.8}}`. Self-contained: computed from the note
+    # Sequence alone (each part is the other's harmony reference), so — unlike
+    # the harmony family — it needs no chords=/key=. The register/support atoms
+    # are None when there is no basis (no co-sounding moment; a part never sounds
+    # at the other's onsets); the evaluator excludes a None check field from
+    # consideration (absence of evidence is not a violation), so a rule simply
+    # does not fire on pairs where its atom has no claim. DIRECTION: the two
+    # chord_tone_support_*_vs_* atoms are directional over the SORTED pair — pick
+    # `_b_vs_a` for "does b stay chord-tone over a", knowing a < b.
+    "texture": {
+        "voice_a": FieldSpec("str"),
+        "voice_b": FieldSpec("str"),
+        "onset_synchrony": FieldSpec("float"),
+        "interlock": FieldSpec("float"),
+        "overlap": FieldSpec("float"),
+        "groove_congruence": FieldSpec("float"),
+        "density_ratio": FieldSpec("float"),
+        "register_gap_mean": FieldSpec("float"),
+        "register_crossing_rate": FieldSpec("float"),
+        "chord_tone_support_a_vs_b": FieldSpec("float"),
+        "chord_tone_support_b_vs_a": FieldSpec("float"),
+        "combined_onsets": FieldSpec("int"),
+        "n_onsets_a": FieldSpec("int"),
+        "n_onsets_b": FieldSpec("int"),
+        "co_sounding_moments": FieldSpec("int"),
+        "motion_transitions": FieldSpec("int"),
+    },
 }
 
 # Fields whose claims depend on caller-provided harmony (evaluator
