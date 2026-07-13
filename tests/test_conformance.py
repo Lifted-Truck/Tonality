@@ -478,6 +478,24 @@ CASES: list[tuple[str, dict]] = [
                     [0, 0.1, 36, "bass"], [1, 0.1, 36, "bass"],
                     [2, 0.1, 43, "bass"], [3, 0.1, 43, "bass"]]},
     ),
+    # gap E slice 3: the texture rule family over part-relation atoms.
+    (
+        "evaluate_ruleset",
+        {
+            "ruleset": {"name": "texture-smoke", "version": "t.1", "rules": [
+                {"id": "bass-locks-kick", "family": "texture",
+                 "where": {"voice_a": "bass", "voice_b": "kick"},
+                 "require": {"onset_synchrony": {"gte": 0.8}}, "polarity": "hard"},
+                {"id": "topline-chord-tone-over-pad", "family": "texture",
+                 "where": {"voice_a": "pad", "voice_b": "topline"},
+                 "require": {"chord_tone_support_b_vs_a": {"gte": 0.6}},
+                 "polarity": "soft", "weight": 2.0}]},
+            "events": [[0, 0.1, 36, "kick"], [1, 0.1, 36, "kick"],
+                       [0, 0.5, 48, "bass"], [1, 0.5, 48, "bass"],
+                       [0, 2, 60, "pad"], [0, 2, 64, "pad"], [0, 2, 67, "pad"],
+                       [0, 0.5, 60, "topline"], [1, 0.5, 64, "topline"]],
+        },
+    ),
 ]
 
 

@@ -2550,9 +2550,33 @@ to be informed by what 1–3 teach about the DSL's seams).
       `motion_mix`), never a fabricated zero. Verified on real Schubert: the
       vocal line reads 78.5% chord-tone over the piano, which (chordal) correctly
       makes no motion claim. 12 tests; golden additive (1 case); port pin
-      untouched. **Next: slice 3 — a `texture` rule family** over these atoms
-      ("bass doubles kick ≥ 80%", "topline stays chord-tone-dominant"; induction
-      inherits it free, Decision 8 corollary); then slice 4, cross-part patterns.
+      untouched. **Slice 3 DELIVERED (2026-07-11): the `texture` rule family.**
+      A new `texture` family in the rules DSL (`mts/rules/schema.py` FAMILIES +
+      `evaluator._build_stream`) whose natural item is a `PartRelation` and whose
+      fields are the slice-2 atoms — so a texture rule is a threshold predicate
+      over a part pair: `where {voice_a: bass, voice_b: kick} require
+      {onset_synchrony: {gte: 0.8}}`, `require {chord_tone_support_b_vs_a: {gte:
+      0.6}}`, etc. **Rules are data, so the existing `evaluate_ruleset` MCP tool
+      handles texture with zero new tool code**, and the evaluator's honest
+      not-considered semantics come free: a `None` atom (no co-sounding moment,
+      no support basis) excludes that pair (absence of evidence ≠ violation), a
+      `<2`-part sequence is `applicable=False`. Self-contained — needs no
+      `chords`/`key` (each part is the other's harmony reference). Ships an
+      illustrative named ruleset (`data/rulesets/layered-arrangement-texture.json`,
+      the edm-loop pattern: hand-authored, all-soft, "not authoritative"). 10
+      tests; a texture `evaluate_ruleset` conformance case (golden additive — the
+      family also now appears in the strict-validation vocabulary + schema dump).
+      **Two caveats of record.** (i) LABEL-SCOPED: `where` matches the labels the
+      sequence carries and PartRelation sorts a pair `voice_a < voice_b`, so the
+      author names them in that order; MIDI ingestion labels parts `t{n}c{n}`. (ii)
+      **Induction does NOT inherit texture for free** — the ROADMAP's Decision-8
+      corollary held for the note families' categorical atoms, but the texture
+      atoms are CONTINUOUS rates and the slice-1 inducer mines only
+      categorical/bool/bounded-int fields; `induce_ruleset(family="texture")`
+      finds nothing until a **continuous-threshold (quantile) induction pass** is
+      built. That pass is the recorded slice-3 follow-on (it also unlocks
+      threshold mining for any future continuous atom). **Next: slice 4 —
+      cross-part patterns** (the two-voice Prinner, call–response templates).
 - [ ] **Corpus exercise regime — rulesets + patterns over real MIDI** (added
       2026-07-09, Julian: "more extensive tests for the ruleset and pattern
       functionality that reach for real open-source MIDI corpuses").

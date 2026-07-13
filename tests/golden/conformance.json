@@ -11406,7 +11406,7 @@
    },
    "result": {
     "errors": [
-     "rule 'r'.family: must be one of ['harmony', 'melody', 'rhythm', 'voice_motion'], got 'nope'"
+     "rule 'r'.family: must be one of ['harmony', 'melody', 'rhythm', 'texture', 'voice_motion'], got 'nope'"
     ],
     "valid": false
    },
@@ -11865,6 +11865,90 @@
        }
       }
      },
+     "texture": {
+      "fields": {
+       "chord_tone_support_a_vs_b": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "chord_tone_support_b_vs_a": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "co_sounding_moments": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "combined_onsets": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "density_ratio": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "groove_congruence": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "interlock": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "motion_transitions": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "n_onsets_a": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "n_onsets_b": {
+        "harmony_dependent": false,
+        "kind": "int",
+        "values": null
+       },
+       "onset_synchrony": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "overlap": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "register_crossing_rate": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "register_gap_mean": {
+        "harmony_dependent": false,
+        "kind": "float",
+        "values": null
+       },
+       "voice_a": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": null
+       },
+       "voice_b": {
+        "harmony_dependent": false,
+        "kind": "str",
+        "values": null
+       }
+      }
+     },
      "voice_motion": {
       "fields": {
        "a_from_midi": {
@@ -11952,7 +12036,8 @@
    "kwargs": {},
    "result": [
     "edm-minor-loop",
-    "first-species-counterpoint"
+    "first-species-counterpoint",
+    "layered-arrangement-texture"
    ],
    "tool": "list_named_rulesets"
   },
@@ -21645,6 +21730,135 @@
     ]
    },
    "tool": "part_relations"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      0.1,
+      36,
+      "kick"
+     ],
+     [
+      1,
+      0.1,
+      36,
+      "kick"
+     ],
+     [
+      0,
+      0.5,
+      48,
+      "bass"
+     ],
+     [
+      1,
+      0.5,
+      48,
+      "bass"
+     ],
+     [
+      0,
+      2,
+      60,
+      "pad"
+     ],
+     [
+      0,
+      2,
+      64,
+      "pad"
+     ],
+     [
+      0,
+      2,
+      67,
+      "pad"
+     ],
+     [
+      0,
+      0.5,
+      60,
+      "topline"
+     ],
+     [
+      1,
+      0.5,
+      64,
+      "topline"
+     ]
+    ],
+    "ruleset": {
+     "name": "texture-smoke",
+     "rules": [
+      {
+       "family": "texture",
+       "id": "bass-locks-kick",
+       "polarity": "hard",
+       "require": {
+        "onset_synchrony": {
+         "gte": 0.8
+        }
+       },
+       "where": {
+        "voice_a": "bass",
+        "voice_b": "kick"
+       }
+      },
+      {
+       "family": "texture",
+       "id": "topline-chord-tone-over-pad",
+       "polarity": "soft",
+       "require": {
+        "chord_tone_support_b_vs_a": {
+         "gte": 0.6
+        }
+       },
+       "weight": 2.0,
+       "where": {
+        "voice_a": "pad",
+        "voice_b": "topline"
+       }
+      }
+     ],
+     "version": "t.1"
+    }
+   },
+   "result": {
+    "hard_rules_hold": true,
+    "hard_violation_count": 0,
+    "results": [
+     {
+      "applicable": true,
+      "conformance": 1.0,
+      "holds": true,
+      "items_considered": 1,
+      "polarity": "hard",
+      "reason": null,
+      "rule_id": "bass-locks-kick",
+      "skipped_voices": [],
+      "violations": [],
+      "weight": 1.0
+     },
+     {
+      "applicable": true,
+      "conformance": 1.0,
+      "holds": null,
+      "items_considered": 1,
+      "polarity": "soft",
+      "reason": null,
+      "rule_id": "topline-chord-tone-over-pad",
+      "skipped_voices": [],
+      "violations": [],
+      "weight": 2.0
+     }
+    ],
+    "ruleset_name": "texture-smoke",
+    "ruleset_version": "t.1",
+    "soft_score": 1.0
+   },
+   "tool": "evaluate_ruleset"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",
