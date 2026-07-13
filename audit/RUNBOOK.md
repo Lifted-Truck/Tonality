@@ -64,6 +64,20 @@ Bias toward subsystems that changed since the last cycle (check `git log` since
 the last audit tag/issue) and toward the newest surface (e.g. the `search/` and
 `harmony`-family code, `melodic_tendency`, the style-profile pieces).
 
+**Then run the efficiency & complexity pass (charter §6b) — every cycle.** Two
+parts: (1) a **structural read** of the newest/most-scalable code for the
+scan-inside-a-loop / re-derivation / O(n²)-structure / unbounded-cache
+anti-patterns (this is how #206 and #214 were both caught — by loop shape, not
+timing); and (2) the **empirical probe**:
+```bash
+$PY audit/checks/scaling_probe.py     # exponents for the temporal entry points
+```
+Add the cycle's newest scalable surface to that file's `__main__` (a probe is
+three lines: `make_input(n)`, the callable, one `report(...)`). A fitted exponent
+> ~1.4 on a should-be-linear path is a §4 finding. **Never** commit a wall-clock
+assertion as a collected `audit/checks/test_*` — CI runs those and timing flakes;
+the probe stays a hand-run utility whose output is an issue or a cycle-log line.
+
 **Then run the semantic-coherence pass (charter §6a) — every cycle, not optional.**
 Unlike the families above, this is a *reading* pass, not a code run: check that the
 system still makes coherent sense across code + docs + decisions + `integrations/`
