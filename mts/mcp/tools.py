@@ -629,6 +629,31 @@ def part_profiles(events: list[list]) -> dict:
     return _profiles(_canonical_sequence(events)).to_dict()
 
 
+def part_relations(events: list[list]) -> dict:
+    """Pairwise RELATION atoms between labeled parts (gap E slice 2 — how the
+    parts from part_profiles relate; e.g. does the bass double the kick, does
+    the topline outline the pad's harmony). Per unordered part pair (voice
+    labels): RHYTHMIC — an exact partition of the pair's combined onsets into
+    onset_synchrony (both attack together) + interlock (one attacks into the
+    other's rest; hocket/call-response) + overlap (one attacks while the other
+    is held) == 1, plus groove_congruence (do they hit the same beat
+    subdivisions, even at different times) and density_ratio; PITCH —
+    register_gap_mean (signed b-a over co-sounding moments) and
+    register_crossing_rate; HARMONY — chord_tone_support_a_vs_b / _b_vs_a
+    (directional: fraction of one part's onset pitches that are chord tones of
+    the other's simultaneous pitch classes — harmony-relative, never guessed);
+    MOTION — motion_mix (parallel/similar/contrary/oblique tally, reusing
+    voice_pair_motion). FACTS, NEVER A VERDICT: no 'doubles'/'call-response'
+    label — the caller judges from the atoms. A claim with no basis is null (no
+    co-sounding moment → null register gap; a pair touching an unvoiced part →
+    empty motion_mix), never a fabricated zero. events: the canonical event form
+    [onset_beats, duration_beats, midi_note, velocity?, voice?]. Raises on fewer
+    than two parts."""
+    from ..temporal import part_relations as _relations
+
+    return _relations(_canonical_sequence(events)).to_dict()
+
+
 def voice_pair_motion(events: list[list]) -> dict:
     """Classify how voice pairs move (parallel/similar/contrary/oblique, with
     interval evidence) for voiced events — the canonical event form [onset_beats,
@@ -1648,6 +1673,7 @@ TOOLS = (
     name_pcs_in_inferred_keys,
     voice_leading_distance,
     part_profiles,
+    part_relations,
     voice_pair_motion,
     melodic_analysis,
     rhythmic_analysis,

@@ -21508,6 +21508,143 @@
     ]
    },
    "tool": "part_profiles"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      0.5,
+      72,
+      "topline"
+     ],
+     [
+      1,
+      0.5,
+      76,
+      "topline"
+     ],
+     [
+      2,
+      0.5,
+      77,
+      "topline"
+     ],
+     [
+      3,
+      0.5,
+      79,
+      "topline"
+     ],
+     [
+      0,
+      4,
+      48,
+      "pad"
+     ],
+     [
+      0,
+      4,
+      52,
+      "pad"
+     ],
+     [
+      0,
+      4,
+      55,
+      "pad"
+     ],
+     [
+      0,
+      0.1,
+      36,
+      "bass"
+     ],
+     [
+      1,
+      0.1,
+      36,
+      "bass"
+     ],
+     [
+      2,
+      0.1,
+      43,
+      "bass"
+     ],
+     [
+      3,
+      0.1,
+      43,
+      "bass"
+     ]
+    ]
+   },
+   "result": {
+    "relations": [
+     {
+      "chord_tone_support_a_vs_b": 1.0,
+      "chord_tone_support_b_vs_a": 0.333333333,
+      "co_sounding_moments": 4,
+      "combined_onsets": 4,
+      "density_ratio": 0.25,
+      "groove_congruence": 1.0,
+      "interlock": 0.0,
+      "motion_mix": {},
+      "motion_transitions": 0,
+      "n_onsets_a": 4,
+      "n_onsets_b": 1,
+      "onset_synchrony": 0.25,
+      "overlap": 0.75,
+      "register_crossing_rate": 0.0,
+      "register_gap_mean": 12.166666667,
+      "voice_a": "bass",
+      "voice_b": "pad"
+     },
+     {
+      "chord_tone_support_a_vs_b": 0.5,
+      "chord_tone_support_b_vs_a": 0.5,
+      "co_sounding_moments": 4,
+      "combined_onsets": 4,
+      "density_ratio": 1.0,
+      "groove_congruence": 1.0,
+      "interlock": 0.0,
+      "motion_mix": {
+       "oblique": 2,
+       "similar": 1
+      },
+      "motion_transitions": 3,
+      "n_onsets_a": 4,
+      "n_onsets_b": 4,
+      "onset_synchrony": 1.0,
+      "overlap": 0.0,
+      "register_crossing_rate": 0.0,
+      "register_gap_mean": 36.5,
+      "voice_a": "bass",
+      "voice_b": "topline"
+     },
+     {
+      "chord_tone_support_a_vs_b": 0.333333333,
+      "chord_tone_support_b_vs_a": 0.75,
+      "co_sounding_moments": 4,
+      "combined_onsets": 4,
+      "density_ratio": 4.0,
+      "groove_congruence": 1.0,
+      "interlock": 0.0,
+      "motion_mix": {},
+      "motion_transitions": 0,
+      "n_onsets_a": 1,
+      "n_onsets_b": 4,
+      "onset_synchrony": 0.25,
+      "overlap": 0.75,
+      "register_crossing_rate": 0.0,
+      "register_gap_mean": 24.333333333,
+      "voice_a": "pad",
+      "voice_b": "topline"
+     }
+    ]
+   },
+   "tool": "part_relations"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",

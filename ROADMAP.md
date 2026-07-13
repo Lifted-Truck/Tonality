@@ -2521,9 +2521,26 @@ to be informed by what 1–3 teach about the DSL's seams).
       judges from the evidence. Unvoiced events form their own part; empty
       input raises. Verified on real Schubert: the vocal line reads
       simultaneity 1.00 vs the piano's 4.03. 9 tests; golden additive (1 case);
-      port pin untouched. **Next: slice 2 — pairwise relation atoms** (onset
-      synchrony, interlock, density ratio, groove congruence; chord-tone
-      support, register separation, aggregate motion mix).
+      port pin untouched. **Slice 2 DELIVERED (2026-07-11): pairwise relation
+      atoms.** `mts/temporal/relations.py` `part_relations(sequence)` (MCP
+      `part_relations`, 63 tools): per unordered part pair — RHYTHMIC, an exact
+      three-way partition of the pair's combined onsets (`onset_synchrony +
+      interlock + overlap == 1`: both-attack / one-into-the-other's-rest
+      [hocket] / one-while-the-other-is-held), plus `groove_congruence` (Jaccard
+      of beat-phase buckets — shared subdivisions even at different times) and
+      `density_ratio`; PITCH `register_gap_mean` (signed b−a over co-sounding
+      moments) + `register_crossing_rate`; HARMONY `chord_tone_support_a_vs_b` /
+      `_b_vs_a` (directional pc-membership rate — "topline stays chord-tone over
+      the pad"); MOTION `motion_mix` (parallel/similar/contrary/oblique tally,
+      reusing `voice_motion`). **Facts, never a verdict** — no `doubles`/`call-
+      response` label (asserted); a claim with no basis is `null` (no co-sounding
+      moment → null register gap; a pair touching the unvoiced part → empty
+      `motion_mix`), never a fabricated zero. Verified on real Schubert: the
+      vocal line reads 78.5% chord-tone over the piano, which (chordal) correctly
+      makes no motion claim. 12 tests; golden additive (1 case); port pin
+      untouched. **Next: slice 3 — a `texture` rule family** over these atoms
+      ("bass doubles kick ≥ 80%", "topline stays chord-tone-dominant"; induction
+      inherits it free, Decision 8 corollary); then slice 4, cross-part patterns.
 - [ ] **Corpus exercise regime — rulesets + patterns over real MIDI** (added
       2026-07-09, Julian: "more extensive tests for the ruleset and pattern
       functionality that reach for real open-source MIDI corpuses").
