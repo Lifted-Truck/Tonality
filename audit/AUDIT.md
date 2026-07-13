@@ -145,6 +145,50 @@ locations** + which claim/contract they violate (still the §4 format). Sub-chec
   its content changed** (a frozen `x.1` that silently changed is the worst drift);
   every "stamped/cited" promise is kept on the artifact it names.
 
+### 6b. Efficiency & complexity — the scaling check (run every cycle)
+
+The families above guard **correctness**; this one guards **cost**. It has its
+own section because the engine's stated direction is corpus scale (ROADMAP:
+OpenScore / full-SWD / Mutopia — real scores, thousands of notes per part), and a
+quadratic that is invisible on a 20-note fixture becomes minutes on a symphony.
+Two real quadratics (#206 `part_profiles`, #214 `part_relations`) were caught by
+*eyeballing loop shape*, not by any charter check — this codifies that instinct so
+it runs every cycle, not by luck. Two complementary probes:
+
+- **Structural read (primary — deterministic, no timing).** A *reading* pass, like
+  §6a, over the newest and most-scalable code. Flag these anti-patterns in any
+  path that grows with input size (events, corpus pieces, the 4096-mask space,
+  search spaces):
+  - a **scan or membership test inside a loop over the same or a co-scaling
+    collection** — `for x: if any(… for y in growing)`, or a helper like
+    `_sounds_at(events, beat)` called once per beat (the exact #206/#214 shape);
+  - **re-deriving a memoizable value** inside a loop instead of hoisting/caching it;
+  - **materializing an O(n²) (or worse) structure** where a single onset-sorted /
+    mask-sorted sweep would do (the `segmentation._sweep_active` pattern, RE-5d);
+  - an **unbounded cache** on an input space that is not 4096-bounded (Phase 6
+    makes 2^N > 4096 — see ROADMAP), or a bound silently exceeded.
+  The question to ask of each hot function: *does its work grow linearly with the
+  input the ROADMAP plans to feed it?* If not, and it is not documented as an
+  accepted bound, that is a finding (§4 format; contract = "must scale to the
+  corpus regime", ROADMAP).
+- **Empirical scaling probe (secondary — exponent, never wall-clock).** Use
+  `audit/checks/scaling_probe.py` (`report(name, make_input, run)`): it times a
+  path at geometric sizes and fits the **growth exponent** — O(n) ≈ 1.0, O(n²) ≈
+  2.0. Exponents are **machine-independent** (the shape transfers even though the
+  milliseconds do not), so assert on the exponent, **never on an absolute
+  millisecond threshold**. Each cycle, point it at the newest scalable entry
+  points; the must-stay-~linear set today: `part_profiles`, `part_relations`,
+  `segment_to_chords` / segmentation, MIDI ingestion, and corpus-level induction /
+  transition-matrix building. A fitted exponent above ~1.4 on a "should be linear"
+  path is a finding.
+
+**The one hard rule for this family: never commit a wall-clock assertion into
+`audit/checks/` as a collected test.** CI runs `audit/checks/`, and a timing gate
+flakes — the very anti-pattern the audit exists to prevent. The probe harness is
+therefore a **hand-run cycle utility** (no `test_` prefix, uncollected); its output
+becomes an **issue** (superlinear → §4 finding) or a **cycle-log line** (clean),
+not a red build. Correctness invariants gate; cost probes report.
+
 ## 7. Known limitations — do NOT file these as bugs
 
 12-TET cannot faithfully represent every named scale, so distinct cultural/tuning
