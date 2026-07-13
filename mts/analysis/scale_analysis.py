@@ -39,22 +39,34 @@ def _normalize_degrees(degrees: Iterable[int]) -> list[int]:
     return sorted({int(pc) % 12 for pc in degrees})
 
 
-def _step_pattern(degrees: Iterable[int]) -> list[int]:
+def _ascending_steps(degrees: Iterable[int]) -> list[int]:
+    """Successive semitone gaps around the scale, starting from the LOWEST pc
+    (root-anchored). Used for modal rotations, which pre-rotate each mode so its
+    root becomes pc 0 — there the lowest pc *is* the mode's root, so this yields
+    that mode's own ascending pattern (Ionian W-W-H-W-W-W-H, Dorian W-H-W-W-W-H-W,
+    …, each distinct)."""
     ordered = _normalize_degrees(degrees)
     if not ordered:
         return []
-    pattern: list[int] = []
-    for idx, pc in enumerate(ordered):
-        nxt = ordered[(idx + 1) % len(ordered)]
-        interval = (nxt - pc) % 12
-        if idx == len(ordered) - 1:
-            interval = (ordered[0] - pc) % 12
-        if interval == 0:
-            interval = 12
-        pattern.append(interval)
-    # Ensure the wrap-around interval is computed last
-    pattern[-1] = (ordered[0] - ordered[-1]) % 12 or 12
-    return pattern
+    return [
+        (ordered[(i + 1) % len(ordered)] - ordered[i]) % 12 or 12
+        for i in range(len(ordered))
+    ]
+
+
+def _step_pattern(degrees: Iterable[int]) -> list[int]:
+    """Transposition-INVARIANT step signature (issue #205, resolution (a)): the
+    lexicographically-minimal rotation of the cyclic ascending-step sequence, so
+    the value is a pure shape descriptor — identical across all 12 transpositions,
+    a sibling of ``interval_vector``. It is deliberately **not** tonic-relative:
+    the supplied ``tonic_pc`` does not rotate it (the tonic-relative reading is
+    ``degrees``; each mode's root-anchored pattern lives in the ``modes`` list).
+    The old form anchored at the numerically-smallest pc — an artifact of 12-TET
+    numbering that made it neither invariant nor tonic-anchored."""
+    steps = _ascending_steps(degrees)
+    if not steps:
+        return []
+    return min(steps[i:] + steps[:i] for i in range(len(steps)))
 
 
 def _modal_rotations(scale: Scale) -> list[ModeRotation]:
@@ -64,7 +76,7 @@ def _modal_rotations(scale: Scale) -> list[ModeRotation]:
     degrees = list(scale.degrees)
     for mode_index, root in enumerate(degrees):
         rotated = sorted(((pc - root) % 12 for pc in degrees))
-        pattern = _step_pattern(rotated)
+        pattern = _ascending_steps(rotated)
         vector = _interval_vector(rotated)
         rotations.append(
             ModeRotation(
