@@ -2934,8 +2934,8 @@ frame, recorded here so A2/A3 decompose onto named work):**
 - **Conformance repair — ruleset imposition on existing material** (added
   2026-07-01; gap A of the Phase 4.6 vision review — the operation was
   previously unrecorded). Given a piece and a ruleset: find a **minimal set of
-  edits** that eliminates hard violations and improves the soft score while
-  preserving everything the ruleset does not speak to. A third operation,
+  edits** that eliminates hard violations and does not worsen the soft score
+  while preserving everything the ruleset does not speak to. A third operation,
   distinct from evaluation (analysis: score, don't touch) and from-scratch
   realization (generate under constraints): constrained search over *edits to
   existing material*, with the Phase 4.6 evaluator as the oracle and edit

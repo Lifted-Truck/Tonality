@@ -37,7 +37,8 @@ from dataclasses import dataclass
 
 from .sequence import Sequence
 
-_EPS = 1e-9
+_ONSET_TOL = 1e-6   # two onsets within this are the same attack moment
+_MIN_SPAN = 1e-6    # below this a part has no temporal extent → density undefined
 
 
 @dataclass(frozen=True)
@@ -74,24 +75,34 @@ class PartProfilesResult:
 
 def _profile(voice, events) -> PartProfile:
     events = sorted(events, key=lambda e: (e.onset, e.pitch.midi))
-    onsets: dict[float, list] = {}
+    # Events are onset-sorted, so an attack moment is a run of adjacent events
+    # within tolerance of the run's first onset — a single linear pass. (Was an
+    # O(n^2) scan over every prior onset group, quadratic at real-corpus scale;
+    # #206.)
+    onset_groups: list[list] = []
     for e in events:
-        placed = False
-        for known in onsets:
-            if abs(known - e.onset) <= 1e-6:
-                onsets[known].append(e)
-                placed = True
-                break
-        if not placed:
-            onsets[e.onset] = [e]
-    onset_times = sorted(onsets)
+        if onset_groups and abs(e.onset - onset_groups[-1][0].onset) <= _ONSET_TOL:
+            onset_groups[-1].append(e)
+        else:
+            onset_groups.append([e])
+    onset_times = [group[0].onset for group in onset_groups]
 
     first = events[0].onset
     last = max(e.offset for e in events)
-    span = max(last - first, _EPS)
+    span = last - first
+    if span < _MIN_SPAN:
+        # A part collapsed to a single instant has no meaningful onset density
+        # (n_onsets / span would blow up unbounded). Error, don't guess — the
+        # same honesty as the empty-sequence guard (#207). Not reachable via MIDI
+        # ingestion (which drops zero-length notes); a directly-built Sequence can.
+        raise ValueError(
+            f"part {voice!r} has a degenerate span ({span:g} beats): no temporal "
+            "extent, so onset_density is undefined. part_profiles needs a part "
+            "that actually spans time."
+        )
 
     group_means = [
-        sum(e.pitch.midi for e in onsets[t]) / len(onsets[t]) for t in onset_times
+        sum(e.pitch.midi for e in group) / len(group) for group in onset_groups
     ]
     mobility = (
         sum(abs(b - a) for a, b in zip(group_means, group_means[1:])) / (len(group_means) - 1)

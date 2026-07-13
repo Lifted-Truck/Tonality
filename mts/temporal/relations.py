@@ -101,9 +101,12 @@ class PartRelationsResult:
 def _onset_set(events) -> set[float]:
     """Distinct onset moments of *events*, bucketed to the pair tolerance."""
 
+    # onset-sorted, so a new distinct moment need only be compared to the most
+    # recent kept onset — a linear pass, not an O(n^2) scan over all prior
+    # onsets (#206, same pattern as parts._profile).
     onsets: list[float] = []
     for e in sorted(events, key=lambda e: e.onset):
-        if not any(abs(e.onset - o) <= _EPS for o in onsets):
+        if not onsets or abs(e.onset - onsets[-1]) > _EPS:
             onsets.append(e.onset)
     return set(onsets)
 

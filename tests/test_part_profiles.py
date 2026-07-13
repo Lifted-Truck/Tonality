@@ -71,6 +71,26 @@ def test_empty_sequence_raises():
         part_profiles(_canonical_sequence([]))
 
 
+def test_degenerate_span_raises_rather_than_blowing_up():
+    # #207: a part collapsed to a single instant (near-zero total span) used to
+    # return onset_density = 1e8, a silent unbounded blow-up presented as fact.
+    # It now errors, don't-guess, like the empty-sequence guard.
+    from mts.temporal import Sequence, Event
+    from mts.core.pitch import Pitch
+
+    seq = Sequence(
+        events=(Event(0.0, 1e-8, Pitch.from_midi(60), "v"),), tempo=None, meter=None
+    )
+    with pytest.raises(ValueError, match="degenerate span"):
+        part_profiles(seq)
+
+
+def test_short_but_real_part_is_not_over_eagerly_refused():
+    # control: genuine short notes (grace-note scale, 0.05 beat) still profile.
+    result = part_profiles(_canonical_sequence([[0, 0.05, 60, "v"], [0.5, 0.05, 62, "v"]]))
+    assert result.profiles[0].onset_density > 0
+
+
 def test_deterministic():
     events = TOPLINE + PAD + KICK
     a = part_profiles(_canonical_sequence(events)).to_dict()
