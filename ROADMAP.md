@@ -2794,6 +2794,84 @@ bracelet identity views.)*
   - The long-term goal of cataloguing *all* named scales will surface many more of
     these; each gets recorded here + in the audit allowlist rather than "fixed."
 
+#### Design input (2026-07-13, brainstorm-grade — recorded pending a Phase 6 ADR)
+*Folded from `docs/phase6-brief-beyond-12tet.md` (now a tombstone). These are
+**proposals, not decisions** — the ADR that ratifies them has not been written.
+The load-bearing thesis: Phase 6 is not "support microtonality" — it is **make N
+a first-class parameter of the exact layer while making the empirical-prior layer
+honestly per-system.** The combinatorics parametrize; the culture does not; the
+architecture already draws that line (the exact-math / versioned-prior split).*
+
+- **Scope = Z_N equal temperaments** (19/22/24/31/53-TET…): identity stays a
+  cyclic group, so T_n/I_n/complement/Rahn prime form/interval vector/DFT/mod-N
+  VL are already Z_N math with N hardcoded — a parametrization, not a redesign.
+  **Out of scope, recorded as follow-ons:** JI / regular temperaments (monzos +
+  vals — extends the reduction chain to `freq → ratio/monzo → (val) → pc ∈ Z_N →
+  mask`, each arrow a named lossy reduction; opens the whole RTT program), and
+  arbitrary Scala/MTS tunings (structureless frequency lists → realization/
+  display only; identity-level analysis **errors, never guesses**). Decide in the
+  ADR whether non-octave periods (Bohlen-Pierce) are admitted in v1 if the period
+  is made a free parameter.
+- **⚠ Feasibility scope correction (dev-loop review, verified):** the brief's
+  claim that "Decision 6 already localized N=12 to `reduce_to_key()` +
+  `core/bitmask.py`" is **too optimistic.** Decision 6 localized the reduction
+  *boundary* (register/frequency → pc); it did **not** parametrize the pc-math
+  kernel. A grep finds ~139 genuine bare-12 / `% 12` / `4096`-cache sites across
+  ~20 core+analysis files — the DFT length, the `2N` prime-form image count,
+  `range(1,N)`, and the `maxsize=4096` cache are threaded through at least
+  `core/setclass.py`, `core/symmetry.py`, `analysis/pcset_math.py`, and kin. The
+  honest effort is "parametrize the exact-math kernel across ~6–20 files," not
+  "touch two." This doesn't dent the thesis — those *are* the parametrize-N
+  sites — but the ADR must not cost off the two-file framing.
+- **Efficiency — tiered cache, not a rewrite:** exhaustive precompute when
+  2^N ≤ ~2^20 (today's behavior; only 19-TET fits — so the **lazy memoized dict
+  is the *primary* path for N ≥ 22** and needs first-class test coverage, not
+  "same API" reassurance); enumerative/census queries via necklace counting
+  without materializing the space. DFT keeps ⌊N/2⌋ nontrivial components
+  (drop-DC convention already in `setclass.py`) — a documentation contract, not
+  a shape break.
+- **The fault line (the real content): exact math vs. empirical priors.** KK/CBMS
+  key profiles, functional-harmony tables, cadence formulas, naming weights,
+  succession scoring = **common-practice culture shipped as versioned priors**,
+  and there is no CBMS-for-31-TET. Priors gain a `system` dimension; any analysis
+  whose prior is absent for the active system returns `system_supported=false` /
+  errors with a pointer (the existing `mode_supported=false` pattern) and
+  **never silently falls back to 12-TET data.** Exact-layer wins worth building
+  regardless: **maximal evenness via DFT** (the diatonic-ness query generalizes
+  to any (k,N)) and **MOS scales** from a (period, generator) pair (the
+  tuning-agnostic skeleton of "what counts as a scale here"). *Ripple the brief
+  under-mentions:* degree-based patterns and the `is_diatonic`/`role` rule
+  predicates inherit N through the active scale — a real non-prior surface above
+  `core/` that Phase 6 touches.
+- **Chord identity — ship per-system catalogs as substrate; offer ratio-anchored
+  projection (major ≡ 4:5:6 projected through each val) as a *proposal/derivation*
+  tool only** (plural, evidenced, human signs off — option (b) smuggles the
+  contested claim that a chord *is* its JI prototype; projection is a candidate
+  with citable evidence, not truth).
+- **Spelling stays at the display edge** (Phase 3 split already absorbs this):
+  meantone ETs get fifth-chain spelling, 24-TET quarter-tone accidentals, 53-TET
+  comma glyphs, structureless tunings none — all per-system `DisplayContext`
+  policy. The numeric core never learns an alphabet.
+- **Migration invariants (interacts with Phase 8):** settle the generalized
+  identity *on paper before the C++ core* or the substrate ports twice (the
+  Phase 8 fence already says this). **Acceptance gates for the substrate swap:**
+  (1) the generalized N=12 path reproduces every conformance golden
+  **byte-identically** before any special-cased 12 path is deleted; (2) a
+  **12→24 embedding test** — every 12-TET identity has a canonical 24-TET image
+  (`k ↦ 2k`), and *(precision note from review)* the correspondence is a **scaling
+  map, not equality**: `prime_form₂₄(2S) = 2·prime_form₁₂(S)` elementwise, IV on
+  even interval-classes only — encode the ×2 relation, not a naive integer equals.
+- **The open question to argue FIRST:** is `system` carried on the **identity** or
+  on an ambient **context**? Current lean — **identity-carried** (a 19-TET mask
+  and a 12-TET mask of equal integer value are different objects; matches the
+  typed-result discipline). The review sharpens this past "lean": context-carried
+  is *incompatible* with sessions-are-isolated (you couldn't hold a 12-TET and a
+  24-TET sequence in one session) — effectively decisive. To tame the blast
+  radius, carry `system` on the identity object and have result dataclasses
+  *reference* their source identity rather than each duplicating a `system` field
+  (identity-carried by composition, not field-threading). Additive `system` param
+  on MCP tools defaulting to `"12tet"`; A5/A7 stability contracts untouched.
+
 ### Phase 7 (future) — Generative: voice leading & progression realization
 *Ordering note: the number groups this with the later work, but it depends only on
 shipped layers (voicings, `Realization`, temporal/segmentation) plus optionally
@@ -2952,7 +3030,29 @@ acceptance plan: **[CPP_PORT.md](CPP_PORT.md)**.
       already enforced (`test_port_pin` in this repo's CI). Loop recorded closed
       when the port replies on-channel. The port pin tripped and was
       regenerated in the same PR with the notice, per the protocol —
-      the pin's first live firing.)*
+      the pin's first live firing.)* **CI LIVE + parity contract ratified
+      (2026-07-13, `response-ci-required.md` → `ratify-ci-required.md`):** the
+      port stood up `.github/workflows/parity.yml` (tonality-core PR #6, ubuntu
+      + macos matrix, `fail-fast: false`, both legs green). The first run did
+      its job — ubuntu went red on a **1-ulp glibc-vs-Apple-libm difference** in
+      one DFT magnitude (`0.9999999999999999` vs `1.0`), which shortest-repr JSON
+      turns into different bytes. Not a bug either side — it surfaces the true
+      invariant: **byte-for-byte float parity is inherently tied to the
+      fixture-generating platform's libm.** Ratified contract: **byte-exact on
+      the canonical platform (macOS, where `export_versioned_data.py` runs),
+      values-within-tolerance (rel 1e-9 / abs 1e-12 — the same rule
+      `test_conformance`/`test_port_pin` already apply) everywhere else;** the
+      ubuntu leg is a build-from-source + tolerance portability probe. Dev-loop
+      findings folded into the ratification: (a) **pin the macOS runner to a
+      fixed image+arch** (`macos-14` arm64, matching the Apple-Silicon
+      fixture origin) rather than `macos-latest`, so a GitHub image roll can't
+      red the canonical byte-exact leg on a non-bug; (b) **accepted** the port's
+      offered *all-rows Linux tolerance mode* (all 4096 rows within tolerance,
+      not just the one conformance row) — strictly strengthens the Linux probe
+      at no cost to the macOS guarantee; port to implement on the nod.
+      **Still open — Julian's one-time GitHub setting:** enable branch protection
+      on tonality-core `main` requiring the two `parity (…)` checks (an agent
+      can't flip a repo setting). Loop closes fully when that gate is on.
       **Deferred follow-ons:** committing the table artifact + a
       regenerate-and-diff guard if a consumer wants it checked in.
 - **Port plan drafted (2026-06-29 — [CPP_PORT.md](CPP_PORT.md), under review).**
