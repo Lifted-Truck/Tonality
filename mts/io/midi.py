@@ -166,9 +166,17 @@ def midi_file_from_sequence(
     for event in sequence.events:
         velocity = event.pitch.velocity if event.pitch.velocity is not None else _DEFAULT_VELOCITY
         channel = event.pitch.channel if event.pitch.channel is not None else 0
+        on_tick = ticks(event.onset)
+        # A note whose duration quantizes below one tick would otherwise round to
+        # off_tick == on_tick; the equal-tick sort rank (note_off before note_on,
+        # so re-struck notes retrigger) would then place this note's OWN note_off
+        # before its note_on — invalid SMF bytes that read back as a dangling
+        # note_on and drop the note (#204). Floor every sounding note at one tick
+        # so its off always follows its on; the round-trip preserves it.
+        off_tick = max(ticks(event.offset), on_tick + 1)
         timed.append(
             (
-                ticks(event.onset),
+                on_tick,
                 2,
                 mido.Message(
                     "note_on", note=event.pitch.midi, velocity=velocity, channel=channel
@@ -177,7 +185,7 @@ def midi_file_from_sequence(
         )
         timed.append(
             (
-                ticks(event.offset),
+                off_tick,
                 1,
                 mido.Message("note_off", note=event.pitch.midi, velocity=0, channel=channel),
             )

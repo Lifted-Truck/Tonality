@@ -7,6 +7,7 @@ mido = pytest.importorskip("mido")
 from mts.core.pitch import Pitch  # noqa: E402
 from mts.io.midi import (  # noqa: E402
     midi_file_from_sequence,
+    read_midi_file,
     sequence_from_midi_file,
     sequence_to_midi_file,
 )
@@ -121,3 +122,39 @@ def test_full_loop_write_analyze(tmp_path):
     assert len(result["dataset"]["records"]) == 2
     first = result["dataset"]["records"][0]["analysis"]["naming"]["chosen"]["interpretation"]
     assert (first["root_pc"], first["quality"]) == (0, "maj")
+
+
+def test_subtick_duration_note_survives_round_trip(tmp_path):
+    """#204: a note whose duration quantizes below one tick used to write its own
+    note_off before its note_on (invalid SMF) and read back as a dropped, mis-
+    classified dangling_note_on. It is now floored to one tick and round-trips."""
+    seq = Sequence.from_events([Event(onset=0.0, duration=0.001, pitch=Pitch.from_midi(60))])
+
+    # the emitted bytes: note_on must precede note_off
+    midi = midi_file_from_sequence(seq)
+    kinds = [m.type for m in midi.tracks[0] if m.type in ("note_on", "note_off")]
+    assert kinds == ["note_on", "note_off"]
+
+    path = tmp_path / "subtick.mid"
+    sequence_to_midi_file(seq, str(path))
+    result = read_midi_file(str(path))
+    assert list(result.losses) == []        # no dangling_note_on misclassification
+    assert len(result.sequence.events) == 1  # the note is not dropped
+    assert result.sequence.events[0].pitch.midi == 60
+    assert result.sequence.events[0].duration == pytest.approx(1 / 480)  # floored to one tick
+
+
+def test_subtick_note_beside_normal_sibling_in_a_chord(tmp_path):
+    """The sub-tick note is preserved without corrupting a normal-length sibling
+    struck at the same onset (the sibling round-trips exactly; both survive)."""
+    seq = Sequence.from_events([
+        Event(onset=0.0, duration=0.0005, pitch=Pitch.from_midi(60)),
+        Event(onset=0.0, duration=2.0, pitch=Pitch.from_midi(64)),
+    ])
+    path = tmp_path / "chord.mid"
+    sequence_to_midi_file(seq, str(path))
+    result = read_midi_file(str(path))
+    assert list(result.losses) == []
+    durs = {e.pitch.midi: e.duration for e in result.sequence.events}
+    assert durs[64] == pytest.approx(2.0)          # normal sibling unchanged
+    assert durs[60] == pytest.approx(1 / 480)      # sub-tick floored, still present
