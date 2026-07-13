@@ -45,8 +45,14 @@ def test_pyproject_declares_package_data_and_entry_points():
     scripts = config["project"]["scripts"]
     assert scripts["tonality-mcp"] == "mts.mcp.server:main"
     assert scripts["tonality-bridge"] == "mts.mcp.bridge:main"
-    # the previously-false license claim stays absent until a LICENSE file lands
-    assert not any("License ::" in c for c in config["project"].get("classifiers", []))
+    # license is attached (RE-1 closed 2026-07-13): the file exists, pyproject
+    # points at it, and the non-OSI classifier is present (no false MIT).
+    assert (REPO_ROOT / "LICENSE.md").is_file()
+    assert config["project"]["license"]["file"] == "LICENSE.md"
+    classifiers = config["project"].get("classifiers", [])
+    assert "License :: Other/Proprietary License" in classifiers
+    assert not any("MIT" in c for c in classifiers)
+    assert "PolyForm Noncommercial" in (REPO_ROOT / "LICENSE.md").read_text()
     assert "example.com" not in config["project"]["urls"]["Homepage"]
 
 

@@ -245,3 +245,16 @@ the surface.)*
   layers, and the conventions.
 - **[`integrations/`](integrations/)** — the cross-project exchange channel: the
   briefs and responses that keep the engine and its consumers speaking one language.
+
+---
+
+## License
+
+Tonality is released under the **[PolyForm Noncommercial License 1.0.0](LICENSE.md)** —
+© 2026 Julian Smith ([Lifted-Truck](https://github.com/Lifted-Truck)). It is
+*source-available*: you may use, modify, and distribute it freely for any
+**noncommercial** purpose — research, teaching, personal and hobby projects, and
+use by nonprofit, educational, government, or public-research organizations.
+**Commercial use requires a separate license from the author.** See
+[LICENSE.md](LICENSE.md) for the terms; consumer projects that build on Tonality
+inherit this noncommercial boundary.
