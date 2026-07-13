@@ -121,8 +121,31 @@ def _phase_buckets(events) -> set[int]:
     return {round((e.onset % 1.0) * 48) % 48 for e in events}
 
 
-def _sounds_at(events, beat: float) -> tuple:
-    return tuple(e for e in events if e.sounds_at(beat))
+_SOUND_EPS = 1e-9  # matches Event.sounds_at: onset - eps <= beat < offset
+
+
+def _sounding_by_beat(events, beats):
+    """For each beat in *beats* (any order), the events of *events* sounding at
+    it — computed in ONE onset-sorted sweep with an offset-min-heap, instead of
+    an O(events) scan per beat (#214). Aligned to *beats* positionally. Set-
+    identical to ``[e for e in events if e.sounds_at(beat)]``; order is
+    unspecified (every consumer here reduces order-free: sum / set / bool)."""
+    import heapq
+
+    ordered_events = sorted(events, key=lambda e: e.onset)
+    order = sorted(range(len(beats)), key=beats.__getitem__)
+    result: list[tuple] = [()] * len(beats)
+    heap: list[tuple] = []  # (offset, tiebreak, event) — offset-min-heap of live notes
+    i = 0
+    for idx in order:
+        beat = beats[idx]
+        while i < len(ordered_events) and ordered_events[i].onset - _SOUND_EPS <= beat:
+            heapq.heappush(heap, (ordered_events[i].offset, i, ordered_events[i]))
+            i += 1
+        while heap and heap[0][0] <= beat:  # offset <= beat → no longer sounding
+            heapq.heappop(heap)
+        result[idx] = tuple(event for _, _, event in heap)
+    return result
 
 
 def _relation(a, b, events_a, events_b, motion_index) -> PartRelation:
@@ -131,13 +154,28 @@ def _relation(a, b, events_a, events_b, motion_index) -> PartRelation:
     union = onsets_a | onsets_b
     shared = onsets_a & onsets_b
 
+    # One sweep per part over the union onsets feeds BOTH the rhythmic partition
+    # and the register gaps (was two _sounds_at scans per onset — #214).
+    union_sorted = sorted(union)
+    sound_a = _sounding_by_beat(events_a, union_sorted)
+    sound_b = _sounding_by_beat(events_b, union_sorted)
+
     # rhythmic partition: each distinct onset moment is synchronous (both onset),
     # interlock (one onsets, the other silent), or overlap (one onsets, the other
     # sounding). The three counts sum to |union| exactly.
     interlock = 0
-    for t in union - shared:
-        owner, other = (events_a, events_b) if t in onsets_a else (events_b, events_a)
-        interlock += 0 if _sounds_at(other, t) else 1
+    gaps: list[float] = []
+    for t, sa, sb in zip(union_sorted, sound_a, sound_b):
+        a_on, b_on = t in onsets_a, t in onsets_b
+        if a_on != b_on:  # exactly one part onsets here
+            other_sounding = sb if a_on else sa
+            if not other_sounding:  # onset into the other's rest
+                interlock += 1
+        if sa and sb:  # both sounding → a register gap sample
+            gaps.append(
+                sum(e.pitch.midi for e in sb) / len(sb)
+                - sum(e.pitch.midi for e in sa) / len(sa)
+            )
     n = len(union)
     synchrony = round(len(shared) / n, 9)
     interlock_rate = round(interlock / n, 9)
@@ -147,15 +185,6 @@ def _relation(a, b, events_a, events_b, motion_index) -> PartRelation:
     congruence = round(len(pa & pb) / len(pa | pb), 9) if (pa | pb) else 0.0
     density_ratio = round(len(onsets_b) / len(onsets_a), 9)
 
-    # pitch — sample at every onset where both parts sound
-    gaps: list[float] = []
-    for t in sorted(union):
-        sa, sb = _sounds_at(events_a, t), _sounds_at(events_b, t)
-        if sa and sb:
-            gaps.append(
-                sum(e.pitch.midi for e in sb) / len(sb)
-                - sum(e.pitch.midi for e in sa) / len(sa)
-            )
     if gaps:
         gap_mean = sum(gaps) / len(gaps)
         prevailing = 1 if gap_mean >= 0 else -1
@@ -199,9 +228,10 @@ def _chord_tone_support(melody_events, harmony_events) -> float | None:
     simultaneously-sounding pitch classes. ``None`` if the harmony part never
     sounds at any melody onset (no claim to make)."""
 
+    melody = list(melody_events)
+    harmony_by_onset = _sounding_by_beat(harmony_events, [e.onset for e in melody])
     tested = supported = 0
-    for e in melody_events:
-        sounding = _sounds_at(harmony_events, e.onset)
+    for e, sounding in zip(melody, harmony_by_onset):
         if not sounding:
             continue
         tested += 1

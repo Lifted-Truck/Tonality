@@ -154,3 +154,26 @@ def test_mcp_parity():
               [0.0, 2.0, 48, 80, "bass"]]
     seq = _seq([(0.0, 1.0, 60, "lead"), (1.0, 1.0, 64, "lead"), (0.0, 2.0, 48, "bass")])
     assert tools.part_relations(events) == part_relations(seq).to_dict()
+
+
+def test_sounding_by_beat_matches_naive_filter():
+    """#214: the onset-sorted sweep must be set-identical to the O(n) per-beat
+    filter it replaces, including held/overlapping notes and exact boundaries."""
+    from mts.temporal.relations import _sounding_by_beat
+    from mts.temporal.sequence import Event
+    from mts.core.pitch import Pitch
+
+    events = [
+        Event(0.0, 4.0, Pitch.from_midi(48), "x"),   # long held note
+        Event(0.5, 0.2, Pitch.from_midi(60), "x"),   # short, inside the held one
+        Event(1.0, 1.0, Pitch.from_midi(64), "x"),
+        Event(1.0, 2.0, Pitch.from_midi(67), "x"),   # co-onset, different length
+        Event(3.5, 0.5, Pitch.from_midi(72), "x"),
+    ]
+    # query beats: onsets, offsets (boundary — half-open, so offset is NOT sounding),
+    # midpoints, before-start, after-end, and an unsorted order to exercise the sweep.
+    beats = [4.0, 0.0, 0.6, 1.0, 2.0, 3.0, 3.5, 4.0, -1.0, 0.7, 0.69999, 2.9999]
+    swept = _sounding_by_beat(events, beats)
+    for beat, got in zip(beats, swept):
+        naive = {e for e in events if e.sounds_at(beat)}
+        assert set(got) == naive, f"mismatch at beat {beat}"
