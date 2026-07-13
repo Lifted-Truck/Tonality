@@ -3263,9 +3263,12 @@ their disposition:
   features the MCP endpoint, contrary to the audit's read — no other drift. The
   "17 tools" reference is a *dated* delivered-note (accurate for 2026-06-10),
   legitimately frozen, not live drift.
-- **No LICENSE** — the one hole NOT patched here: it is a product/legal decision
-  (RE-1; the intended BY-NC-SA boundary), Julian's to make. Flagged, not
-  assumed. It hard-blocks outside adoption until resolved, but nothing internal.
+- **LICENSE — RESOLVED 2026-07-13: PolyForm Noncommercial License 1.0.0** (was
+  "no LICENSE; Julian's product/legal decision, RE-1"). `LICENSE.md` landed and is
+  attached across pyproject / README / packaging test (see RE-1). Source-available,
+  noncommercial-only; unblocks noncommercial adoption. The instrument is
+  PolyForm-NC, not the earlier-assumed CC BY-NC-SA — the noncommercial boundary
+  is the same, the text differs.
 
 ## Standing review — rigor & efficiency (pass #1 run 2026-07-02)
 
@@ -3307,6 +3310,19 @@ workstreams so they can be scheduled and checked off independently.
       hacks and the stale-venv workaround become removable once the venv gets
       an editable install of the now-correctly-packaged library — small
       follow-on, needs a permission-gated `pip install -e`.)*
+      **LICENSE LEG CLOSED (2026-07-13): PolyForm Noncommercial License 1.0.0.**
+      Julian appended `LICENSE.md` (PolyForm-NC-1.0.0, © 2026 Julian Smith); the
+      dev loop attached it to the project: `pyproject.toml` declares
+      `license = {file = "LICENSE.md"}` + the `License :: Other/Proprietary
+      License` classifier (PolyForm-NC is source-available, not OSI — no MIT/OSI
+      classifier), a README **License** section states the noncommercial boundary,
+      and `test_packaging.py` now *requires* the file + declaration + classifier
+      (the old assertion that no license was declared is flipped). Note: earlier
+      docs assumed a **CC BY-NC-SA** repo boundary; the chosen instrument is
+      **PolyForm-NC** instead — the *noncommercial* contract (why priors are
+      never corpus-fit, why consumers inherit the boundary) is unchanged; only
+      the license text differs. (BY-NC-SA references elsewhere in this file are
+      about third-party *corpora* — When-in-Rome/DCML — not the repo, and stay.)
 - [x] **RE-2 — Wrong-output bugs (all verified by execution).** These emit
       incorrect enrichment to A1/A6 today: **(a)** deceptive cadences are
       undetectable in minor (`cadence.py` requires `relative_root == 9` +
