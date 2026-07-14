@@ -22,8 +22,24 @@ from .schema import (
     pattern_validation_errors,
 )
 from .matcher import find_pattern
-from .library import list_named_patterns, load_named_pattern
+from .library import (
+    list_named_patterns,
+    load_named_pattern,
+    list_named_cross_part_patterns,
+    load_named_cross_part_pattern,
+)
 from .results import PatternMatches, PatternOccurrence
+from .cross_part import (
+    CrossPartPattern,
+    CrossPartValidationError,
+    CrossPartLineBinding,
+    CrossPartOccurrence,
+    CrossPartMatches,
+    parse_cross_part_pattern,
+    cross_part_pattern_to_payload,
+    cross_part_validation_errors,
+    find_cross_part_pattern,
+)
 
 __all__ = [
     "SCHEMA_VERSION",
@@ -41,4 +57,16 @@ __all__ = [
     "load_named_pattern",
     "PatternMatches",
     "PatternOccurrence",
+    # cross-part schemata (gap E slice 4)
+    "CrossPartPattern",
+    "CrossPartValidationError",
+    "CrossPartLineBinding",
+    "CrossPartOccurrence",
+    "CrossPartMatches",
+    "parse_cross_part_pattern",
+    "cross_part_pattern_to_payload",
+    "cross_part_validation_errors",
+    "find_cross_part_pattern",
+    "list_named_cross_part_patterns",
+    "load_named_cross_part_pattern",
 ]

@@ -40,7 +40,8 @@ def test_data_dir_is_inside_the_package():
 def test_pyproject_declares_package_data_and_entry_points():
     config = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
     assert config["tool"]["setuptools"]["package-data"]["mts"] == [
-        "data/*.json", "data/rulesets/*.json", "data/patterns/*.json"
+        "data/*.json", "data/rulesets/*.json", "data/patterns/*.json",
+        "data/patterns/cross_part/*.json"
     ]
     scripts = config["project"]["scripts"]
     assert scripts["tonality-mcp"] == "mts.mcp.server:main"

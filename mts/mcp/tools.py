@@ -1049,6 +1049,63 @@ def load_named_pattern(name: str) -> dict:
     return pattern_to_payload(_load(name))
 
 
+def find_cross_part_pattern(
+    pattern: dict,
+    events: list[list],
+    key: list | None = None,
+) -> dict:
+    """Find every occurrence of a CROSS-PART pattern — a schema spanning two or
+    more voices moving together (gap E slice 4; the cross-voice generalization of
+    find_pattern). Marquee case: the galant PRINNER — an upper voice descending
+    scale degrees 6-5-4-3 over a 4-3-2-1 bass, homorhythmically. pattern: a
+    cross_part.1 payload — {name, version, domain: 'schema', abstraction: {pitch:
+    'exact'|'degree'|'contour', alignment: 'homorhythmic'}, lines: [[...], [...]]}
+    where lines are element-sequences in REGISTER ORDER high→low (same pitch level
+    and length). Matched EXACTLY under the declared abstraction: exact = MIDI ints;
+    degree = scale degrees 1..7 (REQUIRES key=[tonic, mode], major/minor — never
+    inferred: error, don't guess); contour = 'up'/'down'/'same'. alignment
+    'homorhythmic' = the voices share every onset over the matched window (strict —
+    no voice onsets alone), the cross-part analog of the melody 'free' time level
+    (any spacing, but moving together); offset/imitative (call-and-response) is the
+    recorded slice-4b follow-on. The matcher pairs any co-onset single-pitch voices
+    BY REGISTER (line 0 = highest-sounding), not by label — a schema is register-
+    relative. events: the canonical event form [onset_beats, duration_beats,
+    midi_note, velocity?, voice?]; chordal (non-linearizable) voices are skipped
+    and named; overlapping occurrences all reported. Returns {pattern_name,
+    pattern_version, pitch_level, alignment, key, count, occurrences: [{voices,
+    start_beat, end_beat, onsets, lines: [{midis, degrees, moves}]}],
+    voices_skipped}. See list_named_cross_part_patterns for the shipped library."""
+    from ..patterns import find_cross_part_pattern as _find
+
+    key_pair = None
+    if key is not None:
+        try:
+            key_pair = (_pc(key[0]), str(key[1]))
+        except (TypeError, ValueError, IndexError) as exc:
+            raise ValueError(f"key must be [tonic, mode] (mode 'major'|'minor'): {exc}") from exc
+    return _find(_canonical_sequence(events), pattern, key=key_pair).to_dict()
+
+
+def list_named_cross_part_patterns() -> list[str]:
+    """The names of the citable CROSS-PART schemata shipped in the library (gap E
+    slice 4) — e.g. 'prinner-two-voice'. Load one with load_named_cross_part_pattern."""
+    from ..patterns import list_named_cross_part_patterns as _list
+
+    return _list()
+
+
+def load_named_cross_part_pattern(name: str) -> dict:
+    """Load a shipped cross-part schema by name (see list_named_cross_part_patterns)
+    as a validated cross_part.1 payload — ready to feed find_cross_part_pattern.
+    Unknown names raise with the known list."""
+    from ..patterns import (
+        load_named_cross_part_pattern as _load,
+        cross_part_pattern_to_payload,
+    )
+
+    return cross_part_pattern_to_payload(_load(name))
+
+
 def induce_rules(
     corpus: list[list[list]] | None = None,
     family: str = "voice_motion",
@@ -1689,6 +1746,9 @@ TOOLS = (
     find_pattern,
     list_named_patterns,
     load_named_pattern,
+    find_cross_part_pattern,
+    list_named_cross_part_patterns,
+    load_named_cross_part_pattern,
     induce_rules,
     transition_matrix,
     transition_cross_entropy,

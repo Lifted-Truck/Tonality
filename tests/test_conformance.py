@@ -496,6 +496,19 @@ CASES: list[tuple[str, dict]] = [
                        [0, 0.5, 60, "topline"], [1, 0.5, 64, "topline"]],
         },
     ),
+    # gap E slice 4: cross-part patterns (the two-voice Prinner).
+    (
+        "find_cross_part_pattern",
+        {"pattern": {"schema_version": "cross_part.1", "name": "prinner",
+                     "version": "1", "domain": "schema",
+                     "abstraction": {"pitch": "degree", "alignment": "homorhythmic"},
+                     "lines": [[6, 5, 4, 3], [4, 3, 2, 1]]},
+         "events": [[0, 1, 69, "S"], [0, 1, 65, "B"], [1, 1, 67, "S"], [1, 1, 64, "B"],
+                    [2, 1, 65, "S"], [2, 1, 62, "B"], [3, 1, 64, "S"], [3, 1, 60, "B"]],
+         "key": [0, "major"]},
+    ),
+    ("list_named_cross_part_patterns", {}),
+    ("load_named_cross_part_pattern", {"name": "prinner-two-voice"}),
 ]
 
 
