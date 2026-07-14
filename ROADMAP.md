@@ -2638,8 +2638,33 @@ to be informed by what 1–3 teach about the DSL's seams).
       categorical/bool/bounded-int fields; `induce_ruleset(family="texture")`
       finds nothing until a **continuous-threshold (quantile) induction pass** is
       built. That pass is the recorded slice-3 follow-on (it also unlocks
-      threshold mining for any future continuous atom). **Next: slice 4 —
-      cross-part patterns** (the two-voice Prinner, call–response templates).
+      threshold mining for any future continuous atom). **Slice 4 DELIVERED
+      (2026-07-14): cross-part patterns.** The single-voice melody `Pattern`
+      generalized to a `CrossPartPattern` — a schema spanning ≥2 voices moving
+      together (`mts/patterns/cross_part.py`; MCP `find_cross_part_pattern` +
+      `list`/`load_named_cross_part_pattern`, 66 tools). A pattern declares a
+      pitch level (exact/degree/contour, shared) × `alignment: homorhythmic` (the
+      voices share every onset over the window — strict; the cross-part analog of
+      the melody `free` time level) × `lines` (element-sequences in **register
+      order high→low**). The matcher pairs any co-onset single-pitch voices **by
+      register** (line 0 = highest-sounding), not by label — a schema is
+      register-relative — matched exactly under the declared abstraction; degree
+      needs a key (never inferred); chordal voices are skipped and named;
+      overlapping occurrences all reported; strict homorhythm (a voice onsetting
+      alone breaks the window). Ships the **two-voice Prinner**
+      (`data/patterns/cross_part/prinner-two-voice.json`: 6-5-4-3 over 4-3-2-1) —
+      the full schema `prinner-descent` (melody) could only half-express, as its
+      own docstring flagged. Cross-part patterns live in a `cross_part/` data
+      subdir so the melody library/corpus harness never mis-parses them. 14
+      tests (register-not-label, transposition invariance, strict-homorhythm
+      rejection, pick-2-of-3, chordal skip, contour schema, validation); golden
+      additive (3 cases); port pin untouched. **Recorded follow-on — slice 4b:
+      offset/imitative alignment** (call-and-response: a motif in voice A echoed
+      by voice B after a delay), a different matching model (temporal offset, not
+      co-onset) than the homorhythmic schema shipped here. With slice 4, **gap E
+      is complete** (part profiles · relations · texture rules · cross-part
+      patterns); the recorded cross-cutting follow-ons are texture-induction
+      (slice-3 continuous-threshold pass) and this imitative alignment.
 - [ ] **Corpus exercise regime — rulesets + patterns over real MIDI** (added
       2026-07-09, Julian: "more extensive tests for the ruleset and pattern
       functionality that reach for real open-source MIDI corpuses").

@@ -1,0 +1,9 @@
+{
+  "schema_version": "cross_part.1",
+  "name": "prinner-two-voice",
+  "version": "1",
+  "domain": "schema",
+  "abstraction": {"pitch": "degree", "alignment": "homorhythmic"},
+  "lines": [[6, 5, 4, 3], [4, 3, 2, 1]],
+  "description": "The two-voice galant Prinner (Gjerdingen): the upper voice descends scale degrees 6-5-4-3 over a 4-3-2-1 bass, the two voices moving together (homorhythmic). Degree-relative, so it matches in any key; lines are register-ordered high→low and the matcher pairs any two co-onset single-pitch voices by register (not by label). This is the full schema that data/patterns/prinner-descent.json (melody domain) could only half-express — its own docstring flagged the two-voice pairing as needing exactly this cross-voice scope."
+}

@@ -21859,6 +21859,187 @@
     "soft_score": 1.0
    },
    "tool": "evaluate_ruleset"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      1,
+      69,
+      "S"
+     ],
+     [
+      0,
+      1,
+      65,
+      "B"
+     ],
+     [
+      1,
+      1,
+      67,
+      "S"
+     ],
+     [
+      1,
+      1,
+      64,
+      "B"
+     ],
+     [
+      2,
+      1,
+      65,
+      "S"
+     ],
+     [
+      2,
+      1,
+      62,
+      "B"
+     ],
+     [
+      3,
+      1,
+      64,
+      "S"
+     ],
+     [
+      3,
+      1,
+      60,
+      "B"
+     ]
+    ],
+    "key": [
+     0,
+     "major"
+    ],
+    "pattern": {
+     "abstraction": {
+      "alignment": "homorhythmic",
+      "pitch": "degree"
+     },
+     "domain": "schema",
+     "lines": [
+      [
+       6,
+       5,
+       4,
+       3
+      ],
+      [
+       4,
+       3,
+       2,
+       1
+      ]
+     ],
+     "name": "prinner",
+     "schema_version": "cross_part.1",
+     "version": "1"
+    }
+   },
+   "result": {
+    "alignment": "homorhythmic",
+    "count": 1,
+    "key": [
+     0,
+     "major"
+    ],
+    "occurrences": [
+     {
+      "end_beat": 3.0,
+      "lines": [
+       {
+        "degrees": [
+         6,
+         5,
+         4,
+         3
+        ],
+        "midis": [
+         69,
+         67,
+         65,
+         64
+        ],
+        "moves": null
+       },
+       {
+        "degrees": [
+         4,
+         3,
+         2,
+         1
+        ],
+        "midis": [
+         65,
+         64,
+         62,
+         60
+        ],
+        "moves": null
+       }
+      ],
+      "onsets": [
+       0.0,
+       1.0,
+       2.0,
+       3.0
+      ],
+      "start_beat": 0.0,
+      "voices": [
+       "B",
+       "S"
+      ]
+     }
+    ],
+    "pattern_name": "prinner",
+    "pattern_version": "1",
+    "pitch_level": "degree",
+    "voices_skipped": []
+   },
+   "tool": "find_cross_part_pattern"
+  },
+  {
+   "kwargs": {},
+   "result": [
+    "prinner-two-voice"
+   ],
+   "tool": "list_named_cross_part_patterns"
+  },
+  {
+   "kwargs": {
+    "name": "prinner-two-voice"
+   },
+   "result": {
+    "abstraction": {
+     "alignment": "homorhythmic",
+     "pitch": "degree"
+    },
+    "description": "The two-voice galant Prinner (Gjerdingen): the upper voice descends scale degrees 6-5-4-3 over a 4-3-2-1 bass, the two voices moving together (homorhythmic). Degree-relative, so it matches in any key; lines are register-ordered high\u2192low and the matcher pairs any two co-onset single-pitch voices by register (not by label). This is the full schema that data/patterns/prinner-descent.json (melody domain) could only half-express \u2014 its own docstring flagged the two-voice pairing as needing exactly this cross-voice scope.",
+    "domain": "schema",
+    "lines": [
+     [
+      6,
+      5,
+      4,
+      3
+     ],
+     [
+      4,
+      3,
+      2,
+      1
+     ]
+    ],
+    "name": "prinner-two-voice",
+    "schema_version": "cross_part.1",
+    "version": "1"
+   },
+   "tool": "load_named_cross_part_pattern"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",
