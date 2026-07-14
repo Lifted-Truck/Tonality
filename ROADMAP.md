@@ -1354,6 +1354,35 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     pulled (likely first consumers: A9 Wend — conditional/asymmetric meter,
     groove — or drum-generator work); explicitly does **not** jump gap 19's
     queue. Not scheduled.
+22. **Windowed plural chord hearing + the canonical spine decode** (added
+    2026-07-13 from Wend harmonize-mode brief `spine-oracle-surface`; Decision 14
+    claims the decode). Two linked capabilities, smaller-first:
+    - **(a) Windowed plural chord hearing** *(Ask 2 — a confirmed gap).* Ranked,
+      evidenced chord naming over pitch-class content already ships at the
+      *identity* level (`name_chord` → ranked interpretations + top-two margin),
+      but the *temporal* surface collapses it: `segment_to_chords` commits each
+      window to a **single** chord (`ChordSpan.root_pc/quality`) and carries only a
+      *key*-level margin. The gap is the chord-level sibling of `structural_keys`:
+      segment → per-window sounding pcs → `name_chord` → **keep the ranked list +
+      per-window chord margin** rather than collapsing. Small (the ranker exists);
+      it is the emission layer the decode consumes and also upgrades Wend's stopgap
+      from key-level to chromatic. **Wend/harmonize named consumer.**
+    - **(b) Canonical spine decode** *(Ask 1 — CLAIMED, Decision 14).* A Viterbi-
+      style DP over the ranked per-window hearings: emission costs from (a) +
+      windowed key induction, transition costs from circle-of-fifths / VL distance,
+      scaled by a **versioned inertia prior λ** (`spine_decode.1`). Deterministic /
+      freezable; **plural-preserving** (returns the committed path + per-cell
+      alternatives + margins). The generalization of `reduce_to_structural_keys`
+      (key *and* chord level, explicit transition model, tunable λ) → one canonical
+      hearing every consumer inherits, and a portable parity target for
+      tonality-core. Wend builds behind a `SpineDecoder` seam and swaps to this on
+      ship. Both are temporal-analysis primitives on the Phase 3.5 induction stack;
+      not yet scheduled. **Phase-8 note:** Wend harmonize mode + its live-device
+      successor are recorded here as a named external port consumer of the slice
+      set {windowed key + margin, windowed chord naming (a), voice-leading cost/map}
+      — a demand signal for tonality-core prioritization, no timeline (stability-
+      gated; Python path is the plan of record; Wend pins margins to kk-1982.1 and
+      will export `fixtures/spine/*.json` + PIN as the ready-made parity target).
 
 ## Decisions on record (the "why", so we don't relitigate)
 
@@ -1560,6 +1589,28 @@ branchless mask ops) is the existing lineage this audit extends.
     avoids the tonic-not-in-scale edge case, and matches the field's placement
     beside `interval_vector`. (`_ascending_steps` stays the root-anchored helper
     the modal rotations use.)
+14. **Spine decoding (Viterbi-style DP over ranked hearings) is engine-owned
+    analysis — CLAIMED.** (Decided 2026-07-13 answering Wend harmonize-mode brief
+    `spine-oracle-surface`, ask 1.) The apparent "analysis vs. consumer policy"
+    dichotomy is false: the **exact optimal path under a stated cost model is a
+    measurement** (a Viterbi DP has one answer), while the **inertia λ that shapes
+    the cost model is a policy knob**. So the engine owns the *mechanism* (the
+    deterministic DP + emission costs from windowed key/chord hearing + transition
+    costs from circle-of-fifths / voice-leading distance it already computes),
+    **λ is a caller argument with a versioned default** (`spine_decode.1`-class,
+    the kk-1982.1 pattern), and the decode is **plural-preserving** — it returns
+    the committed path *and* the per-cell ranked alternatives + margins (rule 7),
+    so one primitive serves both a harmonizer (high λ, read the path) and an
+    analysis display (low λ, read the flicker). Engine-owned because it is the hard
+    combinatorics (rule 3) and because a per-consumer decode would give Wend /
+    Audiology / the live device three *different* hearings — engine-owned means one
+    canonical hearing all inherit, and one port parity target. Precedent:
+    `reduce_to_structural_keys` already commits to key areas, so committing-to-a-
+    hearing is already within remit; the DP decode is its principled generalization
+    (explicit transition model, tunable inertia, chord- as well as key-level). It is
+    a temporal-analysis primitive on the Phase 3.5 induction stack (registered
+    below), not yet scheduled; Wend builds behind a `SpineDecoder` seam and swaps
+    the delegate when the engine ships the canonical decode.
 
 ## Build sequence
 
