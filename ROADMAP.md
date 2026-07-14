@@ -2918,7 +2918,31 @@ realization (asks: per-step VL-cost ceiling / "smoothness", register center,
 contour hold) and `pivots_between` / `tonicization_targets` → modulation-path
 planning (asks: maximum fifths distance, pivot preference). The realization
 half is also registered on gap 17, the nearer-term slice.*
+*Named consumer (2026-07-13): **Tonality-Live** (the Ableton Live extension),
+brief `tonality-live-001` (`integrations/Tonality-Live/`). Its `/transform` bridge
+seam needs note-in → note-out transforms; response ACCEPTED the conform family as
+a near-term generative slice (below) and DEFERRED `revoice` here to Phase 7 proper
+— `revoice` is progression realization (segment → generate voicings → minimize
+voice-leading → place), the same work above, driven now by a shipped consumer.
+Consumer-proposed contract tests were accepted to land in `mts` CI on ship. Until
+then `/transform`'s revoice arm stays a visible 501 (degraded-not-silent).*
 
+- [ ] **Note-transform slice 0 — scale/key conform (near-term generative).**
+      The first note-*out* surface the engine ships (Tonality-Live brief-001;
+      unblocks its Q-003 fit-to-key / scale-conform). **Generative, register-
+      PRESERVING** (only a note's pc snaps to the nearest scale member; its
+      register is kept — no register invented, so it clears the cardinal rule):
+      `conform_to_scale(sequence, scale, root, *, tie_break="down") -> sequence`
+      + a `fit_to_key(sequence, key)` wrapper (a key *is* a scale — one primitive,
+      not two). Deterministic snap to nearest scale-member pc; ties resolve down by
+      default (`up`/`toward_root` options); freezable (no RNG/clock). Two consumer
+      contract tests hold **by construction** — ≤ 6-semitone max move (`ceil(max_gap/2)`)
+      and idempotence on in-scale input — and become docstring guarantees; the
+      MIDI 0–127 boundary (nearest *in-range* member) is the one real edge. Lives
+      generative-side (beside `search/repair.py`, its constrained-re-pitch cousin;
+      likely `mts/generate/`). Consumer ratifies brief-001, then we implement +
+      land the tests in CI + notice. This is the smallest generative slice and can
+      land well before the rest of Phase 7.
 - **Generative, not analysis** (the cardinal rule): given a chord *progression* — a
   sequence of identities, from segmentation / `interpret_chord` / user input —
   produce **voice-leading realizations**: concrete `Realization`s per chord,
