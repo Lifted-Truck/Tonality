@@ -1383,6 +1383,18 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       — a demand signal for tonality-core prioritization, no timeline (stability-
       gated; Python path is the plan of record; Wend pins margins to kk-1982.1 and
       will export `fixtures/spine/*.json` + PIN as the ready-made parity target).
+      **RATIFIED 2026-07-13** (Wend, `ratify-spine-oracle-surface.md` — exchange
+      closed) with two steers held against this registration: (i) the harmonize
+      build is **DEFERRED** (longer horizon, explicitly non-blocking — it does
+      **not** jump the engine's in-flight queue; a concrete start-brief re-opens
+      the exchange with a real schedule when the build begins); (ii) the eventual
+      consumer **may be a spin-out sibling** that borrows Wend fundamentals
+      (surface/parts/render/validate + the spine contract) rather than Wend
+      proper — the `Wend/harmonize` name here may later be **re-pointed** to it.
+      The spine-as-artifact seam makes that clean; the engine claim (Decision 14)
+      and the Ask-2 surface are unaffected either way. So this is a *recorded but
+      unscheduled* capability — do not build on Wend's account until a start-brief
+      lands.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
