@@ -1395,6 +1395,22 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       and the Ask-2 surface are unaffected either way. So this is a *recorded but
       unscheduled* capability — do not build on Wend's account until a start-brief
       lands.
+23. **Quota rules — a rule gated on its violation RATE** (added 2026-07-14 from
+    Julian: *"parallel fifths no greater than 5% of the time"*). Today a rule is
+    binary-per-item: `hard` (zero tolerance — any violation fails) or `soft` (each
+    violation lowers a *reported* `conformance`, but nothing fails). So "≤ 5%" is
+    only half-expressible — the rate is **measured and surfaced, never enforced**.
+    The gap is a third polarity, e.g.
+    `{"polarity": "budget", "max_rate": 0.05}`: the rule **passes iff
+    `violations / items_considered ≤ max_rate`**. The evaluator already computes
+    that exact ratio (`conformance = 1 − rate`), so this gates on a number it
+    already has — fully deterministic, no learning, no new atom. It is the honest
+    crisp answer to a *frequency* budget, and it is deliberately **not** a learned
+    probability (that is the sibling engine's job — Decision 15): a threshold on a
+    measured rate, not a distribution. Touches `rules/schema.py` (polarity +
+    `max_rate` validation), `rules/evaluator.py` (the gate + how `hard_rules_hold`
+    accounts for it), and the composition/induction surfaces that read polarity.
+    Small; the near-term build.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
@@ -1623,6 +1639,47 @@ branchless mask ops) is the existing lineage this audit extends.
     a temporal-analysis primitive on the Phase 3.5 induction stack (registered
     below), not yet scheduled; Wend builds behind a `SpineDecoder` seam and swaps
     the delegate when the engine ships the canonical decode.
+15. **The learned-manifold engine is a SIBLING, not a Tonality layer — Tonality is
+    its featurizer, instrument, and oracle.** (Decided 2026-07-14, from Julian's
+    question: *are rules probability-gated — can I say "parallel fifths ≤ 5% of the
+    time"?* — and the correct intuition behind it, that real style is a web of
+    interdependent soft constraints too nuanced to enumerate prescriptively, whose
+    right tool is a system that **derives** them in a high-dimensional space.)
+    - **The line is an epistemic KIND, not a topic.** Tonality exists to be exact,
+      inspectable, reproducible (the arithmetic LLMs are bad at; deterministic
+      cores; seeded RNG; versioned priors you can read). A trained high-dimensional
+      model is the opposite kind — **opaque, continuous, non-reproducible across
+      training runs, non-inspectable.** Hosting one *inside* Tonality would dissolve
+      the very property that makes it trustworthy as a foundation, and would couple
+      a fast-churning research artifact to a stable library.
+    - **The boundary is NOT learned-vs-not-learned.** Tonality *already learns* —
+      `induce_ruleset` mines rules from a corpus, `build_transition_matrix` fits
+      distributions, `build_style_profile` bundles them. Every one produces a
+      **transparent, versioned, deterministic artifact** (a rule you can read, a
+      matrix you can sample). **Transparent learned artifacts stay here; opaque
+      learned manifolds go to the sibling.** That is the whole rule.
+    - **They are complementary, not competing** (the payoff): a learned model cannot
+      learn "avoid parallel fifths at rate X" without an exact parallel-fifth
+      detector to compute the feature. Tonality supplies the **coordinates of the
+      high-dimensional space** — interval vectors, VL distances, conformance rates,
+      transition probabilities, texture atoms, pattern occurrences — and the sibling
+      learns the manifold *in those coordinates*. So Tonality is that engine's
+      **featurizer** (its inputs), **measurement instrument** (what did the model
+      actually do? — measure it against explicit rules), **ground-truth oracle**
+      (deterministic gates it is graded against), and **stimulus generator**
+      (rule-conforming vs violating material for preference testing).
+    - **Integration** is the normal boundary protocol (INTEGRATIONS): the sibling
+      consumes Tonality's exact outputs as features; anything it returns comes back
+      as a **versioned learned prior / a plural, ranked, evidenced signal** — never
+      silently collapsed, never a hidden default (Decision 7 discipline applies to a
+      learned prior exactly as to `kk-1982.1`). Precedent: **Wont** is already the
+      statistical/preference sibling of this shape.
+    - **What this decision does NOT do:** it does not bar statistical work here.
+      Induction, distributions, style profiles, and the quota rule (gap 23) all
+      stay — they are the transparent end of learning. Seeded as
+      `integrations/style-manifold/seed.md` (name provisional); the engine's
+      architecture and feasibility remain **open research**, and only its
+      *placement* is decided here.
 
 ## Build sequence
 
