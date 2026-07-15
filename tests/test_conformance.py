@@ -509,6 +509,20 @@ CASES: list[tuple[str, dict]] = [
     ),
     ("list_named_cross_part_patterns", {}),
     ("load_named_cross_part_pattern", {"name": "prinner-two-voice"}),
+    # gap 23: a quota (budget) rule — gated on the measured violation RATE.
+    # 4 transitions, 1 parallel fifth = 25% > the 5% budget → budgets_hold false.
+    (
+        "evaluate_ruleset",
+        {
+            "ruleset": {"name": "quota-smoke", "version": "t.1", "rules": [{
+                "id": "parallel-perfects-budget", "family": "voice_motion",
+                "forbid": {"motion": "parallel", "interval_class_to": {"in": [0, 7]}},
+                "polarity": "budget", "max_rate": 0.05}]},
+            "events": [[0, 1, 72, "u"], [0, 1, 65, "l"], [1, 1, 74, "u"], [1, 1, 67, "l"],
+                       [2, 1, 72, "u"], [2, 1, 69, "l"], [3, 1, 74, "u"], [3, 1, 67, "l"],
+                       [4, 1, 76, "u"], [4, 1, 71, "l"]],
+        },
+    ),
 ]
 
 

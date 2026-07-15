@@ -11505,6 +11505,7 @@
     }
    },
    "result": {
+    "budgets_hold": null,
     "hard_rules_hold": false,
     "hard_violation_count": 1,
     "results": [
@@ -11632,6 +11633,7 @@
     }
    },
    "result": {
+    "budgets_hold": null,
     "hard_rules_hold": null,
     "hard_violation_count": 0,
     "results": [
@@ -12027,7 +12029,8 @@
     "manifest_version": "ruleset-fields.2",
     "polarities": [
      "hard",
-     "soft"
+     "soft",
+     "budget"
     ]
    },
    "tool": "ruleset_field_manifest"
@@ -12186,6 +12189,7 @@
     }
    },
    "result": {
+    "budgets_hold": null,
     "hard_rules_hold": true,
     "hard_violation_count": 0,
     "results": [
@@ -21826,6 +21830,7 @@
     }
    },
    "result": {
+    "budgets_hold": null,
     "hard_rules_hold": true,
     "hard_violation_count": 0,
     "results": [
@@ -22040,6 +22045,131 @@
     "version": "1"
    },
    "tool": "load_named_cross_part_pattern"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      1,
+      72,
+      "u"
+     ],
+     [
+      0,
+      1,
+      65,
+      "l"
+     ],
+     [
+      1,
+      1,
+      74,
+      "u"
+     ],
+     [
+      1,
+      1,
+      67,
+      "l"
+     ],
+     [
+      2,
+      1,
+      72,
+      "u"
+     ],
+     [
+      2,
+      1,
+      69,
+      "l"
+     ],
+     [
+      3,
+      1,
+      74,
+      "u"
+     ],
+     [
+      3,
+      1,
+      67,
+      "l"
+     ],
+     [
+      4,
+      1,
+      76,
+      "u"
+     ],
+     [
+      4,
+      1,
+      71,
+      "l"
+     ]
+    ],
+    "ruleset": {
+     "name": "quota-smoke",
+     "rules": [
+      {
+       "family": "voice_motion",
+       "forbid": {
+        "interval_class_to": {
+         "in": [
+          0,
+          7
+         ]
+        },
+        "motion": "parallel"
+       },
+       "id": "parallel-perfects-budget",
+       "max_rate": 0.05,
+       "polarity": "budget"
+      }
+     ],
+     "version": "t.1"
+    }
+   },
+   "result": {
+    "budgets_hold": false,
+    "hard_rules_hold": null,
+    "hard_violation_count": 0,
+    "results": [
+     {
+      "applicable": true,
+      "conformance": 0.75,
+      "holds": false,
+      "items_considered": 4,
+      "polarity": "budget",
+      "reason": null,
+      "rule_id": "parallel-perfects-budget",
+      "skipped_voices": [],
+      "violations": [
+       {
+        "evidence": {
+         "interval_class_to": 7,
+         "motion": "parallel"
+        },
+        "location": {
+         "from_beat": 0.0,
+         "to_beat": 1.0,
+         "voices": [
+          "l",
+          "u"
+         ]
+        }
+       }
+      ],
+      "weight": 1.0
+     }
+    ],
+    "ruleset_name": "quota-smoke",
+    "ruleset_version": "t.1",
+    "soft_score": null
+   },
+   "tool": "evaluate_ruleset"
   }
  ],
  "description": "Golden conformance outputs for the MCP tool surface (Decision 10). Language-neutral spec: any engine reproducing these (floats within rel 1e-9 / abs 1e-12) is conformant. Regenerate ONLY for intended output changes, in the same PR, so diffs are reviewable.",

@@ -1410,7 +1410,23 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     measured rate, not a distribution. Touches `rules/schema.py` (polarity +
     `max_rate` validation), `rules/evaluator.py` (the gate + how `hard_rules_hold`
     accounts for it), and the composition/induction surfaces that read polarity.
-    Small; the near-term build.
+    **DELIVERED 2026-07-14.** `{"polarity": "budget", "max_rate": 0.05}` — the rule
+    **holds iff `violations / items_considered <= max_rate`** (inclusive;
+    eps-tolerant, so "exactly at budget" passes). Nothing considered ⇒ vacuously
+    within budget (the same convention as a vacuous hard rule); `max_rate: 0.0` is
+    then exactly a hard rule. `max_rate` is required for budget and rejected
+    elsewhere; `weight` became soft-only (hard *and* budget take none).
+    **`hard_rules_hold`'s contract is unchanged** — budgets aggregate into a new,
+    additive **`budgets_hold`** (`None` when no budget rule applied — the same "no
+    signal" convention), so a gating caller checks both; budgets never enter
+    `soft_score` (they gate, they are not preferences). `max_rate` joins the rule
+    identity in `composition`; the field manifest advertises the third polarity.
+    **The denominator is the point:** with no `where` filter every item is
+    *considered*, so the rate reads "of all motion" — the musically meaningful
+    "5% of the time" (a `where` would shrink the denominator to only-matching
+    items, making the rate "of the parallel motions, how many were fifths"). 12
+    tests; golden additive (`budgets_hold` on the 5 evaluate_ruleset cases + a
+    budget case + the manifest's new polarity); full suite 1021 passed.
 
 ## Decisions on record (the "why", so we don't relitigate)
 

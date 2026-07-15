@@ -11,7 +11,12 @@ this module only filters and counts:
   item matching a ``forbid`` (or failing a ``require``) is a
   :class:`Violation`, reported with its location and the referenced atom
   values as evidence (Decision 7 — violations are findings, not booleans);
-- per-rule ``conformance`` = 1 − violations/considered.
+- per-rule ``conformance`` = 1 − violations/considered;
+- a ``budget`` rule *gates* on that same measured rate: it **holds iff**
+  ``violations/considered <= max_rate`` (a frequency ceiling — "at most 5% of
+  considered items may violate"). ``budgets_hold`` aggregates them separately
+  from ``hard_rules_hold``, whose contract is unchanged: a gating caller checks
+  both.
 
 Applicability is the error-don't-guess rule made reportable: a rule whose
 stream the material cannot supply (voice-pair motion with fewer than two
@@ -82,7 +87,7 @@ class RuleResult:
     items_considered: int
     violations: list[Violation]
     conformance: float | None  # None when not applicable or nothing considered
-    holds: bool | None  # hard rules: no violations; soft rules: None
+    holds: bool | None  # hard: no violations; budget: rate <= max_rate; soft: None
     # None = firings were not requested; a list (possibly empty) = requested and
     # computed. Distinct from [] so "not computed" never reads as "none held".
     firings: list[Firing] | None = None
@@ -107,6 +112,10 @@ class ConformanceReport:
     # vacuously — same shape as soft_score's "no soft signal" convention.
     hard_rules_hold: bool | None
     hard_violation_count: int
+    # None when NO budget rule was applicable — the same "no signal" convention.
+    # Kept SEPARATE from hard_rules_hold so that field's contract is unchanged:
+    # a gating caller checks both.
+    budgets_hold: bool | None
     soft_score: float | None  # weight-averaged conformance of applicable soft rules
     results: list[RuleResult]
 
@@ -117,6 +126,7 @@ class ConformanceReport:
             "ruleset_version": self.ruleset_version,
             "hard_rules_hold": self.hard_rules_hold,
             "hard_violation_count": self.hard_violation_count,
+            "budgets_hold": self.budgets_hold,
             "soft_score": self.soft_score,
             "results": [r.to_dict() for r in self.results],
         }
@@ -241,6 +251,16 @@ def _evaluate_rule(rule: Rule, stream: _Stream, *, include_firings: bool = False
                 )
             )
     conformance = 1.0 - len(violations) / considered if considered else None
+    if rule.polarity == "hard":
+        holds = not violations
+    elif rule.polarity == "budget":
+        # the frequency budget: violations/considered <= max_rate. Nothing
+        # considered → no violations → vacuously within budget (same convention
+        # as a hard rule with an empty stream). eps keeps "exactly at budget" in.
+        rate = (len(violations) / considered) if considered else 0.0
+        holds = rate <= (rule.max_rate or 0.0) + 1e-9
+    else:
+        holds = None  # soft rules score, they do not hold
     return RuleResult(
         rule_id=rule.id,
         polarity=rule.polarity,
@@ -251,7 +271,7 @@ def _evaluate_rule(rule: Rule, stream: _Stream, *, include_firings: bool = False
         items_considered=considered,
         violations=violations,
         conformance=conformance,
-        holds=(not violations) if rule.polarity == "hard" else None,
+        holds=holds,
         firings=firings,
     )
 
@@ -339,6 +359,7 @@ def evaluate(
 
     hard = [r for r in results if r.polarity == "hard" and r.applicable]
     hard_violations = sum(len(r.violations) for r in hard)
+    budgets = [r for r in results if r.polarity == "budget" and r.applicable]
     soft = [
         r
         for r in results
@@ -353,6 +374,7 @@ def evaluate(
         ruleset_version=ruleset.version,
         hard_rules_hold=all(r.holds for r in hard) if hard else None,
         hard_violation_count=hard_violations,
+        budgets_hold=all(r.holds for r in budgets) if budgets else None,
         soft_score=soft_score,
         results=results,
     )
