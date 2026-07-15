@@ -43,6 +43,7 @@ def _rule_identity(rule: Rule) -> tuple:
         frozenset(rule.check),
         rule.polarity,
         rule.weight,
+        rule.max_rate,
     )
 
 
