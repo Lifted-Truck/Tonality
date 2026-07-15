@@ -39,7 +39,7 @@ def test_manifest_is_current_with_FAMILIES():
 def test_manifest_names_ops_and_polarities():
     m = ruleset_field_manifest()
     assert set(m["condition_ops"]) == {"eq", "in", "gte", "lte"}
-    assert m["polarities"] == ["hard", "soft"]
+    assert m["polarities"] == ["hard", "soft", "budget"]  # budget = the rate gate (gap 23)
 
 
 def test_manifest_is_json_serializable():

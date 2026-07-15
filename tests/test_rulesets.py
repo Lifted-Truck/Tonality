@@ -71,7 +71,7 @@ def test_validation_collects_every_error_not_just_the_first():
     assert "family: must be one of" in text
     assert "duplicate id 'a'" in text
     assert "unknown field for family 'melody'" in text
-    assert "polarity: must be 'hard' or 'soft'" in text
+    assert "polarity: must be 'hard', 'soft' or 'budget'" in text
     assert "unknown keys ['bogus_key']" in text
     assert len(errors) >= 5
 
@@ -105,7 +105,7 @@ def test_operator_and_type_validation():
     assert "field is str, not numeric" in errors
     assert "must be a non-empty list" in errors
     assert "expected bool" in errors
-    assert "hard rules take no weight" in errors
+    assert "only soft rules take a weight" in errors  # hard AND budget take none (gap 23)
 
 
 def test_parse_raises_with_the_full_error_list():

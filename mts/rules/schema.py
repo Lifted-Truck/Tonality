@@ -7,7 +7,7 @@ The DSL is deliberately small (v1). A rule is a JSON object:
       "family": "voice_motion",
       "where": {"motion": "parallel"},            # optional AND-filter
       "forbid": {"interval_class_to": {"in": [0, 7]}},
-      "polarity": "hard"                           # or "soft" (+ "weight")
+      "polarity": "hard"          # or "soft" (+ "weight") | "budget" (+ "max_rate")
     }
 
 - ``family`` names the atom stream the rule quantifies over (see
@@ -22,8 +22,14 @@ The DSL is deliberately small (v1). A rule is a JSON object:
   never matches any condition: in ``where`` that excludes the item, and an
   item whose *check* references a ``None`` field is excluded from
   consideration entirely — absence of evidence is not a violation.
-- ``polarity``: ``hard`` (the rule must hold) or ``soft`` (a weighted
-  preference; ``weight`` > 0, default 1.0; hard rules take no weight).
+- ``polarity``: ``hard`` (the rule must hold — zero tolerance), ``soft`` (a
+  weighted preference; ``weight`` > 0, default 1.0), or ``budget`` (a
+  frequency ceiling: the rule **holds iff** ``violations / items_considered <=
+  max_rate`` — e.g. ``{"polarity": "budget", "max_rate": 0.05}`` reads "at most
+  5% of considered items may violate"). Only soft rules take a ``weight``; only
+  budget rules take a ``max_rate``. A budget is a threshold on a **measured
+  rate**, not a learned probability (ROADMAP Decision 15) — the engine counts,
+  it does not model.
 
 Validation is **strict and total**: unknown keys, families, fields,
 operators, or enum values are each reported with an actionable message, and
@@ -147,7 +153,7 @@ FAMILIES: dict[str, dict[str, FieldSpec]] = {
 HARMONY_DEPENDENT_FIELDS = {"melody": {"is_chord_tone", "nht_type"}}
 
 _CONDITION_OPS = ("in", "gte", "lte")
-_RULE_KEYS = {"id", "family", "where", "forbid", "require", "polarity", "weight"}
+_RULE_KEYS = {"id", "family", "where", "forbid", "require", "polarity", "weight", "max_rate"}
 _RULESET_KEYS = {"name", "version", "description", "rules"}
 
 
@@ -176,8 +182,9 @@ class Rule:
     where: tuple[Condition, ...]
     check_kind: str  # "forbid" | "require"
     check: tuple[Condition, ...]
-    polarity: str  # "hard" | "soft"
+    polarity: str  # "hard" | "soft" | "budget"
     weight: float
+    max_rate: float | None = None  # budget only: violations/considered must be <= this
 
     def referenced_fields(self) -> set[str]:
         return {c.field for c in self.where} | {c.field for c in self.check}
@@ -288,16 +295,32 @@ def _parse_rule(payload: object, index: int, seen_ids: set[str], errors: list[st
         where = _parse_conditions(payload["where"], family, f"{ctx}.where", errors)
 
     polarity = payload.get("polarity", "hard")
-    if polarity not in ("hard", "soft"):
-        errors.append(f"{ctx}.polarity: must be 'hard' or 'soft', got {polarity!r}")
+    if polarity not in ("hard", "soft", "budget"):
+        errors.append(f"{ctx}.polarity: must be 'hard', 'soft' or 'budget', got {polarity!r}")
         polarity = "hard"
     weight = payload.get("weight")
     if weight is not None:
-        if polarity == "hard":
-            errors.append(f"{ctx}.weight: hard rules take no weight")
+        if polarity != "soft":
+            errors.append(f"{ctx}.weight: only soft rules take a weight")
         elif isinstance(weight, bool) or not isinstance(weight, (int, float)) or weight <= 0:
             errors.append(f"{ctx}.weight: must be a positive number, got {weight!r}")
     final_weight = float(weight) if isinstance(weight, (int, float)) and not isinstance(weight, bool) and weight > 0 else 1.0
+
+    # budget: the violation-RATE ceiling (a frequency budget, not a probability).
+    raw_rate = payload.get("max_rate")
+    max_rate: float | None = None
+    if polarity == "budget":
+        if raw_rate is None:
+            errors.append(
+                f"{ctx}.max_rate: required for a budget rule (the allowed violation "
+                f"rate, 0..1 — e.g. 0.05 for 'at most 5% of considered items')"
+            )
+        elif isinstance(raw_rate, bool) or not isinstance(raw_rate, (int, float)) or not 0.0 <= raw_rate <= 1.0:
+            errors.append(f"{ctx}.max_rate: must be a number in 0..1, got {raw_rate!r}")
+        else:
+            max_rate = float(raw_rate)
+    elif raw_rate is not None:
+        errors.append(f"{ctx}.max_rate: only budget rules take a max_rate")
 
     return Rule(
         id=rule_id,
@@ -307,6 +330,7 @@ def _parse_rule(payload: object, index: int, seen_ids: set[str], errors: list[st
         check=check,
         polarity=polarity,
         weight=final_weight if polarity == "soft" else 1.0,
+        max_rate=max_rate,
     )
 
 
@@ -391,7 +415,7 @@ def ruleset_field_manifest() -> dict:
     return {
         "manifest_version": FIELD_MANIFEST_VERSION,
         "condition_ops": list(_CONDITION_OPS) + ["eq"],
-        "polarities": ["hard", "soft"],
+        "polarities": ["hard", "soft", "budget"],
         "families": {
             family: {
                 "fields": {
@@ -433,6 +457,8 @@ def rule_to_payload(rule: Rule) -> dict:
     payload["polarity"] = rule.polarity
     if rule.polarity == "soft":
         payload["weight"] = rule.weight
+    if rule.polarity == "budget":
+        payload["max_rate"] = rule.max_rate
     return payload
 
 
