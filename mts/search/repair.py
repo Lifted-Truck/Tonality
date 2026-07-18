@@ -246,7 +246,11 @@ def repair_sequence(
         if depth_left <= 0:
             return  # depth-limited: expansion only below the current ceiling
         implicated = _implicated_notes(seq, hard)
-        edited_notes = {(e.voice, e.onset) for e in edits}
+        # RepairEdit's field is onset_beats (not Event's .onset) — this line only
+        # runs when the search DEEPENS past a first edit that left hard
+        # violations, a path no 1-edit fixture reaches (found live via the lab:
+        # first-species over a 4-part texture needs 2+ edits).
+        edited_notes = {(e.voice, e.onset_beats) for e in edits}
         for note in sorted(implicated):
             if note in edited_notes or note not in midi_of:
                 continue
