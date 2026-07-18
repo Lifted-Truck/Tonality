@@ -188,3 +188,39 @@ def test_mcp_repair_ruleset_matches_engine():
     tool = tools.repair_ruleset(NO_PARALLELS, PARALLEL_FIFTHS,
                                 allowed_pcs=["C", "D", "E", "F", "G", "A", "B"])
     assert tool == engine
+
+
+# --- the deepening path (found live: 'RepairEdit' has no attribute 'onset') ----
+
+# Two VOICE-DISJOINT parallel-fifth pairs — an edit can only fix violations
+# touching its own voice, so depth 1 finds nothing and the search must deepen
+# to 2 edits. That expansion step reads the already-made edits' positions,
+# which used to crash with AttributeError (.onset vs .onset_beats) because no
+# 1-edit fixture ever reached it (found live: first-species over a 4-part
+# texture). Intervals are SIGNED (b−a in sorted-voice order, mod 12), so the
+# registers are chosen by that arithmetic: (l,u) 7→7 ✗ and (x,y) 7→7 ✗ are the
+# only ic-0/7 pairs; cross-pairs read ic 9/4/2/9 — clean.
+TWO_PAIR_FIFTHS = [
+    [0, 1, 72, "u"], [1, 1, 74, "u"], [0, 1, 65, "l"], [1, 1, 67, "l"],
+    [0, 1, 50, "x"], [1, 1, 52, "x"], [0, 1, 57, "y"], [1, 1, 59, "y"],
+]
+
+
+def test_deepening_to_two_edits_does_not_crash_and_repairs():
+    r = repair_sequence(_seq(TWO_PAIR_FIFTHS), NO_PARALLELS, allowed_pcs=WHITE)
+    assert r.before_hard_violations == 2       # one per pair
+    assert r.repairs, "a 2-edit repair exists within the white-note window"
+    best = r.repairs[0]
+    assert len(best.edits) == 2                # minimal: one edit per pair
+    # both pairs' voices are touched — the edits are not two fixes of one pair
+    assert len({e.voice for e in best.edits}) == 2
+    for rep in r.repairs:                      # oracle re-check, trust nothing
+        assert evaluate(NO_PARALLELS, _seq(rep.events)).hard_rules_hold is True
+
+
+def test_unrepairable_within_budget_returns_empty_not_error():
+    # The live crash combo's shape: violations that 2 edits cannot clear must
+    # come back as an honest empty repairs list, never an exception.
+    r = repair_sequence(_seq(TWO_PAIR_FIFTHS), NO_PARALLELS,
+                        allowed_pcs=WHITE, max_edits=1)
+    assert not r.already_conformant and r.repairs == []
