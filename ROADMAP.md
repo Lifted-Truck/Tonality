@@ -1427,6 +1427,28 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     items, making the rate "of the parallel motions, how many were fifths"). 12
     tests; golden additive (`budgets_hold` on the 5 evaluate_ruleset cases + a
     budget case + the manifest's new polarity); full suite 1021 passed.
+24. **Consonance-gravity ratio priors** (added 2026-07-18 from HYPERSAW brief-001,
+    `integrations/hypersaw/` — its Kuramoto "consonance gravity" pulls held notes'
+    continuous frequencies toward simple ratios; it shipped on a 13-ratio
+    placeholder and wants a real, citable table. **HYPERSAW named consumer;
+    zero-live-calls consumer — dataset-artifact door only.**) The boundary drawn
+    finer than the brief assumed: **continuous-pitch ANALYSIS** (hearing/labeling
+    JI intervals, identity math off the lattice) stays the Phase 6 / JI-monzo
+    deferral — but **slice 1, a static ratio-priors artifact**
+    (`tonality-gravity-priors.1`: reduced ratios in [1,2), dedup/sorted —
+    fold-safe by construction — each with `weight` + `basin_scale`, names like
+    "3/2" as display-adjacent strings, provenance `version`/`source`/`license`/
+    `generated_by` stamped) is **versioned prior data, not mod-12 arithmetic** —
+    the kk-1982.1 epistemic kind, values from citable theory (limit /
+    Tenney-height-class consonance orderings), never guessed, never corpus-fit.
+    No Phase 6 dependency; small; **buildable on HYPERSAW's nod** (their three
+    contract tests — schema validation, byte-identical re-export, fold-safety —
+    accepted to land in `mts` CI on ship). **Slice 2 — context-weighting**: a held
+    pc-set / induced-key context selecting which basins widen or narrow, delivered
+    as a context table (keyed by chord quality / scale-degree content), standing
+    entirely on shipped 12-TET machinery (`infer_key`, `interpret_chord`);
+    unscheduled, HYPERSAW Phase-5-class timing. A JI-*context* version would
+    inherit the Phase 6 boundary; not asked.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
