@@ -138,6 +138,15 @@ The venv is at the **main repo root** (`/Users/machinepriest/Documents/Tonality/
 not inside the worktree. Keep the full `tests/` suite green on every commit
 (one test needs the optional `mcp` extra and skips without it).
 
+**Reproducing CI locally** (`bash scripts/ci-local.sh`) — CI runs **two** legs,
+`pytest tests/` *and* `pytest audit/checks/`, on Python **3.10 + 3.13**. The
+Stop hook only covers `tests/` on the dev interpreter, so the script is the
+full gate: run it before declaring a PR green. It reports honestly which legs
+it could NOT reproduce (a missing interpreter is a loud WARN, never a silent
+pass). *When cloud CI is unavailable (e.g. GitHub credits exhausted) a red ✗ on
+a PR is the billing block, not a real failure — this script is the source of
+truth for green until Actions is back.*
+
 ## Gotchas
 
 - **Ignore `build/`** — it is a stale generated copy of `mts/` (now gitignored).
