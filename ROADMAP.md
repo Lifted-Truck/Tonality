@@ -1449,6 +1449,50 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     entirely on shipped 12-TET machinery (`infer_key`, `interpret_chord`);
     unscheduled, HYPERSAW Phase-5-class timing. A JI-*context* version would
     inherit the Phase 6 boundary; not asked.
+25. **Chromatic-event classification — borrowed chord vs. key change vs.
+    ambiguous** (added 2026-07-20 from Julian's exploration of passing tones /
+    chromatic alterations / modal interchange; a 6-agent research swarm answered
+    "is a *deterministic* classifier reasonable, and have we reached it?"). The
+    verdict is the shape of the build: **a single-label oracle is impossible** —
+    trained analysts disagree on a real fraction of passages given the full score,
+    and the computational field confirms it (the DCML standard defines the
+    distinction crisply but leaves the *call* to human discretion; every automated
+    system collapses it to one "how sustained is the evidence" dial with no slot
+    for "deliberately borrowed but functionally local"; Nápoles López et al. 2020
+    showed local-key algorithms straddle both categories; full RN-analysis
+    plateaus ~45–52% precisely at this seam). But a **deterministic, ambiguity-
+    aware analyzer** is very reasonable and squarely in charter: it can reliably
+    *compute every bearing signal* — chromatic pc-content, local-key margin, a
+    **confirming cadence in the candidate key** (the literature's #1 discriminator),
+    pivot availability, foreign-collection persistence, chromatic-tone voice-leading,
+    return-or-not — and reliably *delimit the contested band* (margin/duration
+    against stated thresholds — the ambiguity as coordinates, not a feeling),
+    refusing a single label inside it unless a **cost model is supplied** (an input,
+    not an invention). Committing *past* the band, and the style prior ("does
+    borrowing even apply in this idiom"), belong to the learned sibling
+    (Decision 15) — this is Decision 14's "commit-to-a-hearing is a decision, the
+    exact path under a cost model is a measurement," applied to the chord grain.
+    **Status: ~70% pre-built, but the pieces don't talk to each other.**
+    `reduce_to_structural_keys` makes the area-grain modulation-vs-tonicization
+    call (`brief OR (related AND returns)`, versioned thresholds); `name_chord`
+    flags chromatic *functions* (secondary dominant, aug-6, Neapolitan) at the
+    chord grain; `infer_key` gives ranked margin; `detect_cadences` computes the #1
+    discriminator — **but none are wired together**, and cadence is never checked
+    against area boundaries. The recommended capability: **`classify_chromatic_
+    event`** (`analysis/`), reading — never re-deriving — those layers, emitting a
+    plural ranked list `{borrowed_mixture | secondary_dominant | modulation |
+    genuinely_ambiguous}` each with its exact signals + a `confident | contested`
+    zone flag. **Deterministic-shippable-now slice (highest leverage, lowest
+    risk): wire `detect_cadences` against each area's own key** (the disconnected
+    #1 discriminator) + the interior-vs-boundary position test + `special_function`
+    into it + the zone delimiter. **Prerequisite:** sub-window borrowed chords are
+    invisible to the 8-beat structural grain — the real fix is harmonic-rhythm-aware
+    segmentation (ties into gap 22's windowed-plural-chord-hearing); the first slice
+    can ship on the 8-beat grid + `name_chord`'s chord flag meanwhile. Also
+    relevant to passing tones: the engine currently treats sub-window chromatic
+    flicker as a *smoothing* problem, not a harmonic-rhythm one — passing tones /
+    chromatic alterations should be filtered *before* the borrowed-vs-modulation
+    question is even asked. **Not a Phase 6 concern** (all 12-TET pc arithmetic).
 
 ## Decisions on record (the "why", so we don't relitigate)
 
