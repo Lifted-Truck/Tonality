@@ -128,13 +128,13 @@ There is **no bare `python`** on this machine. Use the project venv explicitly:
 
 ```bash
 # Tests (config lives in pyproject.toml)
-/Users/machinepriest/Documents/Tonality/.venv/bin/pytest tests/ -v
+~/Documents/Tonality/.venv/bin/pytest tests/ -v
 
 # Run a script / one-off
-/Users/machinepriest/Documents/Tonality/.venv/bin/python3.13 scripts/analyze_chord.py C maj7 --json
+~/Documents/Tonality/.venv/bin/python3.13 scripts/analyze_chord.py C maj7 --json
 ```
 
-The venv is at the **main repo root** (`/Users/machinepriest/Documents/Tonality/.venv`),
+The venv is at the **main repo root** (`~/Documents/Tonality/.venv`),
 not inside the worktree. Keep the full `tests/` suite green on every commit
 (one test needs the optional `mcp` extra and skips without it).
 

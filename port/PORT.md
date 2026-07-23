@@ -54,8 +54,8 @@ correctness — it reproduces fixtures:
 1. Generate from a Tonality checkout (venv lives at the Tonality repo root):
 
    ```bash
-   /Users/machinepriest/Documents/Tonality/.venv/bin/python3.13 \
-     /Users/machinepriest/Documents/Tonality/scripts/export_versioned_data.py \
+   ~/Documents/Tonality/.venv/bin/python3.13 \
+     ~/Documents/Tonality/scripts/export_versioned_data.py \
      --out /tmp/export_artifacts/
    ```
 
