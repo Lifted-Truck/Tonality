@@ -18,7 +18,7 @@ worktree**, sharing history but with its own files:
 git worktree add ../tonality-audit -b audit main      # new dir + new 'audit' branch
 cd ../tonality-audit
 # use the SAME interpreter (the venv lives at the main repo root):
-/Users/machinepriest/Documents/Tonality/.venv/bin/python3.13 -m pytest audit/checks -q
+~/Documents/Tonality/.venv/bin/python3.13 -m pytest audit/checks -q
 # when done with a cycle:
 #   git worktree remove ../tonality-audit     (from the main repo)
 ```

@@ -25,7 +25,7 @@ main repo's venv.
 ```bash
 git worktree add ../tonality-audit -b audit-cycle origin/main   # fresh per cycle
 cd ../tonality-audit
-PY=/Users/machinepriest/Documents/Tonality/.venv/bin/python3.13
+PY=~/Documents/Tonality/.venv/bin/python3.13
 # cleanup at cycle end (from the main repo): git worktree remove ../tonality-audit
 ```
 
