@@ -2,8 +2,10 @@
 
 The third operation of the ruleset triad — *extract* (``induce_ruleset``),
 *compare* (``compare_rulesets``), **impose** (this): given a piece and a ruleset,
-find a **minimal set of edits** that eliminates the hard violations without
-worsening the soft score, preserving everything the ruleset does not speak to.
+find a **minimal set of edits** that eliminates the hard violations **and brings
+every over-budget rule back within its ceiling** (#230), without worsening the
+soft score, preserving everything the ruleset does not speak to. Hard and
+``budget`` rules both *gate*; soft rules only score.
 
 **GENERATIVE-side** per the cardinal rule (an edit invents pitch content), which is
 why it lives in ``search/`` — like its siblings it is exact, exhaustive, bounded
@@ -57,6 +59,24 @@ def _hard_violations(report) -> list[tuple[str, dict]]:
             continue
         for violation in result.violations:
             out.append((result.rule_id, violation.location))
+    return out
+
+
+def _gate_violations(report) -> list[tuple[str, dict]]:
+    """(rule_id, location) for every violation the repair must clear — the full
+    ruleset gate, not hard rules alone (#230). That is: all hard-rule violations,
+    PLUS every violation of a **budget** rule that is currently over budget
+    (``holds is False``). A within-budget budget rule contributes nothing — its
+    allowed violations are not defects. These locations seed the candidate notes;
+    the oracle accepts as soon as ``budgets_hold`` again, so the rate need only
+    drop to the ceiling, not to zero. Soft rules never gate (they only score)."""
+    out = []
+    for result in report.results:
+        if not result.applicable:
+            continue
+        if result.polarity == "hard" or (result.polarity == "budget" and result.holds is False):
+            for violation in result.violations:
+                out.append((result.rule_id, violation.location))
     return out
 
 
@@ -166,6 +186,7 @@ def repair_sequence(
 
     before = oracle(sequence)
     before_hard = _hard_violations(before)
+    before_gate = _gate_violations(before)  # hard + over-budget (#230)
     before_soft = before.soft_score
 
     def soft_ok(report) -> bool:
@@ -173,21 +194,22 @@ def repair_sequence(
             return True
         return report.soft_score >= before_soft - 1e-9
 
-    if not before_hard:
+    if not before_gate:  # no hard violations AND every budget within its ceiling
         return RepairResult(
             already_conformant=True, repairs=[], reason=None,
             evaluations=evaluations, budget_exhausted=False,
-            before_hard_violations=0, ruleset_name=before.ruleset_name,
+            before_hard_violations=len(before_hard), ruleset_name=before.ruleset_name,
         )
 
     # Scope check (slice 1+1b): re-pitch edits can only answer for pitch-driven
-    # families. A hard violation in any other family (rhythm is pitch-independent;
-    # harmony reads a chord stream this oracle isn't given) is refused honestly.
+    # families. A hard OR over-budget violation in any other family (rhythm is
+    # pitch-independent; harmony/texture read streams this oracle isn't given) is
+    # refused honestly rather than left silently unrepaired (#230).
     family_of = {rule.id: rule.family for rule in ruleset.rules}
     unsupported = sorted(
         {
             rule_id
-            for rule_id, _loc in before_hard
+            for rule_id, _loc in before_gate
             if family_of.get(rule_id) not in ("voice_motion", "melody")
         }
     )
@@ -195,10 +217,10 @@ def repair_sequence(
         return RepairResult(
             already_conformant=False, repairs=[],
             reason=(
-                "hard violations outside the voice_motion/melody families cannot "
-                f"be repaired by re-pitch edits (rules: {unsupported}); rhythm is "
-                "pitch-independent and harmony repair is the recorded slice-2 "
-                "(chord substitution)"
+                "hard/over-budget violations outside the voice_motion/melody "
+                f"families cannot be repaired by re-pitch edits (rules: {unsupported}); "
+                "rhythm is pitch-independent and harmony/texture repair is the "
+                "recorded slice-2 (chord substitution)"
             ),
             evaluations=evaluations, budget_exhausted=False,
             before_hard_violations=len(before_hard), ruleset_name=before.ruleset_name,
@@ -226,8 +248,8 @@ def repair_sequence(
         if budget_exhausted:
             return
         report = oracle(seq) if edits else before  # root already evaluated
-        hard = _hard_violations(report) if edits else before_hard
-        if edits and not hard:
+        gate = _gate_violations(report) if edits else before_gate
+        if edits and not gate:  # hard cleared AND every budget back within ceiling
             if soft_ok(report):
                 key = frozenset((e.voice, e.onset_beats, e.midi_to) for e in edits)
                 if key not in found:
@@ -242,10 +264,10 @@ def repair_sequence(
                             for e in seq.events
                         ],
                     )
-            return  # hard fixed (or soft worsened) — either way, don't extend
+            return  # gate satisfied (or soft worsened) — either way, don't extend
         if depth_left <= 0:
             return  # depth-limited: expansion only below the current ceiling
-        implicated = _implicated_notes(seq, hard)
+        implicated = _implicated_notes(seq, gate)
         # RepairEdit's field is onset_beats (not Event's .onset) — this line only
         # runs when the search DEEPENS past a first edit that left hard
         # violations, a path no 1-edit fixture reaches (found live via the lab:

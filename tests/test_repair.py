@@ -224,3 +224,48 @@ def test_unrepairable_within_budget_returns_empty_not_error():
     r = repair_sequence(_seq(TWO_PAIR_FIFTHS), NO_PARALLELS,
                         allowed_pcs=WHITE, max_edits=1)
     assert not r.already_conformant and r.repairs == []
+
+
+# --- budget rules gate repair, exactly like hard rules (#230) -------------------
+
+_BUDGET_PP = {"name": "q", "version": "1", "rules": [{
+    "id": "parallel-perfects-budget", "family": "voice_motion",
+    "forbid": {"motion": "parallel", "interval_class_to": {"in": [0, 7]}},
+    "polarity": "budget", "max_rate": 0.05}]}
+# 5 moments → 4 transitions, exactly one parallel fifth = 25% (> the 5% budget).
+_ONE_FIFTH = [[b, 1, u, "u"] for b, (u, _l) in enumerate(
+    [(72, 65), (74, 67), (72, 69), (74, 67), (76, 71)])] + \
+    [[b, 1, l, "l"] for b, (_u, l) in enumerate(
+    [(72, 65), (74, 67), (72, 69), (74, 67), (76, 71)])]
+
+
+def test_over_budget_is_not_reported_conformant():
+    r = repair_sequence(_seq(_ONE_FIFTH), _BUDGET_PP, allowed_pcs=WHITE)
+    assert r.already_conformant is False        # 25% > 5% is NOT conformant
+    assert r.repairs                            # and repair actually fixes it
+
+
+def test_budget_repairs_pass_the_oracle_within_budget():
+    # trust nothing: independently re-evaluate every returned repair.
+    r = repair_sequence(_seq(_ONE_FIFTH), _BUDGET_PP, allowed_pcs=WHITE)
+    for rep in r.repairs:
+        assert evaluate(_BUDGET_PP, _seq(rep.events)).budgets_hold is True
+
+
+def test_within_budget_is_conformant_no_repair():
+    loose = {**_BUDGET_PP, "rules": [{**_BUDGET_PP["rules"][0], "max_rate": 0.5}]}
+    r = repair_sequence(_seq(_ONE_FIFTH), loose, allowed_pcs=WHITE)
+    assert r.already_conformant is True          # 25% <= 50%
+    assert r.repairs == []
+
+
+def test_over_budget_non_pitch_family_refuses_honestly():
+    # a texture budget rule that is violated → cannot re-pitch it → honest refusal,
+    # never a silent already_conformant=True.
+    tex = {"name": "q", "version": "1", "rules": [{
+        "id": "tx", "family": "texture", "where": {"voice_a": "l", "voice_b": "u"},
+        "require": {"register_gap_mean": {"gte": 50}}, "polarity": "budget",
+        "max_rate": 0.05}]}
+    r = repair_sequence(_seq(_ONE_FIFTH), tex)
+    assert r.already_conformant is False and r.repairs == []
+    assert r.reason and "texture" in r.reason
