@@ -38,9 +38,11 @@ and `rules/` and never reimplements either.
   (every candidate re-evaluated in full, whole ruleset). Candidates from the two
   pitch-driven families: voice-motion pair transitions (slice 1) + melody note
   locations incl. same-voice neighbors (slice 1b); lexicographic minimality (fewest notes, then |semitones|; exact via
-  iterative deepening); hard-must-hold, soft-must-not-worsen; honest refusals
-  (non-voice-motion hard violations, budget exhaustion). Generative-side — edits
-  invent pitches.
+  iterative deepening); **hard-must-hold, budget-must-hold** (an over-budget rule
+  gates exactly like a hard one — #230 — the search reduces the rate back to the
+  ceiling, not to zero), soft-must-not-worsen; honest refusals (a hard/over-budget
+  violation outside voice_motion/melody, search-budget exhaustion). Generative-side
+  — edits invent pitches.
 - `results.py` — `IdentitySearchResult` / `IdentityMatch` /
   `VoicingSearchResult` / `VoicingMatch` / `RepairResult` / `Repair` /
   `RepairEdit` (`to_dict()`).

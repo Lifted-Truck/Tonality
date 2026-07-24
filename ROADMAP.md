@@ -1395,7 +1395,8 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       and the Ask-2 surface are unaffected either way. So this is a *recorded but
       unscheduled* capability — do not build on Wend's account until a start-brief
       lands.
-23. **Quota rules — a rule gated on its violation RATE** (added 2026-07-14 from
+23. **Budget rules — a rule gated on its violation RATE** (née "quota rules";
+    the DSL shipped the polarity as `budget`) (added 2026-07-14 from
     Julian: *"parallel fifths no greater than 5% of the time"*). Today a rule is
     binary-per-item: `hard` (zero tolerance — any violation fails) or `soft` (each
     violation lowers a *reported* `conformance`, but nothing fails). So "≤ 5%" is
@@ -1757,7 +1758,7 @@ branchless mask ops) is the existing lineage this audit extends.
       learned prior exactly as to `kk-1982.1`). Precedent: **Wont** is already the
       statistical/preference sibling of this shape.
     - **What this decision does NOT do:** it does not bar statistical work here.
-      Induction, distributions, style profiles, and the quota rule (gap 23) all
+      Induction, distributions, style profiles, and the budget rule (gap 23) all
       stay — they are the transparent end of learning. Seeded as
       `integrations/style-manifold/seed.md` (name provisional); the engine's
       architecture and feasibility remain **open research**, and only its
