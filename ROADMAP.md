@@ -1494,6 +1494,62 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     flicker as a *smoothing* problem, not a harmonic-rhythm one — passing tones /
     chromatic alterations should be filtered *before* the borrowed-vs-modulation
     question is even asked. **Not a Phase 6 concern** (all 12-TET pc arithmetic).
+26. **Modal transform — analyze a piece, then switch its MODE (not transpose it)**
+    (added 2026-07-20, Julian; **first integration target: Audiology**). Analyze a
+    MIDI file for key + key areas + tonicizations + borrowed chords + chromaticism,
+    then re-render the whole piece in a different mode/scale — remapping the key
+    changes to their new relative keys or borrowed chords, preserving periods of
+    chromaticization, leaving the drums untouched.
+    - **The core operation is a degree-preserving remap, not a transposition.**
+      `pitch → (scale degree, chromatic offset) → new pitch`: the applied interval
+      is **non-uniform per degree** (C-E-G in major → C-E♭-G in minor: degrees
+      1-3-5 preserved, intervals changed). Exact, deterministic pc arithmetic, and
+      **register-preserving** (map the pc, keep the octave) so it clears the
+      cardinal rule without inventing anything. Requires **|S_new| == |S_old|** (a
+      7→7 bijection; major→pentatonic is not one) — enforce, don't guess.
+    - **The chromatic "room" problem is computable UP FRONT.** A chromatic passing
+      tone lives inside a *whole* step; a mode change collapses some whole steps to
+      half steps, stranding anything inside them. Computed exactly from the two
+      step-patterns: major→natural-minor strands degree-slots **2→3 and 5→6**
+      (and *opens* 3→4, 7→1); →dorian strands 2→3, 6→7; →mixolydian strands only
+      6→7. So the engine can emit a **pre-flight report** — "this transform will
+      strand N notes at these degree positions, here they are" — before touching a
+      note (the `search_voicings` size-the-space-first pattern).
+    - **Inherently lossy ⇒ itemized losses**, the `MidiReadLoss` pattern: every
+      stranded note, every policy decision, reported — never silently dropped.
+    - **Three policy forks — DECIDED (Julian, 2026-07-20):**
+      **(a) Modulation remap — options exposed.** Default = whatever is **most
+      computable** (interval-preserving is pure arithmetic and needs no idiom
+      table); the *ideal* (function-preserving — "the major-key move to V becomes
+      the minor-key move to III") **surfaced as an option**, since re-idiomizing a
+      destination is a style judgment the engine must not invent. Caller-supplied
+      policy follows a **structured but inclusive syntax** (a permissive policy
+      struct — partial specification allowed, sensible fallbacks — not a rigid
+      enum). **(b) Borrowed chords — DEFAULT: preserve the RHETORIC.** A ♭VI in
+      major is *borrowed*; in the parallel minor it is diatonic, so a naive pc-map
+      makes the borrowing evaporate. The default instead re-borrows from the new
+      key's parallel so the *gesture* survives; preserving the pitch relationship
+      is the exposed alternative. **(c) Stranded chromatics — DEFAULT:
+      keep-and-report** (keep the pitch as a non-scale tone, itemize it).
+      *Open research (swarm dispatched 2026-07-20):* whether theory informs
+      alternatives — displace to a newly-*open* slot, move by a fifth/octave,
+      convert to a different non-harmonic-tone type (appoggiatura / incomplete
+      neighbor / anticipation), re-time as a grace note, or drop it (Schenkerian
+      embellishment theory may hold chromatic passing tones structurally
+      dispensable). Findings fold back here.
+    - **Drums are a deterministic exclusion**, not a heuristic: MIDI ingestion
+      labels voices `t{n}c{n}`, so **channel 10 (index 9)** filters out; gap E's
+      `part_profiles` can corroborate (one distinct pc, zero pitch mobility).
+    - **Dependencies:** gap 25's chromatic-event classifier is the **analysis
+      prerequisite** — you cannot remap what you cannot classify (every note needs
+      diatonic / chromatic-passing / borrowed-chord-tone / modulation-tone before
+      the remap knows which rule applies); this feature is gap 25's first real
+      consumer. The note-level primitive is `conform_to_scale`'s superset (Phase 7
+      note-transform slice 0, accepted from Tonality-Live brief-001). Generative-
+      side. **Honest limit:** output is musically *plausible*, not *correct* — a
+      mode switch changes voice-leading, so parallels/awkward leaps can appear;
+      `repair_sequence` over a counterpoint ruleset is the natural post-pass (a
+      satisfying use of the extract/compare/impose triad).
 
 ## Decisions on record (the "why", so we don't relitigate)
 
