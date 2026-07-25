@@ -1517,26 +1517,106 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       note (the `search_voicings` size-the-space-first pattern).
     - **Inherently lossy ⇒ itemized losses**, the `MidiReadLoss` pattern: every
       stranded note, every policy decision, reported — never silently dropped.
-    - **Three policy forks — DECIDED (Julian, 2026-07-20):**
-      **(a) Modulation remap — options exposed.** Default = whatever is **most
-      computable** (interval-preserving is pure arithmetic and needs no idiom
-      table); the *ideal* (function-preserving — "the major-key move to V becomes
-      the minor-key move to III") **surfaced as an option**, since re-idiomizing a
-      destination is a style judgment the engine must not invent. Caller-supplied
-      policy follows a **structured but inclusive syntax** (a permissive policy
-      struct — partial specification allowed, sensible fallbacks — not a rigid
-      enum). **(b) Borrowed chords — DEFAULT: preserve the RHETORIC.** A ♭VI in
-      major is *borrowed*; in the parallel minor it is diatonic, so a naive pc-map
-      makes the borrowing evaporate. The default instead re-borrows from the new
-      key's parallel so the *gesture* survives; preserving the pitch relationship
-      is the exposed alternative. **(c) Stranded chromatics — DEFAULT:
-      keep-and-report** (keep the pitch as a non-scale tone, itemize it).
-      *Open research (swarm dispatched 2026-07-20):* whether theory informs
-      alternatives — displace to a newly-*open* slot, move by a fifth/octave,
-      convert to a different non-harmonic-tone type (appoggiatura / incomplete
-      neighbor / anticipation), re-time as a grace note, or drop it (Schenkerian
-      embellishment theory may hold chromatic passing tones structurally
-      dispensable). Findings fold back here.
+    - **Three policy forks — DECIDED (Julian, 2026-07-20), then REFINED by the
+      research swarm (2026-07-25; 6 agents, 5 lenses + Opus synthesis).** The
+      swarm's organizing insight: **forks (b) and (c) are one problem at two
+      grains.** A pitch has two coordinates against a key — a **degree** (which
+      slot) and an **alteration** (how far off it). A mode switch is *exact, total
+      and bijective on the degree coordinate* and *undefined in general on the
+      alteration coordinate*, at note grain, chord grain (degree = numeral,
+      alteration = mixture) and key-area grain alike. Every remaining decision is
+      about **markedness**: whether something that was *marked* (outside the
+      prevailing collection) stays marked. **Preserving pitch content does not
+      preserve markedness — under major→natural-minor it actively INVERTS it**,
+      and that inversion is the single failure mode this feature exists to avoid.
+      So `markedness` (`diatonic` | `chromatic` | `borrowed(donor_mode)`, recorded
+      **before and after**, every inversion flagged) is a **first-class field —
+      the spine of the feature**.
+      **(a) Modulation remap — DEFAULT REVISED to DEGREE-PRESERVING.** The fork
+      largely dissolves: there are *three* policies, not two, and the third is
+      both the most computable *and* the practice-attested one — **apply the
+      degree map recursively to the key-area tonic** (a key area is a tonic plus a
+      mode; the tonic is a note; remap it by degree). It is total, **bijective by
+      construction (two areas can never collide)**, table-free, and self-similar
+      with the note-level transform. It is also "function-preserving" in the sense
+      the literature actually means (Kostka/Payne: *mixture changes a chord's
+      quality, not its function*) — vi→VI, IV→iv, V→v. **So Julian's
+      "most-computable" criterion and the ideal select the SAME policy**;
+      interval-preserving demotes to an option, and *relation*-preserving
+      (V↔III) becomes a curated opt-in that **errors** on mediant/supertonic/
+      submediant and on non-major/minor homes (defining it by relation-type
+      collides V and vi onto III — real information loss). Sub-policies:
+      `area_mode` (default `diatonic_quality` — the area takes the quality the
+      target home's diatonic triad has at that degree, reproducing IV→iv, vi→VI)
+      and `raise_dominant` (default **`follow_source`** — derive leading-tone-ness
+      from whether the source area's cadential dominants had one; evidence, not a
+      convention). Caller policy stays a **structured-but-inclusive syntax**,
+      concretely: a **default + per-event override list keyed by event id**, not a
+      DSL. *Honest asymmetry to report, not paper over:* a major piece going to V
+      and vi becomes a minor piece going to v/V and VI — **never to III**, minor
+      practice's favourite destination. The output is degree-faithful, not
+      idiom-faithful.
+      **(b) Borrowed chords — DEFAULT CONFIRMED (preserve the rhetoric), and it
+      has an exact closed form.** Mixture is an **involution**: a borrowed chord
+      at degree *n* in a major home *is* the degree-*n* chord of the parallel
+      minor. So the rule is one line, no table: **apply the degree map to the
+      chord's degree, then take the quality from the SOURCE home mode rather than
+      the target's.** Provably markedness-preserving both directions (iv→IV,
+      ♭VI→vi, ♭VII→vii°, ♭III→iii, and diatonic IV→iv). The pitch-relation option
+      is the markedness inversion at chord grain. **Scope limit:** the involution
+      is exact only for *parallel* pairs with a defined mixture relation; for
+      arbitrary pairs (Ionian→Dorian) "borrowed from where?" is undefined —
+      require a declared `donor_mode` or **error** (error-don't-guess).
+      **(c) Stranded chromatics — DEFAULT SURVIVES, but must be RENAMED and
+      RE-SCOPED.** Julian's keep-and-report is right, on grounds that have nothing
+      to do with being musically best: it is the **unique total, lossless,
+      invertible** option; the **only non-generative** one (choosing a replacement
+      pitch is exactly the generative act the cardinal rule forbids analysis to
+      perform silently); and it fails **loudly and locally** (a wrong note is
+      audible) rather than plausibly and globally. **Two mandatory changes:**
+      (i) **rename to `defer`** and change the *contract* — the output is
+      *"degree-remapped with chromatic residue,"* **not** "conformed to the target
+      scale" (a full-conformance promise is a generative act the engine cannot
+      perform correctly); (ii) **report the status change, not just the note** —
+      `markedness_before`/`after`, flagging `ANNEXED`. Why: **stranding IS
+      annexation.** A step collapses precisely *because the target's next degree
+      moved onto the source's interior slot* — E♭ strands in step 2→3 because E♭
+      **is** C-minor's degree 3. Of C-major's five chromatics, **three (E♭, A♭,
+      B♭) are diatonic in C minor**, so "keep the note" silently promotes an
+      ornament to a structural degree. That is a consequential edit disguised as
+      an abstention.
+      **Both of Julian's guesses were right — at different grains:**
+      • *"displace to the next chromatic slot"* → the **`reattach`** option, and a
+      **theorem guarantees it always exists**: no diatonic rotation has adjacent
+      semitone steps, so if generic step *k* collapses, step *k+1* has width 2 —
+      the very tone the passing tone was heading toward always has a free
+      chromatic slot immediately above it. `D→D♯→E` in major becomes `D→E♮→E♭` in
+      minor: an upper chromatic neighbour / enclosure of the **same structural
+      target**. (The principled version is not "find any open slot" but
+      "re-attach the ornament to the same target from the side that survives" —
+      the jazz approach-note invariant, licensed by NHT-category porousness.)
+      • *"move it by a fifth"* → that is **Hook's signature transformation**
+      (uniform T+3 for major→minor, the unique map preserving line-of-fifths
+      position relative to the collection). Correct for a chromatic **chord
+      root** (where tonal distance is the salient thing); **catastrophic for a
+      melodic passing tone** (displaces by a minor third, breaks contour, violates
+      the gap-fill logic that was the tone's reason to exist). Keep it named, rank
+      it low for notes.
+      **Ranked resolutions** (expose all; `defer` default): `defer` (total,
+      lossless, non-generative) · `alteration` (the exact analytic rebind;
+      partial by construction) · `reattach` (best musical choice for accented /
+      exposed tones) · `reduce` (drop — the strongest *single* warrant,
+      Schenkerian foreground diminution + every computational reduction system;
+      but **destructive and irreversible**, and its inputs — metric position,
+      duration ratio, approach/departure interval, chromatic-run membership — are
+      all exactly computable in `temporal/`, so it is deterministic *given a
+      caller threshold*) · `complement` (order-preserving bijection of the two
+      chromatic complements) · `signature` (Hook) · **never `snap`** — not as
+      default, fallback, or tie-break. Offer `chromatic="rule"` applying the
+      choosing rule automatically and recording which branch fired: *(1) a
+      non-colliding enharmonic reading → use it; (2) structurally dispensable
+      (unaccented ∧ short ∧ approached and left by step ∧ not in a chromatic run)
+      → `reduce`; (3) else → `reattach`; (4) never silently snap or keep.*
     - **Drums are a deterministic exclusion**, not a heuristic: MIDI ingestion
       labels voices `t{n}c{n}`, so **channel 10 (index 9)** filters out; gap E's
       `part_profiles` can corroborate (one distinct pc, zero pitch mobility).
@@ -1550,6 +1630,106 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       mode switch changes voice-leading, so parallels/awkward leaps can appear;
       `repair_sequence` over a counterpoint ruleset is the natural post-pass (a
       satisfying use of the extract/compare/impose triad).
+    - **The impossibility result (state this in the docs — it defines the
+      feature).** *There is no correct global pitch-class→pitch-class table for a
+      modal transform.* Two short proofs: the map depends on **which degrees a
+      tone is attached to** — context, not pitch class (E♭-as-♯2-passing and
+      E♭-as-borrowed-♭3-chord-tone must map differently); and **totality and
+      locality are mutually exclusive** (a locality-preserving map is necessarily
+      *partial* wherever a step collapses; any *total* map necessarily moves some
+      tone out of its generic step). This is exactly why every surveyed DAW is
+      wrong — **they all ship a 12→12 function.** Corollary conservation law: step
+      widths sum to 12 on both sides, so **#collapsed == #opened** and the
+      chromatic complements have equal cardinality — chromatic capacity is never
+      lost, only *relocated*.
+    - **Prior art: nothing does the sophisticated version** (surveyed: Cubase
+      Scale Assistant / chord track, Melodyne, Logic Scale Quantize, Ableton Live
+      12 Scale, Bitwig, Scaler, Captain, Hookpad, music21, Humdrum, and the
+      neural style/mode-transfer literature). Two non-overlapping failure
+      families: **(A) everything touching real MIDI does nearest-neighbour
+      snapping** — which collapses distinct degrees onto one pitch and cannot
+      distinguish a borrowed chord from a wrong note (Live and Bitwig each
+      document an *arbitrary tie-break*, the tell that no design decision was
+      made); **(B) the two systems that genuinely remap by degree (Hookpad,
+      Humdrum) only work because they never represent music as absolute pitch** —
+      Hookpad's chords are natively Roman numerals a *human* authored, never
+      inferred. Both sidestep the hard problem. Inferring degree-function **and
+      rhetorical status** from an untagged performance across multiple key areas,
+      then remapping while preserving that status, would be **genuinely novel.**
+      Failure modes to design against, named: a 12→12 table · snapping anywhere,
+      including as fallback · a single global key instead of a **timeline** of key
+      areas · selection/clip-scoped key state · arbitrary tie-breaks · scale-lock
+      fighting deliberate chromaticism · destructive in-place transformation ·
+      silently transforming unpitched material.
+    - **Terminology (get this right in the API).** It is **NOT a Lewin GIS
+      transformation** — saying so would be an error (a GIS's interval group acts
+      uniformly; a mode switch changes the *specific* interval for a fixed
+      *generic* one). The precise statement: **the identity on the generic GIS
+      (ℤ₇ of scale steps) composed with two different embeddings into the specific
+      space (ℤ₁₂)**. Organizing vocabulary: **generic vs. specific interval**
+      (Clough & Myerson 1985) · **interscalar transposition** (Hook — our case is
+      the index-0, tonic-anchored one; the best formal name for the primitive) ·
+      **signature transformation** (Hook) · **maximal evenness / well-formedness**
+      (Clough & Douthett; Carey–Clampitt — the source of the reattachment
+      guarantee) · **modal mixture** (defined at *chord* grain only — there is **no
+      standard term** for recasting a whole piece's native mode; say so plainly
+      rather than implying a canonical object). PLR/neo-Riemannian `P` *is* this
+      operation at single-triad grain — but PLR is defined only on triads, so
+      **no PLR image exists for a passing tone**; use it for the harmonic skeleton,
+      never stretch it to melody. Names: `remap_by_degree()` / `InterscalarMap` for
+      the primitive, `modal_transform()` for the feature (never `convert_to_minor`
+      — that implies a musical outcome we cannot guarantee), and **ship
+      `retonicize()` alongside** (fix the collection, move the tonic — the folk
+      operation, cheap and exactly defined; users *will* conflate the two).
+      Preconditions: equal cardinality (**error**, no default) and a **declared**
+      degree correspondence (tonic-anchored default).
+    - **Architecture: `analyze → plan → apply`.** The plan is a **serializable,
+      inspectable, editable list of typed decisions** — one per transformed event,
+      carrying source coordinates, chosen resolution, markedness before/after,
+      evidence, and alternatives-not-taken. This buys options-exposed, refuses-to-
+      guess (`UNRESOLVED` decisions sit in the plan; `apply` errors unless a policy
+      covers them), reproducibility, and — per the visual-first doctrine — a review
+      surface a human can judge without reading the MIDI or the code. The transform
+      must be a **pure function of (score, analysis, policy)**, never of "the
+      engine's opinion at call time", so a caller can swap in a different analysis
+      hypothesis and see the consequence. Lives **generative-side** (a `transform/`
+      module beside `search/`).
+    - **What compositional practice says about the promise: no composer
+      mechanically degree-maps.** Every real parallel-mode case surveyed is a
+      *recomposition* — Bach's five settings of "Herzlich tut mich verlangen" have
+      independently recomposed harmony and per-setting modulation targets; Mozart's
+      K.265 *minore* uses the mode switch as the occasion for new imitation and
+      suspensions; Beethoven/Brahms bundle mode switches with meter and tempo
+      changes. Specifically on fork (c): **where a passing tone's whole step
+      collapses, composers rewrite the gesture** (suspension, neighbour,
+      contrapuntal restructuring) — direct practice-level evidence *for* the
+      choosing rule and *against* snapping. So frame the output as a
+      **degree-faithful, markedness-preserving analytical hypothesis and
+      compositional first draft**, explicitly not a claim about what a composer
+      would write — and make **"this spot needs human recomposition" a first-class
+      output category, not an error**: practice says those are exactly where
+      judgment lives, so surfacing them is a *fidelity* feature.
+    - **Day-one tests the research names:** conservation (`#collapsed == #opened`,
+      equal complement cardinality, over every mode pair in the catalog) ·
+      spelling-robustness (the alteration map agrees under both enharmonic
+      readings **iff** the step survives — a free invariant) · stranding ⇔ degree
+      collision under both readings · the reattachment guarantee (every collapsed
+      step *k* has `w'(k+1) == 2`) · markedness (every `preserve_event` borrowed
+      chord's image is non-diatonic to the target home) · no-collision (the
+      degree-preserving area remap is injective).
+    - **Research follow-ons (ranked).** (1) **Corpus-verify modulation-destination
+      frequencies** — the swarm found **no published frequency table** exists; the
+      major: V≫vi>IV / minor: III>v>iv ranking is *textbook consensus only*, and
+      the DCML Beethoven / Annotated Mozart / Kostka-Payne corpora contain the data
+      but publish chord-transition and cadence stats instead. Label it consensus in
+      docs until measured. (2) Validate the choosing rule against **paired
+      repertoire** (Bach's multi-mode chorale settings, minore/maggiore variation
+      pairs) — ready-made ground truth for what composers did at a collapsed step.
+      (3) **Non-diatonic sources** — harmonic/melodic minor's 3-semitone step has
+      two interiors; the general δ formulation handles it but the reattachment
+      guarantee does **not** (adjacent semitones are possible outside well-formed
+      scales) — characterize when reattachment is unavailable. (4) Fetch
+      Goldenberg, *"When and How are Modulations Diatonic?"* (Intégral 32, 2018).
 
 ## Decisions on record (the "why", so we don't relitigate)
 
