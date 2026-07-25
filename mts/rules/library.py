@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 
-from ..io.loaders import DATA_DIR
+from ..io.loaders import DATA_DIR, resolve_named_asset
 from .schema import Ruleset, parse_ruleset
 
 _RULESETS_DIR = DATA_DIR / "rulesets"
@@ -39,7 +39,7 @@ def load_named_ruleset(name: str) -> Ruleset:
     caller-supplied one — no exceptions for being in-repo).
     """
 
-    path = _RULESETS_DIR / f"{name}.json"
+    path = resolve_named_asset(_RULESETS_DIR, name, "ruleset")
     if not path.is_file():
         known = ", ".join(list_named_rulesets()) or "(none)"
         raise ValueError(f"Unknown ruleset {name!r} (known: {known}).")

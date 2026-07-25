@@ -25,6 +25,37 @@ from ..theory.functions import (
 # works — parents[1] is the mts package dir, valid in a checkout and a wheel.
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
+
+def resolve_named_asset(directory: Path, name: str, kind: str) -> Path:
+    """Resolve ``<directory>/<name>.json``, refusing anything that escapes it.
+
+    A library *name* is a filename **stem**, never a path. Without this guard an
+    MCP tool argument becomes an arbitrary-filesystem read: ``load_named_ruleset(
+    "../../../port/pin")`` reached and parsed a file outside the library, and the
+    validator's total-error report then echoed that file's top-level keys back to
+    the caller (path traversal + content disclosure — the ~10% path-traversal
+    class in MCP's CVE record). The threat model is the MCP one: a **prompt-
+    injected model** chooses the argument, so the tool boundary is a trust
+    boundary even on a local stdio/loopback server.
+
+    Two layers, deliberately: reject separators/parent-refs up front (clear
+    error), then verify the *resolved* path is contained in *directory* — which
+    also catches symlinks and normalisation surprises the string check can't see.
+    """
+
+    if not isinstance(name, str) or not name:
+        raise ValueError(f"Unknown {kind} {name!r}: a name is required.")
+    if any(ch in name for ch in ("/", "\\", "\x00")) or name.startswith(".") or ".." in name:
+        raise ValueError(
+            f"Unknown {kind} {name!r}: names are plain library names, not paths "
+            "(no separators, parent refs, or leading dots)."
+        )
+    root = directory.resolve()
+    path = (directory / f"{name}.json").resolve()
+    if root not in path.parents:
+        raise ValueError(f"Unknown {kind} {name!r}: resolves outside the library directory.")
+    return path
+
 # Parsed base catalogs, cached per (path, mtime). Catalog objects are frozen
 # dataclasses, so sharing them across the dicts returned to callers is safe;
 # the JSON is re-read only when the file changes on disk.

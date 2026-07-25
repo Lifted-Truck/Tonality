@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 
-from ..io.loaders import DATA_DIR
+from ..io.loaders import DATA_DIR, resolve_named_asset
 from .cross_part import CrossPartPattern, parse_cross_part_pattern
 from .schema import Pattern, parse_pattern
 
@@ -37,7 +37,7 @@ def load_named_pattern(name: str) -> Pattern:
     invalid (held to the same contract as a caller-supplied pattern).
     """
 
-    path = _PATTERNS_DIR / f"{name}.json"
+    path = resolve_named_asset(_PATTERNS_DIR, name, "pattern")
     if not path.is_file():
         known = ", ".join(list_named_patterns()) or "(none)"
         raise ValueError(f"Unknown pattern {name!r} (known: {known}).")
@@ -64,7 +64,7 @@ def load_named_cross_part_pattern(name: str) -> CrossPartPattern:
     Held to the same strict contract as a caller-supplied pattern (a shipped
     schema that drifts out of the schema fails loudly)."""
 
-    path = _CROSS_PART_DIR / f"{name}.json"
+    path = resolve_named_asset(_CROSS_PART_DIR, name, "cross-part pattern")
     if not path.is_file():
         known = ", ".join(list_named_cross_part_patterns()) or "(none)"
         raise ValueError(f"Unknown cross-part pattern {name!r} (known: {known}).")
