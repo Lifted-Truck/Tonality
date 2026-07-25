@@ -1731,6 +1731,46 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       scales) — characterize when reattachment is unavailable. (4) Fetch
       Goldenberg, *"When and How are Modulations Diatonic?"* (Intégral 32, 2018).
 
+27. **MCP security hardening — the P0 posture** (added 2026-07-25 from the
+    MCP security-hardening brief, `integrations/security/`). MCP's distinctive
+    surface is that **tool metadata is executable intent** (an LLM reads it and
+    acts on it), and the tool boundary is a **trust boundary even on a local
+    stdio/loopback server** because a *prompt-injected model* chooses the
+    arguments. Audit executed, not assumed — the brief's "verify the pure-engine
+    assumption rather than rely on it" is what caught the one real finding.
+    **CLOSED:** injection audit (zero shell/eval/exec/subprocess in `mts/`) and
+    **a real path traversal + content disclosure**, found and fixed same-day —
+    `load_named_ruleset` / `load_named_pattern` / `load_named_cross_part_pattern`
+    built a path from a tool argument, so `"../../../port/pin"` reached and parsed
+    a file outside the library **and the validator's total-error report echoed
+    that file's top-level keys back to the caller** (the blind-agent "collect
+    every error" contract, excellent for repairability, is an **exfiltration
+    amplifier whenever the validated content is attacker-chosen** — a pattern
+    worth remembering). Fixed by `io.loaders.resolve_named_asset` (a library name
+    is a **stem, never a path**: reject separators/parent-refs/leading dots, then
+    verify the *resolved* path is contained in the library dir — catching symlink
+    and normalisation escapes), gated by `tests/test_mcp_path_traversal.py` (27
+    cases + a **ratchet** failing any future loader that builds `f"{name}.json"`
+    unguarded). Transport was **already green** (loopback default + the RE-4e
+    origin allowlist that 403s disallowed origins — the DNS-rebinding class).
+    **OPEN:** (a) **P0.1 tool-manifest pin** — nothing hashes tool names +
+    descriptions + schemas, so a description edit is invisible to CI: the
+    **rug-pull** surface, and the one uncovered P0. Build queued (the
+    `port/pin.json` pattern + an instruction-language lint — descriptions
+    *describe*, never *direct*); accepted friction: an intentional docstring edit
+    then needs a pin regen in the same PR. (b) per-tool **malformed-input fuzz
+    set** (unknown-field rejection is verified at the bridge; per-field
+    types/ranges are ad hoc). (c) **supply chain** — range pins only, no
+    lockfile/SBOM/dep scan. **Julian's decisions pending:** the
+    `midi_file_analysis` path policy (it takes an arbitrary path *by design* —
+    recommendation: allowlist roots via env var with an unrestricted default, so
+    hardened deployments can constrain without breaking direct use), and **do not
+    take a public registry listing until P0.1 is green** (with a listing, an
+    unreviewed description edit is precisely the rug-pull vector). Remote-only
+    items (OAuth 2.1, session model, Server Card) stay **unbuilt by decision** —
+    stdio + loopback only, no listener exists; they go live the moment a hosted
+    endpoint is contemplated, and P0 must be green first.
+
 ## Decisions on record (the "why", so we don't relitigate)
 
 1. **Build on the existing engine, don't greenfield.** The bitmask PC substrate,
