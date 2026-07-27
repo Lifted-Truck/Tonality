@@ -69,6 +69,7 @@ if __name__ == "__main__":
     # Template: the temporal entry points the ROADMAP plans to run at corpus
     # scale must stay ~linear. Add the newest scalable surface here each cycle.
     from mts.mcp.tools import _canonical_sequence
+    from mts.patterns.cross_part import CrossPartPattern, find_cross_part_pattern
     from mts.temporal import part_profiles, part_relations
 
     def _two_voice(n):
@@ -78,3 +79,25 @@ if __name__ == "__main__":
 
     report("part_profiles", _two_voice, part_profiles)
     report("part_relations", _two_voice, part_relations)
+
+    # 2026-07-27 cycle: gap E slice 4 (cross-part patterns) — newest scalable
+    # surface. Two homorhythmic voices, periodic real matches (i % 4 == 0) so
+    # the probe exercises actual binding work, not just an early-exit scan.
+    def _two_voice_pairs(n):
+        events = []
+        for i in range(n):
+            onset = i * 0.5
+            events.append([onset, 0.5, 60 - (i % 4), "a"])
+            events.append([onset, 0.5, 48 - (i % 4), "b"])
+        return _canonical_sequence(events)
+
+    _cross_part_probe_pattern = CrossPartPattern(
+        name="probe", version="1", domain="schema", pitch_level="exact",
+        alignment="homorhythmic", lines=((60, 59), (48, 47)),
+    )
+
+    report(
+        "find_cross_part_pattern",
+        _two_voice_pairs,
+        lambda seq: find_cross_part_pattern(seq, _cross_part_probe_pattern),
+    )
