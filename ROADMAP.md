@@ -1771,6 +1771,57 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     stdio + loopback only, no listener exists; they go live the moment a hosted
     endpoint is contemplated, and P0 must be green first.
 
+28. **Drum-pattern analysis — GM roles + named rhythmic patterns** (added and
+    **DELIVERED 2026-07-25**, Julian: *"derive information about drum patterns —
+    four-on-the-floor or other named identification"*). Two exact measurements
+    over a percussion part, both shipped:
+    - **Roles** — `data/gm_percussion.json` (`gm-percussion.1`, the published
+      General MIDI Level-1 percussion key map, notes 35–81, source + license
+      stamped) maps a channel-10 note to a coarse **role** (kick / snare /
+      hihat_closed / hihat_open / tom / crash / ride / clap / rim / …), so a
+      pattern is stateable as *"kick on every beat"* rather than *"note 36"*.
+      **This map was the whole blocker** — every other ingredient (groove
+      extraction, rhythmic atoms, the pattern layer, part profiles) already
+      existed. A pitch outside 35–81 has no GM meaning and is returned in
+      `unmapped_pitches`, never guessed (error-don't-guess at data grain).
+    - **Named patterns** — `data/drum_patterns/*.json` (`drum_pattern.1`):
+      four-on-the-floor · backbeat · half-time-backbeat · offbeat-hats ·
+      eighth-note-hats · tresillo-kick. Each is an **exact per-bar predicate**
+      ("this role has an onset at each of these beat positions"), matched
+      **required-only** (extra kicks don't disqualify a four-on-the-floor bar)
+      and scored as a **coverage RATE** (`bars_matched / bars_considered`) with
+      the matching bar indices itemized — never a bare boolean. **Several
+      patterns match at once and all are reported** (eighth-note hats
+      necessarily satisfy offbeat hats; the *pair* is what distinguishes them),
+      and a role that never sounds yields **no match entry at all** rather than a
+      0.0 (no evidence ≠ evidence of absence). Patterns declare their meter and
+      make **no claim** about bars in another meter.
+    `mts/temporal/drums.py` `drum_pattern_analysis(sequence, voice=)`; MCP
+    `drum_pattern_analysis` + `list`/`load_named_drum_pattern` (**69 tools**).
+    Drum selection is **deterministic**: MIDI channel 10 (voice label `…c9`); when
+    no such voice exists every voice is used and `channel_10_detected=False`, so a
+    map applied to non-percussion material is **visible rather than silent**. 18
+    tests; golden additive (3 cases); traversal-guarded like every named-asset
+    loader (#237).
+    **The genre boundary — recorded, deliberate, and asserted in a test.** The
+    module emits roles, grids and coverages and **never concludes "this is
+    house"**: genre is *not a function of a drum pattern* (four-on-the-floor spans
+    disco, house, techno and much pop), so a genre label would be fabricated
+    confidence. Three tiers were distinguished: **named-pattern identification**
+    (exact measurement — shipped); **genre AFFINITIES** as a *cited, plural,
+    ranked, versioned prior* ("patterns characteristically used in: X, Y, Z") —
+    in charter **as a prior**, a recorded follow-on gated on finding a citable
+    source worth pinning (the same sourcing question as the Forte table);
+    **genre CLASSIFICATION** ("this piece *is* deep house") — the **learned
+    sibling's job** (Decision 15), out of scope here by decision.
+    **Recorded follow-ons:** two-bar patterns (son/rumba clave — the matcher is
+    single-bar today; tresillo is the single-bar cell that ships) · velocity-aware
+    matching (ghost notes vs. accents) · microtiming/swing-aware matching (reuse
+    `extract_groove` + `analyze_swing`) · induction of drum patterns from a corpus
+    (the pattern layer's PrefixSpan follow-on, applied to the rhythm domain) ·
+    kit-map alternatives beyond GM (Addictive/Superior/BFD maps as additional
+    versioned priors, selected by `version=`).
+
 ## Decisions on record (the "why", so we don't relitigate)
 
 1. **Build on the existing engine, don't greenfield.** The bitmask PC substrate,

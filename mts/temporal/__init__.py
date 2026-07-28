@@ -24,6 +24,12 @@ from .structural_key import (
 )
 from .voice_motion import VoiceMotionResult, VoicePairMotion, voice_motion
 from .relations import PartRelation, PartRelationsResult, part_relations
+from .drums import (
+    DrumPatternAnalysis,
+    DrumPatternMatch,
+    RoleOnsets,
+    drum_pattern_analysis,
+)
 from .melodic import MelodicAnalysis, MelodicNoteAtoms, analyze_melody
 from .tolerance import CoalesceResult, DroppedEvent, coalesce
 from .groove import (
@@ -79,6 +85,10 @@ __all__ = [
     "PartRelation",
     "PartRelationsResult",
     "part_relations",
+    "DrumPatternAnalysis",
+    "DrumPatternMatch",
+    "RoleOnsets",
+    "drum_pattern_analysis",
     "MelodicAnalysis",
     "MelodicNoteAtoms",
     "analyze_melody",

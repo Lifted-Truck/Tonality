@@ -1,0 +1,9 @@
+{
+  "schema_version": "drum_pattern.1",
+  "name": "backbeat",
+  "version": "1",
+  "role": "snare",
+  "meter": [4, 4],
+  "required_beats": [1.0, 3.0],
+  "description": "Snare on beats 2 and 4 of a 4/4 bar (0-indexed 1 and 3) — the backbeat of rock, pop, soul, funk and most Anglo-American popular music. Required-only: ghost notes and fills do not disqualify."
+}

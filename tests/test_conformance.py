@@ -509,6 +509,15 @@ CASES: list[tuple[str, dict]] = [
     ),
     ("list_named_cross_part_patterns", {}),
     ("load_named_cross_part_pattern", {"name": "prinner-two-voice"}),
+    # gap 28: GM percussion roles + named drum-pattern coverage (a house beat).
+    (
+        "drum_pattern_analysis",
+        {"events": [[b * 1.0, 0.1, 36, 110, "t1c9"] for b in range(4)]
+                 + [[b + 0.5, 0.1, 42, 70, "t1c9"] for b in range(4)]
+                 + [[1.0, 0.1, 38, 100, "t1c9"], [3.0, 0.1, 38, 100, "t1c9"]]},
+    ),
+    ("list_named_drum_patterns", {}),
+    ("load_named_drum_pattern", {"name": "four-on-the-floor"}),
     # gap 23: a quota (budget) rule — gated on the measured violation RATE.
     # 4 transitions, 1 parallel fifth = 25% > the 5% budget → budgets_hold false.
     (

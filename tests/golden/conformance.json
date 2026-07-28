@@ -22050,6 +22050,278 @@
    "kwargs": {
     "events": [
      [
+      0.0,
+      0.1,
+      36,
+      110,
+      "t1c9"
+     ],
+     [
+      1.0,
+      0.1,
+      36,
+      110,
+      "t1c9"
+     ],
+     [
+      2.0,
+      0.1,
+      36,
+      110,
+      "t1c9"
+     ],
+     [
+      3.0,
+      0.1,
+      36,
+      110,
+      "t1c9"
+     ],
+     [
+      0.5,
+      0.1,
+      42,
+      70,
+      "t1c9"
+     ],
+     [
+      1.5,
+      0.1,
+      42,
+      70,
+      "t1c9"
+     ],
+     [
+      2.5,
+      0.1,
+      42,
+      70,
+      "t1c9"
+     ],
+     [
+      3.5,
+      0.1,
+      42,
+      70,
+      "t1c9"
+     ],
+     [
+      1.0,
+      0.1,
+      38,
+      100,
+      "t1c9"
+     ],
+     [
+      3.0,
+      0.1,
+      38,
+      100,
+      "t1c9"
+     ]
+    ]
+   },
+   "result": {
+    "bars_considered": 1,
+    "channel_10_detected": true,
+    "map_version": "gm-percussion.1",
+    "matches": [
+     {
+      "bars_considered": 1,
+      "bars_matched": 1,
+      "coverage": 1.0,
+      "matched_bars": [
+       0
+      ],
+      "name": "backbeat",
+      "required_beats": [
+       1.0,
+       3.0
+      ],
+      "role": "snare",
+      "version": "1"
+     },
+     {
+      "bars_considered": 1,
+      "bars_matched": 1,
+      "coverage": 1.0,
+      "matched_bars": [
+       0
+      ],
+      "name": "four-on-the-floor",
+      "required_beats": [
+       0.0,
+       1.0,
+       2.0,
+       3.0
+      ],
+      "role": "kick",
+      "version": "1"
+     },
+     {
+      "bars_considered": 1,
+      "bars_matched": 1,
+      "coverage": 1.0,
+      "matched_bars": [
+       0
+      ],
+      "name": "offbeat-hats",
+      "required_beats": [
+       0.5,
+       1.5,
+       2.5,
+       3.5
+      ],
+      "role": "hihat_closed",
+      "version": "1"
+     },
+     {
+      "bars_considered": 1,
+      "bars_matched": 0,
+      "coverage": 0.0,
+      "matched_bars": [],
+      "name": "eighth-note-hats",
+      "required_beats": [
+       0.0,
+       0.5,
+       1.0,
+       1.5,
+       2.0,
+       2.5,
+       3.0,
+       3.5
+      ],
+      "role": "hihat_closed",
+      "version": "1"
+     },
+     {
+      "bars_considered": 1,
+      "bars_matched": 0,
+      "coverage": 0.0,
+      "matched_bars": [],
+      "name": "half-time-backbeat",
+      "required_beats": [
+       2.0
+      ],
+      "role": "snare",
+      "version": "1"
+     },
+     {
+      "bars_considered": 1,
+      "bars_matched": 0,
+      "coverage": 0.0,
+      "matched_bars": [],
+      "name": "tresillo-kick",
+      "required_beats": [
+       0.0,
+       1.5,
+       3.0
+      ],
+      "role": "kick",
+      "version": "1"
+     }
+    ],
+    "roles": [
+     {
+      "beats_in_bar": [
+       0.5,
+       1.5,
+       2.5,
+       3.5
+      ],
+      "count": 4,
+      "onsets": [
+       0.5,
+       1.5,
+       2.5,
+       3.5
+      ],
+      "pitches": [
+       42
+      ],
+      "role": "hihat_closed"
+     },
+     {
+      "beats_in_bar": [
+       0.0,
+       1.0,
+       2.0,
+       3.0
+      ],
+      "count": 4,
+      "onsets": [
+       0.0,
+       1.0,
+       2.0,
+       3.0
+      ],
+      "pitches": [
+       36
+      ],
+      "role": "kick"
+     },
+     {
+      "beats_in_bar": [
+       1.0,
+       3.0
+      ],
+      "count": 2,
+      "onsets": [
+       1.0,
+       3.0
+      ],
+      "pitches": [
+       38
+      ],
+      "role": "snare"
+     }
+    ],
+    "unmapped_pitches": [],
+    "voices_analyzed": [
+     "t1c9"
+    ]
+   },
+   "tool": "drum_pattern_analysis"
+  },
+  {
+   "kwargs": {},
+   "result": [
+    "backbeat",
+    "eighth-note-hats",
+    "four-on-the-floor",
+    "half-time-backbeat",
+    "offbeat-hats",
+    "tresillo-kick"
+   ],
+   "tool": "list_named_drum_patterns"
+  },
+  {
+   "kwargs": {
+    "name": "four-on-the-floor"
+   },
+   "result": {
+    "description": "Kick on every beat of a 4/4 bar. The defining pulse of disco, house, techno and much four-to-the-floor pop/EDM. REQUIRED-ONLY: extra kicks (offbeat pickups, 16th doubles) do not disqualify a bar \u2014 the claim is that all four beats are struck, not that nothing else is.",
+    "meter": [
+     4,
+     4
+    ],
+    "name": "four-on-the-floor",
+    "required_beats": [
+     0.0,
+     1.0,
+     2.0,
+     3.0
+    ],
+    "role": "kick",
+    "schema_version": "drum_pattern.1",
+    "version": "1"
+   },
+   "tool": "load_named_drum_pattern"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
       0,
       1,
       72,
