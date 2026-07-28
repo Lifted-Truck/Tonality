@@ -654,6 +654,57 @@ def part_relations(events: list[list]) -> dict:
     return _relations(_canonical_sequence(events)).to_dict()
 
 
+def drum_pattern_analysis(events: list[list], voice: str | None = None) -> dict:
+    """Analyze a PERCUSSION part: what the kit plays, and which NAMED rhythmic
+    patterns it realizes (four-on-the-floor, backbeat, offbeat hats, tresillo…).
+    Two exact measurements, no judgment. (1) ROLES: each note is mapped through
+    the versioned General MIDI Level-1 percussion key map (`gm-percussion.1`,
+    cited) to a coarse role — kick / snare / hihat_closed / hihat_open / tom /
+    crash / ride / clap / rim / … — so a pattern reads as "kick on every beat"
+    rather than "note 36". A pitch outside GM's 35-81 range has NO drum meaning
+    and is returned in `unmapped_pitches` rather than guessed at. (2) MATCHES:
+    each shipped named pattern is an exact per-bar predicate ("this role has an
+    onset at each of these beat positions"), REQUIRED-ONLY (extra kicks do not
+    disqualify a four-on-the-floor bar), scored as a COVERAGE RATE
+    (bars_matched / bars_considered) with the matching bar indices itemized —
+    never a bare boolean, and several patterns can match at once (eighth-note
+    hats necessarily also satisfy offbeat hats; read the set). A pattern declares
+    the meter it is defined in, and bars in another meter are not considered, so
+    coverage always means "of the bars this pattern could apply to". Drum
+    selection: MIDI channel 10 (voice label ending `c9`) by default — when no
+    such voice exists every voice is used and `channel_10_detected` is false, so
+    a map applied to non-percussion material is visible rather than silent;
+    `voice` overrides. events: the canonical event form [onset_beats,
+    duration_beats, midi_note, velocity?, voice?]. Raises on an empty stream.
+    DELIBERATELY NOT A GENRE CLASSIFIER: genre is not a function of a drum
+    pattern (four-on-the-floor spans disco, house, techno and much pop), so this
+    reports patterns and evidence and never concludes "this is house" — genre
+    affinities as a cited plural prior are a recorded follow-on."""
+    from ..temporal import drum_pattern_analysis as _analyze
+
+    kwargs = {"voice": voice} if voice is not None else {}
+    return _analyze(_canonical_sequence(events), **kwargs).to_dict()
+
+
+def list_named_drum_patterns() -> list[str]:
+    """The names of the citable drum patterns shipped in the library (gap 28) —
+    e.g. 'four-on-the-floor', 'backbeat', 'tresillo-kick'. Load one with
+    load_named_drum_pattern; drum_pattern_analysis matches them all by default."""
+    from ..io.loaders import list_named_drum_patterns as _list
+
+    return _list()
+
+
+def load_named_drum_pattern(name: str) -> dict:
+    """Load a shipped drum pattern by name (see list_named_drum_patterns) as its
+    payload — {name, role, meter, required_beats, description}. Names are library
+    names, never paths (the traversal guard applies). Unknown names raise with
+    the known list."""
+    from ..io.loaders import load_named_drum_pattern as _load
+
+    return _load(name)
+
+
 def voice_pair_motion(events: list[list]) -> dict:
     """Classify how voice pairs move (parallel/similar/contrary/oblique, with
     interval evidence) for voiced events — the canonical event form [onset_beats,
@@ -1731,6 +1782,9 @@ TOOLS = (
     voice_leading_distance,
     part_profiles,
     part_relations,
+    drum_pattern_analysis,
+    list_named_drum_patterns,
+    load_named_drum_pattern,
     voice_pair_motion,
     melodic_analysis,
     rhythmic_analysis,

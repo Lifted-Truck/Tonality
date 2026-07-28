@@ -612,6 +612,95 @@ def _parse_meter_profile(payload: dict) -> "MeterProfileSet":
     )
 
 
+@dataclass(frozen=True)
+class GmPercussionMap:
+    """The GM Level-1 percussion key map as a versioned prior (gap 28).
+
+    ``role_of(midi)`` is the whole point: it turns a channel-10 note number into
+    a coarse drum ROLE ("kick", "snare", "hihat_closed"), so a rhythmic pattern
+    can be stated as "kick on every beat" rather than "note 36 on every beat".
+    A pitch outside the published 35-81 range returns ``None`` — it carries no
+    GM percussion meaning and the caller reports it unmapped rather than
+    guessing (error-don't-guess at data grain).
+    """
+
+    version: str
+    source: str
+    license: str
+    note_range: tuple[int, int]
+    roles: tuple[str, ...]
+    notes: dict[int, dict]
+
+    def role_of(self, midi: int) -> str | None:
+        entry = self.notes.get(int(midi))
+        return entry["role"] if entry else None
+
+    def name_of(self, midi: int) -> str | None:
+        entry = self.notes.get(int(midi))
+        return entry["name"] if entry else None
+
+
+def _parse_gm_percussion(payload: dict) -> "GmPercussionMap":
+    notes = {int(k): dict(v) for k, v in payload["notes"].items()}
+    roles = tuple(payload["roles"])
+    unknown = sorted({v["role"] for v in notes.values()} - set(roles))
+    if unknown:
+        raise ValueError(f"gm_percussion.json: notes use roles absent from `roles`: {unknown}")
+    lo, hi = (int(x) for x in payload["note_range"])
+    outside = sorted(n for n in notes if not lo <= n <= hi)
+    if outside:
+        raise ValueError(f"gm_percussion.json: notes outside the declared range: {outside}")
+    return GmPercussionMap(
+        version=str(payload["version"]),
+        source=str(payload.get("source", "")),
+        license=str(payload.get("license", "")),
+        note_range=(lo, hi),
+        roles=roles,
+        notes=notes,
+    )
+
+
+def load_gm_percussion(version: str | None = None) -> "GmPercussionMap":
+    """Load the versioned GM percussion key map from ``data/gm_percussion.json``."""
+    return _load_versioned(
+        "gm_percussion.json", _parse_gm_percussion,
+        kind="gm-percussion", version=version,
+        empty_message="gm_percussion.json contains no percussion maps",
+    )
+
+
+_DRUM_PATTERNS_DIR = DATA_DIR / "drum_patterns"
+
+
+def list_named_drum_patterns() -> list[str]:
+    """The names (filename stems) of every shipped drum pattern, sorted."""
+    if not _DRUM_PATTERNS_DIR.is_dir():
+        return []
+    return sorted(p.stem for p in _DRUM_PATTERNS_DIR.glob("*.json"))
+
+
+def load_named_drum_pattern(name: str) -> dict:
+    """One shipped drum pattern by name, as its validated payload dict.
+
+    Routed through :func:`resolve_named_asset` — a name is a stem, never a path
+    (the #237 traversal guard applies to every named-asset loader).
+    """
+    path = resolve_named_asset(_DRUM_PATTERNS_DIR, name, "drum pattern")
+    if not path.is_file():
+        known = ", ".join(list_named_drum_patterns()) or "(none)"
+        raise ValueError(f"Unknown drum pattern {name!r} (known: {known}).")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    for key in ("name", "role", "required_beats"):
+        if key not in payload:
+            raise ValueError(f"drum pattern {name!r} is missing required key {key!r}")
+    return payload
+
+
+def load_named_drum_patterns() -> list[dict]:
+    """Every shipped drum pattern, sorted by name (the default match library)."""
+    return [load_named_drum_pattern(n) for n in list_named_drum_patterns()]
+
+
 def load_meter_profiles(version: str | None = None) -> MeterProfileSet:
     """Load a versioned metric-profile set from ``data/meter_profiles.json``.
 
