@@ -948,9 +948,12 @@ def validate_ruleset(ruleset: dict) -> dict:
     evaluating it. Returns {"valid": bool, "errors": [...]} with every
     problem listed (unknown keys/families/fields/operators/enum values) —
     built so a blind agent can repair a translation in one round trip.
-    Vocabulary: families voice_motion / melody / rhythm; each rule has id,
-    family, optional where, exactly one of forbid/require, polarity
-    hard|soft (+weight)."""
+    Vocabulary: families voice_motion / melody / rhythm / harmony / texture;
+    each rule has id, family, optional where, exactly one of forbid/require, and
+    a polarity — hard (must hold), soft (+weight; scores, never gates), or
+    budget (+max_rate 0..1; HOLDS IFF violations/items_considered <= max_rate —
+    a frequency ceiling, e.g. "parallel fifths at most 5% of the time").
+    Call ruleset_field_manifest for the machine-readable field vocabulary."""
     from ..rules import validation_errors
 
     errors = validation_errors(ruleset)
@@ -969,7 +972,7 @@ def evaluate_ruleset(
     event form [onset_beats, duration_beats, midi_note, velocity?, voice?] —
     returning a
     ConformanceReport: per-rule violations with locations and atom evidence,
-    conformance frequencies, hard/soft rollups. Rules referencing
+    conformance frequencies, and the rollups hard_rules_hold / soft_score / budgets_hold (budgets_hold is true iff every applicable BUDGET rule is within its max_rate, None when none applied — a gating caller checks hard_rules_hold AND budgets_hold). Rules referencing
     harmony-dependent fields (nht_type, is_chord_tone) need harmony spans
     [start_beat, end_beat, [pcs]] and are reported not-applicable without
     them. HARMONY-family rules (gap B: chord succession — roman/role/degree/
@@ -1463,7 +1466,10 @@ def repair_ruleset(
     max_repairs: int = 8,
 ) -> dict:
     """GENERATIVE: conformance REPAIR — minimally edit an existing piece so a
-    ruleset's hard rules hold (the third ruleset operation: extract=induce_rules,
+    ruleset's hard rules hold AND every over-budget rule is brought back within
+    its ceiling (#230 — hard and budget both GATE; soft only scores; the search
+    reduces a budget rule's rate to its max_rate, not to zero)
+    (the third ruleset operation: extract=induce_rules,
     compare=compare_rulesets, impose=this). Slice 1+1b: re-pitch edits only (no
     rhythm/insert/delete), driven by hard VOICE-MOTION violations (fix parallel
     fifths by moving one voice's note) and hard MELODY violations (fix a melodic

@@ -241,3 +241,41 @@ def test_absent_description_defaults_to_empty_and_string_passes():
     payload = _ruleset(NO_PARALLEL_PERFECTS)
     payload["description"] = "species counterpoint, first pass"
     assert parse_ruleset(payload).description == "species counterpoint, first pass"
+
+
+# --- docs<->code ratchet for the rule VOCABULARY (#239 and its three siblings) ---
+
+def test_validate_ruleset_docstring_lists_every_family_and_polarity():
+    """The tool docstring IS the contract an agent caller reads, so it must
+    enumerate the real vocabulary.
+
+    This gate exists because one change — adding the `budget` polarity (gap 23) —
+    leaked in FOUR places: repair's gating (#230), the ROADMAP name (#231), the
+    validate/evaluate docstrings (#239), and repair_ruleset's own contract text.
+    A partial rollout reads as "shipped" while quietly doing the wrong thing on
+    the new case. Adding a family or polarity now fails here until the tool's
+    documented vocabulary catches up.
+    """
+    from mts.mcp import tools
+    from mts.rules.schema import FAMILIES, ruleset_field_manifest
+
+    doc = tools.validate_ruleset.__doc__ or ""
+    missing_families = sorted(f for f in FAMILIES if f not in doc)
+    assert not missing_families, (
+        f"validate_ruleset's docstring omits families {missing_families} — "
+        "a caller reading it would not know they are legal."
+    )
+    polarities = ruleset_field_manifest()["polarities"]
+    missing_polarities = sorted(p for p in polarities if p not in doc)
+    assert not missing_polarities, (
+        f"validate_ruleset's docstring omits polarities {missing_polarities}."
+    )
+
+
+def test_evaluate_ruleset_docstring_names_every_report_rollup():
+    """Every top-level rollup on the report must be named in the tool's contract."""
+    from mts.mcp import tools
+
+    doc = tools.evaluate_ruleset.__doc__ or ""
+    for rollup in ("hard_rules_hold", "soft_score", "budgets_hold"):
+        assert rollup in doc, f"evaluate_ruleset's docstring omits {rollup!r}"
