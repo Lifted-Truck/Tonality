@@ -1,0 +1,351 @@
+{
+ "digest": "58989398e8b28be9ebfcf52bb2f61a2527fe9e3a2120a266097990e5e294f44a",
+ "tool_count": 69,
+ "tools": [
+  {
+   "description": "Apply a GrooveTemplate to events, returning new onset+velocity timing.\nGENERATIVE (A2's first transformation). Live Groove Pool parameters:\nquantize [0,1] pre-pulls onsets toward the grid; timing scales the\ntemplate offsets (may exceed 1.0); random [0,1] adds deterministic jitter\n(REQUIRES seed when > 0 — same input + same seed → same output); velocity\nis a signed scale on the accent contour (negative reverses); amount [0,1]\nis a global multiplier on all feel. Onsets shift, durations are preserved.\ntemplate is the dict returned by extract_groove. events: the canonical event\nform [onset_beats, duration_beats, midi_note, velocity?, voice?]; the\nresult echoes velocity at index 3 (and voice at index 4 if\npresent) plus the cited parameters and what changed.",
+   "name": "apply_groove",
+   "signature": "(events: 'list[list]', template: 'dict', quantize: 'float' = 1.0, timing: 'float' = 1.0, random: 'float' = 0.0, velocity: 'float' = 1.0, amount: 'float' = 1.0, seed: 'int | None' = None, voice: 'str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Render-agnostic pitch-class clock (bracelet) descriptor: the 12 ring\npositions with the active set flagged (and scale-backdrop membership when\ntonic+scale_name give a context), plus the active set's symmetry — its\nreflection axes (pc-unit centers) and rotational order — and its interval\nvector. Register-less (spec_level \"identity_only\"); numeric only.",
+   "name": "bracelet_view",
+   "signature": "(pcs: 'list[int]', tonic: 'int | str | None' = None, scale_name: 'str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Assemble a STYLE PROFILE (Phase 4.5, gap 14 slice 2) — the one object that\nbundles a style's two halves into a versioned, portable artifact: a ruleset\n(constraints, from induce_rules / the DSL) + distributions (the sampleable\nspread, from transition_matrix) + a provenance block. Pure assembly of\nalready-built parts — nothing is re-derived. ruleset: a DSL ruleset payload\n(validated) or omitted. distributions: a list of transition_matrix payloads\n(each {state, states, counts, probabilities, ...}). provenance: a free-form\ndict naming where it came from (e.g. {'source': 'billboard-cc0', 'method':\n'induced+aggregated'}). A profile must carry at least one half; an empty\nruleset (0 rules) is treated as absent. Returns the bundled artifact\n{schema_version, name, version, description, provenance, ruleset,\ndistributions[]}, which round-trips through the loader.",
+   "name": "build_style_profile",
+   "signature": "(name: 'str', version: 'str', provenance: 'dict | None' = None, ruleset: 'dict | None' = None, distributions: 'list[dict] | None' = None, description: 'str' = '') -> 'dict'"
+  },
+  {
+   "description": "Detect cadential formulas (authentic / plagal / half / deceptive) in a\nnamed chord progression within a key — each an evidenced event (Decision 7\nshape). chords: ordered [root, quality] pairs (root = note name or pc 0-11,\nquality = a catalog name like 'maj', '7', 'min'). mode: 'major' or 'minor'\n(others return mode_supported=false — functional vocabulary is major/minor\nonly). These are formulas, not phrase-confirmed cadences: arrival-as-final\nis the strongest evidence, and a half cadence is only flagged at a final\narrival on V.",
+   "name": "cadences",
+   "signature": "(chords: 'list[list]', tonic: 'int | str', mode: 'str' = 'major') -> 'dict'"
+  },
+  {
+   "description": "Every catalog scale and chord quality that contains a pc set, at which\nroots — tightest containers first, exact matches flagged, absolute masks.\nThe reverse of chord-in-scale compatibility.",
+   "name": "catalog_containment",
+   "signature": "(pcs: 'list[int]') -> 'dict'"
+  },
+  {
+   "description": "Full identity analysis of a rooted chord (intervals, symmetry, set class, Tonnetz).",
+   "name": "chord_analysis",
+   "signature": "(root: 'int | str', quality: 'str', tonic: 'int | str | None' = None, include_inversions: 'bool' = True, include_set_class: 'bool' = True) -> 'dict'"
+  },
+  {
+   "description": "Place a rooted chord in a key: scale degrees, diatonic membership, chromatic tones.",
+   "name": "chord_in_key",
+   "signature": "(root: 'int | str', quality: 'str', tonic: 'int | str', key_name: 'str') -> 'dict'"
+  },
+  {
+   "description": "Voice-leading network over a chord vocabulary (Phase 5): nodes (each\nchord + pcs + rotational period — augmented/dim hubs stand out by their\nlow period) and undirected edges between chords whose voice-leading\ndistance is <= max_distance, each edge carrying distance, common-tone\ncount, and root interval. The render-agnostic form of the Cube-Dance\nparsimony mandala; every edge is the engine's exact voice_leading\nrelation. chords: ordered [root, quality] pairs (root = note name or pc;\nquality = a catalog name). Register-less; numeric only. (The functional\nV7->I resolution arrows are a separate directed/key-relative layer, not\nthis voice-leading graph.)",
+   "name": "chord_network",
+   "signature": "(chords: 'list[list]', max_distance: 'int' = 2) -> 'dict'"
+  },
+  {
+   "description": "Opt-in repair for performed/humanized timing BEFORE temporal analysis:\nclusters near-simultaneous onsets/offsets (within onset_window_beats of a\ncluster's earliest point) and optionally snaps to a grid. Returns the\ncleaned events plus what changed (moved count, max shift) and any events\ndropped for collapsing to zero length — losses are itemized, never\nhidden. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form). The engine never coalesces implicitly; exact input\nstays exact unless you call this.",
+   "name": "coalesce_events",
+   "signature": "(events: 'list[list]', onset_window_beats: 'float', snap_grid_beats: 'float | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Render-agnostic colour-content descriptor (Audiology brief-15): the two\nresultant vectors behind the somatic-colour wheels, as numeric data — map\neach resultant's angle → hue, focus → saturation. `interval_content` is the\nroot-blind, transposition-INVARIANT interval-colour (ic1..ic5 on a fixed\npentagon, tritone central, normalized so focus ∈ [0,1]; inversional pairs\ncollapse — maj=min, dom7=m7♭5). `fifths_centroid` is the root-aware,\ntransposition-VARIANT circle-of-fifths centroid (= f5/n: angle arg(f5), focus\n|f5|/n). The interval vector + the fixed `rim_layout` ride along. Unlike the\nclock view the rim geometry is engine-fixed (the resultant angle IS the\ndetermination). Register-less; hue/OKLCH stays the consumer's rendering.",
+   "name": "colour_content_view",
+   "signature": "(pcs: 'list[int]') -> 'dict'"
+  },
+  {
+   "description": "Union several ruleset documents (Phase 4.6 DSL) into one named, versioned\nruleset. Identical same-id rules are deduplicated; rules sharing an id but\ndiffering in definition raise (use specialize_ruleset to let one override).\nReturns the combined ruleset as a DSL document.",
+   "name": "combine_rulesets",
+   "signature": "(rulesets: 'list[dict]', name: 'str', version: 'str', description: 'str' = '') -> 'dict'"
+  },
+  {
+   "description": "Structurally diff two ruleset documents (Phase 4.6 DSL): shared_ids (same\nid + definition), conflicting_ids (same id, different definition),\nonly_in_a / only_in_b, and contradictions (rule pairs that cannot both hold\n— same family+filter+check, one forbids what the other requires).",
+   "name": "compare_rulesets",
+   "signature": "(ruleset_a: 'dict', ruleset_b: 'dict') -> 'dict'"
+  },
+  {
+   "description": "Analyze a PERCUSSION part: what the kit plays, and which NAMED rhythmic\npatterns it realizes (four-on-the-floor, backbeat, offbeat hats, tresillo…).\nTwo exact measurements, no judgment. (1) ROLES: each note is mapped through\nthe versioned General MIDI Level-1 percussion key map (`gm-percussion.1`,\ncited) to a coarse role — kick / snare / hihat_closed / hihat_open / tom /\ncrash / ride / clap / rim / … — so a pattern reads as \"kick on every beat\"\nrather than \"note 36\". A pitch outside GM's 35-81 range has NO drum meaning\nand is returned in `unmapped_pitches` rather than guessed at. (2) MATCHES:\neach shipped named pattern is an exact per-bar predicate (\"this role has an\nonset at each of these beat positions\"), REQUIRED-ONLY (extra kicks do not\ndisqualify a four-on-the-floor bar), scored as a COVERAGE RATE\n(bars_matched / bars_considered) with the matching bar indices itemized —\nnever a bare boolean, and several patterns can match at once (eighth-note\nhats necessarily also satisfy offbeat hats; read the set). A pattern declares\nthe meter it is defined in, and bars in another meter are not considered, so\ncoverage always means \"of the bars this pattern could apply to\". Drum\nselection: MIDI channel 10 (voice label ending `c9`) by default — when no\nsuch voice exists every voice is used and `channel_10_detected` is false, so\na map applied to non-percussion material is visible rather than silent;\n`voice` overrides. events: the canonical event form [onset_beats,\nduration_beats, midi_note, velocity?, voice?]. Raises on an empty stream.\nDELIBERATELY NOT A GENRE CLASSIFIER: genre is not a function of a drum\npattern (four-on-the-floor spans disco, house, techno and much pop), so this\nreports patterns and evidence and never concludes \"this is house\" — genre\naffinities as a cited plural prior are a recorded follow-on.",
+   "name": "drum_pattern_analysis",
+   "signature": "(events: 'list[list]', voice: 'str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Evaluate a ruleset (Phase 4.6 DSL) against events — the canonical\nevent form [onset_beats, duration_beats, midi_note, velocity?, voice?] —\nreturning a\nConformanceReport: per-rule violations with locations and atom evidence,\nconformance frequencies, and the rollups hard_rules_hold / soft_score / budgets_hold (budgets_hold is true iff every applicable BUDGET rule is within its max_rate, None when none applied — a gating caller checks hard_rules_hold AND budgets_hold). Rules referencing\nharmony-dependent fields (nht_type, is_chord_tone) need harmony spans\n[start_beat, end_beat, [pcs]] and are reported not-applicable without\nthem. HARMONY-family rules (gap B: chord succession — roman/role/degree/\nquality/is_diatonic/root_motion/next_role/next_roman/common_tones/\ncolor_shift/cadence) need chords=[[root, quality], ...] and key=[tonic,\nmode] (mode 'major'|'minor'); without both they are not-applicable. Set\ninclude_firings=true to ALSO get each rule's located firings (considered\nitems where it HELD). Invalid rulesets raise with the full error list (use\nvalidate_ruleset first). events may be [] for a harmony-only ruleset.",
+   "name": "evaluate_ruleset",
+   "signature": "(ruleset: 'dict', events: 'list[list]', harmony: 'list[list] | None' = None, chords: 'list[list] | None' = None, key: 'list | None' = None, include_firings: 'bool' = False) -> 'dict'"
+  },
+  {
+   "description": "Distil a GrooveTemplate from a played loop's onset timing and velocity:\nper grid slot (at base_unit_beats, e.g. 0.25 = 1/16), the signed onset\noffset (fraction of the grid unit) and velocity accent (deviation from the\nloop mean), cycled over loop_length_beats. ANALYSIS — quantized input\nyields a NULL groove (all offsets 0.0); the feel must be in the onsets to\nbe measured. Polyphony is fine (simultaneous onsets share a slot).\nloop_length_beats defaults to the sequence duration rounded to whole slots\n— pass it explicitly for a clean loop. events: the canonical event form\n[onset_beats, duration_beats, midi_note, velocity?, voice?].",
+   "name": "extract_groove",
+   "signature": "(events: 'list[list]', base_unit_beats: 'float', loop_length_beats: 'float | None' = None, voice: 'str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Find every occurrence of a CROSS-PART pattern — a schema spanning two or\nmore voices moving together (gap E slice 4; the cross-voice generalization of\nfind_pattern). Marquee case: the galant PRINNER — an upper voice descending\nscale degrees 6-5-4-3 over a 4-3-2-1 bass, homorhythmically. pattern: a\ncross_part.1 payload — {name, version, domain: 'schema', abstraction: {pitch:\n'exact'|'degree'|'contour', alignment: 'homorhythmic'}, lines: [[...], [...]]}\nwhere lines are element-sequences in REGISTER ORDER high→low (same pitch level\nand length). Matched EXACTLY under the declared abstraction: exact = MIDI ints;\ndegree = scale degrees 1..7 (REQUIRES key=[tonic, mode], major/minor — never\ninferred: error, don't guess); contour = 'up'/'down'/'same'. alignment\n'homorhythmic' = the voices share every onset over the matched window (strict —\nno voice onsets alone), the cross-part analog of the melody 'free' time level\n(any spacing, but moving together); offset/imitative (call-and-response) is the\nrecorded slice-4b follow-on. The matcher pairs any co-onset single-pitch voices\nBY REGISTER (line 0 = highest-sounding), not by label — a schema is register-\nrelative. events: the canonical event form [onset_beats, duration_beats,\nmidi_note, velocity?, voice?]; chordal (non-linearizable) voices are skipped\nand named; overlapping occurrences all reported. Returns {pattern_name,\npattern_version, pitch_level, alignment, key, count, occurrences: [{voices,\nstart_beat, end_beat, onsets, lines: [{midis, degrees, moves}]}],\nvoices_skipped}. See list_named_cross_part_patterns for the shipped library.",
+   "name": "find_cross_part_pattern",
+   "signature": "(pattern: 'dict', events: 'list[list]', key: 'list | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Find every occurrence of a melodic PATTERN in a note stream (gap C: rules\nsay what's forbidden/required, patterns say what's CHARACTERISTIC — motifs,\nschemata). pattern: a pattern.1 payload — {name, version, domain: 'melody',\nabstraction: {pitch: 'exact'|'degree'|'contour', time: 'exact'|'free'},\nelements, iois?} — a sequential template with a DECLARED abstraction level\n(the identity lattice at pattern grain), matched exactly under that\ndeclaration (the lattice IS the fuzziness; no tolerance knobs). elements per\npitch level: exact = MIDI ints (transposition-sensitive quote); degree =\nscale degrees 1..7 (key-relative — REQUIRES key=[tonic, mode], major/minor;\nnever inferred: error, don't guess); contour = 'up'/'down'/'same' moves\n(shape only). time 'exact' needs iois (beats between notes); 'free' matches\nany spacing and reports the actual IOIs (the time-warp is evidence, not\nhidden). events: the canonical event form [onset_beats, duration_beats,\nmidi_note, velocity?, voice?]; occurrences are over CONTIGUOUS notes of one\nvoice line; overlapping occurrences all reported; a chordal 'line'\n(simultaneous onsets) is skipped and named in voices_skipped. voice\nrestricts to one line. Returns {pattern_name, pattern_version, pitch_level,\ntime_level, key, count, occurrences: [{voice, start_beat, end_beat, midis,\nonsets, iois, degrees, moves}], voices_skipped}. Validation is total (all\nerrors at once). See list_named_patterns for the shipped library.",
+   "name": "find_pattern",
+   "signature": "(pattern: 'dict', events: 'list[list]', key: 'list | None' = None, voice: 'str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Mine a corpus for the statistically significant compositional rules it\nfollows (Phase 4.6 induction), emitting a validated SOFT ruleset in the DSL\nplus per-rule evidence (support, confidence, leverage, Fisher p-value,\nBH-FDR q-value). Apriori frequent-pattern mining over the where-lattice\n(closed itemsets, arity cap 3) + Fisher's exact test vs an\nindependence-given-marginals null, BH-FDR at q=0.05; weights are a versioned\nscoring prior cited in the result. NOTE families ('voice_motion' | 'melody'\n| 'rhythm') read corpus: a list of pieces, each a list of [onset_beats,\nduration_beats, midi_note] (or [..., voice_label] — voices needed for\nvoice_motion). harmony: optional per-piece list of [start_beat, end_beat,\n[pcs]] spans (only melody's nht_type/is_chord_tone consult it). The HARMONY\nfamily instead reads chord_corpus: a list of pieces, each [chords, key] with\nchords=[[root, quality], ...] and key=[tonic, mode] ('major'|'minor') — it\nmines role/next_role/cadence/is_diatonic/degree/root_motion (an unknown\nchord quality raises; open-vocabulary roman/quality are a follow-on). Below\n~30 pieces the result is flagged exploratory. merge_disjunctions (default\ntrue) collapses same-(where, field) single-value rules into one `in`-rule\n(forbid ic in {0,7} rather than two forbids), re-tested with Fisher — the\nhuman-readable form; set false for the raw single-value rules. The emitted\nruleset round-trips through the validator.",
+   "name": "induce_rules",
+   "signature": "(corpus: 'list[list[list]] | None' = None, family: 'str' = 'voice_motion', harmony: 'list[list[list]] | None' = None, chord_corpus: 'list[list] | None' = None, scoring_prior: 'str | None' = None, merge_disjunctions: 'bool' = True) -> 'dict'"
+  },
+  {
+   "description": "Every structurally-valid (root, quality) naming of a pc set\n(symmetric and ambiguous sets yield several).",
+   "name": "interpretations",
+   "signature": "(pcs: 'list[int]') -> 'dict'"
+  },
+  {
+   "description": "Ranked key candidates for duration-weighted pitch-class content\n(12 weights, index = pc). All 24 candidates, scores, and the top-two margin.\nprofile_version selects the versioned key-profile set: default (None) uses\nkk-1982.1; 'tkp-cbms.1' is the opt-in Temperley-Kostka-Payne profile (better-\nbalanced for major keys / less dominant-biased — A6 brief-9). The result cites\nthe profile_version used.",
+   "name": "key_induction",
+   "signature": "(pc_weights: 'list[float]', profile_version: 'str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Local key tracking: key regions through time for a list of events —\nthe canonical event form [onset_beats, duration_beats, midi_note,\nvelocity?, voice?]. Windowed key induction (same\nversioned profiles; profile_version selects the set — default kk-1982.1,\n'tkp-cbms.1' the opt-in Temperley-Kostka-Payne alternative, A6 brief-9);\nregions carry beats+seconds extents, mean score/margin,\nand the per-window evidence. Boundary resolution is the window grid. Set\ndisambiguate_relative=true to apply the relative-major/minor tie-breaker per\nwindow (off by default): a window over a relative near-tie adopts the\ntonal-hierarchy reading instead of the bare correlation argmax — better\nrelative-key sections in the timeline; cited on the result. Set\nsmoothing=true to absorb short, low-confidence key-region blips into their\nstronger neighbour (off by default, versioned hysteresis): removes residual\nmicro-band noise on real performances; windows keep their raw argmax as\nevidence, only the region grouping is smoothed; cited via smoothing_version.\nSet key_inertia=true (off by default; A6 brief-13) to apply a continuity prior:\na deterministic Viterbi over the per-window scores with a versioned switch\npenalty (key-inertia.1, cited via inertia_version) that rewards fit + penalizes\nswitching, holding near-tie mode flips to context and cutting over-segmentation;\ncomposes with smoothing and leaves infer_key untouched.",
+   "name": "key_tracking",
+   "signature": "(events: 'list[list]', window_beats: 'float' = 8.0, hop_beats: 'float' = 2.0, bpm: 'float' = 120.0, disambiguate_relative: 'bool' = False, smoothing: 'bool' = False, profile_version: 'str | None' = None, key_inertia: 'bool' = False) -> 'dict'"
+  },
+  {
+   "description": "Render-agnostic keyboard/piano descriptor: per key — midi, pc, octave,\nblack/white topology, scale membership + degree index + tonic flag (when\ntonic+scale_name give a context; no context, no claim), and activation.\nactive_midi lights exact keys (register); active_pcs lights every octave\nof those pcs (a declared octave-invariant projection — the result's\nspec_level says which was used); both together is an error. Numeric only:\nlabels, spelling, and colors are the renderer's business.",
+   "name": "keyboard_view",
+   "signature": "(low_midi: 'int' = 48, high_midi: 'int' = 84, tonic: 'int | str | None' = None, scale_name: 'str | None' = None, active_midi: 'list[int] | None' = None, active_pcs: 'list[int] | None' = None) -> 'dict'"
+  },
+  {
+   "description": "All catalog chord qualities: name, intervals above the root, tensions, aliases.",
+   "name": "list_chord_qualities",
+   "signature": "() -> 'list[dict]'"
+  },
+  {
+   "description": "The names of the citable CROSS-PART schemata shipped in the library (gap E\nslice 4) — e.g. 'prinner-two-voice'. Load one with load_named_cross_part_pattern.",
+   "name": "list_named_cross_part_patterns",
+   "signature": "() -> 'list[str]'"
+  },
+  {
+   "description": "The names of the citable drum patterns shipped in the library (gap 28) —\ne.g. 'four-on-the-floor', 'backbeat', 'tresillo-kick'. Load one with\nload_named_drum_pattern; drum_pattern_analysis matches them all by default.",
+   "name": "list_named_drum_patterns",
+   "signature": "() -> 'list[str]'"
+  },
+  {
+   "description": "The names of the citable melodic patterns shipped in the library (gap C)\n— e.g. 'prinner-descent', 'arch-contour'. Load one with load_named_pattern.",
+   "name": "list_named_patterns",
+   "signature": "() -> 'list[str]'"
+  },
+  {
+   "description": "The names of the citable rulesets shipped in the library (gap D) —\ne.g. 'first-species-counterpoint'. Load one with load_named_ruleset.",
+   "name": "list_named_rulesets",
+   "signature": "() -> 'list[str]'"
+  },
+  {
+   "description": "All catalog scales: name, degrees (intervals above the root), aliases.",
+   "name": "list_scales",
+   "signature": "() -> 'list[dict]'"
+  },
+  {
+   "description": "Load a shipped cross-part schema by name (see list_named_cross_part_patterns)\nas a validated cross_part.1 payload — ready to feed find_cross_part_pattern.\nUnknown names raise with the known list.",
+   "name": "load_named_cross_part_pattern",
+   "signature": "(name: 'str') -> 'dict'"
+  },
+  {
+   "description": "Load a shipped drum pattern by name (see list_named_drum_patterns) as its\npayload — {name, role, meter, required_beats, description}. Names are library\nnames, never paths (the traversal guard applies). Unknown names raise with\nthe known list.",
+   "name": "load_named_drum_pattern",
+   "signature": "(name: 'str') -> 'dict'"
+  },
+  {
+   "description": "Load a shipped, citable pattern by name (see list_named_patterns) as a\nvalidated pattern.1 payload — ready to feed find_pattern, or to read/adapt.\nThe description documents scope honestly (e.g. prinner-descent notes the full\ntwo-voice Prinner needs the cross-voice scope, a recorded gap-C follow-on).\nUnknown names raise with the known list.",
+   "name": "load_named_pattern",
+   "signature": "(name: 'str') -> 'dict'"
+  },
+  {
+   "description": "Load a shipped, citable ruleset by name (see list_named_rulesets) as a\nvalidated DSL payload — ready to feed evaluate_ruleset, or to read/adapt.\nThe description documents the ruleset's scope assumptions and the rules it\ncould NOT express in the current DSL (recorded expressiveness evidence).\nUnknown names raise with the known list.",
+   "name": "load_named_ruleset",
+   "signature": "(name: 'str') -> 'dict'"
+  },
+  {
+   "description": "Melodic atoms for one monophonic line: signed intervals, step/skip/leap\nclasses, Parsons contour, ambitus, approach/departure per note — plus\nnon-harmonic-tone typing (passing, neighbor, appoggiatura, escape,\nsuspension, anticipation, pedal) when harmony is given. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form). harmony (optional): spans\n[start_beat, end_beat, [pcs]] — without it no chord-tone claims are made.",
+   "name": "melodic_analysis",
+   "signature": "(events: 'list[list]', harmony: 'list[list] | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Where a pitch wants to resolve, and how strongly — the melodic sibling\nof next_chord (gap 19). Ranked resolutions with evidence + the full 12-pc\nstability landing table, in one call.\n\nProvide EXACTLY ONE of pc (note name or 0-11) or degree (1-7, resolved\nthrough the mode's scale). mode: 'major' or 'minor'. Model: anchoring\nattraction (s_target/s_source)/d^2 with stabilities from a versioned prior\n(melodic-tendency.1 — frozen from the kk-1982.1 profiles); ti->do ranks\nstrongest by construction, stable tones barely tend anywhere. chord_pcs\nopts into chord-tone anchoring (boost cited in the prior). targets selects\nthe resolution-target policy: 'diatonic_steps' (default — scale members\nwithin a step; a leap is not a resolution) or 'chromatic_steps' (all step\nneighbors; out-of-key targets flagged in_key=false). The stability table is\nthe cited replacement for root>third hand rules; the caller owns any snap\npolicy (strengths are continuous signals, Decision 7).",
+   "name": "melodic_tendency",
+   "signature": "(pc: 'int | str | None' = None, degree: 'int | None' = None, tonic: 'int | str' = 0, mode: 'str' = 'major', chord_pcs: 'list[int | str] | None' = None, targets: 'str' = 'diatonic_steps', prior_version: 'str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Infer the time signature from note content — ranked candidate signatures\nwith scores + margin, and a declared-vs-estimated disagreement flag. Each\ncandidate's score combines bar-period autocorrelation (does the content\nrepeat each bar?) with metric-profile correlation (does the within-bar\naccent match the meter's template — distinguishing e.g. 3/4 from 6/8);\ntemplates are a versioned prior (meter-grid.1, cited). The engine NEVER\noverrides the file's meter — numerator/denominator set the declared meter\nand `agrees_with_declared` evidences against it. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form) (velocity, when\npresent, weights the accent). phase_search (default off): also search every bar phase and\nreport the top candidate's winning downbeat offset (the anacrusis / global\nphase) as `downbeat_offset_beats` — `None` when off. Raises on too few onsets\nor content with no metric information.",
+   "name": "meter_estimation",
+   "signature": "(events: 'list[list]', bpm: 'float' = 120.0, numerator: 'int' = 4, denominator: 'int' = 4, phase_search: 'bool' = False) -> 'dict'"
+  },
+  {
+   "description": "Local meter tracking: time-signature regions through time — the windowed\nform of meter_estimation, as key_tracking is to key_induction. A window\nslides over the events; each window's onset/accent content is ranked by the\nsame metric-fit method (same versioned meter-grid prior), with a per-window\nPHASE SEARCH so a window not starting on a bar line is still read correctly;\nconsecutive same-best-meter windows merge into regions (beats+seconds extents,\nmean score/margin, per-window evidence). The per-window phase search also\nreports its winning bar phase as `downbeat_offset_beats` on each window and\naggregated per region (the local anacrusis estimate). A window with too few onsets or no\ndifferential accent makes no claim (regions merge across it). Meter needs\nseveral bars of evidence, so windows default larger than key tracking's\n(window_beats 16, hop_beats 4); boundary resolution is the hop grid. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form) (velocity,\nwhen present, weights the accent). Raises if no window carries metric information.",
+   "name": "meter_tracking",
+   "signature": "(events: 'list[list]', window_beats: 'float' = 16.0, hop_beats: 'float' = 4.0, bpm: 'float' = 120.0) -> 'dict'"
+  },
+  {
+   "description": "Analyze a Standard MIDI File end-to-end: segment it, infer the global key,\nand emit the enriched dataset (per-segment identity, namings, placement).\n\nWhen infer_context is true, segment namings are conditional on the local\nkey region containing each segment's onset (the region's mean_margin\nrides on the record's context snapshot as confidence); set\nper_region_context=false for the old single-global-key conditioning.\nThe full ranked global key result is returned alongside either way.\nWhen include_key_regions is true, \"key_regions\" carries the windowed\ntracking result (null if no window carries tonal information). For\nperformed/humanized files, set coalesce_window_beats (e.g. 0.05) to\ncoalesce near-simultaneous timing before analysis — off by default, and\ncited in the result under \"coalesce\" when used (losses itemized).\nSet disambiguate_relative_keys=true to apply the relative-major/minor\ntie-breaker to both the global key context and the per-window tracking\n(off by default): better relative-key readings where correlation alone is\nweak. The global \"key\" induction is returned unchanged; when the flag is on\nthe tie-break is surfaced under \"key_disambiguation\". Set\nsmooth_key_regions=true to absorb short, low-confidence key-region blips\n(off by default; versioned hysteresis, cited on the tracking result).\nprofile_version selects the versioned key-profile set for both the global\ninduction and the per-window tracking (default kk-1982.1; 'tkp-cbms.1' the\nopt-in Temperley-Kostka-Payne alternative — better-balanced for major keys,\nA6 brief-9). Set include_meter_regions=true to also infer the LOCAL meter from\nnote content (off by default): \"meter_regions\" carries the windowed\nmeter-tracking result (time-signature regions with beats+seconds extents and\nper-window evidence; null if no window carries metric information). Inferred\nfrom onsets/accents and independent of the file's declared meter map — compare\nthem to spot a mis-tagged or changing meter.",
+   "name": "midi_file_analysis",
+   "signature": "(path: 'str', infer_context: 'bool' = True, include_key_regions: 'bool' = True, coalesce_window_beats: 'float | None' = None, per_region_context: 'bool' = True, disambiguate_relative_keys: 'bool' = False, smooth_key_regions: 'bool' = False, profile_version: 'str | None' = None, key_inertia: 'bool' = False, include_meter_regions: 'bool' = False) -> 'dict'"
+  },
+  {
+   "description": "The contextually-chosen naming of a pc set, with ranked alternatives and\nevidence. Omit tonic/key_name for intrinsic-only ranking (no key is invented);\npass realization_midi (actual sounding notes) to let the bass note weigh in.",
+   "name": "name_pcs",
+   "signature": "(pcs: 'list[int]', tonic: 'int | str | None' = None, key_name: 'str | None' = None, realization_midi: 'list[int] | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Infer the key from pc_weights, then name the pc set conditional on each\nranked key candidate, plus a key-confidence-weighted combined ranking.",
+   "name": "name_pcs_in_inferred_keys",
+   "signature": "(pcs: 'list[int]', pc_weights: 'list[float]', realization_midi: 'list[int] | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Recommend ranked candidate next chords from a current chord in a key,\neach TAGGED with succession context (Decision 7 — plural + evidenced). Tags\nspan functional-succession (dominant_resolution, descending_fifth,\nprolongation, retrogression, applied_dominant, borrowed + the cadential\nformula authentic/plagal/deceptive/half), voice-leading (smooth,\nparsimonious with P/L/R detail, chromatic_mediant, common_tone count), and a\nreported-but-unscored color_shift (DFT delta). Scoring weights are a\nversioned prior (succession.1, cited); every candidate exposes its raw axes\n(vl_distance, common_tones, root_interval, color_shift) so you can re-rank.\ncurrent: [root, quality] (root = note name or pc 0-11; quality = a catalog\nname like 'maj', '7', 'min'). mode: 'major' or 'minor' (others raise —\nfunction is not guessed). history: optional preceding [[root, quality], ...]\nfor cadential context. qualities: optional candidate-vocabulary override\n(default = core triads + sevenths). Set vl_neighbours=true to ALSO generate\nvoice-leading-neighbour candidates — chords reachable within vl_max_distance\nsemitones of total motion but outside the functional vocabulary, so chromatic\nmediants surface (tagged vl_neighbour; role/roman null when out-of-vocabulary).\nThe historical/corpus tags are a planned follow-on (ROADMAP gap 14).",
+   "name": "next_chord",
+   "signature": "(current: 'list', tonic: 'int | str', mode: 'str' = 'major', history: 'list[list] | None' = None, qualities: 'list[str] | None' = None, vl_neighbours: 'bool' = False, vl_max_distance: 'int' = 3) -> 'dict'"
+  },
+  {
+   "description": "Parse a chord expression in any supported notation.\n\nForms: interval lists \"C3[0,4,7]\" / \"[0,3,7]\", degree lists \"(1,b3,5)\",\nnote tokens \"[C,E,G]\", MIDI sets \"{60,64,67}\", catalog names \"C:min7\",\ninline alias \"=label\".",
+   "name": "parse_chord",
+   "signature": "(text: 'str') -> 'dict'"
+  },
+  {
+   "description": "Content profiles for every labeled PART in a note stream (gap E slice 1 —\nthe part-relationship/texture vocabulary; parts = voice labels, e.g. drums/\nbass/topline/harmony; MIDI ingestion seeds them per track/channel). Per part:\ncontinuous DESCRIPTIVE facts exposing how melodic/rhythmic/harmonic its\ncontent is — onset_density (distinct onsets per beat of the part's span),\nsimultaneity (mean sounding notes per onset; 1.0 = pure line, >>1 = chordal —\nthe sharpest melodic-vs-harmonic discriminator), sustain_ratio (sounding\ntime / span; percussive << 1, legato ~ 1, overlapping/pedaled > 1, raw),\npitch_mobility (mean |delta| of successive onset-group mean pitches; drums\n~ 0), register lo/hi/mean, distinct_pcs, pc_entropy_norm (0..1, duration-\nweighted). FACTS, NEVER A VERDICT: no 'kind' label is emitted — the caller\njudges what a part is from the evidence (plural/evidenced doctrine). events:\nthe canonical event form [onset_beats, duration_beats, midi_note, velocity?,\nvoice?]; unvoiced events form their own part (voice null, sorted last).\nRaises on an empty stream. Pairwise part RELATIONS (onset synchrony,\ninterlock, chord-tone support, register separation) are the recorded gap-E\nslice 2.",
+   "name": "part_profiles",
+   "signature": "(events: 'list[list]') -> 'dict'"
+  },
+  {
+   "description": "Pairwise RELATION atoms between labeled parts (gap E slice 2 — how the\nparts from part_profiles relate; e.g. does the bass double the kick, does\nthe topline outline the pad's harmony). Per unordered part pair (voice\nlabels): RHYTHMIC — an exact partition of the pair's combined onsets into\nonset_synchrony (both attack together) + interlock (one attacks into the\nother's rest; hocket/call-response) + overlap (one attacks while the other\nis held) == 1, plus groove_congruence (do they hit the same beat\nsubdivisions, even at different times) and density_ratio; PITCH —\nregister_gap_mean (signed b-a over co-sounding moments) and\nregister_crossing_rate; HARMONY — chord_tone_support_a_vs_b / _b_vs_a\n(directional: fraction of one part's onset pitches that are chord tones of\nthe other's simultaneous pitch classes — harmony-relative, never guessed);\nMOTION — motion_mix (parallel/similar/contrary/oblique tally, reusing\nvoice_pair_motion). FACTS, NEVER A VERDICT: no 'doubles'/'call-response'\nlabel — the caller judges from the atoms. A claim with no basis is null (no\nco-sounding moment → null register gap; a pair touching an unvoiced part →\nempty motion_mix), never a fabricated zero. events: the canonical event form\n[onset_beats, duration_beats, midi_note, velocity?, voice?]. Raises on fewer\nthan two parts.",
+   "name": "part_relations",
+   "signature": "(events: 'list[list]') -> 'dict'"
+  },
+  {
+   "description": "Render-ready piano-roll descriptor for a Standard MIDI File (Phase 5):\nper-note rectangles (midi/pc/voice/velocity, onset+duration in BOTH beats\nand seconds), segmented chord-region overlays with the contextually-chosen\nchord name (conditioned on the local key per onset when track_local_keys),\nand local-key backdrop bands. Chord-overlay names match midi_file_analysis\nbyte-for-byte (same builder). Set coalesce_window_beats (e.g. 0.05) to\nrepair performed timing first. Set disambiguate_relative_keys=true to apply\nthe relative-major/minor tie-breaker to the key backdrop (matches\nmidi_file_analysis under the same flag); smooth_key_regions=true absorbs\nshort low-confidence key-band blips (both off by default). Numeric only —\nlabels/colors are the renderer's business.",
+   "name": "piano_roll_view",
+   "signature": "(path: 'str', chord_overlays: 'bool' = True, track_local_keys: 'bool' = True, coalesce_window_beats: 'float | None' = None, disambiguate_relative_keys: 'bool' = False, smooth_key_regions: 'bool' = False) -> 'dict'"
+  },
+  {
+   "description": "Compact brief for a chord quality: interval fingerprint, top compatible\nscales, functional roles.",
+   "name": "quality_brief",
+   "signature": "(quality: 'str') -> 'dict'"
+  },
+  {
+   "description": "Compare two chord qualities across the scale catalog (shared scales,\nplacements, unique fits).",
+   "name": "quality_comparison",
+   "signature": "(quality_a: 'str', quality_b: 'str') -> 'dict'"
+  },
+  {
+   "description": "Register-aware minimal voice leading between two voiced chords (actual\nMIDI notes; octaves cost 12, doublings are voices), with the optimal\n[from_midi, to_midi] mapping as evidence.",
+   "name": "realized_voice_leading",
+   "signature": "(source_midi: 'list[int]', target_midi: 'list[int]') -> 'dict'"
+  },
+  {
+   "description": "Relative-major/minor tie-breaker over duration-weighted pitch-class content\n(12 weights, index = pc). Relative pairs (e.g. C major / A minor) share a\ndiatonic collection, so the KK-profile correlation in key_induction separates\nthem weakly; this applies tonal-hierarchy signals (leading-tone, tonic-triad\nand tonic salience) to choose between them, evidenced and versioned\n(rel-key.1). key_induction itself is unchanged and carried in the result as\n`induction`. `applied` is false when the top key and its relative partner are\nnot a near-tie (nothing to second-guess); `is_ambiguous` flags an honestly\ninconclusive tie-break. Positive `tiebreak_score` favors the minor reading.",
+   "name": "relative_key",
+   "signature": "(pc_weights: 'list[float]') -> 'dict'"
+  },
+  {
+   "description": "GENERATIVE: conformance REPAIR — minimally edit an existing piece so a\nruleset's hard rules hold AND every over-budget rule is brought back within\nits ceiling (#230 — hard and budget both GATE; soft only scores; the search\nreduces a budget rule's rate to its max_rate, not to zero)\n(the third ruleset operation: extract=induce_rules,\ncompare=compare_rulesets, impose=this). Slice 1+1b: re-pitch edits only (no\nrhythm/insert/delete), driven by hard VOICE-MOTION violations (fix parallel\nfifths by moving one voice's note) and hard MELODY violations (fix a melodic\ntritone by re-pitching the note or its neighbors); hard violations in other\nfamilies (rhythm is pitch-independent; harmony repair = slice-2 chord\nsubstitution) are refused honestly, never silently ignored — but\nthe oracle re-check covers the WHOLE ruleset, so an edit that fixed the\nparallels while creating a new violation is rejected. events: the canonical\nevent form [onset_beats, duration_beats, midi_note, velocity?, voice?] —\nvoiced events required (voice_motion needs voices). Repairs are ranked\nlexicographically (fewest notes edited, then total |semitone| displacement;\niterative deepening makes the edit count exactly minimal) and each carries\nits edit list with per-edit violated-rule provenance, the repaired events,\nand soft_score_after (soft score must not worsen). allowed_pcs restricts\ncandidate pitches (e.g. a scale); pitch_window bounds each edit (±semitones).\nAn unrepairable piece says so with the reason; already-conformant input\nreturns already_conformant=true. Deterministic, capped (max_edits <= 6).",
+   "name": "repair_ruleset",
+   "signature": "(ruleset: 'dict', events: 'list[list]', max_edits: 'int' = 2, pitch_window: 'int' = 7, allowed_pcs: 'list | None' = None, max_repairs: 'int' = 8) -> 'dict'"
+  },
+  {
+   "description": "Rhythmic atoms for one monophonic line: metric placement (downbeat /\nbeat / offbeat / subdivision against the felt beat — compound meters\nbeat in threes), a precise syncopation predicate (a weak onset sounding\nthrough the next stronger grid line), durations and inter-onset\nintervals. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form);\nnumerator/denominator set a constant time signature (full meter maps via\nthe library door).",
+   "name": "rhythmic_analysis",
+   "signature": "(events: 'list[list]', numerator: 'int' = 4, denominator: 'int' = 4) -> 'dict'"
+  },
+  {
+   "description": "The ruleset DSL's field vocabulary as a versioned, machine-readable\nmanifest: per atom family (voice_motion / melody / rhythm), each legal\nwhere/check field with its kind, closed value vocabulary (when an enum),\nand harmony-dependence; plus the condition operators and rule polarities.\nThe same data validate_ruleset enforces — use it to check field usage\nahead of time and stay correct as the vocabulary grows.",
+   "name": "ruleset_field_manifest",
+   "signature": "() -> 'dict'"
+  },
+  {
+   "description": "Full analysis of a scale by catalog name OR an explicit degree list.",
+   "name": "scale_analysis",
+   "signature": "(scale_name: 'str | None' = None, degrees: 'list[int] | None' = None, tonic: 'int | str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Name a pitch-class set as scales (A6 brief-20, v1 over the shipped catalog) —\nthe scale sibling of `interpretations`. Give `pcs` (pitch classes; note names\nok) OR `prime_form`. Returns {pcs, mask, cardinality, prime_form,\nprime_form_mask, interval_vector, forte_number, is_scale, rotational_period,\nnames:[{root_pc, name, aliases, tradition, source}]}. PLURAL + honest: a\nmodal-ambiguous set names at several tonics (the diatonic set is Ionian /\nDorian / … at different roots), so there is no single fabricated \"canonical\" —\npick one by root context, exactly as with `interpretations`. forte_number is\nnull (a recorded deferral — prime form is the unambiguous set-class id);\ntradition/source are provenance slots for a future vetted name corpus, empty\nin v1. Numeric identity is the boundary; spell the roots at the display edge.",
+   "name": "scale_names",
+   "signature": "(pcs: 'list[int] | None' = None, prime_form: 'list[int] | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Inverse analysis: every pitch-class-set identity satisfying a constraint\nobject, enumerated exactly over the 4096-identity universe.\n\nconstraints is {field: condition}. Scalar fields — cardinality, ic1..ic6\n(interval-vector entries), rotational_period, is_achiral,\nno_consecutive_semitones — take a literal (equality), {\"in\": [...]},\n{\"gte\": n}, or {\"lte\": n}. Float fields — df1..df6 (DFT magnitudes |f1..f6|;\ndf5 = diatonicity/fifthiness, df6 = whole-tone-ness) — are range-queried with\n{\"gte\": x} / {\"lte\": x} only. Structural fields — contains / contained_in —\ntake a pc-set matched at ANY transposition; a `contains` match reports the\nroots where the shape appears. Fields AND together. Every match also carries\nits full |f1..f6| `dft_magnitudes` spectrum, so callers can rank, not just\nfilter.\n\nDefault universe is the 223 set classes (prime forms); expand_transpositions\nwidens to every rooted image. limit caps reported matches (count stays the\ntrue total; truncated flags the cut). Invalid constraints raise ValueError\nlisting EVERY problem at once. Example: {\"cardinality\": 7, \"contains\":\n[0,4,7], \"no_consecutive_semitones\": true} — 7-note scales holding a major\ntriad with no chromatic run.",
+   "name": "search_identities",
+   "signature": "(constraints: 'dict', expand_transpositions: 'bool' = False, limit: 'int | None' = None) -> 'dict'"
+  },
+  {
+   "description": "GENERATIVE: exhaustively enumerate every registered voicing of a pc-set\ninside a MIDI window, under spacing/bass/smoothness constraints (gap 17).\n\nconstraints MUST include register: [lo, hi] (inclusive MIDI window) — the\nengine never invents a default register; bounding the space is the caller's\ngenerative choice. Optional fields: spread / top_midi (ints, full ops),\nbass_pc / top_pc (0-11), center (float, gte/lte), voicing_type (named shape\nclosed/drop2/…, needs root), no_interval_over_bass (directed pc-intervals\n1-11 forbidden above the bass), max_voice_leading (needs from_voicing).\n\nEach pc is voiced exactly once (slice 1 — no doublings). root=None searches\nvoicing TEMPLATES (registered+rootless; shape labels skipped). With\nfrom_voicing, every match carries vl_from (exact realized VL cost,\ndoubling.1) and matches come back RANKED by it; without, ordered by\n(spread, pitches). count is always the true total (limit only cuts the\nreported list; an over-large window raises with advice instead of silently\ntruncating). Invalid input raises ValueError listing EVERY problem.",
+   "name": "search_voicings",
+   "signature": "(pcs: 'list[int]', root: 'int | None' = None, constraints: 'dict | None' = None, from_voicing: 'list[int] | None' = None, limit: 'int | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Reduce a note stream to a chord stream on a metric grid (gap B slice-2a) —\nthe bridge from raw MIDI to the harmony family. events: the canonical event\nform [onset_beats, duration_beats, midi_note, velocity?, voice?]. One chord\nper metric window (a bar by default; subdivisions splits each bar into that\nmany equal windows). Within a window, pitch classes are weighted by sounding\nduration × downbeat_emphasis (notes onsetting on a downbeat count more), the\nsalient set is thresholded at min_pc_weight (fraction of the window's weighted\ncontent — drops brief non-harmonic tones), and named against the catalog in\nthe key. key (optional [tonic, mode]) fixes the key; omit to infer it once\nglobally (the result reports key_inferred + key_margin). A window that names\nNO catalog chord is returned with root_pc=null and a reason — never\nfabricated (error, not guess). Returns {tonic_pc, mode, key_inferred,\nkey_margin, spans[], chords[[root, quality], …]}; `chords` + [tonic_pc, mode]\nfeed evaluate_ruleset / induce_rules(family='harmony') directly. Honest\nlimits: single global key (no local regions yet); NHT handling is only the\nsalience threshold (no full nesting). Raises on an empty stream.",
+   "name": "segment_chords",
+   "signature": "(events: 'list[list]', key: 'list | None' = None, subdivisions: 'int' = 1, min_pc_weight: 'float' = 0.1, downbeat_emphasis: 'float' = 2.0) -> 'dict'"
+  },
+  {
+   "description": "Set-class identity of a pc set: normal order, Rahn prime form, Z-partner,\nDFT magnitudes AND phases, rotational period, trichord chirality.\n\n`rotational_period` is the smallest self-mapping transposition (12 = no\nrotational symmetry; augmented → 4, dim7 → 3 — renamed from the misleading\n`rotational_symmetry_order` 2026-06-30; value unchanged).\n\n`dft_magnitudes` (|f1..f6|) is the transposition- and inversion-invariant\ninterval-content fingerprint; `dft_phases` (arg f1..f6, radians) is NOT\ninvariant — it rotates under transposition and negates under inversion,\ncarrying the absolute-position/handedness info the magnitudes discard (colour\nhue, chirality inputs — Audiology brief-15). `trichord_chirality` is the\ninversion-odd step-gap handedness for 3-note sets (major −2 / minor +2 /\nachiral 0), null for non-trichords; `general_chirality` is the bispectrum-slice\nhandedness `Im(f1·f2·conj(f3))` that works for ANY cardinality (transposition-\ninvariant, inversion-odd; major<0 / minor>0; 0 for achiral sets; separates\ndom7 from m7♭5 — which the trichord scalar cannot — Audiology brief-15);\n`chirality_sign` (-1/0/+1) is the COMPLETE handedness — 0 **iff** the set is\nachiral, -1 for major's handedness / +1 for its mirror — the signed-chirality\nresearch result (general_chirality carries a magnitude but false-zeros on a few\nexotic classes; this never does). `chirality` is the complete signed CONTINUOUS\nscalar (Audiology brief-16) = chirality_sign · √R, R the best-fit reflection-axis\nresidual: 0 iff achiral, inversion-odd, major<0/minor>0, dom7 = -m7♭5, with a\nreal magnitude (|chirality| = √R orders sets by how chiral they are).\n`prime_form`, `prime_form_mask`, and the 12-bit `mask` are all returned.",
+   "name": "set_class_info",
+   "signature": "(pcs: 'list[int]') -> 'dict'"
+  },
+  {
+   "description": "Overlay one ruleset onto a base (Phase 4.6 DSL): same-id overlay rules\nreplace base rules (base order preserved), new overlay rules append — the\n'a style = common-practice + these overrides' move. Returns\n{ruleset_payload, overridden: [ids replaced], added: [new ids]}.",
+   "name": "specialize_ruleset",
+   "signature": "(base: 'dict', overlay: 'dict', name: 'str', version: 'str', description: 'str' = '') -> 'dict'"
+  },
+  {
+   "description": "Reduce the windowed local key track to **structural key-areas** — the\nfix for over-segmentation. The windowed `key_tracking` reports each window's\nbest-fit key, so a brief tonicization (a V/V span) reads as the dominant's\nkey; this distinguishes a **tonicization** (brief, diatonically-related\nexcursion — absorbed into the parent key and recorded as a `degree`) from a\n**modulation** (sustained/structural change — kept), via relatedness AND\n(brevity OR return) — the functional context confidence-gating lacks.\nReturns structural `areas` (each with its absorbed `tonicizations` + the\nhome key) and carries the underlying `tracking` + global key as evidence;\nthresholds are a versioned prior (structural-key.2, cited). Never overrides\nthe file's meter/key. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form). disambiguate_relative/smoothing choose the underlying local\ntrack the reduction runs on (the reduction is agnostic to either).\nanchor_method picks the home key: 'frame_weighted' (default — weights the\nopening + closing regions, the tonicization-robust home-key signal for pieces\nwhose interior repeatedly tonicizes the dominant; promoted to default after A6\nbrief-8 validated it on the full Winterreise set, a Pareto improvement) or\n'most_prevalent_region' (legacy — longest summed local duration).\nprofile_version selects the versioned key-profile set used for both the\nwindowed track and the global evidence (default kk-1982.1; 'tkp-cbms.1' opt-in,\nA6 brief-9).",
+   "name": "structural_keys",
+   "signature": "(events: 'list[list]', window_beats: 'float' = 8.0, hop_beats: 'float' = 2.0, bpm: 'float' = 120.0, disambiguate_relative: 'bool' = False, smoothing: 'bool' = False, anchor_method: 'str' = 'frame_weighted', profile_version: 'str | None' = None, key_inertia: 'bool' = False) -> 'dict'"
+  },
+  {
+   "description": "Swing-feel estimate for a monophonic line with symbolically-encoded\ntiming: measures where each two-way beat division places its interior\nonset (0.5 = straight, 2/3 = triplet swing 2:1, 0.75 = dotted shuffle\n3:1, < 0.5 = reversed) and classifies the feel under a versioned prior\ncited in the result. Raises when there are too few divisions to claim a\nfeel. events: the canonical event form [onset_beats, duration_beats, midi_note, velocity?, voice?] — velocity numeric at index 3, voice string at index 4 (a bare string at index 3 reads as the legacy voice form). NOTE:\nquantized-straight MIDI carries no swing to measure — swing must be in\nthe onsets themselves.",
+   "name": "swing_analysis",
+   "signature": "(events: 'list[list]', numerator: 'int' = 4, denominator: 'int' = 4) -> 'dict'"
+  },
+  {
+   "description": "Register-aware tonal-orientation angle of a VOICING (Audiology brief-17):\na continuous fifths-space angle that varies with voicing (inversion, spread,\ndoublings) — map angle_radians → hue for a voicing-responsive colour. Each\nsounding pitch is placed at its circle-of-fifths angle and summed with a\nregister weight (octave_decay per octave above the bass: 1.0 = uniform, <1\nweights the bass more so inversion/spread shift the angle). Reduces to the\npc-level arg(f5) for a neutral closed voicing; rotates predictably under\ntransposition. midi_notes: the sounding MIDI pitches (register-REQUIRED — a\npc-set has no voicing to orient). Hue/OKLCH stays the consumer's rendering.",
+   "name": "tonal_orientation_view",
+   "signature": "(midi_notes: 'list[int]', octave_decay: 'float' = 1.0) -> 'dict'"
+  },
+  {
+   "description": "Render-agnostic Tonnetz descriptor: all 12 pitch classes at their\ncanonical lattice coordinates (fifths/major-thirds/minor-thirds from C)\nwith the active set flagged, the P5/M3/m3 EDGES among active pcs (the lit\ntriangles a Tonnetz reads as triads), and the active centroid. Edges come\nfrom pitch-class interval (P5=5/7, M3=4/8, m3=3/9). Register-less; numeric\nonly — the renderer projects the integer coordinates to its own plane.",
+   "name": "tonnetz_view",
+   "signature": "(pcs: 'list[int]') -> 'dict'"
+  },
+  {
+   "description": "Score how well a transition distribution predicts a HELD-OUT corpus (gap 14,\nthe boundary metric). matrix: a transition_matrix payload. held_out_corpus: a\nlist of pieces, each [chords, key] (chords=[[root, quality], ...], key=[tonic,\nmode]) — fresh material the matrix was NOT built from. Returns\n{cross_entropy_bits, perplexity, scored_transitions, oov_transitions,\nn_pieces, has_zero_probability}: the mean surprisal (bits/transition, lower =\nbetter fit) over transitions whose states are in the matrix's vocabulary, and\nperplexity = 2**bits (the effective branching factor). cross_entropy_bits /\nperplexity are null when the score is infinite — a matrix that assigns ZERO\nprobability to an observed in-vocab transition (only under smoothing='none')\ncannot predict it (has_zero_probability flags this; use Laplace). Transitions\ntouching an out-of-vocabulary state are counted (oov_transitions), not scored.\nDeterministic.",
+   "name": "transition_cross_entropy",
+   "signature": "(matrix: 'dict', held_out_corpus: 'list[list]') -> 'dict'"
+  },
+  {
+   "description": "Aggregate a chord-stream corpus into a first-order degree-transition\ndistribution (Phase 4.5, gap 14) — the SAMPLEABLE half of a style profile\n(the ruleset from induce_rules is the constraint half). chord_corpus: a list\nof pieces, each [chords, key] with chords=[[root, quality], ...] and\nkey=[tonic, mode] — the same corpus induce_rules(family='harmony') reads; each\npiece contributes its consecutive within-piece state transitions. state keys\nthe matrix over the harmony-atom vocabulary: 'degree' (default — scale degrees\n1..7, non-diatonic roots bucketed 'chromatic'), 'role', 'quality', or 'roman'.\nsmoothing: 'laplace' (default — add-alpha, NO hard zeros, right for sampling a\nrare-but-possible transition) or 'none' (raw empirical, exact zeros); raw\ninteger counts are returned either way, so the caller can re-normalize. alpha\ndefaults to the versioned distribution.1 prior. source records provenance.\nReturns {state, states[], counts{}, probabilities{}, smoothing, alpha,\nprior_version, n_transitions, n_pieces, source}. An unknown chord quality\nraises (error, not guess). Deterministic.",
+   "name": "transition_matrix",
+   "signature": "(chord_corpus: 'list[list]', state: 'str' = 'degree', smoothing: 'str' = 'laplace', alpha: 'float | None' = None, source: 'str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "Strictly validate a ruleset document (the Phase 4.6 DSL) WITHOUT\nevaluating it. Returns {\"valid\": bool, \"errors\": [...]} with every\nproblem listed (unknown keys/families/fields/operators/enum values) —\nbuilt so a blind agent can repair a translation in one round trip.\nVocabulary: families voice_motion / melody / rhythm / harmony / texture;\neach rule has id, family, optional where, exactly one of forbid/require, and\na polarity — hard (must hold), soft (+weight; scores, never gates), or\nbudget (+max_rate 0..1; HOLDS IFF violations/items_considered <= max_rate —\na frequency ceiling, e.g. \"parallel fifths at most 5% of the time\").\nCall ruleset_field_manifest for the machine-readable field vocabulary.",
+   "name": "validate_ruleset",
+   "signature": "(ruleset: 'dict') -> 'dict'"
+  },
+  {
+   "description": "Minimal voice-leading distance between two pc sets, with the optimal\nvoice mapping as evidence.",
+   "name": "voice_leading_distance",
+   "signature": "(source_pcs: 'list[int]', target_pcs: 'list[int]') -> 'dict'"
+  },
+  {
+   "description": "Classify how voice pairs move (parallel/similar/contrary/oblique, with\ninterval evidence) for voiced events — the canonical event form [onset_beats,\nduration_beats, midi_note, velocity?, voice?] (voiced = the voice slot is\nset; the legacy [.., voice]-at-index-3 string form still reads). The 'which voice moved' primitive counterpoint\npredicates filter — e.g. parallel fifths = motion 'parallel' with\ninterval_class 7.",
+   "name": "voice_pair_motion",
+   "signature": "(events: 'list[list]') -> 'dict'"
+  },
+  {
+   "description": "Register-aware analysis of actual sounding notes (inversion, spacing,\nrecognized voicing type). Requires real notes — register is never invented.",
+   "name": "voicing_analysis",
+   "signature": "(midi_notes: 'list[int]', root: 'int | str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "GENERATIVE: invent candidate voicings (closed, drop-2/3, rootless, shell)\nfor a chord identity.",
+   "name": "voicing_suggestions",
+   "signature": "(root: 'int | str', quality: 'str') -> 'dict'"
+  }
+ ]
+}
