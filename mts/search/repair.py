@@ -38,6 +38,7 @@ its edit list, per-edit violated-rule provenance, and the after-report summary.
 
 from __future__ import annotations
 
+import bisect
 import dataclasses
 from collections.abc import Iterable
 
@@ -80,8 +81,24 @@ def _gate_violations(report) -> list[tuple[str, dict]]:
     return out
 
 
+def _onset_index(sequence: Sequence) -> dict:
+    """``{voice: sorted onsets}``, built ONCE per search.
+
+    Re-pitching only replaces a note's pitch (``_re_pitch``) — onsets and voices
+    are invariant — so this index is valid at *every* DFS node, not just the root.
+    Before it, ``_implicated_notes`` rescanned (and re-sorted) the whole sequence
+    once per violation per node: O(violations x events) per node, rebuilt from
+    scratch thousands of times (#238, the audit's Sec.6b scan-inside-a-loop class,
+    the same shape as #206/#214).
+    """
+    index: dict = {}
+    for event in sequence.events:
+        index.setdefault(event.voice, []).append(event.onset)
+    return {voice: sorted(onsets) for voice, onsets in index.items()}
+
+
 def _implicated_notes(
-    sequence: Sequence, violations: list[tuple[str, dict]]
+    index: dict, violations: list[tuple[str, dict]]
 ) -> dict[tuple[str | None, float], list[str]]:
     """Map each implicated note ``(voice, onset)`` to the rule_ids implicating it.
 
@@ -103,29 +120,31 @@ def _implicated_notes(
     for rule_id, location in violations:
         voices = location.get("voices")
         if voices is not None:  # voice-motion pair transition
-            beats = [location.get("from_beat"), location.get("to_beat")]
-            for event in sequence.events:
-                if event.voice not in voices:
+            beats = [b for b in (location.get("from_beat"), location.get("to_beat")) if b is not None]
+            for voice in voices:
+                line = index.get(voice)
+                if not line:
                     continue
-                if any(b is not None and abs(event.onset - b) <= _EPS for b in beats):
-                    add(event.voice, event.onset, rule_id)
+                for beat in beats:
+                    i = bisect.bisect_left(line, beat - _EPS)
+                    while i < len(line) and line[i] <= beat + _EPS:
+                        add(voice, line[i], rule_id)
+                        i += 1
             continue
         onset = location.get("onset_beats")
         if onset is None:
             continue  # unlocatable — the family scope check already refused it
         voice = location.get("voice")
-        line = sorted(
-            (e.onset for e in sequence.events if e.voice == voice),
-            key=float,
-        )
-        for i, o in enumerate(line):
-            if abs(o - onset) <= _EPS:
-                add(voice, o, rule_id)
-                if i > 0:
-                    add(voice, line[i - 1], rule_id)
-                if i + 1 < len(line):
-                    add(voice, line[i + 1], rule_id)
-                break
+        line = index.get(voice)
+        if not line:
+            continue
+        i = bisect.bisect_left(line, onset - _EPS)
+        if i < len(line) and abs(line[i] - onset) <= _EPS:
+            add(voice, line[i], rule_id)
+            if i > 0:
+                add(voice, line[i - 1], rule_id)   # melodic atoms couple neighbours
+            if i + 1 < len(line):
+                add(voice, line[i + 1], rule_id)
     return implicated
 
 
@@ -227,6 +246,7 @@ def repair_sequence(
         )
 
     midi_of = {(e.voice, e.onset): e.pitch.midi for e in sequence.events}
+    onset_index = _onset_index(sequence)  # search-invariant (#238)
 
     def candidates_for(note: tuple[str, float]) -> list[int]:
         original = midi_of[note]
@@ -267,7 +287,7 @@ def repair_sequence(
             return  # gate satisfied (or soft worsened) — either way, don't extend
         if depth_left <= 0:
             return  # depth-limited: expansion only below the current ceiling
-        implicated = _implicated_notes(seq, gate)
+        implicated = _implicated_notes(onset_index, gate)
         # RepairEdit's field is onset_beats (not Event's .onset) — this line only
         # runs when the search DEEPENS past a first edit that left hard
         # violations, a path no 1-edit fixture reaches (found live via the lab:
