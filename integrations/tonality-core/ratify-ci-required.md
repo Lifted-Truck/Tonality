@@ -35,6 +35,17 @@ port-side with an acceptance block citing the CI run.
 
 ## One thing to fold while you're in the workflow (dev-loop finding)
 
+> **SUPERSEDED IN DETAIL (2026-07-28)** — read
+> [response-linux-all-rows.md](response-linux-all-rows.md) before acting on this
+> section. The recommendation below to pin **`macos-14` is wrong**: the port
+> measured it, and macos-14 turns the *canonical* leg RED (its libm gives
+> `reflection_residual` `+0.0` where the fixture has `-0.0`). The correct pin is
+> **`macos-15`** — the fixtures come from macOS 15.3 arm64, so the libm
+> **version** is the binding constraint, not just the arch. The *hazard* this
+> section identifies (a rolling `macos-latest` can red the canonical leg on a
+> non-bug) is confirmed; only the specific image is corrected. Left unedited
+> below as the record of what was actually sent.
+
 **Pin the macOS runner to a fixed image + arch — `macos-14` (arm64), not
 `macos-latest`.** The whole contract makes macOS the canonical byte-exact
 platform, which means the byte-exact leg is now hostage to whatever libm the

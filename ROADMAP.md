@@ -3659,15 +3659,32 @@ acceptance plan: **[CPP_PORT.md](CPP_PORT.md)**.
       `test_conformance`/`test_port_pin` already apply) everywhere else;** the
       ubuntu leg is a build-from-source + tolerance portability probe. Dev-loop
       findings folded into the ratification: (a) **pin the macOS runner to a
-      fixed image+arch** (`macos-14` arm64, matching the Apple-Silicon
-      fixture origin) rather than `macos-latest`, so a GitHub image roll can't
+      fixed image+arch** rather than `macos-latest`, so a GitHub image roll can't
       red the canonical byte-exact leg on a non-bug; (b) **accepted** the port's
       offered *all-rows Linux tolerance mode* (all 4096 rows within tolerance,
       not just the one conformance row) — strictly strengthens the Linux probe
-      at no cost to the macOS guarantee; port to implement on the nod.
+      at no cost to the macOS guarantee.
+      **BOTH LANDED, with two corrections the port MEASURED (2026-07-28,
+      `response-linux-all-rows.md`; tonality-core PR #9, CI run 30413609137):**
+      (i) the pin is **`macos-15`, not the `macos-14` the ratification
+      recommended** — pinning to macos-14 turned the *canonical* leg RED (CI run
+      30413344944): its libm gives `reflection_residual` `+0.0` where the fixture
+      has `-0.0`. The fixtures come from **macOS 15.3 arm64**, so **the libm
+      VERSION is the binding constraint, not just the arch** — the ratification's
+      hazard was right, its specific fix was wrong, and the port measured rather
+      than assumed. (ii) **`dft_phases` is compared via the complex COEFFICIENT**,
+      not directly: the all-rows probe found 93 Linux phase mismatches up to 0.53
+      rad, every one at magnitude ~1e-16 — a phase is only defined where its
+      magnitude is non-zero (1504 of 4096 rows have a vanishing component), so
+      comparing phases directly asserts a **false invariant**. Crucially the
+      tolerance mode does **not weaken the gate**: integer, list-of-int and null
+      fields stay **exact in both modes** ("the tolerance is for libm's last ulp,
+      never for the combinatorics"), so Linux coverage went 1 row → **4096** while
+      parity kept its meaning.
       **Still open — Julian's one-time GitHub setting:** enable branch protection
-      on tonality-core `main` requiring the two `parity (…)` checks (an agent
-      can't flip a repo setting). Loop closes fully when that gate is on.
+      on tonality-core `main` requiring the two `parity (…)` checks — now named
+      **`parity (macos-15)` + `parity (ubuntu-latest)`** (an agent can't flip a
+      repo setting). Loop closes fully when that gate is on.
       **Deferred follow-ons:** committing the table artifact + a
       regenerate-and-diff guard if a consumer wants it checked in.
 - **Port plan drafted (2026-06-29 — [CPP_PORT.md](CPP_PORT.md), under review).**
