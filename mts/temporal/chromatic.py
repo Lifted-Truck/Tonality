@@ -77,7 +77,12 @@ from ..analysis.results import KeyCandidate
 from .harmonic_segmentation import segment_to_chords
 from .key_confirmation import confirm_key_areas
 from .sequence import Sequence
-from .structural_key import _MODE_SCALE, _diatonic_pcs, reduce_to_structural_keys
+from .structural_key import (
+    _MODE_SCALE,
+    _diatonic_pcs,
+    area_indices,
+    reduce_to_structural_keys,
+)
 
 _EPS = 1e-9
 
@@ -235,10 +240,13 @@ def classify_chromatic_events(
         if a.mode in _MODE_SCALE
     }
 
+    # One bisect pass instead of a linear area rescan per span (audit #256).
+    span_area = area_indices(result.areas, [s.start_beat for s in spans])
+
     events: list[ChromaticEvent] = []
     diatonic = 0
     for index, span in enumerate(spans):
-        area_index = _area_of(result.areas, span.start_beat)
+        area_index = span_area[index]
         if area_index is None:
             continue
         area = result.areas[area_index]
@@ -279,13 +287,6 @@ def classify_chromatic_events(
         contested_events=sum(1 for e in events if e.zone == "contested"),
         prior_version=priors.version,
     )
-
-
-def _area_of(areas, beat: float) -> int | None:
-    for i, area in enumerate(areas):
-        if area.start_beats - _EPS <= beat < area.end_beats - _EPS:
-            return i
-    return None
 
 
 def _event(
@@ -334,8 +335,13 @@ def _event(
                    f"{function_category} in the area's own key"]
         if function_category == "secondary_dominant":
             target = (span.root_pc + 5) % 12
+            # Index-walk, not `spans[index + 1:]` — the slice copied the tail of
+            # the list for every secondary dominant just to take its first
+            # element (audit #256, same family).
             following = next(
-                (s for s in spans[index + 1:] if s.root_pc != span.root_pc), None
+                (spans[j] for j in range(index + 1, len(spans))
+                 if spans[j].root_pc != span.root_pc),
+                None,
             )
             if following is not None and following.root_pc == target:
                 signals.append(

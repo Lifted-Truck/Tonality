@@ -54,7 +54,7 @@ from dataclasses import dataclass
 from ..analysis.cadence import detect_cadences
 from .harmonic_segmentation import segment_to_chords
 from .sequence import Sequence
-from .structural_key import reduce_to_structural_keys
+from .structural_key import area_indices, reduce_to_structural_keys
 
 _EPS = 1e-9
 
@@ -131,12 +131,16 @@ def confirm_key_areas(
     segmentation = segment_to_chords(sequence, subdivisions=subdivisions, session=session)
     spans = [s for s in segmentation.spans if s.root_pc is not None]
 
+    # Bucket every span into its area in one pass. Previously each area rescanned
+    # the whole span list — O(areas x spans), quadratic since both grow with the
+    # piece (audit #256).
+    inside_area: list[list] = [[] for _ in result.areas]
+    for span, index in zip(spans, area_indices(result.areas, [s.start_beat for s in spans])):
+        if index is not None:
+            inside_area[index].append(span)
+
     areas: list[AreaConfirmation] = []
-    for area in result.areas:
-        inside = [
-            s for s in spans
-            if s.start_beat >= area.start_beats - _EPS and s.start_beat < area.end_beats - _EPS
-        ]
+    for area, inside in zip(result.areas, inside_area):
         chords = [(s.root_pc, s.quality) for s in inside]
         base = dict(
             start_beats=area.start_beats,

@@ -28,6 +28,7 @@ validation corpus.
 
 from __future__ import annotations
 
+import bisect
 import dataclasses
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -308,9 +309,35 @@ def reduce_to_structural_keys(
     )
 
 
+def area_indices(areas, beats) -> list[int | None]:
+    """The index of the area containing each beat, aligned with ``beats``.
+
+    The one place areas and a time-ordered stream are joined, so the join is
+    written once and correctly. Areas are sorted and non-overlapping by
+    construction, so this is a **bisect over their start boundaries** —
+    O(len(beats) · log len(areas)) — rather than the linear rescan that both
+    gap-25 modules grew independently (audit #256, the fourth appearance of "a
+    scan inside a loop over a co-scaling collection", after #206/#214/#246).
+
+    Bisect rather than a merge sweep on purpose: a sweep would be marginally
+    faster but silently wrong if a caller ever passed an unsorted stream, and
+    this helper is meant to be reached for without re-deriving that precondition.
+    ``None`` marks a beat inside no area — the boundary convention (half-open,
+    eps-tolerant at the start) is the one both call sites already used.
+    """
+
+    starts = [a.start_beats for a in areas]
+    out: list[int | None] = []
+    for beat in beats:
+        i = bisect.bisect_right(starts, beat + _EPS) - 1
+        out.append(i if 0 <= i and beat < areas[i].end_beats - _EPS else None)
+    return out
+
+
 __all__ = [
     "Tonicization",
     "StructuralKeyArea",
     "StructuralKeyResult",
+    "area_indices",
     "reduce_to_structural_keys",
 ]
