@@ -524,6 +524,18 @@ CASES: list[tuple[str, dict]] = [
                     for i in (0, 4, 7)],
          "subdivisions": 2},
     ),
+    # gap 25 slice 2: a borrowed iv (F-A♭-C) and an applied V/V (D7→G) in C major.
+    (
+        "classify_chromatic_events",
+        {"events": [[b, 2, 60 + r + i] for b, r in
+                    ((0, 0), (2, 5), (4, 7), (6, 0)) for i in (0, 4, 7)]
+                 + [[8, 2, 65], [8, 2, 68], [8, 2, 72]]
+                 + [[10, 2, 60 + i] for i in (0, 4, 7)]
+                 + [[12, 2, 62], [12, 2, 66], [12, 2, 69], [12, 2, 72]]
+                 + [[14, 2, 67 + i] for i in (0, 4, 7)]
+                 + [[16, 2, 60 + i] for i in (0, 4, 7)],
+         "subdivisions": 2},
+    ),
     ("list_named_drum_patterns", {}),
     ("load_named_drum_pattern", {"name": "four-on-the-floor"}),
     # gap 23: a quota (budget) rule — gated on the measured violation RATE.

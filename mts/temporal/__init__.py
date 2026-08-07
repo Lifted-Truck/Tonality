@@ -29,6 +29,12 @@ from .key_confirmation import (
     KeyAreaConfirmationResult,
     confirm_key_areas,
 )
+from .chromatic import (
+    ChromaticEvent,
+    ChromaticEventResult,
+    Reading,
+    classify_chromatic_events,
+)
 from .drums import (
     DrumPatternAnalysis,
     DrumPatternMatch,
@@ -93,6 +99,10 @@ __all__ = [
     "AreaConfirmation",
     "KeyAreaConfirmationResult",
     "confirm_key_areas",
+    "ChromaticEvent",
+    "ChromaticEventResult",
+    "Reading",
+    "classify_chromatic_events",
     "DrumPatternAnalysis",
     "DrumPatternMatch",
     "RoleOnsets",
