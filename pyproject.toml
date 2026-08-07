@@ -25,7 +25,17 @@ dependencies = [
 
 [project.optional-dependencies]
 mcp = [
-    "mcp>=1.2",
+    # The `<2` ceiling is load-bearing, not caution (audit #245). The official
+    # SDK's 2.0.0 (2026-07-28) is a rework that REMOVED `mcp.server.fastmcp`,
+    # which `mts/mcp/server.py` imports — so an unbounded range resolved to 2.x
+    # and made `pip install 'mts[mcp]'` + `python -m mts.mcp` fail with a
+    # RuntimeError telling the user to install the extra they had just installed.
+    # CI never saw it: CI deliberately installs only `.[dev]` so the one
+    # server test skips. Upstream keeps the 1.x branch on critical fixes.
+    # Porting `build_server()` to the 2.x API and dropping this ceiling is a
+    # ROADMAP item; until then the ceiling is what makes the documented
+    # install actually work.
+    "mcp>=1.2,<2",
 ]
 validation = [
     # Corpus accuracy harness (validation/) — parses RomanText ground truth and

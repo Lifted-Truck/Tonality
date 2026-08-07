@@ -150,6 +150,28 @@ def test_manifest_is_deterministic():
     assert _manifest() == _manifest()
 
 
+def test_the_readme_tool_count_matches_the_live_surface():
+    """The README's plain-English count is held to the same discipline as the pin.
+
+    It drifted 57 → 69 unnoticed (audit #248) because the number next to the
+    "the golden harness pins every tool and fails CI on drift" prose had no gate
+    of its own. Prose is not the enforcement; this is.
+    """
+
+    readme = (PIN_PATH.parents[2] / "README.md").read_text()
+    live = len(tools.TOOLS)
+    claimed = sorted({
+        int(n)
+        for pattern in (r"\*\*same (\d+) tools\*\*", r"— (\d+) tools, one per")
+        for n in re.findall(pattern, readme)
+    })
+    assert claimed, "README no longer states a tool count — update this gate too."
+    assert set(claimed) == {live}, (
+        f"README claims {claimed} tools; the live surface has {live}. "
+        "Update README.md in the same PR that changes the tool set."
+    )
+
+
 def _regenerate() -> None:
     PIN_PATH.parent.mkdir(parents=True, exist_ok=True)
     manifest = _manifest()

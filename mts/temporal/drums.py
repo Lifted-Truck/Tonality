@@ -169,9 +169,21 @@ def drum_pattern_analysis(
         for role, rows in sorted(placement.items())
     ]
 
+    # Bucket each role's onsets by bar ONCE, before the per-pattern loop. Without
+    # this, `_match` rescanned every onset of a role for every bar for every
+    # pattern — O(bars x onsets x patterns), measured at growth exponent ~1.81 on
+    # a should-be-linear path (audit #246; the same shape already fixed in
+    # part_profiles #206 and part_relations #214).
+    struck: dict[str, dict[int, set[float]]] = {}
+    for role, rows in placement.items():
+        per_bar: dict[int, set[float]] = {}
+        for bar, beat_in_bar, _onset, _sig in rows:
+            per_bar.setdefault(bar, set()).add(beat_in_bar)
+        struck[role] = per_bar
+
     library = patterns if patterns is not None else _load_named_drum_patterns()
     matches = [
-        m for m in (_match(p, placement, bars, bar_meter) for p in library) if m is not None
+        m for m in (_match(p, struck, bars, bar_meter) for p in library) if m is not None
     ]
     matches.sort(key=lambda m: (-m.coverage, m.name))
 
@@ -186,12 +198,17 @@ def drum_pattern_analysis(
     )
 
 
-def _match(payload: dict, placement: dict, bars: list[int], bar_meter: dict):
-    """Coverage of one named pattern, or ``None`` when it cannot apply here."""
+def _match(payload: dict, struck: dict, bars: list[int], bar_meter: dict):
+    """Coverage of one named pattern, or ``None`` when it cannot apply here.
+
+    ``struck`` is ``{role: {bar: {beat_in_bar, …}}}``, bucketed once by the
+    caller — so a bar's lookup is O(1) here rather than a rescan of the role's
+    whole onset list (#246).
+    """
 
     role = payload["role"]
-    rows = placement.get(role)
-    if not rows or not bars:
+    per_bar = struck.get(role)
+    if not per_bar or not bars:
         return None  # the role never sounds — no claim, not a zero
     required = [float(b) for b in payload["required_beats"]]
 
@@ -204,8 +221,8 @@ def _match(payload: dict, placement: dict, bars: list[int], bar_meter: dict):
         if want and bar_meter.get(bar) != want:
             continue
         considered.append(bar)
-        struck = {bb for b, bb, _o, _s in rows if b == bar}
-        if all(any(abs(bb - r) <= _EPS for bb in struck) for r in required):
+        hits = per_bar.get(bar, ())
+        if all(any(abs(bb - r) <= _EPS for bb in hits) for r in required):
             matched.append(bar)
     if not considered:
         return None  # no bar in the pattern's meter — no claim

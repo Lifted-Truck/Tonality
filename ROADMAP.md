@@ -1908,6 +1908,24 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     (the pattern layer's PrefixSpan follow-on, applied to the rhythm domain) ·
     kit-map alternatives beyond GM (Addictive/Superior/BFD maps as additional
     versioned priors, selected by `version=`).
+29. **Port `build_server()` to the MCP SDK 2.x API** (added 2026-08-07 from audit
+    #245). The official SDK's **2.0.0** (2026-07-28) is a rework that removed
+    `mcp.server.fastmcp`, which `mts/mcp/server.py` imports — so the unbounded
+    `mcp>=1.2` range resolved to 2.x and made the *documented* install
+    (`pip install 'mts[mcp]'` → `python -m mts.mcp`) fail with a `RuntimeError`
+    telling the user to install the extra they had just installed. **The MCP
+    endpoint is this project's stated destination capability**, so a break there
+    is not peripheral. **Fixed now by pinning `mcp>=1.2,<2`** — the honest,
+    testable fix (verified: 1.29.0 resolves, `build_server()` returns a FastMCP,
+    and the server test that had *always skipped* now runs, taking the suite to
+    zero skips). The port to `MCPServer` is the follow-on that lets the ceiling
+    drop; it is deliberately **not** speculative work done blind.
+    **The blind spot is the real lesson.** CI installs only `.[dev]` — by design,
+    so the one server test skips — which means *no CI leg has ever exercised the
+    real SDK against this code*. A pinned ceiling stops today's break but not the
+    next one; closing it needs a periodic leg that installs the **current**
+    `mcp` release (a low-frequency CI job when Actions is back, or an audit-thread
+    check meanwhile). Recorded so the ceiling is not mistaken for a solution.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
@@ -3647,12 +3665,18 @@ frame, recorded here so A2/A3 decompose onto named work):**
   Candidates come from hard **voice-motion** violations' pair-transition
   locations (the four implicated notes); the **evaluator is the oracle** — every
   candidate re-evaluated over the WHOLE ruleset (an edit that fixes the
-  parallels but creates a melodic tritone is rejected), hard must hold, soft
-  must not worsen. Iterative deepening ⇒ returned edit count is exactly
+  parallels but creates a melodic tritone is rejected). **Two polarities gate:
+  hard must hold AND every budget rule must be back within its ceiling** (gap 23
+  / #230 — a budget rule's rate need only drop to `max_rate`, not to zero);
+  soft never gates, it must only not worsen. Iterative deepening ⇒ returned edit count is exactly
   minimal; ranked plural repairs each carry the edit list with per-edit
   violated-rule provenance + the repaired events. Honest refusals: hard
   violations outside voice-motion → unrepairable-in-slice-1 with rules named;
-  budget exhaustion flagged; already-conformant reported. Deterministic, capped
+  budget exhaustion flagged; `already_conformant` reported **tri-state** (#247):
+  `True` checked-and-passes · `False` fails · `None` **nothing gating was ever
+  applicable**, so there is no signal — RE-3d's "held ≠ never tested" applied one
+  layer above the evaluator, which already returned that tri-state and had it
+  discarded here. Deterministic, capped
   (`max_edits ≤ 6`, oracle-call budget). Proven on the shipped
   `first-species-counterpoint` oracle (fix the parallel fifths, 1 note,
   −1 semitone). 14 tests; golden additive (1 `repair_ruleset` case); port pin

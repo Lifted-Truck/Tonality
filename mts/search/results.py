@@ -180,9 +180,18 @@ class RepairResult:
     unrepairable piece keeps ``repairs == []`` and says why in ``reason`` —
     including the slice-1 scope refusal for non-voice-motion hard violations.
     ``budget_exhausted`` marks an incomplete search honestly.
+
+    ``already_conformant`` is **tri-state** (RE-3d applied one layer up, #247):
+    ``True`` = a gating rule was checked and the piece passes · ``False`` = it
+    fails · **``None`` = nothing gating was ever checked**, so there is no
+    signal. Before this it was a bare ``bool`` and a ruleset whose rules were all
+    *inapplicable* returned ``True``, silently conflating "held" with "never
+    tested" — the exact conflation the evaluator's own tri-state
+    ``hard_rules_hold`` was introduced to end. A gating caller must therefore
+    check ``is True``, never truthiness.
     """
 
-    already_conformant: bool
+    already_conformant: bool | None
     repairs: list[Repair]
     reason: str | None
     evaluations: int
