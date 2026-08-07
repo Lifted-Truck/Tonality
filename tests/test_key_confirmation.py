@@ -123,3 +123,49 @@ def test_mcp_parity():
     out = tools.confirm_key_areas(events=[list(e) for e in ev], subdivisions=2)
     assert "areas" in out and out["areas"]
     assert set(out["areas"][0]) >= {"tonic_pc", "mode", "confirmed", "claim_possible"}
+
+
+# --- the areas x spans join, written once (#256) --------------------------------
+
+def test_area_indices_boundary_convention():
+    """The shared join helper must keep the half-open, eps-tolerant convention
+    both gap-25 modules had independently open-coded (audit #256)."""
+    from mts.temporal.structural_key import area_indices
+
+    class A:
+        def __init__(self, s, e): self.start_beats, self.end_beats = s, e
+
+    areas = [A(0.0, 8.0), A(8.0, 16.0)]
+    #                                   ↓ within eps BELOW the 8.0 seam
+    beats = [-1.0, 0.0, 7.5, 7.999999999, 8.0, 15.5, 16.0, 99.0]
+    # The eps tolerance pulls a beat sitting a float-hair below a boundary into
+    # the LATER area — absorbing accumulated beat arithmetic so a chord meant to
+    # start the new area isn't stranded at the end of the old one. That is the
+    # convention both call sites already had; it is pinned here, not chosen here.
+    assert area_indices(areas, beats) == [None, 0, 0, 1, 1, 1, None, None]
+    assert area_indices([], [0.0, 1.0]) == [None, None]
+    assert area_indices(areas, []) == []
+
+
+def test_area_indices_is_not_a_linear_rescan():
+    """Structural gate, per AUDIT §6b: the join must not walk every area per beat.
+
+    Timing is fixture-sensitive; the shape is not. A bisect touches O(log a)
+    areas, so 10k beats over 500 areas must not cost ~5M comparisons.
+    """
+    from mts.temporal.structural_key import area_indices
+
+    class A:
+        def __init__(self, s, e):
+            self.start_beats, self.end_beats = s, e
+            A.touched = 0
+        def __getattribute__(self, name):
+            if name in ("start_beats", "end_beats"):
+                A.touched += 1
+            return object.__getattribute__(self, name)
+
+    areas = [A(i * 4.0, (i + 1) * 4.0) for i in range(500)]
+    A.touched = 0
+    area_indices(areas, [i * 0.2 for i in range(10_000)])
+    # a linear rescan averages ~250 areas/beat ⇒ millions of field reads
+    assert A.touched < 100_000, f"{A.touched} field reads — the join went linear again"

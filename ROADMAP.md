@@ -1559,6 +1559,15 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     fixture: the pivot chord draws *three* competing readings and correctly
     refuses a label. 16 tests; golden additive (1 case); the tool-manifest pin
     additive again (only `tool_count` changed); full suite **1119 passed**.
+    **Both slices made linear 2026-08-07 (audit #256).** Each module had
+    independently open-coded the areas×spans join as a linear rescan — quadratic,
+    since both collections grow with the piece. Now one shared
+    `structural_key.area_indices(areas, beats)` (a **bisect** over area starts,
+    not a merge sweep: a sweep is silently wrong on an unsorted stream, and this
+    helper is meant to be reached for without re-deriving that precondition).
+    Isolated-join exponent **1.90 → 0.98**, 28× at 1200 bars; goldens
+    **completely unchanged** and 134 old-vs-new runs byte-identical, so the join
+    was rewritten without moving any output.
     Honest limits stated in the docstring: the parallel-mode test uses the
     *natural* parallel collection (harmonic/melodic-minor mixture surfaces via
     the special-function seam instead), and every event is only as fine as the

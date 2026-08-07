@@ -150,25 +150,43 @@ def test_manifest_is_deterministic():
     assert _manifest() == _manifest()
 
 
-def test_the_readme_tool_count_matches_the_live_surface():
-    """The README's plain-English count is held to the same discipline as the pin.
+#: Docs that state the tool count as a LIVE claim about the current surface.
+#
+# The allowlist is deliberately explicit rather than a glob, because most files
+# that say "N tools" are **dated records** whose numbers are correct-as-of and
+# must NOT be rewritten: ROADMAP's per-slice delivered writeups (…**69 tools**…,
+# …**70 tools**…) chronicle what the surface was at each slice, and
+# `integrations/` + `docs/reviews/` are historical exchanges. Gating those would
+# force falsifying the record to make a test pass — the opposite of the point.
+# Adding a doc here is therefore a conscious act: it asserts "this number
+# describes the surface *now*".
+LIVE_TOOL_COUNT_DOCS = ("README.md", "INTEGRATION.md")
 
-    It drifted 57 → 69 unnoticed (audit #248) because the number next to the
-    "the golden harness pins every tool and fails CI on drift" prose had no gate
-    of its own. Prose is not the enforcement; this is.
+#: A stated count in any of the above. Kept loose (any "<n> tools") so a
+#: reworded sentence stays gated instead of silently escaping the pattern.
+_TOOL_COUNT_RE = re.compile(r"(\d+) tools")
+
+
+@pytest.mark.parametrize("doc", LIVE_TOOL_COUNT_DOCS)
+def test_live_docs_state_the_real_tool_count(doc):
+    """Every live doc's plain-English count is held to the pin's discipline.
+
+    README drifted 57 → 69 unnoticed (#248) because the number sitting next to
+    the "the golden harness pins every tool and fails CI on drift" prose had no
+    gate of its own. The first version of this gate then covered only README —
+    so INTEGRATION.md, the **consumer-facing** door that external projects read
+    to learn the surface, stayed at 46 and drifted further (#254). A gate that
+    covers one of three doors is how the worst-placed staleness survives; hence
+    the allowlist, and hence a failure message naming the file to edit.
     """
 
-    readme = (PIN_PATH.parents[2] / "README.md").read_text()
+    path = PIN_PATH.parents[2] / doc
     live = len(tools.TOOLS)
-    claimed = sorted({
-        int(n)
-        for pattern in (r"\*\*same (\d+) tools\*\*", r"— (\d+) tools, one per")
-        for n in re.findall(pattern, readme)
-    })
-    assert claimed, "README no longer states a tool count — update this gate too."
+    claimed = sorted({int(n) for n in _TOOL_COUNT_RE.findall(path.read_text())})
+    assert claimed, f"{doc} no longer states a tool count — update this gate too."
     assert set(claimed) == {live}, (
-        f"README claims {claimed} tools; the live surface has {live}. "
-        "Update README.md in the same PR that changes the tool set."
+        f"{doc} claims {claimed} tools; the live surface has {live}. "
+        f"Update {doc} in the same PR that changes the tool set."
     )
 
 
