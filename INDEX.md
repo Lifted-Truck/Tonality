@@ -13,6 +13,7 @@ Each line: `[Lxxxx] tags — one-line hook → resolves to the LIBRARY anchor`.
 
 ## Entries
 - [L0001]† `workflow,contracts` — a new MCP tool needs a conformance CASE or the total ratchet fails; regenerate goldens additively in the same PR.
+- [L0002]  `workflow,coordination` — a closing keyword binds to ONE issue; `closes #a #b` leaves #b open. Repeat the keyword per issue on sweep PRs.
 
 <!--
 Scope reminder (full rules in CLAUDE.md § Scope boundary): LIBRARY holds only
