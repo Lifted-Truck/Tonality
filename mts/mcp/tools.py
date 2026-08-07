@@ -654,6 +654,42 @@ def part_relations(events: list[list]) -> dict:
     return _relations(_canonical_sequence(events)).to_dict()
 
 
+def confirm_key_areas(events: list[list], subdivisions: int = 1) -> dict:
+    """Cadence evidence for each STRUCTURAL KEY AREA, judged in THAT AREA'S OWN KEY
+    (gap 25). Joins two things the engine already computed but never pointed at
+    each other — structural key areas (reduce_to_structural_keys) and cadence
+    detection (detect_cadences) — to ask the single strongest modulation
+    discriminator in the theory literature: does this key area contain a cadence
+    confirming its own tonic? (Open Music Theory: a tonicization does NOT
+    incorporate a cadence in the tonicized key; a modulation does.)
+
+    EVIDENCE, NEVER A VERDICT — the load-bearing distinction. A cadence-confirmed
+    area is STRONG POSITIVE evidence of a genuine modulation. An unconfirmed area
+    is NOT proof of a tonicization: it is the ABSENCE of the strongest signal,
+    much weaker than its negation, since real modulations are often confirmed by
+    other means (a sustained collection, a phrase boundary, a pedal). No field
+    ever claims "is_modulation"; committing to that label needs a caller-supplied
+    cost model or the learned sibling.
+
+    USAGE TRAP (measured): `subdivisions` sets the chord-segmentation grid, and a
+    grid COARSER than the harmonic rhythm collapses the cadential approach into
+    its arrival and hides the cadence. On chords changing every 2 beats in 4/4,
+    subdivisions=1 reported plagal-only/unconfirmed while subdivisions=2 recovered
+    the authentic cadences and confirmed both areas — same music, opposite answer.
+    Match the grid to the harmony, and treat a low chords_considered relative to an
+    area's duration as a sign the GRID produced the result, not the music.
+
+    Honest refusals: an area in a mode outside the functional vocabulary
+    (major/minor) and an area with fewer than two nameable chords both return
+    claim_possible=false with a reason, and are tallied in no_claim_areas —
+    separately from unconfirmed_areas, so absence of evidence is never counted as
+    evidence of absence. events: the canonical event form [onset_beats,
+    duration_beats, midi_note, velocity?, voice?]. Raises on an empty stream."""
+    from ..temporal import confirm_key_areas as _confirm
+
+    return _confirm(_canonical_sequence(events), subdivisions=int(subdivisions)).to_dict()
+
+
 def drum_pattern_analysis(events: list[list], voice: str | None = None) -> dict:
     """Analyze a PERCUSSION part: what the kit plays, and which NAMED rhythmic
     patterns it realizes (four-on-the-floor, backbeat, offbeat hats, tresillo…).
@@ -1788,6 +1824,7 @@ TOOLS = (
     voice_leading_distance,
     part_profiles,
     part_relations,
+    confirm_key_areas,
     drum_pattern_analysis,
     list_named_drum_patterns,
     load_named_drum_pattern,

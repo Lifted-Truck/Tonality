@@ -24,6 +24,11 @@ from .structural_key import (
 )
 from .voice_motion import VoiceMotionResult, VoicePairMotion, voice_motion
 from .relations import PartRelation, PartRelationsResult, part_relations
+from .key_confirmation import (
+    AreaConfirmation,
+    KeyAreaConfirmationResult,
+    confirm_key_areas,
+)
 from .drums import (
     DrumPatternAnalysis,
     DrumPatternMatch,
@@ -85,6 +90,9 @@ __all__ = [
     "PartRelation",
     "PartRelationsResult",
     "part_relations",
+    "AreaConfirmation",
+    "KeyAreaConfirmationResult",
+    "confirm_key_areas",
     "DrumPatternAnalysis",
     "DrumPatternMatch",
     "RoleOnsets",

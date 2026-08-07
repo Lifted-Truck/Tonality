@@ -1486,7 +1486,35 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     zone flag. **Deterministic-shippable-now slice (highest leverage, lowest
     risk): wire `detect_cadences` against each area's own key** (the disconnected
     #1 discriminator) + the interior-vs-boundary position test + `special_function`
-    into it + the zone delimiter. **Prerequisite:** sub-window borrowed chords are
+    into it + the zone delimiter.
+    **SLICE 1 DELIVERED 2026-07-29 — the cadence wiring.**
+    `mts/temporal/key_confirmation.py` `confirm_key_areas(sequence, subdivisions=)`
+    (MCP `confirm_key_areas`, **70 tools**) joins `reduce_to_structural_keys` to
+    `detect_cadences`, judging each structural area **in its own key** — the
+    discriminator that was already implemented but had never been pointed at an
+    area boundary. Per area: the cadence formulas found in *that* tonic,
+    `has_authentic` / `has_final_authentic`, `confirmed`, and a `reason`.
+    **Evidence, never a verdict:** a confirmed area is *strong positive* evidence
+    of a real modulation, but an **unconfirmed area is NOT proof of a
+    tonicization** — it is the *absence of the strongest signal*, much weaker than
+    its negation (real modulations are often confirmed by a sustained collection,
+    a phrase boundary or a pedal instead). No field claims `is_modulation`;
+    committing needs a caller cost model or the sibling (Decisions 14/15).
+    **Honest refusals tallied separately:** an area in a non-major/minor mode, or
+    with fewer than two nameable chords, returns `claim_possible=false` + a reason
+    and counts in `no_claim_areas` — never as `unconfirmed`, so absence of
+    evidence is never counted as evidence of absence.
+    **Measured usage trap, documented and tested:** `subdivisions` sets the chord
+    grid, and a grid **coarser than the harmonic rhythm** collapses the cadential
+    approach into its arrival and hides the cadence — on chords changing every 2
+    beats in 4/4, `subdivisions=1` reported *plagal-only / unconfirmed* while
+    `subdivisions=2` recovered the **authentic** cadences and confirmed both areas.
+    *Same music, opposite answer.* Match the grid to the harmony; a low
+    `chords_considered` relative to an area's duration means the **grid** produced
+    the result, not the music. 10 tests; golden additive (1 case); the tool-manifest
+    pin regenerated purely additively (its first real firing). **Remaining slice-1
+    items:** the interior-vs-boundary position test, `special_function` wiring, and
+    the confident/contested zone delimiter. **Prerequisite:** sub-window borrowed chords are
     invisible to the 8-beat structural grain — the real fix is harmonic-rhythm-aware
     segmentation (ties into gap 22's windowed-plural-chord-hearing); the first slice
     can ship on the 8-beat grid + `name_chord`'s chord flag meanwhile. Also

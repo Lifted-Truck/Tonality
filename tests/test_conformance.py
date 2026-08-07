@@ -516,6 +516,14 @@ CASES: list[tuple[str, dict]] = [
                  + [[b + 0.5, 0.1, 42, 70, "t1c9"] for b in range(4)]
                  + [[1.0, 0.1, 38, 100, "t1c9"], [3.0, 0.1, 38, 100, "t1c9"]]},
     ),
+    # gap 25: cadence-confirmed key areas (C major closing authentically).
+    (
+        "confirm_key_areas",
+        {"events": [[b, 2, 60 + r + i] for b, r in
+                    ((0, 0), (2, 5), (4, 7), (6, 0), (8, 0), (10, 5), (12, 7), (14, 0))
+                    for i in (0, 4, 7)],
+         "subdivisions": 2},
+    ),
     ("list_named_drum_patterns", {}),
     ("load_named_drum_pattern", {"name": "four-on-the-floor"}),
     # gap 23: a quota (budget) rule — gated on the measured violation RATE.

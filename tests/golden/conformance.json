@@ -22284,6 +22284,160 @@
    "tool": "drum_pattern_analysis"
   },
   {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      2,
+      60
+     ],
+     [
+      0,
+      2,
+      64
+     ],
+     [
+      0,
+      2,
+      67
+     ],
+     [
+      2,
+      2,
+      65
+     ],
+     [
+      2,
+      2,
+      69
+     ],
+     [
+      2,
+      2,
+      72
+     ],
+     [
+      4,
+      2,
+      67
+     ],
+     [
+      4,
+      2,
+      71
+     ],
+     [
+      4,
+      2,
+      74
+     ],
+     [
+      6,
+      2,
+      60
+     ],
+     [
+      6,
+      2,
+      64
+     ],
+     [
+      6,
+      2,
+      67
+     ],
+     [
+      8,
+      2,
+      60
+     ],
+     [
+      8,
+      2,
+      64
+     ],
+     [
+      8,
+      2,
+      67
+     ],
+     [
+      10,
+      2,
+      65
+     ],
+     [
+      10,
+      2,
+      69
+     ],
+     [
+      10,
+      2,
+      72
+     ],
+     [
+      12,
+      2,
+      67
+     ],
+     [
+      12,
+      2,
+      71
+     ],
+     [
+      12,
+      2,
+      74
+     ],
+     [
+      14,
+      2,
+      60
+     ],
+     [
+      14,
+      2,
+      64
+     ],
+     [
+      14,
+      2,
+      67
+     ]
+    ],
+    "subdivisions": 2
+   },
+   "result": {
+    "areas": [
+     {
+      "cadence_types": [
+       "authentic",
+       "authentic"
+      ],
+      "chords_considered": 8,
+      "claim_possible": true,
+      "confirmed": true,
+      "duration_beats": 16.0,
+      "end_beats": 16.0,
+      "has_authentic": true,
+      "has_final_authentic": true,
+      "mode": "major",
+      "reason": null,
+      "start_beats": 0.0,
+      "tonic_pc": 0
+     }
+    ],
+    "confirmed_areas": 1,
+    "home_mode": "major",
+    "home_tonic_pc": 0,
+    "no_claim_areas": 0,
+    "unconfirmed_areas": 0
+   },
+   "tool": "confirm_key_areas"
+  },
+  {
    "kwargs": {},
    "result": [
     "backbeat",
