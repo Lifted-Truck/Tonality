@@ -37,3 +37,23 @@ evidence over any stored lesson).
   confirming no existing behavior moved.
 - **falsifier:** `test_conformance.py` stops asserting total tool coverage (e.g.
   `EXCLUDED_TOOLS` is reintroduced), or the golden stops being the tool oracle.
+
+---
+
+### [L0002] GitHub closes only the issue whose number carries the keyword
+
+`tier: candidate` | `added: 2026-08-07` | `tags: workflow, coordination` | `supersedes: —`
+
+- **lesson:** A closing keyword binds to **one** issue reference. A PR titled or
+  bodied `closes #245 #246 #247 #248 #249` auto-closes **only #245** — the bare
+  numbers after it are plain links, not closers. Repeat the keyword per issue:
+  `closes #245, closes #246, …`. This matters here because the audit thread files
+  findings as issues and the dev loop routinely answers several in one sweep PR,
+  so the failure mode is a merged, genuinely-fixed sweep leaving issues open and
+  the board reading stale.
+- **evidence:** PR #252 (audit sweep, 2026-08-07) fixed and shipped #245–#249;
+  after merge only #245 was CLOSED and #246–#249 were still OPEN, closed manually
+  afterwards. The identical wording had been used on the earlier #204–#208 sweep.
+- **falsifier:** GitHub changes the linked-issue parser to accept a keyword
+  followed by a list of references (watch the docs for "linking a pull request to
+  an issue"); then a single keyword would suffice and this lesson is obsolete.
