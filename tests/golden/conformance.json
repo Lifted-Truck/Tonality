@@ -22438,6 +22438,238 @@
    "tool": "confirm_key_areas"
   },
   {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      2,
+      60
+     ],
+     [
+      0,
+      2,
+      64
+     ],
+     [
+      0,
+      2,
+      67
+     ],
+     [
+      2,
+      2,
+      65
+     ],
+     [
+      2,
+      2,
+      69
+     ],
+     [
+      2,
+      2,
+      72
+     ],
+     [
+      4,
+      2,
+      67
+     ],
+     [
+      4,
+      2,
+      71
+     ],
+     [
+      4,
+      2,
+      74
+     ],
+     [
+      6,
+      2,
+      60
+     ],
+     [
+      6,
+      2,
+      64
+     ],
+     [
+      6,
+      2,
+      67
+     ],
+     [
+      8,
+      2,
+      65
+     ],
+     [
+      8,
+      2,
+      68
+     ],
+     [
+      8,
+      2,
+      72
+     ],
+     [
+      10,
+      2,
+      60
+     ],
+     [
+      10,
+      2,
+      64
+     ],
+     [
+      10,
+      2,
+      67
+     ],
+     [
+      12,
+      2,
+      62
+     ],
+     [
+      12,
+      2,
+      66
+     ],
+     [
+      12,
+      2,
+      69
+     ],
+     [
+      12,
+      2,
+      72
+     ],
+     [
+      14,
+      2,
+      67
+     ],
+     [
+      14,
+      2,
+      71
+     ],
+     [
+      14,
+      2,
+      74
+     ],
+     [
+      16,
+      2,
+      60
+     ],
+     [
+      16,
+      2,
+      64
+     ],
+     [
+      16,
+      2,
+      67
+     ]
+    ],
+    "subdivisions": 2
+   },
+   "result": {
+    "chords_examined": 10,
+    "confident_events": 2,
+    "contested_events": 0,
+    "diatonic_chords": 8,
+    "events": [
+     {
+      "area_mode": "major",
+      "area_tonic_pc": 0,
+      "bar": 2,
+      "beats_to_boundary": null,
+      "contested_reasons": [],
+      "end_beat": 10.0,
+      "foreign_pcs": [
+       8
+      ],
+      "function_category": null,
+      "no_label_reason": null,
+      "position": "interior",
+      "quality": "min",
+      "readings": [
+       {
+        "label": "borrowed_mixture",
+        "signals": [
+         "every foreign pc [8] belongs to the parallel minor collection on the same tonic"
+        ]
+       }
+      ],
+      "root_pc": 5,
+      "single_label": "borrowed_mixture",
+      "start_beat": 8.0,
+      "zone": "confident",
+      "zone_coordinates": {
+       "area_duration_beats": 18.0,
+       "beats_to_boundary": null,
+       "boundary_threshold_beats": 2.0,
+       "floor_tolerance_beats": 2.0,
+       "min_modulation_beats": 8.0,
+       "prior_version": "structural-key.2",
+       "readings": 1
+      }
+     },
+     {
+      "area_mode": "major",
+      "area_tonic_pc": 0,
+      "bar": 3,
+      "beats_to_boundary": null,
+      "contested_reasons": [],
+      "end_beat": 14.0,
+      "foreign_pcs": [
+       6
+      ],
+      "function_category": "secondary_dominant",
+      "no_label_reason": null,
+      "position": "interior",
+      "quality": "7",
+      "readings": [
+       {
+        "label": "secondary_dominant",
+        "signals": [
+         "name_chord's special-function seam reads this chord as secondary_dominant in the area's own key",
+         "the next chord realizes the predicted resolution: root pc 7, down a fifth \u2014 a sequential test single-chord naming cannot make"
+        ]
+       }
+      ],
+      "root_pc": 2,
+      "single_label": "secondary_dominant",
+      "start_beat": 12.0,
+      "zone": "confident",
+      "zone_coordinates": {
+       "area_duration_beats": 18.0,
+       "beats_to_boundary": null,
+       "boundary_threshold_beats": 2.0,
+       "floor_tolerance_beats": 2.0,
+       "min_modulation_beats": 8.0,
+       "prior_version": "structural-key.2",
+       "readings": 1
+      }
+     }
+    ],
+    "home_mode": "major",
+    "home_tonic_pc": 0,
+    "prior_version": "structural-key.2"
+   },
+   "tool": "classify_chromatic_events"
+  },
+  {
    "kwargs": {},
    "result": [
     "backbeat",

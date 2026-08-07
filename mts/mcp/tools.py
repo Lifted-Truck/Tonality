@@ -690,6 +690,53 @@ def confirm_key_areas(events: list[list], subdivisions: int = 1) -> dict:
     return _confirm(_canonical_sequence(events), subdivisions=int(subdivisions)).to_dict()
 
 
+def classify_chromatic_events(events: list[list], subdivisions: int = 1) -> dict:
+    """Classify every chord whose notes LEAVE its structural key area — borrowed
+    chord vs applied dominant vs the seam of a key change (gap 25). Reads, never
+    re-derives, the layers that already compute the bearing signals: structural
+    key areas and their absorbed tonicizations (reduce_to_structural_keys), the
+    cadence test in each area's own key (confirm_key_areas), the chord stream
+    (segment_to_chords), and name_chord's special-function seam RE-READ IN THE
+    AREA'S OWN KEY (a chord's special function is key-relative, and segmentation
+    names every window in one global key).
+
+    PLURAL, NEVER ONE LABEL. A single-label oracle is impossible here: trained
+    analysts disagree on a real fraction of passages given the full score, and
+    full Roman-numeral analysis plateaus at ~45-52% precisely at this seam. What
+    IS computable is every bearing signal plus the BOUNDARY OF THE CONTESTED
+    BAND. So each event carries a list of readings — borrowed_mixture (all
+    foreign pcs come from the parallel mode), secondary_dominant /
+    augmented_sixth_* / neapolitan (the special-function seam; a secondary
+    dominant gains a second signal when the NEXT chord actually realizes the
+    predicted down-a-fifth resolution, a sequential test single-chord naming
+    cannot make), tonicization (inside a region the reduction already absorbed),
+    modulation (within one chord-window of a real area boundary — the piece's own
+    first and last edges are NOT seams — plus a second signal when the area
+    across it is cadence-confirmed). Readings are ordered by SIGNAL COUNT, a
+    tally of independent tests passed; it is NOT a probability.
+
+    single_label is a label ONLY when zone == "confident" AND exactly one reading
+    fired; otherwise it is null with a reason. zone is "contested" when readings
+    compete, when no reading explains the chromaticism, or when the area's
+    duration sits within tolerance of the versioned min_modulation_beats floor —
+    each named in contested_reasons, with zone_coordinates giving the measured
+    numbers beside the stated thresholds. "Genuinely ambiguous" is a ZONE here,
+    not a label: ambiguity is a statement about the evidence, not about the
+    chord, and listing it beside borrowed_mixture would let a caller reading
+    readings[0] mistake "we cannot tell" for "we can".
+
+    Limits, stated: the parallel-mode test uses the natural parallel collection,
+    so harmonic/minor-melodic mixture is not claimed as mixture (it usually
+    surfaces through the special-function seam instead); and `subdivisions` sets
+    the chord grid — the coarse-grid trap documented on confirm_key_areas applies
+    verbatim. events: the canonical event form [onset_beats, duration_beats,
+    midi_note, velocity?, voice?]. Raises on an empty stream."""
+
+    from ..temporal import classify_chromatic_events as _classify
+
+    return _classify(_canonical_sequence(events), subdivisions=int(subdivisions)).to_dict()
+
+
 def drum_pattern_analysis(events: list[list], voice: str | None = None) -> dict:
     """Analyze a PERCUSSION part: what the kit plays, and which NAMED rhythmic
     patterns it realizes (four-on-the-floor, backbeat, offbeat hats, tresillo…).
@@ -1825,6 +1872,7 @@ TOOLS = (
     part_profiles,
     part_relations,
     confirm_key_areas,
+    classify_chromatic_events,
     drum_pattern_analysis,
     list_named_drum_patterns,
     load_named_drum_pattern,

@@ -1512,9 +1512,58 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     *Same music, opposite answer.* Match the grid to the harmony; a low
     `chords_considered` relative to an area's duration means the **grid** produced
     the result, not the music. 10 tests; golden additive (1 case); the tool-manifest
-    pin regenerated purely additively (its first real firing). **Remaining slice-1
-    items:** the interior-vs-boundary position test, `special_function` wiring, and
-    the confident/contested zone delimiter. **Prerequisite:** sub-window borrowed chords are
+    pin regenerated purely additively (its first real firing).
+    **SLICE 2 DELIVERED 2026-08-07 — the composite: `classify_chromatic_events`.**
+    The three remaining slice-1 items shipped together, because they are only
+    meaningful *composed*: `mts/temporal/chromatic.py` (MCP
+    `classify_chromatic_events`, **71 tools**). **Housed in `temporal/`, not
+    `analysis/` as this gap originally wrote** — the capability reads structural
+    keys and segmentation, and `analysis/` sits *below* `temporal/`, so the
+    original placement would have inverted the layering. It **reads, never
+    re-derives**: areas + absorbed tonicizations from `reduce_to_structural_keys`,
+    the cadence test from `confirm_key_areas`, the chord stream from
+    `segment_to_chords`, and `name_chord`'s `special_function` seam **re-read in
+    the area's own key** (a chord's special function is key-relative, and the
+    segmentation names every window in one *global* key — that re-read is the
+    wiring). The reading is pinned to the chord the segmentation already named
+    (looked up among the ranked interpretations rather than taking `chosen`), so
+    re-reading can never silently rename a chord underneath the caller.
+    **Plural readings, never one label** — `borrowed_mixture` (all foreign pcs
+    from the parallel mode) · `secondary_dominant`/`augmented_sixth_*`/
+    `neapolitan` (the seam) · `tonicization` (inside a region the reduction
+    already absorbed) · `modulation` (the position test). Ordered by **signal
+    count — a tally of independent tests passed, explicitly NOT a probability**.
+    The composite's real value-add is a signal no layer below could produce: a
+    secondary dominant earns a *second* signal when the **next** chord actually
+    realizes the predicted down-a-fifth resolution — a sequential test
+    single-chord naming structurally cannot make.
+    **`single_label` is the honest refusal made mechanical:** a label only when
+    `zone == "confident"` **and** exactly one reading fired; otherwise `None` with
+    a reason naming the cost model it would take. The zone is `contested` on three
+    **stated** triggers — competing readings · no reading explains the
+    chromaticism · the area's duration sits within tolerance of the versioned
+    `min_modulation_beats` floor (so the upstream call is itself on a knife edge)
+    — each in `contested_reasons`, with `zone_coordinates` giving the measured
+    numbers beside the thresholds and citing `prior_version`. The tolerance is a
+    **policy knob** (Decision 14's λ), stated and overridable, never discovered.
+    **"Genuinely ambiguous" is a ZONE here, not a label — a deliberate departure
+    from this gap's first sketch,** which listed it beside `borrowed_mixture`:
+    ambiguity is a statement about the *evidence*, not about the chord, and
+    listing it as a peer would let a caller reading `readings[0]` mistake "we
+    cannot tell" for "we can".
+    **Measured bug, found by running it and now pinned:** scoring an area's outer
+    edges as boundaries put a spurious `modulation` reading on the opening chord
+    of every single-area piece. A seam only counts when **another area is across
+    it**; the piece's own first and last edges are not seams, and
+    `beats_to_boundary` is `None` when no seam exists. Real behaviour on a C→E♭
+    fixture: the pivot chord draws *three* competing readings and correctly
+    refuses a label. 16 tests; golden additive (1 case); the tool-manifest pin
+    additive again (only `tool_count` changed); full suite **1119 passed**.
+    Honest limits stated in the docstring: the parallel-mode test uses the
+    *natural* parallel collection (harmonic/melodic-minor mixture surfaces via
+    the special-function seam instead), and every event is only as fine as the
+    segmentation grid — the `confirm_key_areas` grid trap applies verbatim.
+    **Prerequisite:** sub-window borrowed chords are
     invisible to the 8-beat structural grain — the real fix is harmonic-rhythm-aware
     segmentation (ties into gap 22's windowed-plural-chord-hearing); the first slice
     can ship on the 8-beat grid + `name_chord`'s chord flag meanwhile. Also
