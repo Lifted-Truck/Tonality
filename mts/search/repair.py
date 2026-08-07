@@ -214,6 +214,33 @@ def repair_sequence(
         return report.soft_score >= before_soft - 1e-9
 
     if not before_gate:  # no hard violations AND every budget within its ceiling
+        # ...but "no gating violations" has two very different causes, and
+        # collapsing them is the RE-3d bug one layer up (#247): the gate is also
+        # empty when NOTHING GATING WAS EVER CHECKED. The evaluator already says
+        # so — both tri-states None means no applicable hard rule and no
+        # applicable budget rule — so pass that signal through instead of
+        # answering "conformant" about a ruleset that was never tested.
+        if before.hard_rules_hold is None and before.budgets_hold is None:
+            skipped = [
+                f"{r.rule_id} ({r.reason or 'not applicable'})"
+                for r in before.results
+                if not r.applicable and r.polarity in ("hard", "budget")
+            ]
+            detail = (
+                "no hard or budget rule was applicable to this material: "
+                + "; ".join(skipped)
+                if skipped
+                else "the ruleset declares no hard or budget rule, so nothing gates"
+            )
+            return RepairResult(
+                already_conformant=None, repairs=[], reason=(
+                    f"conformance was never tested — {detail}. 'Held' and 'never "
+                    "tested' are different answers, so this is no signal rather "
+                    "than a pass (RE-3d, #247)."
+                ),
+                evaluations=evaluations, budget_exhausted=False,
+                before_hard_violations=len(before_hard), ruleset_name=before.ruleset_name,
+            )
         return RepairResult(
             already_conformant=True, repairs=[], reason=None,
             evaluations=evaluations, budget_exhausted=False,

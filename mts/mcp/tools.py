@@ -1569,7 +1569,10 @@ def repair_ruleset(
     and soft_score_after (soft score must not worsen). allowed_pcs restricts
     candidate pitches (e.g. a scale); pitch_window bounds each edit (±semitones).
     An unrepairable piece says so with the reason; already-conformant input
-    returns already_conformant=true. Deterministic, capped (max_edits <= 6)."""
+    returns already_conformant=true. already_conformant is TRI-STATE: true =
+    checked and passes, false = fails, NULL = nothing gating was ever applicable,
+    so there is no signal — check `is true`, never truthiness, or you will read
+    "never tested" as "held". Deterministic, capped (max_edits <= 6)."""
     from ..search import repair_sequence
 
     return repair_sequence(

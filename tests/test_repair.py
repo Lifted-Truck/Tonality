@@ -269,3 +269,41 @@ def test_over_budget_non_pitch_family_refuses_honestly():
     r = repair_sequence(_seq(_ONE_FIFTH), tex)
     assert r.already_conformant is False and r.repairs == []
     assert r.reason and "texture" in r.reason
+
+
+# --- "held" is not "never tested" (RE-3d, one layer up — #247) ------------------
+
+_MELODY_TRITONE = {"name": "m", "version": "1", "rules": [{
+    "id": "no-melodic-tritone", "family": "melody",
+    "forbid": {"approach_interval": {"in": [6, -6]}}, "polarity": "hard"}]}
+# Overlapping notes in one voice ⇒ not a monophonic line ⇒ the melody rule is
+# INAPPLICABLE. The gate is empty, but nothing was ever checked.
+_NOT_A_LINE = [[0, 1, 60, "v"], [1, 1, 66, "v"], [1, 1, 73, "v"], [2, 1, 61, "v"]]
+
+
+def test_never_tested_is_not_reported_conformant():
+    r = repair_sequence(_seq(_NOT_A_LINE), _MELODY_TRITONE)
+    assert r.already_conformant is None, "no applicable gating rule ⇒ no signal"
+    assert r.repairs == []
+    assert r.reason and "never tested" in r.reason
+    assert "no-melodic-tritone" in r.reason      # names WHICH rule, and why
+    # and it agrees with the evaluator's own tri-state, which is where it came from
+    assert evaluate(_MELODY_TRITONE, _seq(_NOT_A_LINE)).hard_rules_hold is None
+
+
+def test_a_soft_only_ruleset_gates_on_nothing_and_says_so():
+    soft = {"name": "s", "version": "1", "rules": [{
+        "id": "prefer-steps", "family": "melody",
+        "forbid": {"approach_interval": {"in": [6, -6]}},
+        "polarity": "soft", "weight": 1.0}]}
+    r = repair_sequence(_seq(TWO_PAIR_FIFTHS), soft)
+    assert r.already_conformant is None
+    assert r.reason and "nothing gates" in r.reason
+
+
+def test_genuinely_conformant_still_reads_true_not_none():
+    """The fix must not turn every pass into a shrug."""
+    contrary = [[0, 1, 72, "upper"], [1, 1, 71, "upper"],
+                [0, 1, 65, "lower"], [1, 1, 67, "lower"]]
+    r = repair_sequence(_seq(contrary), NO_PARALLELS)
+    assert r.already_conformant is True and r.reason is None
