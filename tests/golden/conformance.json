@@ -22670,6 +22670,204 @@
    "tool": "classify_chromatic_events"
   },
   {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      1,
+      62,
+      90,
+      "m"
+     ],
+     [
+      1,
+      1,
+      61,
+      90,
+      "m"
+     ],
+     [
+      2,
+      1,
+      60,
+      90,
+      "m"
+     ],
+     [
+      2,
+      1,
+      61,
+      70,
+      "m"
+     ]
+    ],
+    "root_pc": 0,
+    "scale": "Ionian"
+   },
+   "result": {
+    "collisions": [
+     {
+      "count": 2,
+      "duration": 1.0,
+      "midi": 60,
+      "onset": 2.0,
+      "source_midis": [
+       60,
+       61
+      ],
+      "voice": "m"
+     }
+    ],
+    "degrees": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9,
+     11
+    ],
+    "edits": [
+     {
+      "delta": 1,
+      "from_midi": 61,
+      "index": 1,
+      "onset": 1.0,
+      "tie_resolution": "previous",
+      "tied": true,
+      "to_midi": 62,
+      "voice": "m"
+     },
+     {
+      "delta": -1,
+      "from_midi": 61,
+      "index": 3,
+      "onset": 2.0,
+      "tie_resolution": "previous",
+      "tied": true,
+      "to_midi": 60,
+      "voice": "m"
+     }
+    ],
+    "events": [
+     [
+      0.0,
+      1.0,
+      62,
+      90,
+      "m"
+     ],
+     [
+      1.0,
+      1.0,
+      62,
+      90,
+      "m"
+     ],
+     [
+      2.0,
+      1.0,
+      60,
+      90,
+      "m"
+     ],
+     [
+      2.0,
+      1.0,
+      60,
+      70,
+      "m"
+     ]
+    ],
+    "notes_snapped": 2,
+    "notes_total": 4,
+    "root_pc": 0,
+    "scale_name": "Ionian",
+    "tie_break": "previous",
+    "ties_resolved": 2
+   },
+   "tool": "conform_to_scale"
+  },
+  {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      1,
+      61,
+      90,
+      "m"
+     ],
+     [
+      1,
+      1,
+      63,
+      90,
+      "m"
+     ]
+    ],
+    "mode": "major",
+    "tonic_pc": 0
+   },
+   "result": {
+    "collisions": [],
+    "degrees": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9,
+     11
+    ],
+    "edits": [
+     {
+      "delta": -1,
+      "from_midi": 61,
+      "index": 0,
+      "onset": 0.0,
+      "tie_resolution": "down",
+      "tied": true,
+      "to_midi": 60,
+      "voice": "m"
+     },
+     {
+      "delta": -1,
+      "from_midi": 63,
+      "index": 1,
+      "onset": 1.0,
+      "tie_resolution": "previous",
+      "tied": true,
+      "to_midi": 62,
+      "voice": "m"
+     }
+    ],
+    "events": [
+     [
+      0.0,
+      1.0,
+      60,
+      90,
+      "m"
+     ],
+     [
+      1.0,
+      1.0,
+      62,
+      90,
+      "m"
+     ]
+    ],
+    "notes_snapped": 2,
+    "notes_total": 2,
+    "root_pc": 0,
+    "scale_name": "Ionian",
+    "tie_break": "previous",
+    "ties_resolved": 2
+   },
+   "tool": "fit_to_key"
+  },
+  {
    "kwargs": {},
    "result": [
     "backbeat",

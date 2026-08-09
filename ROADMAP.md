@@ -3614,7 +3614,34 @@ voice-leading → place), the same work above, driven now by a shipped consumer.
 Consumer-proposed contract tests were accepted to land in `mts` CI on ship. Until
 then `/transform`'s revoice arm stays a visible 501 (degraded-not-silent).*
 
-- [ ] **Note-transform slice 0 — scale/key conform (near-term generative).**
+- [x] **Note-transform slice 0 — scale/key conform. DELIVERED 2026-08-09**
+      (`mts/generate/conform.py`; MCP `conform_to_scale` + `fit_to_key`, **73
+      tools**; 17 tests incl. the three consumer contract tests; golden additive,
+      2 cases). Shipped per the Tonality-Live ratification's two rulings
+      (`integrations/Tonality-Live/ratify.md`, response in `response-2.md`):
+      **R1 — the tie default is `"previous"` (melodic continuity), not `"down"`.**
+      The consumer corrected the original design's premise with an exhaustive
+      count (reproduced in-engine, pinned in tests): ties need an even gap with
+      the pc at the midpoint, whole-tone gaps dominate diatonic scales, so in a
+      major scale **all five** out-of-scale pcs tie — the cited augmented-second
+      counter-example was wrong (odd gaps cannot tie). A fixed `"down"` therefore
+      decides *every* accidental and sags chromatic material uniformly flat.
+      `"previous"` resolves toward the previous note's already-**conformed**
+      pitch in the same voice (the output line is what the listener hears);
+      fallback `"down"` for a first note / equidistant candidates; `"down"`/`"up"`
+      stay as explicit options. Ratified by Julian 2026-08-09.
+      **R2 — keep-and-report.** The map is many-to-one (the totality/locality
+      exclusion at work); snap-created collisions are KEPT (count parity is
+      contract) and itemized in `collisions` with their source pitches — dedupe
+      is consumer-side clip hygiene, and choosing a survivor is a musical
+      decision the engine refuses to make silently. Pre-existing input
+      duplicates not reported. MIDI-boundary edge: the in-range direction wins
+      (`tie_resolution: "range"`), and both candidates cannot be out of range.
+      Module lives in **`mts/generate/`** (new generative package beside
+      `search/`, as recorded below).
+- *(superseded design record of slice 0, kept for the trail — note the tie
+  default it describes, `"down"`, was overturned by ratification ruling R1
+  above)*
       The first note-*out* surface the engine ships (Tonality-Live brief-001;
       unblocks its Q-003 fit-to-key / scale-conform). **Generative, register-
       PRESERVING** (only a note's pc snaps to the nearest scale member; its
