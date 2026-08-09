@@ -536,6 +536,17 @@ CASES: list[tuple[str, dict]] = [
                  + [[16, 2, 60 + i] for i in (0, 4, 7)],
          "subdivisions": 2},
     ),
+    # Phase 7 slice 0: conform — a tied accidental (C#) approached from above,
+    # plus a snap-created collision (C + C# at one onset).
+    (
+        "conform_to_scale",
+        {"events": [[0, 1, 62, 90, "m"], [1, 1, 61, 90, "m"],
+                    [2, 1, 60, 90, "m"], [2, 1, 61, 70, "m"]],
+         "scale": "Ionian", "root_pc": 0},
+    ),
+    ("fit_to_key",
+     {"events": [[0, 1, 61, 90, "m"], [1, 1, 63, 90, "m"]],
+      "tonic_pc": 0, "mode": "major"}),
     ("list_named_drum_patterns", {}),
     ("load_named_drum_pattern", {"name": "four-on-the-floor"}),
     # gap 23: a quota (budget) rule — gated on the measured violation RATE.

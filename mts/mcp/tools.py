@@ -1618,6 +1618,76 @@ def search_voicings(
     ).to_dict()
 
 
+def conform_to_scale(
+    events: list[list],
+    scale,
+    root_pc: int,
+    tie_break: str = "previous",
+) -> dict:
+    """GENERATIVE: snap every out-of-scale pitch class to the nearest scale
+    member — the engine's first note-out surface (Phase 7 slice 0, Tonality-Live
+    Q-003). REGISTER-PRESERVING: only the pitch class moves; octave, onset,
+    duration, velocity, voice, note order and note COUNT are all preserved
+    (pitch is the only field that may change). Two guarantees hold BY
+    CONSTRUCTION: a snap never exceeds 6 semitones (minimal circular pc
+    distance), and in-scale input is returned untouched (idempotent).
+    Deterministic, freezable (no RNG, no clock).
+
+    scale: a catalog scale name (e.g. "Ionian", "Harmonic Minor") or an explicit
+    list of degrees; root_pc 0-11. tie_break resolves EQUIDISTANT snaps —
+    and ties are the COMMON case, not a corner: a tie needs an even gap with
+    the pc at its midpoint, and whole-tone gaps dominate diatonic scales, so in
+    a major scale ALL FIVE out-of-scale pcs tie (harmonic minor 3/5, whole-tone
+    6/6, pentatonic 3/7). A fixed direction therefore decides every accidental
+    in an ordinary clip ("down" sags chromatic lines uniformly flat). The
+    default "previous" resolves each tie toward the previous note in the same
+    voice (its already-CONFORMED pitch — melodic continuity), falling back to
+    down for a first note or when both candidates are equidistant from it;
+    "down" / "up" are available as explicit fixed choices.
+
+    The map is MANY-TO-ONE: C and C# at one onset both conform to C, giving two
+    identical output notes. Ruling (keep-and-report): the duplicate is KEPT —
+    note count is part of the contract — and every collision CREATED by the
+    snap is itemized in `collisions` (voice, onset, midi, count, source_midis),
+    so nothing is silent and a consumer wanting clip hygiene can dedupe with
+    full information. Pre-existing input duplicates are not reported. At the
+    MIDI 0-127 boundary the in-range snap direction is taken (tie_resolution
+    "range"). Every snap is itemized in `edits` (from/to/delta, tied,
+    tie_resolution). events: the canonical event form [onset_beats,
+    duration_beats, midi_note, velocity?, voice?]. Raises on an empty stream,
+    an empty or unknown scale, or an unknown tie_break — error, not guess."""
+
+    from ..generate import conform_to_scale as _conform
+
+    return _conform(
+        _canonical_sequence(events), scale, int(root_pc), tie_break=str(tie_break)
+    ).to_dict()
+
+
+def fit_to_key(
+    events: list[list],
+    tonic_pc: int,
+    mode: str,
+    tie_break: str = "previous",
+) -> dict:
+    """GENERATIVE: conform a piece to a KEY's scale — the thin wrapper over
+    conform_to_scale (a key IS a scale: one primitive, one snap rule). mode is
+    "major" (Ionian) or "minor" (Natural Minor, the key layer's collection
+    convention throughout); any other collection goes through conform_to_scale
+    directly. Everything else — register preservation, the two by-construction
+    guarantees, the "previous" tie default and why ties are the common case,
+    keep-and-report collisions — is documented on conform_to_scale and holds
+    identically here. events: the canonical event form [onset_beats,
+    duration_beats, midi_note, velocity?, voice?]. Raises on an empty stream or
+    a mode outside major/minor."""
+
+    from ..generate import fit_to_key as _fit
+
+    return _fit(
+        _canonical_sequence(events), int(tonic_pc), str(mode), tie_break=str(tie_break)
+    ).to_dict()
+
+
 # --- comparison & summary ----------------------------------------------------------------------
 
 def quality_comparison(quality_a: str, quality_b: str) -> dict:
@@ -1916,6 +1986,8 @@ TOOLS = (
     voicing_suggestions,
     search_voicings,
     repair_ruleset,
+    conform_to_scale,
+    fit_to_key,
     quality_comparison,
     quality_brief,
     midi_file_analysis,
