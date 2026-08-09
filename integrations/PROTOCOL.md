@@ -42,6 +42,42 @@ Naming rules:
   `integration: <triage summary>` (outbound), `integration: <notice/ack
   summary>` (either direction).
 
+### Threading: `id` names the THREAD, not the file
+
+Every file in one exchange carries the **same `id`** — the one the opening
+brief chose — and distinguishes itself with `in-reply-to` naming the file it
+answers:
+
+```yaml
+id: HYPERSAW-001            # the THREAD. identical in brief, response, ratify.
+in-reply-to: hypersaw-001-response   # human-readable link to the previous file
+```
+
+**Why this is a rule and not a preference:** the fleet scanner threads
+exchanges **by `id` alone**. A response that mints its own id
+(`hypersaw-001-response`) is not a reply — it is a second, unrelated thread. The
+consequence is not cosmetic: the brief's thread then shows as *awaiting a
+response that was written and filed weeks earlier*, while the orphan response
+sits with the ball on the other party, and the watchdog reports both as overdue.
+That happened to HYPERSAW-001 — surfaced as an overdue exchange on 2026-08-09
+when it had in fact been answered on 2026-07-18, nineteen days before.
+
+HYPERSAW named the slip in `hypersaw/ratify-response.md` and proposed this fix;
+it is adopted verbatim. **Every threaded channel here had the same fracture**
+(`tonality-live-001` / `-response` / `-ratify`;
+`wend-spine-oracle-surface-response` / `-ratify`), so this is a convention
+defect, not one project's mistake.
+
+Two consequences worth stating:
+
+- **Do not retro-edit filed exchanges to repair their ids.** `integrations/` is
+  a historical record; rewriting a delivered message to satisfy a scanner is the
+  falsification the verbatim rule exists to prevent. The fracture stays visible
+  in the archive and the convention changes going forward.
+- Older files carrying **no frontmatter at all** (most of `audiology/`,
+  `terrane/`, `wont/`, `solve-coagula/`) predate the convention. They are not
+  retrofitted for the same reason.
+
 ## Two filing routes
 
 1. **Direct** — the consumer's agent has filesystem/`gh` access: write the
