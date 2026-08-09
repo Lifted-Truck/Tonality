@@ -1450,6 +1450,24 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     entirely on shipped 12-TET machinery (`infer_key`, `interpret_chord`);
     unscheduled, HYPERSAW Phase-5-class timing. A JI-*context* version would
     inherit the Phase 6 boundary; not asked.
+    **RATIFIED 2026-08-09** (`integrations/hypersaw/ratify.md`): 2a/2b/2c
+    accepted as written, including the finer boundary (a static table of
+    rationals is versioned prior data, not identity math off the lattice, so it
+    is *not* blocked by the Phase 6 / JI deferral — HYPERSAW had assumed
+    otherwise and took the correction). All three schema counters accepted
+    uncontested: provenance fields on kk-1982.1 discipline · fold-safety enforced
+    **at the producer** (a consumer that normalizes on load hides a broken
+    artifact) · `"name": "3/2"` rides the artifact. Their three contract tests
+    land in `mts` CI when slice 1 ships.
+    **Deliberately not requested yet, and the reason is theirs:** HYPERSAW found
+    its gravity integrator is **block-subdivision dependent** (explicit Euler at
+    `dt = block length`, so output depends on how a buffer is *split*, not just
+    its length — measured divergence of 1.03 at gravity 0.5 between one whole-block
+    call and 256-frame chunks). Swapping the ratio table before fixing that would
+    move their parity goldens twice and make neither change attributable. Slice 1
+    stays registered with HYPERSAW as named consumer; **nothing is owed by us**,
+    and the thread is closed until they ask. A good instance of a consumer
+    declining a capability they had already won, for a reason we would endorse.
 25. **Chromatic-event classification — borrowed chord vs. key change vs.
     ambiguous** (added 2026-07-20 from Julian's exploration of passing tones /
     chromatic alterations / modal interchange; a 6-agent research swarm answered
