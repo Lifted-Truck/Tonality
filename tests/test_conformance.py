@@ -547,6 +547,14 @@ CASES: list[tuple[str, dict]] = [
     ("fit_to_key",
      {"events": [[0, 1, 61, 90, "m"], [1, 1, 63, 90, "m"]],
       "tonic_pc": 0, "mode": "major"}),
+    # gap 26 slice 1: C major -> C minor with a tied chromatic (C#) and a
+    # markedness absorption (Eb: chromatic in major, diatonic in minor).
+    ("remap_by_degree",
+     {"events": [[0, 1, 60, 90, "m"], [1, 1, 61, 90, "m"], [2, 1, 63, 90, "m"],
+                 [3, 1, 64, 90, "m"], [4, 1, 69, 90, "m"], [5, 1, 71, 90, "m"]],
+      "source_scale": "Ionian", "source_root": 0,
+      "target_scale": "Natural Minor", "target_root": 0}),
+    ("retonicize", {"scale": "Ionian", "root_pc": 0, "new_tonic_pc": 9}),
     ("list_named_drum_patterns", {}),
     ("load_named_drum_pattern", {"name": "four-on-the-floor"}),
     # gap 23: a quota (budget) rule — gated on the measured violation RATE.

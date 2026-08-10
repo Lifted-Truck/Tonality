@@ -1688,6 +1688,75 @@ def fit_to_key(
     ).to_dict()
 
 
+def remap_by_degree(
+    events: list[list],
+    source_scale,
+    source_root: int,
+    target_scale,
+    target_root: int,
+) -> dict:
+    """GENERATIVE: remap a piece from one scale to another BY SCALE DEGREE,
+    never by proximity — degree 3 of the source becomes degree 3 of the target
+    whatever the chromatic distance (gap 26's primitive: Hook's interscalar
+    transposition at index 0, tonic-anchored). This is the OPPOSITE of
+    conform_to_scale: conform snaps by proximity and forgets degrees (many-to-
+    one, lossy); remap preserves degrees and ignores proximity (bijective on
+    in-scale material). C major -> C natural minor moves exactly E->Eb, A->Ab,
+    B->Bb and nothing else. It is deliberately NOT a 12->12 pitch-class table —
+    no correct one exists: a chromatic tone's image depends on WHICH DEGREE it
+    is attached to (Eb-as-#2 and Eb-as-b3 must map differently), which is the
+    documented design result behind this surface.
+
+    PRECONDITION (error, no default): equal cardinality — unequal scales have
+    no canonical degree correspondence. scales are catalog names or explicit
+    degree lists (both must contain 0 — the map is tonic-anchored); roots 0-11.
+
+    Chromatic (out-of-scale) tones: attached to the nearest degree, their
+    signed alteration carried across (rhetoric preserved — a passing tone stays
+    a passing tone). A tone EQUIDISTANT between two degrees attaches to the
+    lower (reads as a raised degree), deterministically, flagged
+    tied_attachment=true so a caller with better context (e.g.
+    classify_chromatic_events) can re-attach. An alteration whose image lands
+    ON a target scale member is reported in absorbed_alterations (markedness
+    lost: chromatic in the source, diatonic in the target — a fact about the
+    two scales, kept and reported, never silently dropped).
+
+    Register-preserving (each note moves by the signed pc difference in
+    [-6,6)); onset, duration, velocity, voice, order and count untouched. The
+    result carries the full degree_table plus per-note edits (degree,
+    alteration, tie), so every contextual decision is inspectable. The
+    primitive remaps EVERY event given — exclude percussion voices yourself
+    (the modal_transform feature slice will handle that automatically).
+    events: the canonical event form [onset_beats, duration_beats, midi_note,
+    velocity?, voice?]. Raises on an empty stream, unknown scales, unequal
+    cardinality, or a degree list without 0."""
+
+    from ..generate import remap_by_degree as _remap
+
+    return _remap(
+        _canonical_sequence(events), source_scale, int(source_root),
+        target_scale, int(target_root),
+    ).to_dict()
+
+
+def retonicize(scale, root_pc: int, new_tonic_pc: int) -> dict:
+    """ANALYSIS-side renaming: fix the COLLECTION, move the TONIC — the folk
+    operation users conflate with a modal remap, shipped separately so the
+    conflation is addressable. C Ionian retonicized to A is A Aeolian: ZERO
+    notes change (notes_changed is literally 0 in the result); only the anchor
+    moves. If you want the notes to change, you want remap_by_degree. The new
+    tonic must be a member of the collection (error otherwise — a tonic outside
+    it is a different question: remap_by_degree or a modulation, and guessing
+    which would be wrong). Returns the re-rooted degree pattern plus EVERY
+    catalog scale matching it (plural — a rotation can match several registered
+    names, e.g. Aeolian and Natural Minor). scale: a catalog name or explicit
+    degree list; pcs 0-11."""
+
+    from ..generate import retonicize as _retonicize
+
+    return _retonicize(scale, int(root_pc), int(new_tonic_pc)).to_dict()
+
+
 # --- comparison & summary ----------------------------------------------------------------------
 
 def quality_comparison(quality_a: str, quality_b: str) -> dict:
@@ -1988,6 +2057,8 @@ TOOLS = (
     repair_ruleset,
     conform_to_scale,
     fit_to_key,
+    remap_by_degree,
+    retonicize,
     quality_comparison,
     quality_brief,
     midi_file_analysis,

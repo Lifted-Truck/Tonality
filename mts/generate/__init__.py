@@ -20,6 +20,15 @@ from .conform import (
     conform_to_scale,
     fit_to_key,
 )
+from .remap import (
+    AbsorbedAlteration,
+    InterscalarMap,
+    RemapEdit,
+    RemapResult,
+    RetonicizeResult,
+    remap_by_degree,
+    retonicize,
+)
 
 __all__ = [
     "Collision",
@@ -27,4 +36,11 @@ __all__ = [
     "ConformResult",
     "conform_to_scale",
     "fit_to_key",
+    "AbsorbedAlteration",
+    "InterscalarMap",
+    "RemapEdit",
+    "RemapResult",
+    "RetonicizeResult",
+    "remap_by_degree",
+    "retonicize",
 ]

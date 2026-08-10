@@ -1604,6 +1604,31 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     then re-render the whole piece in a different mode/scale — remapping the key
     changes to their new relative keys or borrowed chords, preserving periods of
     chromaticization, leaving the drums untouched.
+    **SLICE 1 DELIVERED 2026-08-09 — the primitive:** `mts/generate/remap.py`,
+    MCP `remap_by_degree` + `retonicize` (**75 tools**; 19 tests; golden
+    additive, 2 cases). `InterscalarMap` (equal cardinality = **constructor
+    error**, no default; both degree lists must contain 0 — tonic-anchored,
+    the declared-correspondence follow-on recorded) + `remap_by_degree`
+    (in-scale: bijective degree→degree, round-trip pinned; chromatic:
+    `pitch → (degree, alteration) → pitch'` with rhetoric preserved — Julian's
+    recorded default; equidistant attachment goes to the LOWER degree
+    (raised-degree reading), deterministic and **flagged** `tied_attachment`
+    so the gap 25 classifier can re-attach; alterations whose image lands on a
+    target scale member reported in `absorbed_alterations` — markedness loss
+    kept-and-reported, never silent). Register-preserving ([-6,6) moves,
+    half-octave resolves down, same convention as conform); zero-pitch-change
+    chromatic decisions still recorded in `edits` (the decision is the
+    artifact, not the delta). Proven on the canonical case: C maj→min moves
+    exactly E→E♭/A→A♭/B→B♭; C♯ attaches ♯1 tied; **E♭ demonstrates the
+    ♯2-vs-♭3 ambiguity exactly as the impossibility result predicts** (tie
+    flagged + absorption reported on the same note). `retonicize` ships
+    alongside per the terminology ruling (fix collection, move tonic; zero
+    edits — `notes_changed: 0` is literal; tonic outside the collection
+    errors with the disambiguation). **Remaining (the feature):**
+    `modal_transform` composing this per key-area over the structural
+    timeline, chromatic handling routed through `classify_chromatic_events`,
+    percussion auto-excluded, and the serializable analyze→plan→apply
+    artifact below.
     - **The core operation is a degree-preserving remap, not a transposition.**
       `pitch → (scale degree, chromatic offset) → new pitch`: the applied interval
       is **non-uniform per degree** (C-E-G in major → C-E♭-G in minor: degrees
@@ -1953,6 +1978,32 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     next one; closing it needs a periodic leg that installs the **current**
     `mcp` release (a low-frequency CI job when Actions is back, or an audit-thread
     check meanwhile). Recorded so the ceiling is not mistaken for a solution.
+30. **Two frames of pair-grain analysis — no first-class `TransitionIdentity`**
+    (logged 2026-08-09 from Julian's question; open concern, unscheduled). A
+    chord *pair* admits two analyses that are different objects: **(1) the
+    relative frame** — chord-to-chord, key-free, transposition-invariant (root
+    motion as a directed interval class, common tones, VL distance, DFT color
+    shift, key-free relation tags like `chromatic_mediant`); **(2) the anchored
+    frame** — the pair inside a tonic+mode (degree, roman, functional role,
+    cadential formula). The anchored frame **reduces one-way** to the relative
+    frame (forget the tonic; never invertible without choosing a key — the
+    cardinal rule at the transition grain), and the pairing is exactly Clough &
+    Myerson's generic-vs-specific distinction at the dyad: **a modal transform
+    holds frame 2 fixed while frame 1 changes; a transposition holds frame 1
+    fixed while frame 2's anchor moves** — the two frames are the invariants of
+    the two transforms. Today the vocabulary is *spread, not typed*:
+    `tag_transition` mixes both frames in one evidence list (principled per
+    Decision 7), the harmony rule family's fields interleave them
+    (`root_motion`/`common_tones`/`color_shift` frame-1;
+    `roman`/`role`/`degree`/`is_diatonic` frame-2), and cadence detection is
+    frame-2 with frame-1 evidence inside. A caller wanting *only* the relative
+    frame assembles it from pieces. The concern: no single `TransitionIdentity`
+    type mirroring the chord lattice (a key-free dyad identity that an anchored
+    reading reduces to). **Build triggers, any of:** a key-free progression
+    similarity metric is asked for · the patterns layer wants transition-grain
+    patterns · gap 26's plan artifact needs to serialize *what a transform
+    preserves* (which is precisely this type). Until one fires, the spread
+    vocabulary is adequate and typing it would be speculation.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
