@@ -143,14 +143,14 @@ library emits descriptions; pixels are the edge consumer's job.
 
 ## The MCP endpoint & the integration ecosystem
 
-Tonality is built to be *consumed*. Three transports expose the **same 73 tools**
+Tonality is built to be *consumed*. Three transports expose the **same 75 tools**
 through **one data contract** — identical signatures, so a caller can move between
 them without changing how it thinks:
 
 | Transport | For | Entry point |
 |---|---|---|
 | **Python import** | scripting, embedding, lowest latency | `from mts.analysis import …` — pure functions over frozen dataclasses |
-| **MCP server** | LLM agents (Claude & others) | `python -m mts.mcp` — 73 tools, one per analysis entry point |
+| **MCP server** | LLM agents (Claude & others) | `python -m mts.mcp` — 75 tools, one per analysis entry point |
 | **HTTP bridge** | any language, out-of-process | `python -m mts.mcp.bridge` → loopback `:8012` (`GET /tools`, `POST /call/<tool>`) |
 
 The MCP layer is deliberately thin — one tool per analysis entry point, pure and

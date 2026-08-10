@@ -22868,6 +22868,278 @@
    "tool": "fit_to_key"
   },
   {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      1,
+      60,
+      90,
+      "m"
+     ],
+     [
+      1,
+      1,
+      61,
+      90,
+      "m"
+     ],
+     [
+      2,
+      1,
+      63,
+      90,
+      "m"
+     ],
+     [
+      3,
+      1,
+      64,
+      90,
+      "m"
+     ],
+     [
+      4,
+      1,
+      69,
+      90,
+      "m"
+     ],
+     [
+      5,
+      1,
+      71,
+      90,
+      "m"
+     ]
+    ],
+    "source_root": 0,
+    "source_scale": "Ionian",
+    "target_root": 0,
+    "target_scale": "Natural Minor"
+   },
+   "result": {
+    "absorbed_alterations": [
+     {
+      "alteration": 1,
+      "degree": 1,
+      "from_midi": 63,
+      "index": 2,
+      "onset": 2.0,
+      "to_midi": 63
+     }
+    ],
+    "edits": [
+     {
+      "alteration": 1,
+      "attachment_note": "equidistant between two degrees; attached to the lower (reads as a raised degree) \u2014 override by re-attaching with better context",
+      "degree": 0,
+      "delta": 0,
+      "from_midi": 61,
+      "index": 1,
+      "onset": 1.0,
+      "tied_attachment": true,
+      "to_midi": 61,
+      "voice": "m"
+     },
+     {
+      "alteration": 1,
+      "attachment_note": "equidistant between two degrees; attached to the lower (reads as a raised degree) \u2014 override by re-attaching with better context",
+      "degree": 1,
+      "delta": 0,
+      "from_midi": 63,
+      "index": 2,
+      "onset": 2.0,
+      "tied_attachment": true,
+      "to_midi": 63,
+      "voice": "m"
+     },
+     {
+      "alteration": 0,
+      "attachment_note": null,
+      "degree": 2,
+      "delta": -1,
+      "from_midi": 64,
+      "index": 3,
+      "onset": 3.0,
+      "tied_attachment": false,
+      "to_midi": 63,
+      "voice": "m"
+     },
+     {
+      "alteration": 0,
+      "attachment_note": null,
+      "degree": 5,
+      "delta": -1,
+      "from_midi": 69,
+      "index": 4,
+      "onset": 4.0,
+      "tied_attachment": false,
+      "to_midi": 68,
+      "voice": "m"
+     },
+     {
+      "alteration": 0,
+      "attachment_note": null,
+      "degree": 6,
+      "delta": -1,
+      "from_midi": 71,
+      "index": 5,
+      "onset": 5.0,
+      "tied_attachment": false,
+      "to_midi": 70,
+      "voice": "m"
+     }
+    ],
+    "events": [
+     [
+      0.0,
+      1.0,
+      60,
+      90,
+      "m"
+     ],
+     [
+      1.0,
+      1.0,
+      61,
+      90,
+      "m"
+     ],
+     [
+      2.0,
+      1.0,
+      63,
+      90,
+      "m"
+     ],
+     [
+      3.0,
+      1.0,
+      63,
+      90,
+      "m"
+     ],
+     [
+      4.0,
+      1.0,
+      68,
+      90,
+      "m"
+     ],
+     [
+      5.0,
+      1.0,
+      70,
+      90,
+      "m"
+     ]
+    ],
+    "map": {
+     "degree_table": [
+      {
+       "degree": 0,
+       "source_pc": 0,
+       "target_pc": 0
+      },
+      {
+       "degree": 1,
+       "source_pc": 2,
+       "target_pc": 2
+      },
+      {
+       "degree": 2,
+       "source_pc": 4,
+       "target_pc": 3
+      },
+      {
+       "degree": 3,
+       "source_pc": 5,
+       "target_pc": 5
+      },
+      {
+       "degree": 4,
+       "source_pc": 7,
+       "target_pc": 7
+      },
+      {
+       "degree": 5,
+       "source_pc": 9,
+       "target_pc": 8
+      },
+      {
+       "degree": 6,
+       "source_pc": 11,
+       "target_pc": 10
+      }
+     ],
+     "source_degrees": [
+      0,
+      2,
+      4,
+      5,
+      7,
+      9,
+      11
+     ],
+     "source_name": "Ionian",
+     "source_root": 0,
+     "target_degrees": [
+      0,
+      2,
+      3,
+      5,
+      7,
+      8,
+      10
+     ],
+     "target_name": "Natural Minor",
+     "target_root": 0
+    },
+    "notes_chromatic": 2,
+    "notes_diatonic": 4,
+    "notes_total": 6,
+    "tied_attachments": 2
+   },
+   "tool": "remap_by_degree"
+  },
+  {
+   "kwargs": {
+    "new_tonic_pc": 9,
+    "root_pc": 0,
+    "scale": "Ionian"
+   },
+   "result": {
+    "collection_pcs": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9,
+     11
+    ],
+    "new_degrees": [
+     0,
+     2,
+     3,
+     5,
+     7,
+     8,
+     10
+    ],
+    "new_names": [
+     "Aeolian",
+     "Natural Minor"
+    ],
+    "new_root": 9,
+    "notes_changed": 0,
+    "old_name": "Ionian",
+    "old_root": 0
+   },
+   "tool": "retonicize"
+  },
+  {
    "kwargs": {},
    "result": [
     "backbeat",
