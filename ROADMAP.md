@@ -2065,6 +2065,42 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       at melodic grain — design (c) with gap 30's `TransitionIdentity` in
       view so the two "preserved invariant" types rhyme.
 
+32. **Transformation recommendation surface** (added 2026-08-11 from
+    Tonality-Live early-signal brief `tonality-live-003`; **recorded, not
+    scheduled** — the brief asked for shaping, not work; consumer: Tonality-Live,
+    named). The user direction (Julian, verbatim in the brief): the engine
+    *suggests* which transformation is worth making — key transition,
+    tonicization, re-voice, complexify/clean-up — possibly informed by
+    genre/instrument/section context; the user auditions and accepts.
+    **Design constraints ruled now** (`response-recommendations.md`), so Phase
+    7+ work is shaped with them in view:
+    - **The register is fixed by precedent:** `recommend_next_chord` (gap 14)
+      defines what "recommend" means here — deterministic **enumeration** of
+      candidates from theory, per-candidate computed **evidence**, **ranking
+      under a versioned scoring prior**, plural-with-margins, never collapsed.
+      A recommendation is *analysis pointed at possibility*. Engine owns
+      enumeration/evidence/ranking; consumer owns presentation/audition/accept;
+      the learned sibling (Decision 15) owns uncited taste.
+    - **Delivery: a dedicated endpoint, never enrichment of analysis results**
+      (measurements and proposals stay separated by transport, not convention),
+      and **recommendations reference gap 26 plan artifacts** — audition-and-
+      accept is `inspect plan → apply plan`; no new execution machinery; the
+      deterministic-pipeline guarantee inherited for free. The engine's
+      recommender is deterministic end-to-end (no model calls in `mts`, ever);
+      LLM-flavored suggestion lives above the MCP boundary.
+    - **Genre/instrument priors: the gap 28 three-tier ruling applies
+      verbatim** — measurement (shipped) · affinity as a cited, plural,
+      versioned, falsifiable prior (in charter, **gated on a citable
+      source/licence-compatible corpus — does not ship without one**) ·
+      classification/taste (sibling). Stated to the consumer early, as they
+      requested.
+    - **Candidate seeds already shipped:** a cadence-less area
+      (`confirm_key_areas`), an available pivot (identity substrate under
+      Wend's `pivots_between`), a ruleset-conformance gap (`evaluate` →
+      "cleanup" = thin layer over `repair_sequence`), a walk about to collapse
+      (gap 31). "Complexify" is the genuinely new part (generative
+      elaboration, Phase 7 family, furthest away).
+
 ## Decisions on record (the "why", so we don't relitigate)
 
 1. **Build on the existing engine, don't greenfield.** The bitmask PC substrate,
