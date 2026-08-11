@@ -2044,6 +2044,21 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       remap answers "translate this music into S" (structure-preserving)** —
       Tonality-Live's scale-change ops should route through remap, conform
       kept for cleanup. Notice filed (`notice-conform-vs-remap.md`).
+      **ADOPTED 2026-08-11** (`adopt-conform-vs-remap.md`), with two upgrades
+      from the consumer's independent verification: (i) **conform destroys a
+      walk even at EQUAL cardinality** (G-F-E-D-C → G-F-F-D-C into C natural
+      minor, 7→7 — proximity is inherently walk-destroying; cardinality only
+      decides whether *any* map could help), and (ii) the notice caught a
+      consumer design error mid-flight — the true fact `fit_to_key ≡
+      conform_to_scale` had led them to a single scale-picker control, which
+      would have routed every translation intent into a proximity snap; **the
+      two tools are distinguished by user intent, which no signature
+      inspection reveals** (their words, kept — it is the best one-line
+      statement of why the routing matters). Tonality-Live Q-007 wires
+      `remap_by_degree`/`modal_transform` into `/transform`; the
+      unequal-cardinality refusal becomes a first-class UI state showing OUR
+      reason string (so the string is consumer-visible contract — wording
+      changes are notice-worthy).
     - **(b) Detection — the patterns layer, mostly existing machinery:** a
       "scale run" is a Pattern at degree-adjacent grain (consecutive ±1
       degree steps; the min-consecutive-steps gate IS the pattern's length
@@ -2064,6 +2079,17 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       firing** (the plan artifact serializing *what a transform preserves*)
       at melodic grain — design (c) with gap 30's `TransitionIdentity` in
       view so the two "preserved invariant" types rhyme.
+      **Named-consumer preference on (c), recorded 2026-08-11**
+      (`adopt-conform-vs-remap.md`): deliver forced-collapse resolutions
+      through the **gap 32 recommendation surface** — *"the refusal plus the
+      ranked options with their costs, so the user picks the trade
+      knowingly"* — never a silently-applied default. Rule 7 applied to a
+      policy surface: the same reasoning that gates genre priors gates a
+      default span policy (a musical preference must be chosen and labelled,
+      not computed and presented as fact). This binds (c)'s delivery to gap
+      32's plan-referencing proposal shape and is another instance of the
+      three gaps (30/31/32) converging on the plan artifact as the common
+      currency.
 
 32. **Transformation recommendation surface** (added 2026-08-11 from
     Tonality-Live early-signal brief `tonality-live-003`; **recorded, not
