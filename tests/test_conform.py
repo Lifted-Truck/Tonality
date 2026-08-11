@@ -181,3 +181,26 @@ def test_mcp_parity():
     assert set(out) >= {"events", "edits", "collisions", "tie_break", "degrees"}
     key = tools.fit_to_key(events=[[0, 1, 61, 90, "m"]], tonic_pc=0, mode="major")
     assert key["scale_name"] == MAJOR
+
+
+# --- the order contract, disambiguated (tonality-live-002) ----------------------
+
+def test_order_contract_is_canonical_not_wire_order():
+    """Sequence sorts by (onset, midi) at INGESTION — one layer below conform —
+    so output order is canonical, never the caller's wire order, and the
+    preservation contract is a multiset claim. Pinned because the old docstring
+    said "input's note order" and actively invited the positional-diff bug."""
+    # chords entered first, melody second: deliberately not onset-ordered
+    wire = [[0, 2, 60, 90, "m"], [0, 2, 64, 90, "m"], [2, 2, 65, 90, "m"],
+            [1, 1, 74, 90, "m"], [3, 1, 73, 90, "m"]]
+    r = conform_to_scale(_seq(wire), MAJOR, 0)
+    onsets = [e[0] for e in r.events]
+    assert onsets == sorted(onsets), "output is canonically ordered"
+    assert onsets != [e[0] for e in wire], "…which is NOT the wire order here"
+    # multiset preservation holds even though positions moved
+    assert sorted((e[0], e[1], e[3], e[4]) for e in r.events) == \
+           sorted((e[0], e[1], e[3], e[4]) for e in wire)
+    # and pairing via edits — the documented idiom — reconstructs exactly
+    paired = {(e.onset, e.from_midi): e.to_midi for e in r.edits}
+    assert len(paired) == r.notes_snapped == 1
+    assert paired[(3.0, 73)] in (72, 74)

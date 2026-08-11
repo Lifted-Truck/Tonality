@@ -6,7 +6,8 @@ one snap rule, one set of tests). Accepted from Tonality-Live brief-001;
 rulings R1/R2 from its ratification (`integrations/Tonality-Live/ratify.md`).
 
 **Generative, register-preserving.** Only the pitch class moves; octave, onset,
-duration, velocity, voice, note order and note count are all preserved — no
+duration, velocity, voice and note count are all preserved (order is the
+engine's canonical (onset, midi) sort — see ``ConformResult``) — no
 register is invented, so the cardinal rule is cleared. Deterministic and
 freezable (no RNG, no clock).
 
@@ -100,9 +101,15 @@ class ConformResult:
     """The conformed piece, with every snap and every snap-created collision.
 
     ``events`` is the full piece in canonical event form
-    ``[onset_beats, duration_beats, midi, velocity, voice]``, in the input's
-    note order — count, timing, velocity and voices preserved; pitch is the
-    only field that may differ.
+    ``[onset_beats, duration_beats, midi, velocity, voice]``, in the engine's
+    **canonical order** — ``Sequence`` sorts events by ``(onset, midi)`` at
+    construction, so this is NOT the caller's wire order (tonality-live-002:
+    a positional diff against an unsorted input pairs the wrong notes).
+    The preservation contract is a **multiset** claim: count, timings,
+    velocities and voices are preserved and pitch is the only field that may
+    differ — position-by-position it holds only for already-sorted input.
+    Pair input↔output through ``edits`` (``(onset, from_midi)``), never by
+    raw-list position.
     """
 
     scale_name: str | None      # None when raw degrees were supplied
@@ -190,7 +197,7 @@ def conform_to_scale(
     scale_name, targets = _target_pcs(scale, root_pc, session)
 
     # Melodic continuity needs each voice's notes in time order, but the output
-    # must keep the input's note order — so walk a per-voice order and write
+    # must keep the sequence's canonical order — so walk a per-voice order and write
     # back by original index. Unvoiced events (voice=None) form their own stream.
     order = sorted(range(len(sequence.events)),
                    key=lambda i: (sequence.events[i].onset, i))

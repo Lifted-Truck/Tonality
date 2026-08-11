@@ -1627,7 +1627,10 @@ def conform_to_scale(
     """GENERATIVE: snap every out-of-scale pitch class to the nearest scale
     member — the engine's first note-out surface (Phase 7 slice 0, Tonality-Live
     Q-003). REGISTER-PRESERVING: only the pitch class moves; octave, onset,
-    duration, velocity, voice, note order and note COUNT are all preserved
+    duration, velocity, voice and note COUNT are all preserved — a MULTISET
+    claim: events return in the ENGINE'S CANONICAL ORDER (sorted by onset
+    then midi at ingestion), NOT the caller's wire order, so pair input to
+    output via `edits` ((onset, from_midi)), never by list position
     (pitch is the only field that may change). Two guarantees hold BY
     CONSTRUCTION: a snap never exceeds 6 semitones (minimal circular pc
     distance), and in-scale input is returned untouched (idempotent).
@@ -1722,7 +1725,9 @@ def remap_by_degree(
     two scales, kept and reported, never silently dropped).
 
     Register-preserving (each note moves by the signed pc difference in
-    [-6,6)); onset, duration, velocity, voice, order and count untouched. The
+    [-6,6)); onset, duration, velocity, voice and count untouched — a MULTISET
+    claim: events return in the engine's canonical (onset, midi) order, not
+    the caller's wire order; pair via `edits`, never by list position. The
     result carries the full degree_table plus per-note edits (degree,
     alteration, tie), so every contextual decision is inspectable. The
     primitive remaps EVERY event given — exclude percussion voices yourself
