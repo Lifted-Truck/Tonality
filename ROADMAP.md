@@ -3690,6 +3690,21 @@ then `/transform`'s revoice arm stays a visible 501 (degraded-not-silent).*
       (`tie_resolution: "range"`), and both candidates cannot be out of range.
       Module lives in **`mts/generate/`** (new generative package beside
       `search/`, as recorded below).
+      **CONSUMER GREEN 2026-08-09** (`integrations/Tonality-Live/confirm-green.md`):
+      `/transform` live in the Live extension, `./verify full` green against a
+      live bridge, Q-003 **closed**; tie-break exposed in both dialogs
+      (default `previous`), consumer-side `dedupeCollisions` touching only
+      reported slots (keep-first, deterministic, asserting nothing about which
+      note was "better" — exactly the R2 division of labor). Their ascending-run
+      check confirmed `previous` behaves as documented, verified live not
+      inferred. **Two contract facts from the confirmation:** (1) the
+      exchange's "wire" section conflated the MCP tool signature (events-first)
+      with the engine import (`Sequence`-first) — recorded here, file left
+      unedited per the no-retro-edit rule; (2) **Tonality-Live's bridge now
+      serves `GET /scales` from `load_scales(None)`, so the scale CATALOG NAMES
+      are a consumer-visible contract** — renaming a catalog scale is a
+      notice-worthy event on their channel from now on. Next on that channel:
+      `revoice` when Phase 7 proper lands it; nothing owed either way.
 - *(superseded design record of slice 0, kept for the trail — note the tie
   default it describes, `"down"`, was overturned by ratification ruling R1
   above)*
