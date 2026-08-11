@@ -1624,11 +1624,36 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     flagged + absorption reported on the same note). `retonicize` ships
     alongside per the terminology ruling (fix collection, move tonic; zero
     edits — `notes_changed: 0` is literal; tonic outside the collection
-    errors with the disambiguation). **Remaining (the feature):**
-    `modal_transform` composing this per key-area over the structural
-    timeline, chromatic handling routed through `classify_chromatic_events`,
-    percussion auto-excluded, and the serializable analyze→plan→apply
-    artifact below.
+    errors with the disambiguation).
+    **SLICE 2 DELIVERED 2026-08-10 — the feature: `modal_transform`, analyze →
+    plan → apply.** `mts/generate/modal.py`; MCP `plan_modal_transform` +
+    `apply_modal_transform_plan` + `modal_transform` (**78 tools**; 16 tests;
+    golden additive, 3 cases — the apply case deliberately exercises the
+    edit-then-apply path with one overridden decision). The architecture as
+    specified: the **plan** (`modal-transform-plan.1`, versioned + strictly
+    parsed) is a serializable, inspectable, editable list of typed
+    decisions, one per note — source coordinates, resolution, markedness
+    before/after, classifier evidence (readings + zone from
+    `classify_chromatic_events`), alternatives-not-taken (a tied attachment
+    records the untaken image). **`apply` executes the plan and nothing else**
+    (pure function of the plan; validates count/onsets/source pitches;
+    "different piece" errors pinned), so editing `to_midi` IS the override
+    mechanism — options-exposed as ruled. **A timeline, never one global
+    key:** per-area `InterscalarMap`s, target root preserving each area
+    tonic's interval from home (the most computable default; C→G modulation
+    under a minor transform keeps a G-rooted area), `area_targets` per-area
+    override. **Percussion never transformed** (channel-10 voices get
+    visible `kind="excluded"` decisions, image = source). **Chromatic
+    rhetoric preserved by default** (Julian's ruling); `chromatic="strict"`
+    leaves contested-window chromatics **UNRESOLVED** — `apply` refuses a
+    plan with open questions, the one-shot raises rather than hides the
+    hold, and resolution is a plan edit (tested end-to-end through a real
+    JSON round-trip). Markedness absorption tallied on apply. Honest limit
+    stated on the tool: output is musically *plausible, not correct*;
+    `repair_ruleset` over a counterpoint ruleset is the recorded post-pass.
+    **Gap 26 is feature-complete for the Audiology start signal**; remaining
+    refinements recorded: declared non-tonic-anchored degree correspondence,
+    repair post-pass wiring, and the option surface brief invited from A6.
     - **The core operation is a degree-preserving remap, not a transposition.**
       `pitch → (scale degree, chromatic offset) → new pitch`: the applied interval
       is **non-uniform per degree** (C-E-G in major → C-E♭-G in minor: degrees

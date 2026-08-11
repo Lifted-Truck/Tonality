@@ -1,11 +1,16 @@
 {
- "digest": "91459c5fd09279f8614c53f270cf0f3fa36628e1ebd74ea0d8f624f120b6112d",
- "tool_count": 75,
+ "digest": "1f6fa2f0d99f8da00dc6169bbe9d06860f508cd0d923a3f4268d9db6a653d14b",
+ "tool_count": 78,
  "tools": [
   {
    "description": "Apply a GrooveTemplate to events, returning new onset+velocity timing.\nGENERATIVE (A2's first transformation). Live Groove Pool parameters:\nquantize [0,1] pre-pulls onsets toward the grid; timing scales the\ntemplate offsets (may exceed 1.0); random [0,1] adds deterministic jitter\n(REQUIRES seed when > 0 — same input + same seed → same output); velocity\nis a signed scale on the accent contour (negative reverses); amount [0,1]\nis a global multiplier on all feel. Onsets shift, durations are preserved.\ntemplate is the dict returned by extract_groove. events: the canonical event\nform [onset_beats, duration_beats, midi_note, velocity?, voice?]; the\nresult echoes velocity at index 3 (and voice at index 4 if\npresent) plus the cited parameters and what changed.",
    "name": "apply_groove",
    "signature": "(events: 'list[list]', template: 'dict', quantize: 'float' = 1.0, timing: 'float' = 1.0, random: 'float' = 0.0, velocity: 'float' = 1.0, amount: 'float' = 1.0, seed: 'int | None' = None, voice: 'str | None' = None) -> 'dict'"
+  },
+  {
+   "description": "GENERATIVE (apply stage): execute a modal-transform plan — and NOTHING\nelse. Every output pitch comes from the plan's decisions, so applying an\nEDITED plan (change any decision's to_midi, resolve an unresolved one) is\nthe supported override path; the transform is a pure function of the plan,\nnever of the engine's opinion at apply time. Validates the plan against\nthe events — note count, per-note onset and source pitch — and REFUSES a\nplan with any unresolved decision (a plan with open questions cannot be\nsilently played) or one built for a different piece. plan: the payload\nfrom plan_modal_transform (version modal-transform-plan.1), optionally\nedited. events: the canonical event form [onset_beats, duration_beats,\nmidi_note, velocity?, voice?]. Returns the transformed events plus\nnotes_changed / notes_excluded / absorbed_alterations tallies.",
+   "name": "apply_modal_transform_plan",
+   "signature": "(events: 'list[list]', plan: 'dict') -> 'dict'"
   },
   {
    "description": "Render-agnostic pitch-class clock (bracelet) descriptor: the 12 ring\npositions with the active set flagged (and scale-backdrop membership when\ntonic+scale_name give a context), plus the active set's symmetry — its\nreflection axes (pc-unit centers) and rotational order — and its interval\nvector. Register-less (spec_level \"identity_only\"); numeric only.",
@@ -208,6 +213,11 @@
    "signature": "(path: 'str', infer_context: 'bool' = True, include_key_regions: 'bool' = True, coalesce_window_beats: 'float | None' = None, per_region_context: 'bool' = True, disambiguate_relative_keys: 'bool' = False, smooth_key_regions: 'bool' = False, profile_version: 'str | None' = None, key_inertia: 'bool' = False, include_meter_regions: 'bool' = False) -> 'dict'"
   },
   {
+   "description": "GENERATIVE one-shot: plan_modal_transform + apply_modal_transform_plan\nin one call — switch a piece's MODE (not transpose it), per structural key\narea, drums untouched, chromatic rhetoric preserved. The full plan rides\nthe result for inspection (result.plan — every per-note decision with its\nevidence), and result.application carries the transformed events. With\nchromatic=\"strict\" this RAISES whenever the plan holds unresolved\ndecisions — the one-shot refuses to hide the hold; use the plan/apply\npair to inspect and resolve instead. All arguments, guarantees, policies\nand failure modes are documented on plan_modal_transform and hold\nidentically here. events: the canonical event form [onset_beats,\nduration_beats, midi_note, velocity?, voice?].",
+   "name": "modal_transform",
+   "signature": "(events: 'list[list]', target_scale, target_root: 'int | None' = None, area_targets: 'dict | None' = None, chromatic: 'str' = 'rhetoric', subdivisions: 'int' = 1) -> 'dict'"
+  },
+  {
    "description": "The contextually-chosen naming of a pc set, with ranked alternatives and\nevidence. Omit tonic/key_name for intrinsic-only ranking (no key is invented);\npass realization_midi (actual sounding notes) to let the bass note weigh in.",
    "name": "name_pcs",
    "signature": "(pcs: 'list[int]', tonic: 'int | str | None' = None, key_name: 'str | None' = None, realization_midi: 'list[int] | None' = None) -> 'dict'"
@@ -241,6 +251,11 @@
    "description": "Render-ready piano-roll descriptor for a Standard MIDI File (Phase 5):\nper-note rectangles (midi/pc/voice/velocity, onset+duration in BOTH beats\nand seconds), segmented chord-region overlays with the contextually-chosen\nchord name (conditioned on the local key per onset when track_local_keys),\nand local-key backdrop bands. Chord-overlay names match midi_file_analysis\nbyte-for-byte (same builder). Set coalesce_window_beats (e.g. 0.05) to\nrepair performed timing first. Set disambiguate_relative_keys=true to apply\nthe relative-major/minor tie-breaker to the key backdrop (matches\nmidi_file_analysis under the same flag); smooth_key_regions=true absorbs\nshort low-confidence key-band blips (both off by default). Numeric only —\nlabels/colors are the renderer's business.",
    "name": "piano_roll_view",
    "signature": "(path: 'str', chord_overlays: 'bool' = True, track_local_keys: 'bool' = True, coalesce_window_beats: 'float | None' = None, disambiguate_relative_keys: 'bool' = False, smooth_key_regions: 'bool' = False) -> 'dict'"
+  },
+  {
+   "description": "GENERATIVE (planning stage): build a MODAL TRANSFORM PLAN — switch a\npiece's mode, not its key — without applying anything (gap 26's feature;\nanalyze -> plan -> apply). The plan is a serializable, inspectable,\nEDITABLE list of typed decisions, ONE PER NOTE, each carrying source\ncoordinates, the chosen resolution, markedness before/after\n(chromatic_before/chromatic_after — absorption is a reported fact),\nclassifier evidence for its window (plural readings + confident/contested\nzone from classify_chromatic_events), and alternatives-not-taken (a tied\nattachment records the other reading's image). Editing a decision's\nto_midi and applying the edited plan IS the override mechanism.\n\nA TIMELINE, never one global key: each structural key area gets its own\ntonic-anchored InterscalarMap — the target collection rooted to preserve\nthat area's tonic interval from home (a piece in C modulating to G,\ntransformed toward minor, keeps a G-rooted area: the dominant stays the\ndominant). area_targets ({area_index: [root_pc, scale]}) overrides per\narea. target_root defaults to the home tonic (\"switch the mode, keep the\ntonic\"). PERCUSSION IS NEVER TRANSFORMED: channel-10 voices (labels\n...c9) get kind=\"excluded\" decisions with image = source, visible in the\nplan rather than silent.\n\nchromatic=\"rhetoric\" (default): out-of-scale tones keep their alteration\nrelative to their attached degree (a passing tone stays a passing tone).\nchromatic=\"strict\": a chromatic note in a classifier-CONTESTED window is\nleft UNRESOLVED (to_midi null) with its evidence and the computed\nrhetoric image in its note — apply refuses until it is resolved. Refusing\nto guess is the point: the contested band is where analysts disagree.\n\nOutput is musically PLAUSIBLE, not correct — a mode switch changes\nvoice-leading, so parallels/awkward leaps can appear; repair_ruleset over\na counterpoint ruleset is the natural post-pass. events: the canonical\nevent form [onset_beats, duration_beats, midi_note, velocity?, voice?].\nRaises on an empty stream, unknown policy/scales, wrong-cardinality\ntarget, or out-of-range area_targets indices.",
+   "name": "plan_modal_transform",
+   "signature": "(events: 'list[list]', target_scale, target_root: 'int | None' = None, area_targets: 'dict | None' = None, chromatic: 'str' = 'rhetoric', subdivisions: 'int' = 1) -> 'dict'"
   },
   {
    "description": "Compact brief for a chord quality: interval fingerprint, top compatible\nscales, functional roles.",

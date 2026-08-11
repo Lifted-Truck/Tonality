@@ -29,6 +29,17 @@ from .remap import (
     remap_by_degree,
     retonicize,
 )
+from .modal import (
+    AreaMap,
+    ModalTransformResult,
+    TransformApplication,
+    TransformDecision,
+    TransformPlan,
+    apply_transform_plan,
+    modal_transform,
+    plan_from_payload,
+    plan_modal_transform,
+)
 
 __all__ = [
     "Collision",
@@ -43,4 +54,13 @@ __all__ = [
     "RetonicizeResult",
     "remap_by_degree",
     "retonicize",
+    "AreaMap",
+    "ModalTransformResult",
+    "TransformApplication",
+    "TransformDecision",
+    "TransformPlan",
+    "apply_transform_plan",
+    "modal_transform",
+    "plan_from_payload",
+    "plan_modal_transform",
 ]

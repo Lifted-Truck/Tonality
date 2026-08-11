@@ -229,6 +229,25 @@ def _signed_delta(from_pc: int, to_pc: int) -> int:
     return d if d < 6 else d - 12
 
 
+def _attach_degree(rel: int, degrees: tuple[int, ...]) -> tuple[int, int, bool]:
+    """(degree_index, alteration, tied) for a relative pc outside ``degrees``.
+
+    The one chromatic-attachment rule, shared with ``modal.py`` so the feature
+    and the primitive can never drift: nearest degree wins; a tie between the
+    degree below (+alteration) and above (−alteration) attaches BELOW (the
+    raised-degree reading) and is flagged.
+    """
+
+    candidates = [
+        (abs(_signed_delta(d, rel)), idx, _signed_delta(d, rel))
+        for idx, d in enumerate(degrees)
+    ]
+    best_dist = min(c[0] for c in candidates)
+    nearest = [c for c in candidates if c[0] == best_dist]
+    _dist, degree, alteration = max(nearest, key=lambda c: c[2])
+    return degree, alteration, len(nearest) > 1
+
+
 def remap_by_degree(
     sequence: Sequence,
     source_scale,
@@ -277,19 +296,9 @@ def remap_by_degree(
             degree, alteration, tied = degree_of[rel], 0, False
         else:
             chromatic += 1
-            # Attach to the nearest degree, alteration signed so that
-            # rel = degree_pc + alteration (a positive alteration = the tone
-            # sits ABOVE its degree, i.e. a raised degree). A tie between the
-            # degree below (+a) and above (-a) attaches below — the raised-degree
-            # reading, the commoner chromatic rhetoric — and is flagged.
-            candidates = [
-                (abs(_signed_delta(d, rel)), idx, _signed_delta(d, rel))
-                for idx, d in enumerate(imap.source_degrees)
-            ]
-            best_dist = min(c[0] for c in candidates)
-            nearest = [c for c in candidates if c[0] == best_dist]
-            tied = len(nearest) > 1
-            _dist, degree, alteration = max(nearest, key=lambda c: c[2])
+            # Alteration signed so rel = degree_pc + alteration (positive = the
+            # tone sits ABOVE its degree, a raised degree); see _attach_degree.
+            degree, alteration, tied = _attach_degree(rel, imap.source_degrees)
 
         target_rel = (imap.target_degrees[degree] + alteration) % 12
         target_abs = (imap.target_root + target_rel) % 12
