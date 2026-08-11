@@ -1757,6 +1757,110 @@ def retonicize(scale, root_pc: int, new_tonic_pc: int) -> dict:
     return _retonicize(scale, int(root_pc), int(new_tonic_pc)).to_dict()
 
 
+def plan_modal_transform(
+    events: list[list],
+    target_scale,
+    target_root: int | None = None,
+    area_targets: dict | None = None,
+    chromatic: str = "rhetoric",
+    subdivisions: int = 1,
+) -> dict:
+    """GENERATIVE (planning stage): build a MODAL TRANSFORM PLAN — switch a
+    piece's mode, not its key — without applying anything (gap 26's feature;
+    analyze -> plan -> apply). The plan is a serializable, inspectable,
+    EDITABLE list of typed decisions, ONE PER NOTE, each carrying source
+    coordinates, the chosen resolution, markedness before/after
+    (chromatic_before/chromatic_after — absorption is a reported fact),
+    classifier evidence for its window (plural readings + confident/contested
+    zone from classify_chromatic_events), and alternatives-not-taken (a tied
+    attachment records the other reading's image). Editing a decision's
+    to_midi and applying the edited plan IS the override mechanism.
+
+    A TIMELINE, never one global key: each structural key area gets its own
+    tonic-anchored InterscalarMap — the target collection rooted to preserve
+    that area's tonic interval from home (a piece in C modulating to G,
+    transformed toward minor, keeps a G-rooted area: the dominant stays the
+    dominant). area_targets ({area_index: [root_pc, scale]}) overrides per
+    area. target_root defaults to the home tonic ("switch the mode, keep the
+    tonic"). PERCUSSION IS NEVER TRANSFORMED: channel-10 voices (labels
+    ...c9) get kind="excluded" decisions with image = source, visible in the
+    plan rather than silent.
+
+    chromatic="rhetoric" (default): out-of-scale tones keep their alteration
+    relative to their attached degree (a passing tone stays a passing tone).
+    chromatic="strict": a chromatic note in a classifier-CONTESTED window is
+    left UNRESOLVED (to_midi null) with its evidence and the computed
+    rhetoric image in its note — apply refuses until it is resolved. Refusing
+    to guess is the point: the contested band is where analysts disagree.
+
+    Output is musically PLAUSIBLE, not correct — a mode switch changes
+    voice-leading, so parallels/awkward leaps can appear; repair_ruleset over
+    a counterpoint ruleset is the natural post-pass. events: the canonical
+    event form [onset_beats, duration_beats, midi_note, velocity?, voice?].
+    Raises on an empty stream, unknown policy/scales, wrong-cardinality
+    target, or out-of-range area_targets indices."""
+
+    from ..generate import plan_modal_transform as _plan
+
+    return _plan(
+        _canonical_sequence(events), target_scale,
+        target_root=None if target_root is None else int(target_root),
+        area_targets={int(k): (int(v[0]), v[1]) for k, v in area_targets.items()}
+        if area_targets else None,
+        chromatic=str(chromatic), subdivisions=int(subdivisions),
+    ).to_dict()
+
+
+def apply_modal_transform_plan(events: list[list], plan: dict) -> dict:
+    """GENERATIVE (apply stage): execute a modal-transform plan — and NOTHING
+    else. Every output pitch comes from the plan's decisions, so applying an
+    EDITED plan (change any decision's to_midi, resolve an unresolved one) is
+    the supported override path; the transform is a pure function of the plan,
+    never of the engine's opinion at apply time. Validates the plan against
+    the events — note count, per-note onset and source pitch — and REFUSES a
+    plan with any unresolved decision (a plan with open questions cannot be
+    silently played) or one built for a different piece. plan: the payload
+    from plan_modal_transform (version modal-transform-plan.1), optionally
+    edited. events: the canonical event form [onset_beats, duration_beats,
+    midi_note, velocity?, voice?]. Returns the transformed events plus
+    notes_changed / notes_excluded / absorbed_alterations tallies."""
+
+    from ..generate import apply_transform_plan as _apply
+
+    return _apply(_canonical_sequence(events), plan).to_dict()
+
+
+def modal_transform(
+    events: list[list],
+    target_scale,
+    target_root: int | None = None,
+    area_targets: dict | None = None,
+    chromatic: str = "rhetoric",
+    subdivisions: int = 1,
+) -> dict:
+    """GENERATIVE one-shot: plan_modal_transform + apply_modal_transform_plan
+    in one call — switch a piece's MODE (not transpose it), per structural key
+    area, drums untouched, chromatic rhetoric preserved. The full plan rides
+    the result for inspection (result.plan — every per-note decision with its
+    evidence), and result.application carries the transformed events. With
+    chromatic="strict" this RAISES whenever the plan holds unresolved
+    decisions — the one-shot refuses to hide the hold; use the plan/apply
+    pair to inspect and resolve instead. All arguments, guarantees, policies
+    and failure modes are documented on plan_modal_transform and hold
+    identically here. events: the canonical event form [onset_beats,
+    duration_beats, midi_note, velocity?, voice?]."""
+
+    from ..generate import modal_transform as _transform
+
+    return _transform(
+        _canonical_sequence(events), target_scale,
+        target_root=None if target_root is None else int(target_root),
+        area_targets={int(k): (int(v[0]), v[1]) for k, v in area_targets.items()}
+        if area_targets else None,
+        chromatic=str(chromatic), subdivisions=int(subdivisions),
+    ).to_dict()
+
+
 # --- comparison & summary ----------------------------------------------------------------------
 
 def quality_comparison(quality_a: str, quality_b: str) -> dict:
@@ -2059,6 +2163,9 @@ TOOLS = (
     fit_to_key,
     remap_by_degree,
     retonicize,
+    plan_modal_transform,
+    apply_modal_transform_plan,
+    modal_transform,
     quality_comparison,
     quality_brief,
     midi_file_analysis,

@@ -154,6 +154,18 @@ def _quantized_groove_loop():
     return [[i * 0.5, 0.5, 60 + (i % 2) * 2, 80] for i in range(4)]
 
 
+# apply_modal_transform_plan needs a real plan; the planner is deterministic,
+# so building it at import keeps the golden stable. One decision is overridden
+# (E4@0 forced to stay E) so the case exercises the edit-then-apply path.
+_MODAL_APPLY_EVENTS = [[b, 2, 60 + r + i, 90, "m"] for b, r in
+                       ((0, 0), (2, 5), (4, 7), (6, 0)) for i in (0, 4, 7)]
+_MODAL_APPLY_PLAN = tools.plan_modal_transform(
+    events=_MODAL_APPLY_EVENTS, target_scale="Natural Minor")
+for _d in _MODAL_APPLY_PLAN["decisions"]:
+    if _d["onset"] == 0 and _d["from_midi"] == 64:
+        _d["to_midi"], _d["chromatic_after"] = 64, True   # the human's override
+
+
 # One deterministic call per tool (a tool may have several). Inputs chosen to
 # exercise rich output paths: ambiguity, evidence lists, compound meters, etc.
 CASES: list[tuple[str, dict]] = [
@@ -555,6 +567,23 @@ CASES: list[tuple[str, dict]] = [
       "source_scale": "Ionian", "source_root": 0,
       "target_scale": "Natural Minor", "target_root": 0}),
     ("retonicize", {"scale": "Ionian", "root_pc": 0, "new_tonic_pc": 9}),
+    # gap 26 slice 2: the one-shot transform on a two-chord C-major cell with a
+    # borrowed Eb (markedness absorption) and an excluded drum voice.
+    ("modal_transform",
+     {"events": [[b, 2, 60 + r + i, 90, "m"] for b, r in
+                 ((0, 0), (2, 5), (4, 7), (6, 0)) for i in (0, 4, 7)]
+              + [[3, 1, 63, 80, "m"], [0, 0.5, 36, 110, "t2c9"]],
+      "target_scale": "Natural Minor"}),
+    ("plan_modal_transform",
+     {"events": [[b, 2, 60 + r + i, 90, "m"] for b, r in
+                 ((0, 0), (2, 5), (4, 7), (6, 0)) for i in (0, 4, 7)],
+      "target_scale": "Dorian", "target_root": 2}),
+    # apply must be fed a real plan; the planner is deterministic, so building
+    # it here keeps the golden stable while exercising the edit-then-apply path
+    # (one decision's to_midi overridden to prove apply reads the plan, not the
+    # engine).
+    ("apply_modal_transform_plan",
+     {"events": _MODAL_APPLY_EVENTS, "plan": _MODAL_APPLY_PLAN}),
     ("list_named_drum_patterns", {}),
     ("load_named_drum_pattern", {"name": "four-on-the-floor"}),
     # gap 23: a quota (budget) rule — gated on the measured violation RATE.
