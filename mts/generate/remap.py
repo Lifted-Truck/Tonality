@@ -51,7 +51,7 @@ heard from a different tonic, you want ``retonicize``.
 Register: preserved the same way conform preserves it — each note moves by the
 signed pc difference normalized into [-6, 6) (exact half-octave resolves
 downward), so octaves are never invented and contour is disturbed as little as
-the degree map allows. Onset, duration, velocity, voice, order and count are
+the degree map allows. Onset, duration, velocity, voice and count are
 untouched. Deterministic, freezable.
 
 This is the **primitive**. The feature — ``modal_transform`` over a *timeline*
@@ -196,7 +196,8 @@ class RemapResult:
     """The remapped piece with every degree decision inspectable.
 
     ``events`` is canonical form ``[onset, duration, midi, velocity, voice]``,
-    input order preserved. In-scale notes are bijective through the degree
+    the engine's canonical (onset, midi) order — NOT the caller's wire order
+    (tonality-live-002; pair via ``edits``). In-scale notes are bijective through the degree
     table; chromatic notes carry their attachment + alteration in ``edits``.
     """
 

@@ -2030,6 +2030,41 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     preserves* (which is precisely this type). Until one fires, the spread
     vocabulary is adequate and typing it would be speculation.
 
+31. **Pattern-preserving transformation** (added 2026-08-11 from Julian's
+    Tonality-Live observation; a related Tonality-Live brief is in
+    preparation — hold final scoping for it). The observed failure: a topline
+    doing a **descending scale walk** is destroyed by proximity scale-fitting
+    (adjacent scale tones merge — G-F-E-D-C into C pentatonic becomes
+    G-E-E-D-C; Ableton's Scale tool ships exactly this). Three-part shape:
+    - **(a) Routing, solved today, no build:** for equal-cardinality targets a
+      scale walk survives `remap_by_degree` **exactly, by construction**
+      (bijective degree→degree — consecutive degrees stay consecutive; step
+      *sizes* change, walk-ness cannot). The destruction was a tool-selection
+      error: **conform answers "make these notes legal in S" (cleanup, lossy);
+      remap answers "translate this music into S" (structure-preserving)** —
+      Tonality-Live's scale-change ops should route through remap, conform
+      kept for cleanup. Notice filed (`notice-conform-vs-remap.md`).
+    - **(b) Detection — the patterns layer, mostly existing machinery:** a
+      "scale run" is a Pattern at degree-adjacent grain (consecutive ±1
+      degree steps; the min-consecutive-steps gate IS the pattern's length
+      parameter, which also answers "triggers everywhere"). Ship named
+      patterns (`scale-descent`/`scale-ascent`) in `mts/data/patterns/` +
+      matching over a sequence in an inferred/declared key.
+    - **(c) Preservation under forced collapse — the genuinely new piece:**
+      fitting a 7-step walk into a 5-note scale cannot keep it intact
+      (pigeonhole; the totality/locality impossibility at melody grain). The
+      *characteristic* to preserve is span-level ("monotone, one step per
+      note"), so the plan artifact needs **grouped decisions at pattern
+      grain** — "these N notes form one run; the coherent resolutions are:
+      walk the target degrees over a wider span · tolerate a chord collision ·
+      allow a repetition · compress" — with the choice a **policy input**
+      (Julian's knobs-per-section), UNRESOLVED when no policy covers it.
+      Enumeration is bounded/deterministic (`search/`-shaped constraint
+      solving, not just matching). **This is gap 30's third build trigger
+      firing** (the plan artifact serializing *what a transform preserves*)
+      at melodic grain — design (c) with gap 30's `TransitionIdentity` in
+      view so the two "preserved invariant" types rhyme.
+
 ## Decisions on record (the "why", so we don't relitigate)
 
 1. **Build on the existing engine, don't greenfield.** The bitmask PC substrate,
