@@ -2059,12 +2059,25 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       unequal-cardinality refusal becomes a first-class UI state showing OUR
       reason string (so the string is consumer-visible contract — wording
       changes are notice-worthy).
-    - **(b) Detection — the patterns layer, mostly existing machinery:** a
-      "scale run" is a Pattern at degree-adjacent grain (consecutive ±1
-      degree steps; the min-consecutive-steps gate IS the pattern's length
-      parameter, which also answers "triggers everywhere"). Ship named
-      patterns (`scale-descent`/`scale-ascent`) in `mts/data/patterns/` +
-      matching over a sequence in an inferred/declared key.
+    - **(b) Detection. DELIVERED 2026-08-12** — `mts/temporal/runs.py`
+      `find_scale_runs(sequence, scale, root_pc, min_notes=4, voice=)` (MCP
+      tool, **79 tools**; 11 tests; golden additive, 1 case). **Design
+      correction to this gap's first sketch:** `pattern.1` templates are
+      fixed-length with concrete elements, so a variable-length "N or more
+      steps" is NOT expressible as a named Pattern — shipped as a dedicated
+      detector; a `run` element type is the recorded `pattern.2` follow-on
+      (build it on a *second* variable-length need, not before). Definitions
+      pinned by test: **register-adjacent** steps (an octave leap to the
+      neighbouring pc is a leap — what makes a walk a walk) · **maximal**
+      runs, constant direction, the turnaround note shared between adjacent
+      runs · **strict diatony** (a chromatic breaks the run;
+      chromatic-tolerant runs = recorded follow-on) · step sizes follow the
+      scale (harmonic minor's augmented second is one step) · `min_notes`
+      default 4 (= Julian's 3-steps gate). Line conventions =
+      `analyze_melody` (monophonic, engine never picks a part). Key declared
+      (scale+root, both-or-neither) or inferred-and-cited. Per-area runs
+      compose with `structural_keys` at the caller — or in (c), where these
+      spans become the grouped plan decisions.
     - **(c) Preservation under forced collapse — the genuinely new piece:**
       fitting a 7-step walk into a 5-note scale cannot keep it intact
       (pigeonhole; the totality/locality impossibility at melody grain). The

@@ -690,6 +690,48 @@ def confirm_key_areas(events: list[list], subdivisions: int = 1) -> dict:
     return _confirm(_canonical_sequence(events), subdivisions=int(subdivisions)).to_dict()
 
 
+def find_scale_runs(
+    events: list[list],
+    scale=None,
+    root_pc: int | None = None,
+    min_notes: int = 4,
+    voice: str | None = None,
+) -> dict:
+    """Find every maximal SCALE WALK in one melodic line (gap 31b): spans where
+    each note moves to the REGISTER-ADJACENT scale tone in a constant direction
+    (G-F-E-D-C in C major = five notes, four descending scale steps). Exists
+    because a walk is a SPAN-LEVEL characteristic invisible to per-note
+    transforms — proximity conform destroys one even at equal cardinality
+    (measured, Tonality-Live) — so preserving a walk starts with seeing it.
+
+    Register-adjacent means adjacent IN PITCH SPACE: an octave leap to the
+    neighbouring pitch class is a leap, not a step. Runs are MAXIMAL (never
+    reported inside a longer run); direction is constant; a turnaround ends one
+    run and may start another, the shared turning note belonging to both. A
+    chromatic (out-of-scale) note BREAKS a run — slice 1 is strictly diatonic;
+    chromatic-tolerant runs (a walk decorated with passing tones) are a
+    recorded follow-on. min_notes is the anti-trigger-everywhere gate (default
+    4 notes = 3 steps).
+
+    scale + root_pc declare the collection (catalog name or degree list — both
+    or neither); with neither, the key is inferred globally (infer_key) and
+    cited (key_inferred=true). One voice's monophonic line, same conventions
+    as melodic_analysis: overlapping notes error, multi-voice input without
+    voice= errors — the engine does not pick a part for you. Per-key-area runs
+    compose with structural_keys at the caller. Each run carries direction,
+    note_count, beat span, line indices, midis, and 1-based scale degrees.
+    events: the canonical event form [onset_beats, duration_beats, midi_note,
+    velocity?, voice?]."""
+
+    from ..temporal import find_scale_runs as _runs
+
+    return _runs(
+        _canonical_sequence(events), scale,
+        None if root_pc is None else int(root_pc),
+        min_notes=int(min_notes), voice=voice,
+    ).to_dict()
+
+
 def classify_chromatic_events(events: list[list], subdivisions: int = 1) -> dict:
     """Classify every chord whose notes LEAVE its structural key area — borrowed
     chord vs applied dominant vs the seam of a key change (gap 25). Reads, never
@@ -2129,6 +2171,7 @@ TOOLS = (
     load_named_drum_pattern,
     voice_pair_motion,
     melodic_analysis,
+    find_scale_runs,
     rhythmic_analysis,
     swing_analysis,
     coalesce_events,

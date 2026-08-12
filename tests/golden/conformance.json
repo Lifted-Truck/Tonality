@@ -24675,6 +24675,127 @@
    "tool": "apply_modal_transform_plan"
   },
   {
+   "kwargs": {
+    "events": [
+     [
+      0,
+      1,
+      67,
+      90,
+      "m"
+     ],
+     [
+      1,
+      1,
+      65,
+      90,
+      "m"
+     ],
+     [
+      2,
+      1,
+      64,
+      90,
+      "m"
+     ],
+     [
+      3,
+      1,
+      62,
+      90,
+      "m"
+     ],
+     [
+      4,
+      1,
+      60,
+      90,
+      "m"
+     ],
+     [
+      5,
+      1,
+      62,
+      90,
+      "m"
+     ],
+     [
+      6,
+      1,
+      64,
+      90,
+      "m"
+     ]
+    ],
+    "min_notes": 3,
+    "root_pc": 0,
+    "scale": "Ionian"
+   },
+   "result": {
+    "ascents": 1,
+    "degrees": [
+     0,
+     2,
+     4,
+     5,
+     7,
+     9,
+     11
+    ],
+    "descents": 1,
+    "key_inferred": false,
+    "min_notes": 3,
+    "root_pc": 0,
+    "runs": [
+     {
+      "degrees": [
+       5,
+       4,
+       3,
+       2,
+       1
+      ],
+      "direction": "descent",
+      "end_beat": 4.0,
+      "end_index": 4,
+      "midis": [
+       67,
+       65,
+       64,
+       62,
+       60
+      ],
+      "note_count": 5,
+      "start_beat": 0.0,
+      "start_index": 0,
+      "voice": "m"
+     },
+     {
+      "degrees": [
+       1,
+       2,
+       3
+      ],
+      "direction": "ascent",
+      "end_beat": 6.0,
+      "end_index": 6,
+      "midis": [
+       60,
+       62,
+       64
+      ],
+      "note_count": 3,
+      "start_beat": 4.0,
+      "start_index": 4,
+      "voice": "m"
+     }
+    ],
+    "scale_name": "Ionian",
+    "voice": null
+   },
+   "tool": "find_scale_runs"
+  },
+  {
    "kwargs": {},
    "result": [
     "backbeat",

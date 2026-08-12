@@ -42,6 +42,7 @@ from .drums import (
     drum_pattern_analysis,
 )
 from .melodic import MelodicAnalysis, MelodicNoteAtoms, analyze_melody
+from .runs import ScaleRun, ScaleRunResult, find_scale_runs
 from .tolerance import CoalesceResult, DroppedEvent, coalesce
 from .groove import (
     GrooveApplyResult,
@@ -110,6 +111,9 @@ __all__ = [
     "MelodicAnalysis",
     "MelodicNoteAtoms",
     "analyze_melody",
+    "ScaleRun",
+    "ScaleRunResult",
+    "find_scale_runs",
     "RhythmicAnalysis",
     "RhythmicNoteAtoms",
     "analyze_rhythm",
