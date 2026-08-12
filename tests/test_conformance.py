@@ -584,6 +584,12 @@ CASES: list[tuple[str, dict]] = [
     # engine).
     ("apply_modal_transform_plan",
      {"events": _MODAL_APPLY_EVENTS, "plan": _MODAL_APPLY_PLAN}),
+    # gap 31(b): the motivating topline — descent then partway back up, with the
+    # gate lowered so the shared-turnaround ascent is exercised too.
+    ("find_scale_runs",
+     {"events": [[i, 1, m, 90, "m"] for i, m in
+                 enumerate([67, 65, 64, 62, 60, 62, 64])],
+      "scale": "Ionian", "root_pc": 0, "min_notes": 3}),
     ("list_named_drum_patterns", {}),
     ("load_named_drum_pattern", {"name": "four-on-the-floor"}),
     # gap 23: a quota (budget) rule — gated on the measured violation RATE.
