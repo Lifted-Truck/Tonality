@@ -1955,6 +1955,270 @@
   {
    "kwargs": {
     "pcs": [
+     5,
+     0,
+     8,
+     11
+    ]
+   },
+   "result": {
+    "alternatives": [],
+    "chosen": null,
+    "context": null,
+    "is_ambiguous": false,
+    "unmatched": {
+     "containing_scale_count": 45,
+     "containing_scales": [
+      {
+       "cardinality": 6,
+       "is_exact": false,
+       "name": "Minor Blues",
+       "root_pc": 5
+      },
+      {
+       "cardinality": 7,
+       "is_exact": false,
+       "name": "Bhairav",
+       "root_pc": 0
+      },
+      {
+       "cardinality": 7,
+       "is_exact": false,
+       "name": "Bhairav",
+       "root_pc": 4
+      },
+      {
+       "cardinality": 7,
+       "is_exact": false,
+       "name": "Dorian #4",
+       "root_pc": 2
+      },
+      {
+       "cardinality": 7,
+       "is_exact": false,
+       "name": "Dorian #4",
+       "root_pc": 5
+      },
+      {
+       "cardinality": 7,
+       "is_exact": false,
+       "name": "Harmonic Minor",
+       "root_pc": 0
+      },
+      {
+       "cardinality": 7,
+       "is_exact": false,
+       "name": "Harmonic Minor",
+       "root_pc": 9
+      },
+      {
+       "cardinality": 7,
+       "is_exact": false,
+       "name": "Hungarian Minor",
+       "root_pc": 5
+      }
+     ],
+     "interval_vector": [
+      1,
+      0,
+      2,
+      1,
+      1,
+      1
+     ],
+     "near_qualities": [
+      {
+       "pcs": [
+        0,
+        4,
+        8,
+        11
+       ],
+       "quality": "maj7#5",
+       "root_pc": 0,
+       "swap_from_pc": 5,
+       "swap_to_pc": 4
+      },
+      {
+       "pcs": [
+        2,
+        5,
+        8,
+        11
+       ],
+       "quality": "dim7",
+       "root_pc": 5,
+       "swap_from_pc": 0,
+       "swap_to_pc": 2
+      },
+      {
+       "pcs": [
+        0,
+        2,
+        5,
+        8
+       ],
+       "quality": "min6",
+       "root_pc": 5,
+       "swap_from_pc": 11,
+       "swap_to_pc": 2
+      },
+      {
+       "pcs": [
+        0,
+        3,
+        5,
+        8
+       ],
+       "quality": "min7",
+       "root_pc": 5,
+       "swap_from_pc": 11,
+       "swap_to_pc": 3
+      },
+      {
+       "pcs": [
+        3,
+        5,
+        8,
+        11
+       ],
+       "quality": "min7b5",
+       "root_pc": 5,
+       "swap_from_pc": 0,
+       "swap_to_pc": 3
+      },
+      {
+       "pcs": [
+        0,
+        5,
+        7,
+        8
+       ],
+       "quality": "minadd9",
+       "root_pc": 5,
+       "swap_from_pc": 11,
+       "swap_to_pc": 7
+      },
+      {
+       "pcs": [
+        0,
+        4,
+        5,
+        8
+       ],
+       "quality": "minmaj7",
+       "root_pc": 5,
+       "swap_from_pc": 11,
+       "swap_to_pc": 4
+      },
+      {
+       "pcs": [
+        2,
+        5,
+        8,
+        11
+       ],
+       "quality": "dim7",
+       "root_pc": 8,
+       "swap_from_pc": 0,
+       "swap_to_pc": 2
+      },
+      {
+       "pcs": [
+        0,
+        3,
+        5,
+        8
+       ],
+       "quality": "maj6",
+       "root_pc": 8,
+       "swap_from_pc": 11,
+       "swap_to_pc": 3
+      },
+      {
+       "pcs": [
+        3,
+        5,
+        8,
+        11
+       ],
+       "quality": "min6",
+       "root_pc": 8,
+       "swap_from_pc": 0,
+       "swap_to_pc": 3
+      },
+      {
+       "pcs": [
+        2,
+        5,
+        8,
+        11
+       ],
+       "quality": "dim7",
+       "root_pc": 11,
+       "swap_from_pc": 0,
+       "swap_to_pc": 2
+      },
+      {
+       "pcs": [
+        1,
+        5,
+        8,
+        11
+       ],
+       "quality": "7",
+       "root_pc": 1,
+       "swap_from_pc": 0,
+       "swap_to_pc": 1
+      }
+     ],
+     "near_quality_count": 15,
+     "normal_order": [
+      5,
+      8,
+      11,
+      0
+     ],
+     "prime_form": [
+      0,
+      1,
+      4,
+      7
+     ],
+     "quality_subsets": [
+      {
+       "added_pcs": [
+        0
+       ],
+       "pcs": [
+        5,
+        8,
+        11
+       ],
+       "quality": "dim",
+       "root_pc": 5
+      },
+      {
+       "added_pcs": [
+        11
+       ],
+       "pcs": [
+        0,
+        5,
+        8
+       ],
+       "quality": "min",
+       "root_pc": 5
+      }
+     ]
+    },
+    "weights_version": "naming-rules.1"
+   },
+   "tool": "name_pcs"
+  },
+  {
+   "kwargs": {
+    "pcs": [
      0,
      4,
      7,
@@ -3412,6 +3676,7 @@
      "tonic_pc": 9
     },
     "is_ambiguous": false,
+    "unmatched": null,
     "weights_version": "naming-rules.1"
    },
    "tool": "name_pcs"
@@ -4838,6 +5103,7 @@
         "tonic_pc": 0
        },
        "is_ambiguous": true,
+       "unmatched": null,
        "weights_version": "naming-rules.1"
       }
      },
@@ -4933,6 +5199,7 @@
         "tonic_pc": 5
        },
        "is_ambiguous": false,
+       "unmatched": null,
        "weights_version": "naming-rules.1"
       }
      },
@@ -5033,6 +5300,7 @@
         "tonic_pc": 7
        },
        "is_ambiguous": true,
+       "unmatched": null,
        "weights_version": "naming-rules.1"
       }
      }
@@ -16612,6 +16880,7 @@
           "tonic_pc": 0
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -16775,6 +17044,7 @@
           "tonic_pc": 0
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -16938,6 +17208,7 @@
           "tonic_pc": 0
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -17101,6 +17372,7 @@
           "tonic_pc": 0
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -17264,6 +17536,7 @@
           "tonic_pc": 0
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -17427,6 +17700,7 @@
           "tonic_pc": 0
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -17590,6 +17864,7 @@
           "tonic_pc": 7
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -17753,6 +18028,7 @@
           "tonic_pc": 7
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -17916,6 +18192,7 @@
           "tonic_pc": 7
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -18079,6 +18356,7 @@
           "tonic_pc": 7
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -18242,6 +18520,7 @@
           "tonic_pc": 7
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -18405,6 +18684,7 @@
           "tonic_pc": 7
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -18568,6 +18848,7 @@
           "tonic_pc": 7
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -18731,6 +19012,7 @@
           "tonic_pc": 7
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null
@@ -18894,6 +19176,7 @@
           "tonic_pc": 7
          },
          "is_ambiguous": false,
+         "unmatched": null,
          "weights_version": "naming-rules.1"
         },
         "scale": null

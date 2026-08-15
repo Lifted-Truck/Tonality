@@ -106,6 +106,7 @@ def name_chord(
     realization: Realization | None = None,
     catalog: Mapping[str, ChordQuality] | None = None,
     weights: "NamingWeights | None" = None,
+    enrich_unmatched: bool = True,
 ) -> ChordNaming:
     """Rank every valid naming of *material* within an analytical frame.
 
@@ -252,6 +253,80 @@ def name_chord(
         is_ambiguous=is_ambiguous,
         context=_snapshot(context),
         weights_version=weights.version,
+        # ``enrich_unmatched=False`` is for tight loops that discard naming
+        # detail anyway (segmentation names hundreds of windows and keeps only
+        # a reason string; measured 7x slower with enrichment it never read).
+        unmatched=(
+            _unmatched_analysis(pc_set, catalog)
+            if not ranked and enrich_unmatched else None
+        ),
+    )
+
+
+_NEAR_QUALITY_CAP = 12
+_CONTAINING_SCALE_CAP = 8
+
+
+def _unmatched_analysis(pcs, catalog) -> "UnmatchedAnalysis":
+    """The no-match fallback: what the engine still knows about the set.
+
+    "No known identity" is impossible in this engine — every mask has a
+    set-class identity, and the catalog arithmetic below is bounded (distinct
+    qualities × 12 roots). Computed only when naming found nothing, so matched
+    results are byte-identical to before.
+    """
+
+    from ..core.bitmask import interval_vector_from_mask, mask_from_pcs
+    from ..core.setclass import normal_order, prime_form
+    from .containment import find_containers
+    from .results import NearQuality, QualitySubset, UnmatchedAnalysis
+
+    query = frozenset(int(p) % 12 for p in pcs)
+    mask = mask_from_pcs(query)
+    distinct = {q.name: q for q in catalog.values()}   # collapse alias keys
+
+    subsets: list[QualitySubset] = []
+    near: list[NearQuality] = []
+    for q in distinct.values():
+        for root in range(12):
+            chord = frozenset((root + i) % 12 for i in q.intervals)
+            if len(chord) >= 3 and chord <= query:
+                subsets.append(QualitySubset(
+                    root_pc=root, quality=q.name, pcs=sorted(chord),
+                    added_pcs=sorted(query - chord),
+                ))
+            elif len(chord) == len(query) and len(chord & query) == len(query) - 1:
+                near.append(NearQuality(
+                    root_pc=root, quality=q.name, pcs=sorted(chord),
+                    swap_from_pc=next(iter(query - chord)),
+                    swap_to_pc=next(iter(chord - query)),
+                ))
+
+    # maximal subsets only: a triad inside a reported seventh reading is noise
+    subsets = [
+        s for s in subsets
+        if not any(set(s.pcs) < set(t.pcs) for t in subsets)
+    ]
+    subsets.sort(key=lambda s: (-len(s.pcs), s.root_pc, s.quality))
+    # near-misses whose root the player actually struck first, then stable
+    near.sort(key=lambda x: (x.root_pc not in query, x.root_pc, x.quality))
+
+    containment = find_containers(sorted(query), catalog_qualities=catalog)
+    scales = [
+        {"name": c.name, "root_pc": c.root_pc, "cardinality": c.cardinality,
+         "is_exact": c.is_exact}
+        for c in containment.scales[:_CONTAINING_SCALE_CAP]
+    ]
+
+    return UnmatchedAnalysis(
+        prime_form=list(prime_form(mask)),
+        normal_order=list(normal_order(mask)),
+        interval_vector=list(interval_vector_from_mask(mask)),
+        quality_subsets=subsets,
+        near_qualities=near[:_NEAR_QUALITY_CAP],
+        near_quality_count=len(near),
+        containing_scales=scales,
+        containing_scale_count=len(containment.scales),
     )
 
 
