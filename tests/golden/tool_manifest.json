@@ -1,5 +1,5 @@
 {
- "digest": "2953e39b54b9fe7fc01519d7cede46176bab33fdc2e2f26c14473d53a60adcfd",
+ "digest": "b49a245d38a673c06f730058dac785f0c84ee4e1165d6566c36a0b2f31211561",
  "tool_count": 79,
  "tools": [
   {
@@ -223,7 +223,7 @@
    "signature": "(events: 'list[list]', target_scale, target_root: 'int | None' = None, area_targets: 'dict | None' = None, chromatic: 'str' = 'rhetoric', subdivisions: 'int' = 1) -> 'dict'"
   },
   {
-   "description": "The contextually-chosen naming of a pc set, with ranked alternatives and\nevidence. Omit tonic/key_name for intrinsic-only ranking (no key is invented);\npass realization_midi (actual sounding notes) to let the bass note weigh in.",
+   "description": "The contextually-chosen naming of a pc set, with ranked alternatives and\nevidence. Omit tonic/key_name for intrinsic-only ranking (no key is invented);\npass realization_midi (actual sounding notes) to let the bass note weigh in.\n\nWhen NO catalog quality matches (chosen is null), the result does not go\nsilent: `unmatched` carries what the engine still knows — the set-class\nidentity (prime_form, normal_order, interval_vector), MAXIMAL catalog-\nquality subsets with the unexplained tones flagged (F-G#-B-C reads as\n\"F dim + added C\" or \"F min + added B\"), near-miss qualities one pc-swap\naway (capped list, TRUE total in near_quality_count, roots the player\nactually struck first), and the tightest containing scales (capped,\ntotal in containing_scale_count). Plural facts, no verdict — \"no known\nidentity\" is impossible in this engine, and this field is why. `unmatched`\nis null whenever a match exists.",
    "name": "name_pcs",
    "signature": "(pcs: 'list[int]', tonic: 'int | str | None' = None, key_name: 'str | None' = None, realization_midi: 'list[int] | None' = None) -> 'dict'"
   },

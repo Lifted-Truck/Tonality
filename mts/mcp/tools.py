@@ -308,7 +308,18 @@ def name_pcs(
 ) -> dict:
     """The contextually-chosen naming of a pc set, with ranked alternatives and
     evidence. Omit tonic/key_name for intrinsic-only ranking (no key is invented);
-    pass realization_midi (actual sounding notes) to let the bass note weigh in."""
+    pass realization_midi (actual sounding notes) to let the bass note weigh in.
+
+    When NO catalog quality matches (chosen is null), the result does not go
+    silent: `unmatched` carries what the engine still knows — the set-class
+    identity (prime_form, normal_order, interval_vector), MAXIMAL catalog-
+    quality subsets with the unexplained tones flagged (F-G#-B-C reads as
+    "F dim + added C" or "F min + added B"), near-miss qualities one pc-swap
+    away (capped list, TRUE total in near_quality_count, roots the player
+    actually struck first), and the tightest containing scales (capped,
+    total in containing_scale_count). Plural facts, no verdict — "no known
+    identity" is impossible in this engine, and this field is why. `unmatched`
+    is null whenever a match exists."""
     return name_chord(
         pcs, _context(tonic, key_name), realization=_realization(realization_midi)
     ).to_dict()

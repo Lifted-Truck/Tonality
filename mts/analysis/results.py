@@ -605,6 +605,68 @@ class RankedInterpretation:
 
 
 @dataclass(frozen=True)
+class QualitySubset:
+    """A catalog quality wholly inside an unmatched set — a partial reading."""
+
+    root_pc: int
+    quality: str                # canonical name (aliases collapsed)
+    pcs: list[int]
+    added_pcs: list[int]        # the query tones the subset does not explain
+
+    def to_dict(self) -> dict:
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
+class NearQuality:
+    """A catalog quality one pc-swap away from an unmatched set."""
+
+    root_pc: int
+    quality: str
+    pcs: list[int]
+    swap_from_pc: int           # the query pc the quality does not contain...
+    swap_to_pc: int             # ...and the quality pc that replaces it
+
+    def to_dict(self) -> dict:
+        return dataclasses.asdict(self)
+
+
+@dataclass(frozen=True)
+class UnmatchedAnalysis:
+    """What the engine still knows when NO catalog quality matches a set.
+
+    "No known identity" is impossible here — every pc set has a set-class
+    identity, catalog-quality subsets, near-misses, and containing scales
+    (found via Audiology, 2026-08-12: real played chords returned an empty
+    shell and the UI honestly showed nothing). This degrades the no-match
+    answer to those facts instead of silence: plural, evidenced, no verdict.
+    ``near_quality_count``/``containing_scale_count`` are the TRUE totals —
+    the lists are capped for payload size, never silently (L0003 discipline).
+    """
+
+    prime_form: list[int]
+    normal_order: list[int]
+    interval_vector: list[int]
+    quality_subsets: list[QualitySubset]      # maximal only, cardinality >= 3
+    near_qualities: list[NearQuality]         # capped; roots in the query first
+    near_quality_count: int
+    containing_scales: list[dict]             # tightest-first; capped
+    containing_scale_count: int
+
+    def to_dict(self) -> dict:
+        return {
+            "prime_form": list(self.prime_form),
+            "normal_order": list(self.normal_order),
+            "interval_vector": list(self.interval_vector),
+            "quality_subsets": [s.to_dict() for s in self.quality_subsets],
+            "near_qualities": [n.to_dict() for n in self.near_qualities],
+            "near_quality_count": self.near_quality_count,
+            "containing_scales": list(self.containing_scales),
+            "containing_scale_count": self.containing_scale_count,
+        }
+
+
+@dataclass(frozen=True)
 class ChordNaming:
     """The contextually-chosen reading of a pc set, with ranked alternatives.
 
@@ -613,7 +675,10 @@ class ChordNaming:
     honest (``is_ambiguous`` flags near-ties instead of hiding them).
     ``context`` is the snapshot this naming is *conditional on* — ``None``
     means intrinsic-only ranking (no key was supplied; none was invented).
-    ``chosen`` is ``None`` when the set matches nothing in the catalog.
+    ``chosen`` is ``None`` when the set matches nothing in the catalog — and
+    then ``unmatched`` carries what the engine still knows (set-class
+    identity, quality subsets, near-misses, containing scales) instead of an
+    empty shell; it is ``None`` whenever a match exists.
     """
 
     chosen: RankedInterpretation | None
@@ -621,6 +686,7 @@ class ChordNaming:
     is_ambiguous: bool
     context: AnalyticalContextSnapshot | None
     weights_version: str
+    unmatched: UnmatchedAnalysis | None = None
 
     def to_dict(self) -> dict:
         """Return a plain-dict representation suitable for JSON serialisation."""

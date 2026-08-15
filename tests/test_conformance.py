@@ -175,6 +175,9 @@ CASES: list[tuple[str, dict]] = [
     ("chord_analysis", {"root": "C", "quality": "maj7", "tonic": "C"}),
     ("scale_analysis", {"scale_name": "Dorian", "tonic": 2}),
     ("set_class_info", {"pcs": [0, 4, 7, 10]}),
+    # the Audiology-reported unmatched chord (F C G# B): the no-match fallback
+    # must carry subsets/near-misses/scales, never an empty shell.
+    ("name_pcs", {"pcs": [5, 0, 8, 11]}),
     ("interpretations", {"pcs": [0, 4, 7, 9]}),
     ("catalog_containment", {"pcs": [0, 4, 7]}),
     (

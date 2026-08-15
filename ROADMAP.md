@@ -2140,6 +2140,32 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       (gap 31). "Complexify" is the genuinely new part (generative
       elaboration, Phase 7 family, furthest away).
 
+33. **Unmatched-naming fallback — "no known identity" made impossible at the
+    surface, as it already was in the engine** (added AND DELIVERED 2026-08-15,
+    from Julian's Audiology report: real played chords — F-C-G♯-B, D-E-F,
+    D-A-F-G♯ — returned `{chosen: null, alternatives: []}` and the UI honestly
+    rendered "no suggested analyses"). Diagnosis: not a matching bug — none of
+    those sets is a registered quality (the catalog is 65 tertian/common
+    shapes; D-E-F is a cluster), and error-don't-guess correctly refused to
+    name them. The failure was the **empty shell**: the identity layer had
+    plenty to say (both tetrads are the *same set class*, prime form
+    [0,1,4,7]; F-C-G♯-B is "F dim + added C" / "F min + added B" and lives
+    inside F Minor Blues) and none of it reached the naming result. Fix:
+    `ChordNaming.unmatched` (`UnmatchedAnalysis`), populated **only when
+    `chosen` is null** — set-class identity (prime/normal/interval-vector) ·
+    **maximal** catalog-quality subsets with unexplained tones flagged
+    (aliases collapsed; a triad inside a reported seventh is noise) ·
+    near-miss qualities one pc-swap away (capped list, TRUE total, roots the
+    player struck first) · tightest containing scales (capped + total). No
+    catalog stuffing — clusters and dim+P5 do not become fake qualities;
+    plural facts, no verdict. `enrich_unmatched=False` opts tight loops out
+    (segmentation names hundreds of windows and keeps only a reason string;
+    measured 7× slower with enrichment it never read — L0003 corollary,
+    caught before shipping). 10 tests (the three reported chords are the
+    fixtures); golden: 1 added case + 3 existing cases whose only diff is the
+    new field (verified mechanically); manifest moved on `name_pcs` alone.
+    Notice to Audiology: `notice-unmatched-naming.md`.
+
 ## Decisions on record (the "why", so we don't relitigate)
 
 1. **Build on the existing engine, don't greenfield.** The bitmask PC substrate,

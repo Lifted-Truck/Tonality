@@ -166,7 +166,8 @@ def segment_to_chords(
             salient = tuple(
                 pc for pc in range(12) if weights[pc] >= min_pc_weight * total
             )
-            naming = name_chord(salient, context, catalog=catalog)
+            naming = name_chord(salient, context, catalog=catalog,
+                                enrich_unmatched=False)
             if naming.chosen is None:
                 spans.append(ChordSpan(
                     start, end, bar, salient, None, None, False,
