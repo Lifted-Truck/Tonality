@@ -3866,6 +3866,22 @@ then `/transform`'s revoice arm stays a visible 501 (degraded-not-silent).*
       decision the engine refuses to make silently. Pre-existing input
       duplicates not reported. MIDI-boundary edge: the in-range direction wins
       (`tie_resolution: "range"`), and both candidates cannot be out of range.
+      **CORRECTION 2026-08-15 (audit #262): the "≤ 6-semitone move" guarantee
+      was stated unconditionally — here, in the module docstring, and in the
+      consumer contract test — and that was WRONG.** At the MIDI boundary a
+      ≤ 6 move can fail to **exist**: from MIDI 0 into a scale whose only
+      member is pc 11, the closest legal scale tone is MIDI 11 (an 11-semitone
+      move). The code was right — verified exhaustively over the boundary
+      registers to always take the **nearest legal scale tone** — and only the
+      *claim* was false, which is the more dangerous failure: a consumer
+      contract test pinned the false version. Restated invariants: **every
+      snap is the nearest in-range scale tone (unconditional)** · **`abs(delta)
+      ≤ 6` for every edit whose `tie_resolution` is not `"range"`**. Only
+      explicit sparse degree lists reach it (catalog scales max gap 4), but
+      those are supported input. New exhaustive boundary test covers what the
+      old contract test missed (it swept MIDI 30–89 only, never the edge its
+      own docstring discussed). Notice to Tonality-Live, whose contract test 1
+      pins this claim: `notice-conform-bound-correction.md`.
       Module lives in **`mts/generate/`** (new generative package beside
       `search/`, as recorded below).
       **CONSUMER GREEN 2026-08-09** (`integrations/Tonality-Live/confirm-green.md`):
