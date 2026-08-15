@@ -2165,6 +2165,23 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     fixtures); golden: 1 added case + 3 existing cases whose only diff is the
     new field (verified mechanically); manifest moved on `name_pcs` alone.
     Notice to Audiology: `notice-unmatched-naming.md`.
+    **CONSUMED AND SHIPPED same day** (`ack-unmatched-naming.md`): rendered
+    in Audiology's Interpretations view in place of the old dead-end; worked
+    example reproduced exactly against the live bridge (F Minor Blues
+    leading). Two consumer-side adoptions worth naming: the
+    subsets-vs-near-misses **two-list split kept visually distinct** ("what
+    it partially IS" vs "what it ALMOST is" — they said they'd have merged
+    them unprompted; the swap fields render as an actionable diff), and
+    **true totals rendered on capped lists** ("showing 12 of 15") — the
+    no-silent-caps discipline now mirrored consumer-side. **A channel
+    pattern the consumer named, worth keeping:** twice in one week an
+    Audiology surface built to *expose an uncertainty* (competing-key
+    readings; the empty naming state) made visible exactly which engine
+    capability was missing, and the engine slice arrived to complete it.
+    "Consumer builds the uncertainty-exposing surface → engine builds the
+    discriminator" is a productive loop, not a coincidence — record it as
+    the preferred shape for A6 asks. `confirm_key_areas` remains their
+    outstanding one, on Julian's sequencing.
 
 ## Decisions on record (the "why", so we don't relitigate)
 
