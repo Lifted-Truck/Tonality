@@ -70,11 +70,22 @@ if __name__ == "__main__":
     # scale must stay ~linear. Add the newest scalable surface here each cycle.
     from mts.mcp.tools import _canonical_sequence
     from mts.temporal import part_profiles, part_relations
+    from mts.temporal.harmonic_segmentation import segment_to_chords
 
     def _two_voice(n):
         return _canonical_sequence(
             [[i * 0.25, 0.25, 60 + (i % 12), "a" if i % 2 else "b"] for i in range(n)]
         )
 
+    def _single_voice(n):
+        return _canonical_sequence(
+            [[i * 0.5, 0.5, 60 + (i * 7) % 12] for i in range(n)]
+        )
+
     report("part_profiles", _two_voice, part_profiles)
     report("part_relations", _two_voice, part_relations)
+    # 2026-08-17 cycle: filed as #274 (exponent ≈1.5-1.65, >> the 1.4 ceiling) —
+    # _window_pc_weights rescans all events per metric window. Left wired in so
+    # this stays visibly SUPERLINEAR each cycle until the dev loop fixes it.
+    report("segment_to_chords", _single_voice,
+           lambda seq: segment_to_chords(seq, key=(0, "major")))
