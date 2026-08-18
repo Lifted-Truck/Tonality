@@ -1,6 +1,6 @@
 {
   "schema": "project-manifest.0 (draft — kit v2 will formalize)",
-  "kit_version": "2.4.1",
+  "kit_version": "2.5.0",
   "survey": {
     "what_is_it": "a local-first, deterministic music-theory engine for 12-TET pitch material (Python package `mts`). Recognizes and contextualizes scales, chords and pitch-class sets, and increasingly time-bearing material. The destination is a FOUNDATION LIBRARY with an MCP endpoint so agents can turn varied notations into enriched, contextualized datasets — not an end-user app (see README, CLAUDE.md).",
     "architecture_rung": {

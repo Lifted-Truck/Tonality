@@ -1,4 +1,4 @@
-# Trace — 2026-08-18: retrofit to kit 2.4.1
+# Trace — 2026-08-18: retrofit to kit 2.4.1 → 2.5.0
 
 **Session:** Tonality primary dev thread. **Trigger:** `/retrofit`.
 **Opening state:** `declared: pre-2.0.0 — BEHIND by 5 entries`.
@@ -72,3 +72,36 @@ invisible to a concurrent run (2.3.0), and it is deliberately NOT gitignored —
 
 Nothing. Every `[ ]` in the opening delta is `[x]`; the manifest declares
 `2.4.1` only because the closing `currency.py` agrees.
+
+## Verified by autonomous, and the finding shipped as 2.5.0
+
+autonomous re-read the tree and stamped the notice `verified`. The
+`.gitattributes` finding shipped the same day as **kit 2.5.0** — as a migration
+with a retrofit action rather than folded in silently, per the 2.2.0 precedent
+that a tightening which flips repos to BEHIND is a migration. `currency.py`
+gained a `tracked` kind using `git ls-files --error-unmatch`.
+
+Two things worth keeping from their reply:
+
+- They named the defect **family**: `contains:leak_gate` (2.2.0 — the gate's
+  NAME rather than its behaviour), vendored-but-not-sourced (2.4.0), and now
+  present-but-untracked. Each time *the check asked a question adjacent to the
+  one that mattered*. "Is this file on disk" is almost never it.
+- Their new check **failed their own two test fixtures before it could fail any
+  code** — both built a repo by hand and never staged anything, so the fixtures
+  were pretending to be current repos while being untracked working trees. The
+  same defect one level in.
+
+They also corrected their own number: their "3 citations name ROADMAP" came
+from a regex requiring ROADMAP within 40 characters of "Decision N", so it
+undercounted; ~19 is right. Their case never rested on that figure — it rested
+on the 176 citations being file-agnostic, which they are.
+
+This repo closed 2.5.0 by declaration only: the retrofit action (`git add
+.gitattributes`) had already been performed during the 2.4.1 pass, before the
+entry existed.
+
+**Decision 66 (autonomous, landed after this retrofit began):** sessions finish
+by opening a PR rather than leaving commits on a branch unannounced; merges stay
+the human's. Already this repo's own convention — every slice this month shipped
+as a PR — so it changes nothing here beyond making it explicit.
