@@ -5,7 +5,7 @@ position (onset + duration, in quarter-note beats). A :class:`Sequence` collects
 events with a tempo map and meter, and — crucially — lets you read the pitches
 sounding across any time window as a :class:`~mts.core.realization.Realization`,
 which reduces to an identity key. This is the core-data-model chain made temporal:
-**event → realization → identity key** (ROADMAP Decision 2).
+**event → realization → identity key** (Decision 2).
 
 The realization read from a window is rootless (a registered voicing template):
 the timeline says *which pitches sound where*, not *which is the root* — naming is

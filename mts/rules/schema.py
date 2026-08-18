@@ -28,7 +28,7 @@ The DSL is deliberately small (v1). A rule is a JSON object:
   max_rate`` — e.g. ``{"polarity": "budget", "max_rate": 0.05}`` reads "at most
   5% of considered items may violate"). Only soft rules take a ``weight``; only
   budget rules take a ``max_rate``. A budget is a threshold on a **measured
-  rate**, not a learned probability (ROADMAP Decision 15) — the engine counts,
+  rate**, not a learned probability (Decision 15) — the engine counts,
   it does not model.
 
 Validation is **strict and total**: unknown keys, families, fields,

@@ -1,0 +1,42 @@
+{
+  "schema": "project-manifest.0 (draft — kit v2 will formalize)",
+  "kit_version": "2.5.0",
+  "survey": {
+    "what_is_it": "a local-first, deterministic music-theory engine for 12-TET pitch material (Python package `mts`). Recognizes and contextualizes scales, chords and pitch-class sets, and increasingly time-bearing material. The destination is a FOUNDATION LIBRARY with an MCP endpoint so agents can turn varied notations into enriched, contextualized datasets — not an end-user app (see README, CLAUDE.md).",
+    "architecture_rung": {
+      "choice": 2,
+      "menu": [
+        "1: single thread",
+        "2: thread + subagents/verifier",
+        "3: organ fleet"
+      ],
+      "earned_by": "one WRITING dev thread, plus three read-only/verifying parallels that have each caught real defects the dev thread missed: the audit loop (own git worktree, files GitHub issues, checks fenced into audit/checks/ — see audit/AUDIT.md), the C++ port thread in a sibling repo which never edits mts/ and whose parity harness has corrected us (the macos-14 libm ruling), and read-only research swarms. Rung 3 is NOT claimed: nothing but this thread writes the engine, and the ~15x multiplier is unearned while a single integrator keeps up."
+    },
+    "domain_core_llm_must_not_own": "every piece of pitch-class arithmetic and its consequences: bitmask/set-class math, interval vectors, exhaustive subset and containment search, symmetry, key induction and its versioned profiles, cadence/function mapping, ruleset conformance evaluation, constraint search, conformance repair, and every generative transform (conform, remap, modal). The engine's reason to exist is doing exactly the combinatorics LLMs are bad at; fuzzy/semantic reasoning lives in the CALLER, above the MCP boundary. No model calls exist inside `mts` and none will.",
+    "oracle_shape": {
+      "goldens": "tests/golden/conformance.json (one deterministic case per MCP tool, TOTAL coverage enforced — a new tool without a case fails), tests/golden/tool_manifest.json (the rug-pull gate: every tool's name + signature + FULL docstring, so a description edit lands as a readable diff), port/pin.json (fingerprints the ported surface so engine drift from the C++ port fails here)",
+      "ci": "two legs — `pytest tests/` and `pytest audit/checks/` — across Python 3.10 + 3.13. `./verify fast` runs the dev suite; `./verify full` adds the audit leg and scripts/ci-local.sh, which reproduces both legs on both interpreters and reports honestly (loud WARN) which it could not reproduce."
+    },
+    "second_implementation": true,
+    "second_implementation_note": "tonality-core (C++), Decision 10 — dual implementation, golden-anchored. Parity is byte-for-byte against this engine's export; port/pin.json + tests/test_port_pin.py fail here when the engine drifts from the ported surface.",
+    "consumers_and_providers": {
+      "consumes": [
+        "versioned priors from citable theory (key profiles, melodic tendency, GM percussion, structural-key thresholds) — never corpus-fit, always version-stamped"
+      ],
+      "consumed_by": [
+        "Audiology (A6) — analysis surfaces, gap 26 modal transform's first target",
+        "Tonality-Live — Ableton Live extension; conform/remap via the loopback bridge",
+        "tonality-core — the C++ port thread",
+        "Wend, wont, HYPERSAW, FOUNDATIONS, auricle, TERRANE, solve-coagula — via integrations/"
+      ]
+    },
+    "parallel_audit_thread": true,
+    "knowledge_loop_tags": [
+      "workflow",
+      "architecture",
+      "contracts",
+      "coordination",
+      "theory-traps"
+    ]
+  }
+}

@@ -20,7 +20,7 @@ registral           transpositional  meaning
 ==================  ==============  =====================
 
 These axes are deliberately **tuning-agnostic**: rooted-ness and register-ness
-are not 12-TET concepts. Keep them that way (ROADMAP Decision 6) so the eventual
+are not 12-TET concepts. Keep them that way (Decision 6) so the eventual
 multi-system generalization (Phase 5) stays a localized change rather than a
 rewrite. This module imports nothing from ``mts`` and knows nothing about the
 number 12.

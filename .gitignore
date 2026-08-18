@@ -25,3 +25,6 @@ venv/
 
 # Coverage data (dev extra)
 .coverage
+
+# harness oracle state (kit ./verify)
+.harness/

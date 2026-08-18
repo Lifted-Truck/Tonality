@@ -15,7 +15,7 @@ The lattice cell of a realization is always ``REGISTERED``; whether it is
   the registered-but-rootless corner that ``scope`` could never express.
 
 The only 12-TET-specific code here is :meth:`reduce_to_key`, which crosses the
-reduction boundary into the bitmask substrate (ROADMAP Decision 6).
+reduction boundary into the bitmask substrate (Decision 6).
 """
 
 from __future__ import annotations
@@ -102,7 +102,7 @@ class Realization:
 
         This is the one-directional reduction (realization → key) and the only
         12-TET-aware operation on the type — the reduction boundary of
-        ROADMAP Decision 6.
+        Decision 6.
         """
 
         return mask_from_pcs(self.distinct_pcs)
