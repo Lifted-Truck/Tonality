@@ -21,7 +21,7 @@ emits roles, grids and coverages. It never concludes "this is house" — genre i
 not a function of a drum pattern (four-on-the-floor spans disco, house, techno
 and half of pop), so a genre *label* would be fabricated confidence. Genre
 *affinities* as a cited, plural, versioned prior are a recorded follow-on;
-genre *classification* belongs to the learned sibling (ROADMAP Decision 15).
+genre *classification* belongs to the learned sibling (Decision 15).
 
 Which events are drums? MIDI channel 10 (0-indexed 9) is the GM percussion
 channel, and ingestion labels voices ``t{n}c{n}`` — so by default this selects

@@ -254,3 +254,33 @@ Retrieval tags (domain-tuned): `workflow` (harness/CI gotchas) · `architecture`
 `coordination` (dev/audit/port/consumer thread interlock) · `theory-traps`
 (music-math correctness subtleties).
 <!-- KNOWLEDGE-LOOP:END -->
+
+<!-- kit:mailbox:begin (kit 2.1.0 — append-only; edit the prose, keep the markers) -->
+## Mailbox — which exchanges are ours
+
+`integrations/` **in this repo** is the only place briefs *to us* land. Its
+protocol is [integrations/PROTOCOL.md](integrations/PROTOCOL.md). Three
+questions, answered once so no session has to re-derive them:
+
+- **Who owes us something?** Only a file under `integrations/<project>/` in
+  *this* tree with `ball: provider` (or `ball: tonality`). That is the whole
+  inbox. An un-triaged `brief.md` here is ours to triage; an uncommitted one is
+  ours to commit — landing an inbound write is never the sender's job.
+- **Did anyone answer *our* brief?** Responses to briefs *we* filed live in the
+  **provider's** tree, not ours. Pull their repo and read it there; nothing
+  will appear here to tell us. (This is the asymmetry that let three of our own
+  threads sit "open" for weeks while the answers existed elsewhere.)
+- **Should we act on an exchange between two other repos?** **No.** Other
+  repos' mailboxes may be **read** freely — they are often the fastest way to
+  understand a decision — but never *acted on*, and never raised to the human
+  as if it were ours. If one genuinely concerns us, the move is to **file a
+  brief**, not to intervene. (On 2026-08-17 agents in several unrelated
+  projects each warned the human about one brief in another repo's mailbox;
+  tooling caused it, but the rule had never been written down either way.)
+
+Two local rules that outrank convenience: `integrations/` is a **historical
+record** — a filed exchange is never retro-edited, even to fix a convention
+slip (corrections go in the *next* file, and ROADMAP records what was decided);
+and every file in one exchange carries the **same `id`** as the opening brief,
+distinguished by `in-reply-to`, because the fleet scanner threads by `id` alone.
+<!-- kit:mailbox:end -->

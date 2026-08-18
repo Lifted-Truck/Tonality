@@ -31,7 +31,7 @@ produced the zone, never a feeling.
 ``single_label`` is the honest refusal made mechanical: it is a label **only**
 when the zone is ``confident`` *and* exactly one reading fired. Inside the
 contested band it is ``None`` with a reason. Committing past that band needs a
-caller-supplied cost model, or the learned sibling (ROADMAP Decisions 14/15).
+caller-supplied cost model, or the learned sibling (Decisions 14/15).
 
 **"Genuinely ambiguous" is a zone here, not a label** — a deliberate departure
 from gap 25's first sketch, which listed it alongside ``borrowed_mixture`` and
@@ -388,7 +388,7 @@ def _event(
     single = readings[0].label if zone == "confident" and len(readings) == 1 else None
     no_label = None if single is not None else (
         "the evidence is inside the contested band — committing to one label "
-        "needs a caller-supplied cost model, not a default (ROADMAP Decisions 14/15)"
+        "needs a caller-supplied cost model, not a default (Decisions 14/15)"
     )
 
     return ChromaticEvent(

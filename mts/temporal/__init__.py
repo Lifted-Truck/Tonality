@@ -2,7 +2,7 @@
 
 Sits above ``core`` and ``analysis`` (it references them; they do not reference
 it). Canonical time unit is the quarter-note beat. The chain is
-**event → realization → identity key** (ROADMAP Decision 2): read the pitches
+**event → realization → identity key** (Decision 2): read the pitches
 sounding across a window as a ``Realization`` and reduce to a key.
 """
 

@@ -8,7 +8,7 @@ drift — printing a clean/violation summary with a non-zero exit on a finding.
 The invariant: the pure layers must be free of **wall-clock reads** (``time.time``
 / ``perf_counter`` / ``datetime.now`` …) and **unseeded RNG** (``random.random`` /
 ``choice`` / … — seeded ``random.Random(seed)`` is fine), because the realtime
-contract (ROADMAP Decisions 10/11) freezes engine outputs to static artifacts and
+contract (Decisions 10/11) freezes engine outputs to static artifacts and
 that only works if cores are deterministic + reproducible.
 
     .venv/bin/python3.13 benchmarks/freezability.py

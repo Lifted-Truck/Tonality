@@ -2,7 +2,7 @@
 
 "Parallel fifths no greater than 5% of the time" (Julian). A budget rule holds
 iff violations / items_considered <= max_rate — a threshold on a MEASURED rate,
-deterministic, no learning (ROADMAP Decision 15: the engine counts, it does not
+deterministic, no learning (Decision 15: the engine counts, it does not
 model). These tests pin the gate, its boundary, the aggregate, the unchanged
 hard_rules_hold contract, and the total validation.
 """

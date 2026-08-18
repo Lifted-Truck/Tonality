@@ -1,6 +1,6 @@
 """Freezability invariant — promoted from ``benchmarks/`` to a CI gate (2026-07-08).
 
-The realtime contract (ROADMAP Decisions 10/11) rests on the **pure layers being
+The realtime contract (Decisions 10/11) rests on the **pure layers being
 deterministic and freezable**: a consumer freezes an engine output to a static
 artifact and reads it later, so a core that reads the wall clock or rolls
 unseeded dice would make that frozen artifact stale / non-reproducible. This

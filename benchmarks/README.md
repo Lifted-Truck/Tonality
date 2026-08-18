@@ -6,7 +6,7 @@ computational fitness. Sibling to the capability audit loop (`audit/`), but abou
 
 ## The standard it holds
 
-Per ROADMAP **Decisions 10 & 11**, the engine is **never on a consumer's audio
+Per **Decisions 10 & 11**, the engine is **never on a consumer's audio
 thread**. A real-time consumer either reads a **frozen contract artifact** or
 embeds the **C++ core**; Tonality itself targets **offline / interactive**
 latency. So "realtime-fitness" here means the outputs are **freezable,

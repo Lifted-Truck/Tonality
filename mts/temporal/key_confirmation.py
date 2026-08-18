@@ -27,7 +27,7 @@ implemented, just disconnected.
 
 So this module reports both sides with their evidence and **never collapses to
 "this is a modulation"**. Committing to that label needs a cost model the caller
-supplies, or the learned sibling (ROADMAP Decisions 14/15, gap 25).
+supplies, or the learned sibling (Decisions 14/15; ROADMAP gap 25).
 
 **Usage trap, measured — the segmentation grid must match the harmonic rhythm.**
 ``subdivisions`` controls the chord-segmentation grid; if the grid is COARSER than
