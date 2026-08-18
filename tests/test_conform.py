@@ -31,6 +31,44 @@ def test_contract_1_snap_never_exceeds_six_semitones():
             assert all(abs(e.delta) <= 6 for e in r.edits)
 
 
+def test_the_six_semitone_bound_is_conditional_on_register():
+    """Audit #262: the bound was documented unconditionally and that was WRONG.
+
+    At the MIDI boundary a <=6 move can fail to EXIST — from MIDI 0 into a
+    scale whose only member is pc 11, the closest legal scale tone is MIDI 11.
+    The engine takes it and flags `range`; the honest invariant is that the
+    bound holds for every NON-`range` edit.
+    """
+    r = conform_to_scale(_seq([[0.0, 1.0, 0]]), [11], 0)
+    edit = r.edits[0]
+    assert edit.delta == 11 and edit.tie_resolution == "range"
+    # ...and 11 is genuinely minimal: no in-range pc-11 tone is nearer to 0
+    assert min(m for m in range(128) if m % 12 == 11) == edit.to_midi
+
+
+def test_every_edit_is_the_nearest_legal_scale_tone_and_the_bound_holds_off_range():
+    """The two real invariants, exhaustively over the registers that can break
+    them — this is the check the original contract test was missing (it swept
+    only MIDI 30-89, never the boundary the module's own docstring discussed)."""
+    sparse_and_dense = ([0], [4], [11], [0, 6], [2, 11], [3, 8],
+                        [0, 2, 4, 5, 7, 9, 11], [0, 3, 6, 9])
+    for degrees in sparse_and_dense:
+        targets = {d % 12 for d in degrees}
+        legal = [m for m in range(128) if m % 12 in targets]
+        for midi in list(range(0, 14)) + list(range(114, 128)):
+            if midi % 12 in targets:
+                continue
+            for tie in ("previous", "down", "up"):
+                r = conform_to_scale(_seq([[0.0, 1.0, midi]]), degrees, 0,
+                                     tie_break=tie)
+                e = r.edits[0]
+                assert 0 <= e.to_midi <= 127
+                nearest = min(abs(m - midi) for m in legal)
+                assert abs(e.delta) == nearest, (midi, degrees, tie)
+                if e.tie_resolution != "range":
+                    assert abs(e.delta) <= 6, (midi, degrees, tie)
+
+
 def test_contract_2_idempotent_on_in_scale_input():
     events = [[b, 1, m] for b, m in enumerate([60, 62, 64, 65, 67, 69, 71, 72])]
     r = conform_to_scale(_seq(events), MAJOR, 0)

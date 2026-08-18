@@ -13,10 +13,25 @@ freezable (no RNG, no clock).
 
 Two guarantees hold **by construction**, not merely by test:
 
-- **≤ 6-semitone move** — the snap distance is the minimal circular pc distance,
-  which cannot exceed 6.
+- **Minimal legal move** — the snap always lands on the **nearest in-range
+  scale tone**. Away from the MIDI boundary that is the minimal circular pc
+  distance, so the move is **≤ 6 semitones**; at the boundary a ≤ 6 move can
+  fail to *exist* and the guarantee is the minimality, not the bound (below).
 - **Idempotent on in-scale input** — an in-scale pc is returned untouched, so
   ``conform(conform(x)) == conform(x)`` always.
+
+**The ≤ 6 bound is conditional on register, and the exception is real** (audit
+#262). The bound was originally stated unconditionally here, in ROADMAP, and in
+the consumer contract test — wrongly. Near MIDI 0/127 the nearer candidate can
+fall outside 0..127, and then the nearest *legal* scale tone may be further than
+6 semitones away: from MIDI 0 into a scale whose only member is pc 11, the
+closest in-range scale tone is MIDI 11 — an 11-semitone move, and **no ≤ 6 move
+exists at all**. The engine takes it (verified exhaustively minimal over the
+boundary registers) and flags it ``tie_resolution="range"``. So the checkable
+invariant is: **``abs(delta) <= 6`` for every edit whose ``tie_resolution`` is
+not ``"range"``, and every edit is the nearest legal scale tone regardless.**
+Catalog scales are dense enough (max gap 4) that only explicit sparse degree
+lists can trigger it — but sparse degree lists are supported input, not misuse.
 
 **R1 — ties are the COMMON case, and the default is melodic (ratified
 2026-08-09).** The original design treated equidistant snaps as a rare corner
@@ -47,10 +62,11 @@ module refuses to make. Pre-existing duplicates in the input are the input's
 business and are not reported.
 
 The MIDI boundary is the one real edge: at the extremes one snap direction can
-leave 0..127, in which case the in-range direction is taken (both cannot be out:
-the two candidates lie within one octave of the source). A boundary-forced
-direction overrides the tie preference — range is a hard constraint, taste is
-not.
+leave 0..127, in which case the in-range direction is taken (both cannot be out —
+``down >= midi - 11`` and ``up <= midi + 11``, so a source inside 0..127 always
+keeps at least one candidate). A boundary-forced direction overrides the tie
+preference — range is a hard constraint, taste is not — and is exactly the case
+where the ≤ 6 bound can be exceeded.
 """
 
 from __future__ import annotations
@@ -73,7 +89,7 @@ class ConformEdit:
     onset: float
     from_midi: int
     to_midi: int
-    delta: int                  # signed semitones, |delta| <= 6 by construction
+    delta: int                  # signed; |delta| <= 6 unless tie_resolution == 'range'
     tied: bool                  # both directions were equidistant
     tie_resolution: str | None  # "previous" | "down" | "up" | "range" (boundary-forced)
 

@@ -1685,9 +1685,17 @@ def conform_to_scale(
     then midi at ingestion), NOT the caller's wire order, so pair input to
     output via `edits` ((onset, from_midi)), never by list position
     (pitch is the only field that may change). Two guarantees hold BY
-    CONSTRUCTION: a snap never exceeds 6 semitones (minimal circular pc
-    distance), and in-scale input is returned untouched (idempotent).
-    Deterministic, freezable (no RNG, no clock).
+    CONSTRUCTION: every snap lands on the NEAREST IN-RANGE scale tone, and
+    in-scale input is returned untouched (idempotent). Away from the MIDI
+    boundary the nearest legal tone is the minimal circular pc distance, so
+    the move is <= 6 semitones — but at the boundary a <= 6 move can fail to
+    EXIST (from MIDI 0 into a scale whose only member is pc 11, the closest
+    legal tone is MIDI 11), and there the engine takes the minimal legal move
+    and flags it tie_resolution="range". So the checkable invariant is
+    abs(delta) <= 6 for every edit whose tie_resolution is NOT "range"
+    (audit #262 — the bound was previously stated unconditionally and that
+    was wrong). Catalog scales are dense enough that only explicit sparse
+    degree lists reach this. Deterministic, freezable (no RNG, no clock).
 
     scale: a catalog scale name (e.g. "Ionian", "Harmonic Minor") or an explicit
     list of degrees; root_pc 0-11. tie_break resolves EQUIDISTANT snaps —
