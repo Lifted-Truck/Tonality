@@ -82,6 +82,14 @@ rules/       Rulesets (Phase 4.6): declarative JSON rules over the atom vocabula
              composition/comparison (combine/specialize/diff). No code execution;
              rules are data (and round-trip via ruleset_to_payload).
   ↓
+generate/    Generative note-OUT transforms (Phase 7): conform_to_scale (snap by
+             PROXIMITY — cleanup, many-to-one), remap_by_degree (map by DEGREE —
+             translation, bijective in-scale), modal_transform (analyze → plan →
+             apply over the key-area timeline), retonicize (zero-edit renaming).
+             Sits beside search/ — repair_sequence imposes a ruleset, conform
+             imposes a scale; same act, simpler oracle. Choosing a pitch the
+             input does not determine is GENERATIVE, never analysis.
+  ↕
 search/      Constraint search / inverse analysis (Phase 4): exact, exhaustive
              queries over the 4096-identity universe and bounded register spaces.
              GENERATIVE-side (cardinal rule). Reuses the rules `Condition`

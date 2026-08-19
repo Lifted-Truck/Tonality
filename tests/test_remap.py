@@ -177,3 +177,36 @@ def test_mcp_parity():
     assert "degree_table" in out["map"] and "absorbed_alterations" in out
     ret = tools.retonicize(scale=MAJOR, root_pc=0, new_tonic_pc=9)
     assert ret["notes_changed"] == 0 and "Aeolian" in ret["new_names"]
+
+
+# --- the MIDI boundary is reported, not absorbed (audit #275) -------------------
+
+def test_boundary_octave_flip_is_flagged():
+    """The reported case: the raw signed move is a tritone DOWN (the documented
+    convention), 2-6 = -4 leaves the range, so it flips a full octave up. That
+    is forced by range, not chosen — it must be visible, exactly as conform's
+    tie_resolution == 'range' makes it visible for the proximity sibling."""
+    r = remap_by_degree(_seq([[0, 1, 2]]), MAJOR, 0, MAJOR, 6)
+    e = r.edits[0]
+    assert e.to_midi == 8 and e.delta == 6
+    assert e.range_corrected is True
+    assert 0 <= e.to_midi <= 127
+
+
+def test_ordinary_moves_are_not_flagged_and_stay_within_six():
+    r = remap_by_degree(_seq([[i, 1, 60 + i] for i in range(12)]), MAJOR, 0, MINOR, 0)
+    for e in r.edits:
+        assert e.range_corrected is False
+        assert abs(e.delta) <= 6
+
+
+def test_the_flag_is_the_only_place_the_envelope_is_exceeded():
+    """Exhaustive over the registers that can break it: |delta| <= 6 for every
+    edit that is NOT range-corrected, and every output stays in 0..127."""
+    for target_root in range(12):
+        for midi in list(range(0, 8)) + list(range(120, 128)):
+            r = remap_by_degree(_seq([[0, 1, midi]]), MAJOR, 0, MAJOR, target_root)
+            for e in r.edits:
+                assert 0 <= e.to_midi <= 127
+                if not e.range_corrected:
+                    assert abs(e.delta) <= 6, (midi, target_root, e.delta)

@@ -112,13 +112,18 @@ def confirm_key_areas(
     *,
     structural: "object | None" = None,
     subdivisions: int = 1,
+    segmentation: "object | None" = None,
     session=None,
 ) -> KeyAreaConfirmationResult:
     """Cadence evidence for each structural key area, in that area's own key.
 
     ``structural`` reuses an existing ``StructuralKeyResult`` (avoids recomputing
-    the windowed track); otherwise one is derived. ``subdivisions`` is passed to
-    the chord segmentation. Raises on an empty sequence.
+    the windowed track); otherwise one is derived. ``segmentation`` likewise
+    reuses a ``ChordSegmentation`` the caller already built — segmenting is the
+    dominant cost here, so a caller that needs both this and the chromatic
+    classifier should segment ONCE and pass it to both (audit #274).
+    ``subdivisions`` is passed to the chord segmentation. Raises on an empty
+    sequence.
     """
 
     if not sequence.events:
@@ -128,7 +133,9 @@ def confirm_key_areas(
 
     # Chord spans are named per window and are key-INDEPENDENT, which is what lets
     # each area be judged against its own tonic rather than a single global key.
-    segmentation = segment_to_chords(sequence, subdivisions=subdivisions, session=session)
+    if segmentation is None:
+        segmentation = segment_to_chords(
+            sequence, subdivisions=subdivisions, session=session)
     spans = [s for s in segmentation.spans if s.root_pc is not None]
 
     # Bucket every span into its area in one pass. Previously each area rescanned

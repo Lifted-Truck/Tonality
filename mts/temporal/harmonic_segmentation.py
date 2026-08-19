@@ -86,25 +86,57 @@ class ChordSegmentation:
         }
 
 
-def _window_pc_weights(
-    sequence: Sequence, start: float, end: float, downbeat_emphasis: float
-) -> list[float]:
-    """Duration-weighted pc content of ``[start, end)``, downbeat onsets scaled."""
+def _window_pc_weights_all(
+    sequence: Sequence, windows, downbeat_emphasis: float
+) -> list[list[float]]:
+    """Duration-weighted pc content of EVERY window, in one onset-sorted sweep.
 
-    weights = [0.0] * 12
-    for event in sequence.events:
-        if event.onset >= end - _EPS or event.offset <= start + _EPS:
-            continue
-        overlap = min(event.offset, end) - max(event.onset, start)
-        if overlap <= _EPS:
-            continue
-        emphasis = (
-            downbeat_emphasis
-            if sequence.meter.metric_position(event.onset).is_downbeat
-            else 1.0
-        )
-        weights[event.pitch.pc] += overlap * emphasis
-    return weights
+    Previously one call per window rescanned ``sequence.events`` in full —
+    O(windows x events), and since both grow with piece length, quadratic
+    (audit #274: fitted exponent 1.67 at 8k notes, on a path AUDIT.md §6b names
+    as must-stay-linear). This is the same offset-min-heap sweep
+    ``relations._sounding_by_beat`` already uses: walk windows in time order,
+    admit events as their onset passes, retire them as their offset does, so
+    each event is touched once per window it actually overlaps rather than once
+    per window that exists.
+
+    ``windows`` is ``[(start, end), ...]`` in ascending order (the metric grid
+    is generated that way). Returns one 12-vector per window, positionally
+    aligned. Numerically identical to the per-window scan: same overlap
+    arithmetic, same emphasis, and float addition order is preserved because
+    the heap is drained in onset order within each window.
+    """
+
+    import heapq
+
+    events = sorted(sequence.events, key=lambda e: (e.onset, e.pitch.midi))
+    # Downbeat emphasis is a property of the EVENT (where it onsets), not of the
+    # window, so it is computed once per event rather than once per (event,
+    # window) pair — the second-order half of the same quadratic.
+    emphasis = [
+        downbeat_emphasis
+        if sequence.meter.metric_position(e.onset).is_downbeat
+        else 1.0
+        for e in events
+    ]
+
+    out: list[list[float]] = []
+    live: list[tuple] = []   # (offset, index) — offset-min-heap of sounding notes
+    i = 0
+    for start, end in windows:
+        while i < len(events) and events[i].onset < end - _EPS:
+            heapq.heappush(live, (events[i].offset, i))
+            i += 1
+        while live and live[0][0] <= start + _EPS:   # ended at/before the window
+            heapq.heappop(live)
+        weights = [0.0] * 12
+        for _offset, idx in sorted(live):            # onset order preserved
+            event = events[idx]
+            overlap = min(event.offset, end) - max(event.onset, start)
+            if overlap > _EPS:
+                weights[event.pitch.pc] += overlap * emphasis[idx]
+        out.append(weights)
+    return out
 
 
 def segment_to_chords(
@@ -151,34 +183,41 @@ def segment_to_chords(
 
     catalog = load_chord_qualities(session)
 
-    spans: list[ChordSpan] = []
+    # Build the metric grid first, then weight every window in ONE sweep (#274).
+    grid: list[tuple[float, float, int]] = []
     for bar_start, bar_end, bar in sequence.meter.bar_spans(sequence.duration_beats):
         step = (bar_end - bar_start) / subdivisions
         for k in range(subdivisions):
             start = bar_start + k * step
             end = bar_end if k == subdivisions - 1 else start + step
-            weights = _window_pc_weights(sequence, start, end, downbeat_emphasis)
-            total = sum(weights)
-            if total <= _EPS:
-                spans.append(ChordSpan(start, end, bar, (), None, None, False,
-                                       "rest (no sounding pitch)"))
-                continue
-            salient = tuple(
-                pc for pc in range(12) if weights[pc] >= min_pc_weight * total
-            )
-            naming = name_chord(salient, context, catalog=catalog,
-                                enrich_unmatched=False)
-            if naming.chosen is None:
-                spans.append(ChordSpan(
-                    start, end, bar, salient, None, None, False,
-                    f"no catalog chord matches the salient set {list(salient)}",
-                ))
-                continue
-            interp = naming.chosen.interpretation
+            grid.append((start, end, bar))
+    all_weights = _window_pc_weights_all(
+        sequence, [(a, b) for a, b, _ in grid], downbeat_emphasis
+    )
+
+    spans: list[ChordSpan] = []
+    for (start, end, bar), weights in zip(grid, all_weights):
+        total = sum(weights)
+        if total <= _EPS:
+            spans.append(ChordSpan(start, end, bar, (), None, None, False,
+                                   "rest (no sounding pitch)"))
+            continue
+        salient = tuple(
+            pc for pc in range(12) if weights[pc] >= min_pc_weight * total
+        )
+        naming = name_chord(salient, context, catalog=catalog,
+                            enrich_unmatched=False)
+        if naming.chosen is None:
             spans.append(ChordSpan(
-                start, end, bar, salient, interp.root_pc, interp.quality,
-                naming.is_ambiguous, None,
+                start, end, bar, salient, None, None, False,
+                f"no catalog chord matches the salient set {list(salient)}",
             ))
+            continue
+        interp = naming.chosen.interpretation
+        spans.append(ChordSpan(
+            start, end, bar, salient, interp.root_pc, interp.quality,
+            naming.is_ambiguous, None,
+        ))
 
     chords: list[tuple[int, str]] = []
     for span in spans:

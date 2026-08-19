@@ -50,9 +50,18 @@ heard from a different tonic, you want ``retonicize``.
 
 Register: preserved the same way conform preserves it — each note moves by the
 signed pc difference normalized into [-6, 6) (exact half-octave resolves
-downward), so octaves are never invented and contour is disturbed as little as
-the degree map allows. Onset, duration, velocity, voice and count are
-untouched. Deterministic, freezable.
+downward), so contour is disturbed as little as the degree map allows. Onset,
+duration, velocity, voice and count are untouched. Deterministic, freezable.
+
+**The MIDI boundary is the one exception, and it is now reported** (audit #275;
+the same defect #262 fixed in ``conform.py`` and left standing here — a rule
+corrected where it is READ and not where it is INHERITED). When ``midi + delta``
+would leave 0..127 the move is flipped a full octave to stay in range, which
+both exceeds the [-6, 6) envelope and can reverse the "half-octave resolves
+downward" convention. That is forced by range, not chosen — so
+``RemapEdit.range_corrected`` marks it, exactly as ``ConformEdit.tie_resolution
+== "range"`` does for the proximity sibling. A caller that cares about the
+envelope checks the flag; it is never silently absorbed.
 
 This is the **primitive**. The feature — ``modal_transform`` over a *timeline*
 of key areas with per-area remaps, borrowed-chord handling via the gap 25
@@ -171,6 +180,9 @@ class RemapEdit:
     alteration: int             # signed semitones off that degree; 0 = diatonic
     tied_attachment: bool       # equidistant between two degrees (see note)
     attachment_note: str | None
+    range_corrected: bool = False   # the move was flipped an octave to stay in
+                                    # 0..127; |delta| then exceeds 6 and the
+                                    # half-octave convention may be reversed
 
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
@@ -305,7 +317,8 @@ def remap_by_degree(
         target_abs = (imap.target_root + target_rel) % 12
         delta = _signed_delta(midi % 12, target_abs)
         new_midi = midi + delta
-        if not 0 <= new_midi <= 127:
+        range_corrected = not 0 <= new_midi <= 127
+        if range_corrected:
             new_midi = midi + delta + (12 if delta < 0 else -12)
 
         out_events.append([
@@ -318,6 +331,7 @@ def remap_by_degree(
                 from_midi=midi, to_midi=new_midi, delta=new_midi - midi,
                 degree=degree, alteration=alteration, tied_attachment=tied,
                 attachment_note=_TIE_ATTACH_NOTE if tied else None,
+                range_corrected=range_corrected,
             ))
         if alteration != 0 and new_midi % 12 in target_pcs:
             absorbed.append(AbsorbedAlteration(

@@ -82,6 +82,9 @@ class TransformDecision:
     evidence: list[dict]          # classifier readings, verbatim; [] if none
     alternatives: list[dict]      # e.g. the untaken tie attachment's image
     note: str | None
+    range_corrected: bool = False   # the move was flipped an octave to stay in
+                                    # 0..127 (audit #275) — forced by range, not
+                                    # chosen, so it is reported not absorbed
 
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
@@ -329,15 +332,20 @@ def plan_modal_transform(
             degree, alteration, tied = _attach_degree(rel, imap.source_degrees)
             zone, evidence = _window_evidence(event.onset)
 
+        corrected = []          # set by _image when range forces an octave flip
+
         def _image(deg: int, alt: int) -> int:
             pc = (imap.target_root + imap.target_degrees[deg] + alt) % 12
             delta = _signed_delta(midi % 12, pc)
             new = midi + delta
             if not 0 <= new <= 127:
+                corrected.append(True)
                 new = midi + delta + (12 if delta < 0 else -12)
             return new
 
         to_midi = _image(degree, alteration)
+        range_corrected = bool(corrected)
+        corrected.clear()       # alternatives below must not pollute the flag
         alternatives: list[dict] = []
         if tied:
             # the untaken attachment: the equidistant degree ABOVE (negative
@@ -371,6 +379,7 @@ def plan_modal_transform(
             chromatic_before=rel not in degree_of,
             chromatic_after=None if strict_hold else (to_midi % 12) not in target_pcs,
             zone=zone, evidence=evidence, alternatives=alternatives,
+            range_corrected=range_corrected,
             note=("contested window: the classifier's readings disagree, and "
                   "the strict policy refuses to guess — resolve by editing "
                   "to_midi (the computed rhetoric image is "
