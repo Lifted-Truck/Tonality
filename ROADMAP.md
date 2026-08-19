@@ -2183,6 +2183,46 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     the preferred shape for A6 asks. `confirm_key_areas` remains their
     outstanding one, on Julian's sequencing.
 
+### HYPERSAW-002 — scale interchange design review (answered 2026-08-19)
+
+A design review, not a capability ask: HYPERSAW shipped a global scale surface
+whose interchange is `{root, 12-bit mask}` and asked whether Tonality could ever
+fill that seam without lying. Answered in
+`integrations/hypersaw/response-scale-interchange.md`; **ball: consumer**,
+nothing owed by us. Four durable outcomes worth having here:
+
+- **Their ruling and ours coincide.** "The mask is the truth, the name is UI" is
+  our cardinal separation (numeric identity in core, naming/spelling at the
+  display edge). `{root, mask}` is not a lossy summary of a scale — it IS our
+  rooted pc-set identity. What it declines to invent is the NAME, which is
+  genuinely plural: 3 of our 37 catalog scales share a degree-set with another
+  (Ionian/Major, Aeolian/Natural Minor, Major Pentatonic/Pelog Selisir). The only
+  structural loss is **register**, which a quantiser correctly does not want.
+- **"Refuse to guess" is a rule about ANALYSIS, not about emitting.** Choosing
+  under an underdetermined input is generative by our own cardinal rule, and a
+  generative surface is required to choose — it owes honesty about having chosen,
+  not abstention. Our Phase 7 R1 ruling transfers directly: tie-break on the
+  **previous emitted** value, not the previous input.
+- **A tonal weighting does move the snap boundary off the midpoint, measurably.**
+  Under `melodic-tendency.1` + Lerdahl anchoring, the balance point between
+  adjacent degrees is `x = g·√s_A/(√s_A+√s_B)`. In major the shift runs **0.9
+  cents (mi/fa, near-equal stability) to 14.9 (do/re)**, with ti→do at 9.8 — the
+  leading tone getting a 40-cent basin against the tonic's 60. Direction is
+  always "the more stable degree captures the wider band". **Their hysteresis
+  window is 8 cents**, so the effect is the size of a parameter they already
+  tuned by ear. Audibility is explicitly NOT ours to answer — the engine gives
+  the number, a listening test gives the verdict, and we said so.
+- **Degrees beat semitones for chord building, with two hidden cases we named:**
+  a degree is an index into the admitted set, so "1-3-5" is a different interval
+  structure per mask (major → 4+3, pentatonic → 4+5, blues → 5+2); and chromatic
+  chord tones have **no degree at all**, needing the `(degree, alteration)` model
+  our `remap_by_degree` already uses.
+
+Recorded asks of them (none binding): rename the struct to say **12-TET**
+(Decision 6 applied to someone else's type), and — if they A/B the tonal
+boundary — send the result back, because it is a question this engine can pose
+but has no signal path to answer.
+
 ## Decisions on record → moved to [DECISIONS.md](DECISIONS.md)
 
 The 15-entry register moved out of this file **2026-08-18** (kit 2.4.1
