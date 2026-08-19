@@ -1,8 +1,13 @@
 """Generative layer: note-out transforms (Phase 7 slices).
 
 The other side of the cardinal rule from ``analysis/``: these functions CHOOSE
-pitches. Everything here is deterministic and freezable (no RNG, no clock), and
-each transform states what it preserves — the first residents, the conform
+pitches — with one deliberate exception, ``retonicize``, which changes no note
+at all (audit #276). It lives here because it is what users reach for when they
+mean a transform, and catching that conflation is the point; it is the
+zero-edit member of the family, not a counter-example to it.
+
+Everything here is deterministic and freezable (no RNG, no clock), and each
+transform states what it preserves — the first residents, the conform
 family, preserve everything except pitch class (register, onset, duration,
 velocity, voice, order and count all held).
 

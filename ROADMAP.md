@@ -2183,6 +2183,41 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     the preferred shape for A6 asks. `confirm_key_areas` remains their
     outstanding one, on Julian's sequencing.
 
+### Audit sweep #274–#277 (2026-08-19) — the co-scaling-join family, sixth instance
+
+- **#274 (high) `segment_to_chords` was quadratic**, and *my own* gap-25/26 work
+  amplified it: `_window_pc_weights` rescanned every event per metric window,
+  which was tolerable as a leaf cost and is not tolerable now that
+  `confirm_key_areas`, `classify_chromatic_events` and `modal_transform`
+  (transitively) each call it on corpus paths. Fixed with the offset-min-heap
+  sweep `relations._sounding_by_beat` already used for #214: **exponent
+  1.67 → 0.68, 9.1× at 8k notes**, 312 old-vs-new runs byte-identical, goldens
+  untouched. Plus the reporter's bonus finding — `classify_chromatic_events`
+  segmented **twice** (once inside `confirm_key_areas`, once directly); it now
+  segments once and passes it down via a new `segmentation=` parameter.
+  **This is the sixth instance of L0003's family and the first in code the
+  lesson did not cover** — L0003 names `area_indices`/`_sweep_active` as the
+  helpers to reach for, and this join (events × windows) matches neither. The
+  falsifier does not fire, but the lesson's scope is narrower than the defect's.
+- **#275 (med) the boundary correction was unflagged in `remap`/`modal`** — the
+  *same defect #262 fixed in `conform.py`*, left standing in its two siblings.
+  Exactly the "a rule corrected where it is READ and not where it is INHERITED"
+  shape the kit CHANGELOG named for hypersaw-002. `RemapEdit.range_corrected` /
+  `TransformDecision.range_corrected` now mark an octave flip forced by the MIDI
+  range, mirroring `ConformEdit.tie_resolution == "range"`, and the docstrings'
+  unconditional "octaves are never invented" claim is corrected. New exhaustive
+  boundary test over the registers that can break it.
+- **#276 (med) `retonicize` was labelled "ANALYSIS-side"** while living in
+  `mts/generate/` among tools all labelled GENERATIVE. Resolved *without moving
+  it*: it ships beside the transforms because it is what users reach for when
+  they mean one, and catching that conflation is its purpose — so it is the
+  **zero-edit member of the generative family**, and the package docstring's
+  blanket "these functions CHOOSE pitches" now states the exception.
+- **#277 (low) `mts/generate/` was absent from CLAUDE.md's architecture
+  diagram** — a shipping package with 7 MCP tools invisible in the file billed
+  as the handoff contract. Added beside `search/`, per the package's own
+  docstring.
+
 ### HYPERSAW-002 — scale interchange design review (answered 2026-08-19)
 
 A design review, not a capability ask: HYPERSAW shipped a global scale surface

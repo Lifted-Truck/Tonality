@@ -1,5 +1,5 @@
 {
- "digest": "eefbf92ab824cc74e70e2d0d65df84e3686042e39afb63b04fe9894208693618",
+ "digest": "04c64d91ea3f156ff7ac294cbde010cc936d542849cd9836a2b3843e9e6f0820",
  "tool_count": 79,
  "tools": [
   {
@@ -293,7 +293,7 @@
    "signature": "(ruleset: 'dict', events: 'list[list]', max_edits: 'int' = 2, pitch_window: 'int' = 7, allowed_pcs: 'list | None' = None, max_repairs: 'int' = 8) -> 'dict'"
   },
   {
-   "description": "ANALYSIS-side renaming: fix the COLLECTION, move the TONIC — the folk\noperation users conflate with a modal remap, shipped separately so the\nconflation is addressable. C Ionian retonicized to A is A Aeolian: ZERO\nnotes change (notes_changed is literally 0 in the result); only the anchor\nmoves. If you want the notes to change, you want remap_by_degree. The new\ntonic must be a member of the collection (error otherwise — a tonic outside\nit is a different question: remap_by_degree or a modulation, and guessing\nwhich would be wrong). Returns the re-rooted degree pattern plus EVERY\ncatalog scale matching it (plural — a rotation can match several registered\nnames, e.g. Aeolian and Natural Minor). scale: a catalog name or explicit\ndegree list; pcs 0-11.",
+   "description": "GENERATIVE-family, ZERO-EDIT sibling: fix the COLLECTION, move the TONIC — the folk\noperation users conflate with a modal remap, shipped separately so the\nconflation is addressable. C Ionian retonicized to A is A Aeolian: ZERO\nnotes change (notes_changed is literally 0 in the result); only the anchor\nmoves. If you want the notes to change, you want remap_by_degree. The new\ntonic must be a member of the collection (error otherwise — a tonic outside\nit is a different question: remap_by_degree or a modulation, and guessing\nwhich would be wrong). Returns the re-rooted degree pattern plus EVERY\ncatalog scale matching it (plural — a rotation can match several registered\nnames, e.g. Aeolian and Natural Minor). scale: a catalog name or explicit\ndegree list; pcs 0-11.\n\nOn the label (audit #276): this ships in mts/generate/ beside the transforms\nbecause it is the operation users REACH FOR when they mean one — and the\nengine's job is to catch that conflation, not to file it elsewhere. But it\nchanges no note (notes_changed is literally 0), so it does not \"choose\npitches\" the way its siblings do. It is the zero-edit member of the\ngenerative family: same shelf, different act.",
    "name": "retonicize",
    "signature": "(scale, root_pc: 'int', new_tonic_pc: 'int') -> 'dict'"
   },

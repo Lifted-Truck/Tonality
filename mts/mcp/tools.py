@@ -1806,7 +1806,7 @@ def remap_by_degree(
 
 
 def retonicize(scale, root_pc: int, new_tonic_pc: int) -> dict:
-    """ANALYSIS-side renaming: fix the COLLECTION, move the TONIC — the folk
+    """GENERATIVE-family, ZERO-EDIT sibling: fix the COLLECTION, move the TONIC — the folk
     operation users conflate with a modal remap, shipped separately so the
     conflation is addressable. C Ionian retonicized to A is A Aeolian: ZERO
     notes change (notes_changed is literally 0 in the result); only the anchor
@@ -1816,7 +1816,14 @@ def retonicize(scale, root_pc: int, new_tonic_pc: int) -> dict:
     which would be wrong). Returns the re-rooted degree pattern plus EVERY
     catalog scale matching it (plural — a rotation can match several registered
     names, e.g. Aeolian and Natural Minor). scale: a catalog name or explicit
-    degree list; pcs 0-11."""
+    degree list; pcs 0-11.
+
+    On the label (audit #276): this ships in mts/generate/ beside the transforms
+    because it is the operation users REACH FOR when they mean one — and the
+    engine's job is to catch that conflation, not to file it elsewhere. But it
+    changes no note (notes_changed is literally 0), so it does not "choose
+    pitches" the way its siblings do. It is the zero-edit member of the
+    generative family: same shelf, different act."""
 
     from ..generate import retonicize as _retonicize
 

@@ -217,8 +217,15 @@ def classify_chromatic_events(
     from ..io.loaders import load_chord_qualities, load_structural_key_priors
 
     result = structural if structural is not None else reduce_to_structural_keys(sequence)
+    # Segment ONCE and share it with the confirmation pass. Previously this
+    # called confirm_key_areas (which segments internally) and then segmented
+    # again itself — the same work twice per call, on top of segmentation being
+    # the dominant cost of both (audit #274).
+    segmentation = segment_to_chords(
+        sequence, subdivisions=subdivisions, session=session)
     confirmed = confirmation if confirmation is not None else confirm_key_areas(
-        sequence, structural=result, subdivisions=subdivisions, session=session
+        sequence, structural=result, subdivisions=subdivisions,
+        segmentation=segmentation, session=session
     )
     priors = load_structural_key_priors()
     tolerance = (
@@ -227,7 +234,6 @@ def classify_chromatic_events(
         else float(floor_tolerance_beats)
     )
 
-    segmentation = segment_to_chords(sequence, subdivisions=subdivisions, session=session)
     spans = [s for s in segmentation.spans if s.root_pc is not None]
     catalog = load_chord_qualities(session)
 
