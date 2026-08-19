@@ -145,3 +145,42 @@ def test_mcp_segment_chords_matches_engine():
     events = _bars(CMAJ_I_IV_V_I) + [[1.0, 0.25, 62]]
     engine = segment_to_chords(_canonical_sequence(events)).to_dict()
     assert tools.segment_chords(events) == engine
+
+# --- the sweep's own risk, covered directly (#274; HYPERSAW-002 notice) ---------
+#
+# The per-window scan was replaced by an onset-sorted offset-min-heap sweep. Its
+# specific hazard is an event that SPANS many windows: a sweep can admit it late
+# or retire it early, where a full rescan could not. That case was verified once,
+# out-of-band, by a 312-fixture old-vs-new comparison — and covered in the
+# standing suite only INCIDENTALLY, by a conformance golden. HYPERSAW's
+# `notice-chromatic-divergence.md` named exactly that shape ("the test that
+# covers the fix is itself uncovered"), so it gets a direct test.
+
+def test_sustained_notes_are_weighted_in_every_window_they_cross():
+    from mts.mcp.tools import _canonical_sequence
+
+    # A pedal C sounding across 4 bars, with a moving upper voice. The pedal must
+    # contribute to EVERY window, not just the one it onsets in.
+    events = [[0.0, 16.0, 48, 90, "bass"]]
+    for bar, pc in enumerate((4, 5, 7, 11)):          # E, F, G, B
+        events += [[bar * 4.0, 4.0, 60 + pc, 90, "upper"]]
+    seg = segment_to_chords(_canonical_sequence(events), key=(0, "major"))
+    assert len(seg.spans) == 4
+    for span in seg.spans:
+        assert 0 in span.salient_pcs, (
+            f"the pedal C is missing from the window at beat {span.start_beat} — "
+            "the sweep retired it early or admitted it late")
+
+
+def test_an_event_inside_one_window_does_not_leak_into_its_neighbours():
+    """The sweep's other direction: admitting early / retiring late would smear
+    a confined event across adjacent windows. (Deliberately a FULL-bar event —
+    a short one is dropped by the salience threshold, which would make this test
+    pass for a reason that has nothing to do with the sweep.)"""
+    from mts.mcp.tools import _canonical_sequence
+
+    events = [[bar * 4.0, 4.0, 60, 90, "a"] for bar in range(4)]
+    events += [[4.0, 4.0, 66, 90, "b"]]           # F#, bar 1 only
+    seg = segment_to_chords(_canonical_sequence(events), key=(0, "major"))
+    carrying = [s for s in seg.spans if 6 in s.salient_pcs]
+    assert [s.bar for s in carrying] == [1]

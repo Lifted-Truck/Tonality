@@ -2218,6 +2218,45 @@ windowed batch form; A4's *online* requirement remains with gap 5.
   as the handoff contract. Added beside `search/`, per the package's own
   docstring.
 
+### HYPERSAW-002 — CLOSED 2026-08-19 (design review; four outcomes on their side)
+
+Their reply, correction, divergence notice and our ack close the thread; ball
+none. What the review actually produced, worth having because it is the clearest
+evidence yet that this channel pays:
+
+- **§5 acted on same day** — `ScaleState` → `Tet12ScaleState`, parity unchanged.
+- **§2 found a real defect in their shipped quantiser, arrived at independently**
+  — `if (d < bestD)` with an ascending scan means the first candidate wins a tie,
+  so every tie resolves *downward*: our "snap down" bug, different codebase, no
+  shared code. Landed as their ADR-093, reference-then-port.
+- **The ruling found a SECOND defect that was not the one we pointed at.** Asking
+  whether the tie rule should also apply to their *chromatic* mode — an
+  assumption they checked instead of acting on — surfaced
+  `Math.round(-1.5) = -1` vs `std::lround(-1.5) = -2`: **a full semitone**
+  shipping in a project whose definition of correctness is 1e-6 parity.
+- **They corrected their own filing, unprompted** — see L0004 below.
+
+**L0004 (canonical, `coordination`): a mechanism transfers between projects; a
+severity does not.** We handed them the tie mechanism *and* the severity ("all
+five accidentals tie") without saying the severity came from **integer** input.
+Their quantiser takes a continuous glide, where the same tie is a knife edge one
+ULP wide. Same defect, radically different reachability. **Our omission**: state
+the domain assumption with the finding.
+
+**Their hazard, pointed at our own suite (the useful reciprocal).** Their notice
+named the shape *"the test that covers the fix is itself uncovered"*. Rather than
+accept their guess that we were safe, we planted three regressions — tie-break
+falls back to "down", the #275 boundary flag never set, the #274 sweep drops long
+sustains — and **all three fired**. But the third fired only via a *conformance
+golden*: the #274 sweep's own hazard (an event spanning many windows) had no
+direct test, having been verified once out-of-band by the 312-fixture comparison
+and never entering the standing suite. Two direct tests added
+(`test_harmonic_segmentation.py`), both proven to fire under the plant — and the
+second one **failed its first draft for the wrong reason** (the short event was
+dropped by the salience threshold, so it would have passed with the sweep
+broken), which is their own moving-glide-law mistake reproduced ten minutes after
+reading about it.
+
 ### HYPERSAW-002 — scale interchange design review (answered 2026-08-19)
 
 A design review, not a capability ask: HYPERSAW shipped a global scale surface

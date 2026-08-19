@@ -87,3 +87,33 @@ evidence over any stored lesson).
   helper (⇒ the helper, not the reaching-for-it, is the problem), or `audit/`
   stops running the §6b scaling probe (⇒ the detection this lesson relies on is
   gone and the claim is unverifiable).
+
+---
+
+### [L0004] A mechanism transfers between projects; a severity does not
+
+`tier: canonical` | `added: 2026-08-19` | `tags: coordination, contracts` | `supersedes: —`
+
+- **lesson:** When you hand a consumer a finding, hand them the **domain
+  assumption that produced its severity**, or they will import your blast radius
+  along with your mechanism. The *shape* of a defect ("first candidate wins a
+  tie, and the scan ascends, so every tie resolves downward") travels intact
+  between codebases. The *frequency* does not: it is a property of the input
+  domain, and the receiving project's domain is almost never yours. State the
+  domain in the same breath as the count. Symmetrically, when you RECEIVE a
+  finding, re-derive its severity in your own domain before acting on it or
+  repeating it — the mechanism is a gift, the number is a hypothesis.
+- **evidence:** HYPERSAW-002, 2026-08-19. We reported that our fixed "snap down"
+  tie-break decided *every* accidental (all 5 out-of-scale pcs tie in a major
+  scale) and sagged chromatic lines flat. HYPERSAW found the identical mechanism
+  in their quantiser, independently, and reported it with our severity attached.
+  They then filed an unprompted correction: `conform_to_scale` quantises
+  **integer MIDI**, where an out-of-scale pc is exactly equidistant *every time*;
+  their quantiser takes a **continuous** glide, where the tie is a knife edge one
+  ULP wide. Same defect, same direction, radically different reachability. Our
+  finding was true and our number was not theirs — and we had not said which
+  domain the number came from.
+- **falsifier:** a finding whose severity DOES transfer unchanged between two
+  projects with different input domains (⇒ severity is a property of the
+  mechanism after all, and the caution is noise). Note that a shared domain is
+  not a counter-example — the claim is about differing domains.
