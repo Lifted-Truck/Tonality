@@ -42,6 +42,41 @@ Naming rules:
   `integration: <triage summary>` (outbound), `integration: <notice/ack
   summary>` (either direction).
 
+### Closing a thread: `ball: none` is not enough — use a terminal `status:`
+
+A reply that leaves nothing owed must say so in **`status:`**, not only in
+`ball:`. The fleet scanner takes a thread's holder from *the newest file that
+**asserts** a ball*, and `ball: none` deliberately asserts nothing — it exists so
+an informational note filed alongside a live ask cannot mask it. The consequence,
+measured here on 2026-08-25: a thread answered on 2026-08-11 with
+`ball: none` + `status: responded` still reported **one day overdue**, because
+the opening brief's `ball: provider` remained the only claim in the thread.
+
+So when a reply genuinely ends an exchange, write **both**:
+
+```yaml
+status: closed        # or ratified / shipped / declined / superseded / withdrawn
+ball: none
+```
+
+`responded` is deliberately NOT terminal — most responses hand the ball onward,
+and treating them as closures would hide live obligations. Say `closed` only when
+nothing is owed in either direction.
+
+**If a thread was already answered without a terminal status**, do not edit the
+filed reply — `integrations/` is a historical record. File a short
+`closed-<slug>.md` carrying the thread's `id`, `status: closed`, and a pointer to
+where the substance was settled. That is the protocol's standing rule (corrections
+go in the *next* file) applied to state rather than to content.
+
+**One migration cost of the same-id rule, recorded because it bit us:** a reply
+that adopts the opening brief's `id` **orphans any earlier file that minted its
+own** — that file becomes a singleton thread holding its original ball forever,
+with its answer invisible under a different id. `tonality-live-001-ratify` sat
+that way for sixteen days after being answered and shipped. The convention is
+still right; when replying to a pre-convention file that minted an id, close that
+id explicitly too.
+
 ### Threading: `id` names the THREAD, not the file
 
 Every file in one exchange carries the **same `id`** — the one the opening
