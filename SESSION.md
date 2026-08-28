@@ -15,15 +15,34 @@ analyze→plan→apply, and `retonicize`. Gap 25 (chromatic-event classification
 gap 26 (modal transform) are both feature-complete; gap 31 is (a) adopted,
 (b) shipped (`find_scale_runs`), (c) designed but unbuilt.
 
-**Board is clean:** 0 open issues, 0 open PRs, **0 integration balls on us**
-(verified with the real `ball_scan`, not by eye). Nothing is blocked on us
-anywhere.
+**Integration channels are clean:** **0 balls on us** (verified with the real
+`ball_scan`, not by eye), 0 open PRs besides this close. Nothing is blocked on us
+by any consumer.
+
+**But 3 audit issues are open**, filed 2026-08-24 and *missed by my own check
+earlier in this session* — I asserted "board clean" from a stale reading instead
+of re-running it, which is the exact failure this close exists to catch:
+
+- **#286 (med) — a regression I introduced yesterday, verified at close.**
+  `plan_from_payload` drops `range_corrected`, so a modal-transform plan that
+  round-trips through JSON silently loses the flag — while `TransformPlan`'s own
+  docstring promises `to_dict`/`plan_from_payload` round-trip. I added the field
+  for audit #275 and did not add it to the parser. Reproduced:
+  `[True, False, False]` in, `[False, False, False]` back. Two-line fix; **the
+  obvious first move next session.**
+- **#287 (low)** — `_function_of` pays the `enrich_unmatched` cost it never
+  reads, ~30× per unmatched chromatic span. Same shape as the segmentation
+  opt-out already added for the same reason.
+- **#288 (low)** — `search/__init__.py` still calls `search_voicings` "the
+  planned sibling"; it shipped weeks ago.
 
 ## First move next session
 
 **Re-read the board and choose then** — Julian's call at close. Open with
 `/wakeup`, read this file and the ROADMAP horizon cold, and pick with fresh eyes.
-The candidates, ranked as they stood:
+Note that the board changed *during* the close: **#286 is a verified two-line
+regression of mine and is the cheapest real win available.** After that, the
+candidates as they stood:
 
 1. **Gap 31(c)** — grouped plan decisions for forced collapse. *Caveat recorded
    in REFLECTIONS: do not build it before gap 32 gives it a delivery shape, or it
