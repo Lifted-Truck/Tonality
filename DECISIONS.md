@@ -298,3 +298,24 @@ branchless mask ops) is the existing lineage this audit extends.
     The move was executed as a **verified move, not a copy-paste**: the
     extracted body was diffed byte-for-byte against what left ROADMAP, and the
     entry count was checked identical on both sides.
+17. **A closing reply asserts BOTH `status: closed` and `ball: none`.**
+    (Decided 2026-08-27, after three answered threads reported open and one
+    reported *overdue* against a deadline satisfied two weeks earlier.) The two
+    fields are read by two different readers and neither alone is sufficient:
+    the fleet scanner takes a thread's holder from *the newest file that asserts
+    a ball*, and `ball: none` deliberately asserts nothing (so a concurrent
+    informational note cannot mask a live ask) — while `status: responded` is
+    correctly **not** terminal, because most responses hand the ball onward. A
+    reply that says only `ball: none` therefore leaves the opening brief's
+    `ball: provider` standing as the thread's only claim, permanently. Say
+    `closed` only when nothing is owed in either direction; otherwise name who
+    holds it. **Corollary, from the same investigation:** a reply that adopts
+    the opening brief's `id` under the same-id convention **orphans any earlier
+    file that minted its own id** — that file becomes a singleton thread holding
+    its original ball forever, with its answer invisible under a different id.
+    `tonality-live-001-ratify` sat that way for sixteen days after being
+    answered and shipped. When replying to a pre-convention file, close its
+    minted id explicitly too. Fixing a mis-stated thread state is done by
+    **filing a `closed-*.md` marker, never by editing the filed reply** —
+    `integrations/` is a historical record, and the protocol's standing rule is
+    that corrections go in the next file.

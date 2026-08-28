@@ -248,6 +248,15 @@ the surface.)*
 
 ---
 
+**Last verified 2026-08-27** against `d3110b6` — 79 MCP tools, 1217 tests green on
+Python 3.10 + 3.13 (`./verify fast`; `./verify full` adds the audit invariants and
+reproduces both CI legs). The tool count above is gate-enforced, not maintained by
+hand: `tests/test_tool_manifest_pin.py` fails if this file and the live surface
+disagree. A dated line beats silent rot — if this date is old, treat the prose as
+unverified rather than assuming it still holds.
+
+---
+
 ## License
 
 Tonality is released under the **[PolyForm Noncommercial License 1.0.0](LICENSE.md)** —
