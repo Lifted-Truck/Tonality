@@ -8,9 +8,11 @@ checkable rule are the same predicate pointed in opposite directions, so the
 scalar predicate machinery is the ruleset engine's ``Condition`` (eq/in/gte/lte)
 reused over an *identity* field vocabulary.
 
-``search_identities`` is v1 (pitch-class-set identities). ``search_voicings``
-(register enumeration, a bounded generative space) is the planned sibling under
-the same predicate contract — see ROADMAP Phase 4.
+``search_identities`` (pitch-class-set identities over the 4096-mask universe)
+and ``search_voicings`` (register enumeration — a bounded generative space whose
+register window is required, never defaulted) share one predicate contract.
+``repair_sequence`` is the third member: conformance repair, imposing a ruleset
+on an existing piece with minimal re-pitch edits.
 """
 
 from __future__ import annotations

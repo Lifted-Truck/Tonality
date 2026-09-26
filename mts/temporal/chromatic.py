@@ -179,7 +179,14 @@ def _function_of(span, context, catalog) -> str | None:
     in the area's key can never silently rename the chord underneath the caller.
     """
 
-    naming = name_chord(span.salient_pcs, context, catalog=catalog)
+    # enrich_unmatched=False: only `function_category` is read here, never the
+    # no-match fallback (audit #287; ~16-30x per unmatched call). Measured at
+    # zero live traffic today — spans reaching here were already named by the
+    # segmentation, and naming's match set is key-independent — so this guards
+    # a latent cost rather than a live one: a caller passing a different
+    # catalog than the segmentation used WOULD reach it.
+    naming = name_chord(span.salient_pcs, context, catalog=catalog,
+                        enrich_unmatched=False)
     ranked = ([naming.chosen] if naming.chosen is not None else []) + naming.alternatives
     for r in ranked:
         if (r.interpretation.root_pc, r.interpretation.quality) == (span.root_pc, span.quality):
