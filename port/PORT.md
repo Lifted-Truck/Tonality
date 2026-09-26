@@ -14,7 +14,7 @@
 Julian greenlit the port with these defaults — revisit only with him:
 
 1. **Separate sibling repo** — `~/Documents/tonality-core`, GitHub under
-   `Lifted-Truck`. Different language, different build system; fixtures cross
+   `Julian-B-Smith` (renamed from `Lifted-Truck` 2026-09; the old slug redirects). Different language, different build system; fixtures cross
    over as data.
 2. **No bindings in slice 1** — core + parity harness first; pybind11 later,
    as an optional fast path (never a replacement — Decision 10).
