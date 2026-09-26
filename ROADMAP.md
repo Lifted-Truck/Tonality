@@ -81,7 +81,7 @@ list as new applications come into view.
   under a latency budget + instrument-class profiles (A3).
 
 - **A5 — TERRANE** *(added 2026-06-11 from the project's relay brief; intake
-  closed by brief 2 — design doc: github.com/Lifted-Truck/Terrane, §11 is the
+  closed by brief 2 — design doc: github.com/Julian-B-Smith/Terrane, §11 is the
   TERRANE-side mirror of the exchange)*. An adaptive synthesizer in
   early design: sound is a function of performance history — a particle with
   mass/friction moves through a timbre space whose terrain is reshaped by
@@ -526,7 +526,7 @@ list as new applications come into view.
   to the deferred mode-aware-induction acceptance set above. A6's `--ab-profile[-regions]`
   harness PR is now unblocked (all dependencies on `main`). Net engine work: zero.
 - **A7 — SOLVE ET COAGULA** *(added 2026-06-11 from its brief —
-  `integrations/solve-coagula/`; repo: github.com/Lifted-Truck/Automata)*.
+  `integrations/solve-coagula/`; repo: github.com/Julian-B-Smith/Automata)*.
   A generative instrument: a K=6-state cellular automaton under Glauber
   dynamics whose musical mode (root-fixed, walking the 2,048-vertex mode
   hypercube) *generates the physics*; a pure deterministic TS core emits a
@@ -568,7 +568,7 @@ list as new applications come into view.
   enumeration/ranking — **gap 17 below** · division-of-labor table + bounded
   client fallbacks ✅ endorsed (the consumer-port-corollary shape, Decision 10).
 - **A9 — WEND** *(added 2026-07-05 from its brief, direct route —
-  `integrations/wend/`; repo: github.com/Lifted-Truck/Wend)*. A **conditional
+  `integrations/wend/`; repo: github.com/Julian-B-Smith/Wend)*. A **conditional
   generative sequencer** (pure-Python MVP): a rule-DSL-driven walk through
   harmonic space (diatonic motion, fifths steps, pivot modulation,
   tonicization, conditional meter) emitting SMF + a per-bar JSON decision

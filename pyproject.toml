@@ -70,4 +70,4 @@ tonality-mcp = "mts.mcp.server:main"
 tonality-bridge = "mts.mcp.bridge:main"
 
 [project.urls]
-Homepage = "https://github.com/Lifted-Truck/Tonality"
+Homepage = "https://github.com/Julian-B-Smith/Tonality"
