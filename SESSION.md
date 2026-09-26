@@ -4,7 +4,7 @@
 > Written at close; if it disagrees with the tree, **the tree wins** — re-run
 > `./verify fast` and `python3 ~/Documents/Claude/autonomous/kit/session/state.py .`
 
-**Last close:** 2026-08-27 · **branch** `main` · **oracle** `./verify fast`
+**Last close:** 2026-08-27 · *#286–#288 fixed 2026-09-26 (see below)* · **branch** `main` · **oracle** `./verify fast`
 **green, 1217 passed** · kit **2.5.0** (`currency.py`: CURRENT)
 
 ## Where the repo stands
@@ -23,7 +23,7 @@ by any consumer.
 earlier in this session* — I asserted "board clean" from a stale reading instead
 of re-running it, which is the exact failure this close exists to catch:
 
-- **#286 (med) — a regression I introduced yesterday, verified at close.**
+- ✅ **FIXED 2026-09-26** — **#286 (med) — a regression I introduced yesterday, verified at close.**
   `plan_from_payload` drops `range_corrected`, so a modal-transform plan that
   round-trips through JSON silently loses the flag — while `TransformPlan`'s own
   docstring promises `to_dict`/`plan_from_payload` round-trip. I added the field

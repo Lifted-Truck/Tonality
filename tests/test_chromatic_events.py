@@ -186,3 +186,22 @@ def test_mcp_parity():
     assert set(out["events"][0]) >= {
         "readings", "zone", "single_label", "zone_coordinates", "foreign_pcs"
     }
+
+
+def test_function_lookup_never_pays_for_the_unmatched_fallback(monkeypatch):
+    """Audit #287: `_function_of` reads only `function_category`, so it must not
+    trigger the no-match enrichment even when handed an unnameable set. Measured
+    at zero live traffic today (spans arrive pre-named), so this pins the latent
+    path directly rather than hoping a fixture reaches it."""
+    import mts.analysis.naming as naming
+    from mts.io.loaders import load_chord_qualities
+    from mts.temporal.chromatic import _area_context, _function_of
+    from mts.temporal.harmonic_segmentation import ChordSpan
+
+    def _must_not_run(*_a, **_k):
+        raise AssertionError("_function_of paid for enrichment it never reads")
+
+    monkeypatch.setattr(naming, "_unmatched_analysis", _must_not_run)
+    cluster = ChordSpan(0.0, 2.0, 0, (0, 1, 2), 0, "maj", False, None)
+    assert _function_of(cluster, _area_context(0, "major"),
+                        load_chord_qualities()) is None

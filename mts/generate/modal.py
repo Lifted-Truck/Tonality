@@ -519,6 +519,14 @@ def plan_from_payload(payload: dict) -> TransformPlan:
                                  else bool(d["chromatic_after"])),
                 zone=d["zone"], evidence=list(d["evidence"]),
                 alternatives=list(d["alternatives"]), note=d["note"],
+                # `.get`, not `[...]`: the field was added (audit #275) without
+                # a PLAN_VERSION bump, so a plan serialized before 2026-08-19
+                # legitimately lacks it. Absent means "not recorded", which the
+                # report-only flag can safely read as False — apply never
+                # consults it. Omitting this line entirely was audit #286: the
+                # flag survived to_dict() and was silently dropped on the way
+                # back in, breaking the round-trip this module documents.
+                range_corrected=bool(d.get("range_corrected", False)),
             )
             for d in payload["decisions"]
         ]

@@ -203,3 +203,113 @@ def test_mcp_parity_all_three_tools():
     assert applied["notes_changed"] > 0
     one = tools.modal_transform(events=ev, target_scale=MINOR)
     assert one["application"]["events"] == applied["events"]
+
+
+# --- the round-trip ratchet (audit #286) ----------------------------------------
+#
+# #286: `range_corrected` was added to TransformDecision (audit #275) and never
+# added to the hand-written parser, so it survived to_dict() and was silently
+# dropped on the way back in. The existing round-trip test PASSED throughout —
+# its fixture never produced a boundary flip, so the field was always at its
+# default on both sides. A round-trip test is only as good as the non-default
+# values its fixture happens to exercise (HYPERSAW-002: "the test that covers
+# the fix is itself uncovered").
+#
+# So this does not depend on a fixture reaching a path. It MUTATES every field
+# of every serialized dataclass to a non-default value and asserts the parser
+# carries it back. The value table is explicit and must cover every field:
+# adding a field to the dataclass without adding a row here FAILS, which forces
+# whoever adds it to look at the parser in the same change.
+
+import dataclasses as _dc
+
+from mts.generate.modal import AreaMap, TransformDecision, TransformPlan
+
+_DECISION_MUTATIONS = {
+    "index": 7, "voice": "mutated-voice", "onset": 9.5, "from_midi": 61,
+    "kind": "chromatic", "status": "unresolved", "area_index": 3, "degree": 5,
+    "alteration": -2, "tied_attachment": True, "to_midi": 58,
+    "chromatic_before": True, "chromatic_after": True, "zone": "contested",
+    "evidence": [{"label": "sentinel"}], "alternatives": [{"to_midi": 1}],
+    "note": "sentinel-note", "range_corrected": True,
+}
+_AREA_MUTATIONS = {
+    "area_index": 4, "start_beats": 1.5, "end_beats": 99.5,
+    "source_tonic_pc": 5, "source_mode": "minor", "target_root": 11,
+    "target_degrees": (0, 1, 3, 5, 7, 8, 10), "overridden": True,
+    "map": None,   # nested dataclass — covered by the InterscalarMap equality below
+}
+_PLAN_MUTATIONS = {
+    "version": None,  # pinned: the parser REJECTS any other version, by design
+    "home_tonic_pc": 9, "home_mode": "minor", "target_scale_name": "Dorian",
+    "target_degrees": (0, 2, 3, 5, 7, 9, 10), "target_root": 2,
+    "chromatic_policy": "strict", "subdivisions": 4, "areas": None,
+    "decisions": None, "notes_total": 101, "notes_diatonic": 50,
+    "notes_chromatic": 40, "notes_excluded": 11, "unresolved": 3,
+}
+
+
+def _plan_payload():
+    ev = [[0, 1, 2, 90, "m"], [1, 1, 60, 90, "m"], [2, 1, 64, 90, "m"]]
+    return plan_modal_transform(_canonical_sequence(ev), "Ionian",
+                                target_root=6).to_dict()
+
+
+def test_mutation_tables_cover_every_serialized_field():
+    """Adding a field without a mutation row fails HERE, loudly — not silently
+    in production the way range_corrected did."""
+    for cls, table in ((TransformDecision, _DECISION_MUTATIONS),
+                       (AreaMap, _AREA_MUTATIONS),
+                       (TransformPlan, _PLAN_MUTATIONS)):
+        missing = {f.name for f in _dc.fields(cls)} - set(table)
+        assert not missing, (
+            f"{cls.__name__} gained field(s) {sorted(missing)} with no mutation "
+            "row — add one, and check plan_from_payload parses it (audit #286)")
+
+
+def test_every_decision_field_survives_the_round_trip():
+    for name, value in _DECISION_MUTATIONS.items():
+        payload = _plan_payload()
+        payload["decisions"][0][name] = list(value) if isinstance(value, tuple) else value
+        parsed = plan_from_payload(payload).decisions[0]
+        assert getattr(parsed, name) == value, f"TransformDecision.{name} was dropped"
+
+
+def test_every_area_field_survives_the_round_trip():
+    for name, value in _AREA_MUTATIONS.items():
+        if value is None:
+            continue
+        payload = _plan_payload()
+        payload["areas"][0][name] = list(value) if isinstance(value, tuple) else value
+        parsed = plan_from_payload(payload).areas[0]
+        assert getattr(parsed, name) == value, f"AreaMap.{name} was dropped"
+    base = _plan_payload()
+    assert plan_from_payload(base).areas[0].map.to_dict() == base["areas"][0]["map"]
+
+
+def test_every_plan_field_survives_the_round_trip():
+    for name, value in _PLAN_MUTATIONS.items():
+        if value is None:
+            continue
+        payload = _plan_payload()
+        payload[name] = list(value) if isinstance(value, tuple) else value
+        parsed = plan_from_payload(payload)
+        assert getattr(parsed, name) == value, f"TransformPlan.{name} was dropped"
+
+
+def test_the_reported_regression_round_trips():
+    """#286 verbatim: [True, False, False] in must be [True, False, False] out."""
+    payload = _plan_payload()
+    before = [d["range_corrected"] for d in payload["decisions"]]
+    assert before == [True, False, False]
+    after = [d.range_corrected for d in plan_from_payload(payload).decisions]
+    assert after == before
+
+
+def test_a_pre_275_plan_without_the_field_still_parses():
+    """Back-compat: plans serialized before the field existed must load."""
+    payload = _plan_payload()
+    for d in payload["decisions"]:
+        del d["range_corrected"]
+    parsed = plan_from_payload(payload)
+    assert all(d.range_corrected is False for d in parsed.decisions)
