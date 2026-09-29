@@ -51,8 +51,10 @@ and `rules/` and never reimplements either.
 set-class universe, `contains`/`contained_in` fold inversions (a shape and its
 mirror are one class); in `all_masks` they are strictly rooted. Every field must
 be a genuine invariant of the universe it is queried in — which is why *signed*
-chirality is **not** a set-class field (only `is_achiral` is). Handedness- and
-register-sensitive search belongs to the planned `search_voicings` slice.
+chirality is **not** a set-class field (only `is_achiral` is). Register-sensitive
+search lives in `search_voicings` (shipped — see its bullet above), whose
+register window is required and never defaulted. *Signed* handedness is a field
+in neither: identities carry only `is_achiral`, and voicing fields carry none.
 
 Plans live in [ROADMAP.md](../../ROADMAP.md) (Phase 4) — link phases here; don't
 record plans in this file.
