@@ -2104,6 +2104,17 @@ windowed batch form; A4's *online* requirement remains with gap 5.
       three gaps (30/31/32) converging on the plan artifact as the common
       currency.
 
+**Sequencing note — gaps 30/31/32 converge on the plan artifact (graduated
+from REFLECTIONS 2026-09-29).** Three gaps opened independently all land on the
+gap 26 **plan artifact** as the engine's common currency for generative work:
+gap 30's `TransitionIdentity` is *what a transform preserves* (a field a plan
+would serialize), gap 31(c)'s grouped span decisions are *plan decisions at
+pattern grain*, and gap 32's recommendations are *proposals that reference
+plans*. That convergence came from rulings, not coincidence. **Order: build 32's
+delivery shape before 31(c)** — 31(c) delivered on its own would have to guess
+the proposal format, and Tonality-Live has already said it wants forced-collapse
+resolutions as ranked, costed options through the recommendation surface.
+
 32. **Transformation recommendation surface** (added 2026-08-11 from
     Tonality-Live early-signal brief `tonality-live-003`; **recorded, not
     scheduled** — the brief asked for shaping, not work; consumer: Tonality-Live,
@@ -2219,6 +2230,17 @@ windowed batch form; A4's *online* requirement remains with gap 5.
   docstring.
 
 ### HYPERSAW-002 — CLOSED 2026-08-19 (design review; four outcomes on their side)
+
+> **AWAITING HYPERSAW (graduated from REFLECTIONS 2026-09-29).** They queued the
+> §3 listening test — is the tonally weighted snap boundary (0.9–14.9¢ off the
+> midpoint under `melodic-tendency.1`; ti→do 9.8¢ against their 8¢ hysteresis)
+> *audible* in a real signal path? Unprompted, no `respond-by`, and the thread is
+> correctly closed at `ball: none`, so **no scanner will ever surface it**. Not
+> arrived as of 2026-09-29 (their 2026-08-24 A/B doc is about coupling K, not
+> this). It is the one number this engine can pose and cannot answer; their
+> "we could not hear it" would most change what we tell the next consumer. If it
+> is still missing when the tonal-boundary question next matters, **ask them
+> rather than assume it lapsed.**
 
 Their reply, correction, divergence notice and our ack close the thread; ball
 none. What the review actually produced, worth having because it is the clearest
