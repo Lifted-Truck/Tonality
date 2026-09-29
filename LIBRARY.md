@@ -117,3 +117,30 @@ evidence over any stored lesson).
   projects with different input domains (⇒ severity is a property of the
   mechanism after all, and the caution is noise). Note that a shared domain is
   not a counter-example — the claim is about differing domains.
+
+---
+
+### [L0005] When a fix lands, grep its siblings — the defect is rarely only where it was reported
+
+`tier: canonical` | `added: 2026-09-29` | `tags: workflow, coordination` | `supersedes: —`
+
+- **lesson:** An audit issue names *one* file, and fixing that file closes the
+  issue — but the same defect usually also lives in that file's **siblings**: the
+  module next to it built on the same pattern, or the per-layer doc describing the
+  same thing. Fixing only the named site leaves an identical defect a later audit
+  files again. Before closing a fix, grep for the pattern (the stale phrase, the
+  unguarded idiom) across the sibling modules **and** the layer's docs
+  (`<layer>/CLAUDE.md`, `__init__` docstrings, ROADMAP). The rule gets corrected
+  where it is *read* and left standing where it is *inherited*.
+- **evidence:** Two independent occurrences, both fixes of mine, both re-filed by
+  the audit thread. (1) #262 added the MIDI-boundary `range` flag to
+  `generate/conform.py`; the identical unflagged octave flip survived in its
+  siblings `remap.py` and `modal.py` until #275. (2) #288 fixed
+  `search/__init__.py` calling `search_voicings` "the planned sibling"; the same
+  stale claim survived in `mts/search/CLAUDE.md` until #295, three days later.
+  Different defects in different layers, same failure: one site fixed, siblings
+  unchecked.
+- **falsifier:** a sibling grep done at fix time that still misses a recurrence
+  the audit then finds (⇒ grepping is the wrong defence, and the fix belongs in a
+  shared helper or a gate instead); or a long stretch of fixes where no sibling
+  recurrence appears (⇒ these two were a coincidence, and the check is overhead).
