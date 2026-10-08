@@ -55,6 +55,11 @@ _LOOPBACK_HOSTS = {"localhost", "127.0.0.1", "[::1]", "::1"}
 
 _TOOL_MAP = {fn.__name__: fn for fn in TOOLS}
 
+#: Largest request body the bridge reads. The biggest legitimate payload is an
+#: events list for a whole piece: at the engine's span limit (100,000 beats) a
+#: dense one is a few MB of JSON. 16 MB is far above that and far below harm.
+MAX_BODY_BYTES = 16 * 1024 * 1024
+
 
 def origin_allowed(
     origin: str | None,
@@ -202,7 +207,26 @@ class BridgeHandler(BaseHTTPRequestHandler):
         if fn is None:
             self._send_error(404, f"Unknown tool {name!r}. GET /tools lists all tools.", "NotFound")
             return
-        length = int(self.headers.get("Content-Length") or 0)
+        # Parse the length STRICTLY before reading (security slice, 2026-10-08).
+        # Each of these was live: a non-numeric header crashed the handler so the
+        # client got no response at all; a negative one made read(-1) block until
+        # the client hung up; and an unbounded one let a caller claim any size and
+        # hold the thread waiting for it. The origin gate above already ran, so
+        # these are reachable only from an allowed origin or a local process.
+        header = self.headers.get("Content-Length") or "0"
+        try:
+            length = int(header)
+        except ValueError:
+            self._send_error(400, f"Content-Length must be an integer, got {header!r}.", "BadRequest")
+            return
+        if length < 0:
+            self._send_error(400, "Content-Length must not be negative.", "BadRequest")
+            return
+        if length > MAX_BODY_BYTES:
+            self._send_error(
+                413, f"Request body of {length:,} bytes exceeds the bridge limit of "
+                f"{MAX_BODY_BYTES:,} (mts.mcp.bridge.MAX_BODY_BYTES).", "PayloadTooLarge")
+            return
         raw = self.rfile.read(length) if length else b""
         try:
             kwargs = json.loads(raw) if raw else {}

@@ -37,6 +37,7 @@ from typing import TYPE_CHECKING
 from ..analysis.errors import InsufficientInformation
 from ..analysis.meter_estimation import infer_meter
 from .sequence import Event, Sequence
+from ..limits import require_grid
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from ..io.loaders import MeterProfileSet
@@ -191,6 +192,13 @@ def track_meter(
         profiles = load_meter_profiles()
 
     duration = sequence.duration_beats
+    # Count BEFORE the loop (security slice): a tiny hop both explodes the
+    # window count and, once ``start + hop == start`` in floating point (hop
+    # below ~1e-11 at 1e5 beats), stalls the loop so it appends forever. The
+    # guard rejects every hop small enough to stall, since any such hop needs
+    # far more than MAX_GRID_CELLS windows.
+    require_grid(max(duration - window_beats, 0.0) / hop_beats + 1,
+                 "meter tracking", "hop_beats (or the sequence length)")
     starts: list[float] = []
     start = 0.0
     while start + window_beats <= duration + _EPS:
