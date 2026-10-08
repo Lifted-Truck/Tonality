@@ -234,6 +234,18 @@ class TransitionMatrix:
 
     @classmethod
     def from_dict(cls, data: dict) -> "TransitionMatrix":
+        # A caller-supplied payload (the transition_cross_entropy tool): a missing
+        # or mistyped field is the CALLER's error, so it surfaces as ValueError,
+        # never a raw KeyError/TypeError the bridge would report as an engine bug.
+        if not isinstance(data, dict):
+            raise ValueError(f"transition matrix must be an object, got {type(data).__name__}.")
+        try:
+            return cls._from_dict(data)
+        except (KeyError, TypeError, AttributeError) as exc:
+            raise ValueError(f"malformed transition matrix payload: {exc!r}") from exc
+
+    @classmethod
+    def _from_dict(cls, data: dict) -> "TransitionMatrix":
         return cls(
             state=data["state"],
             states=tuple(data["states"]),

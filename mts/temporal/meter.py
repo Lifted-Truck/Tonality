@@ -10,6 +10,7 @@ anchored to *bar* indices) and converts an absolute beat position into a
 from __future__ import annotations
 
 from dataclasses import dataclass
+from ..limits import require_grid
 
 _EPS = 1e-9
 
@@ -102,6 +103,11 @@ class MeterMap:
             seg_end = (
                 start_beat + (next_bar - start_bar) * bpb if next_bar is not None else None
             )
+            # A tiny beats_per_bar (any positive denominator is accepted, so
+            # 1/1024 is legal) explodes the bar count — count before emitting.
+            stop = until_beat if seg_end is None else min(until_beat, seg_end)
+            require_grid(len(spans) + max(stop - start_beat, 0.0) / bpb,
+                         "bar enumeration", "the time-signature denominator")
             beat, bar = start_beat, start_bar
             while beat < until_beat - _EPS and (seg_end is None or beat < seg_end - _EPS):
                 end = beat + bpb

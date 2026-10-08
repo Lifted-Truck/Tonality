@@ -11,6 +11,10 @@ testable without the optional ``mcp`` dependency; ``server.py`` registers
 
 from __future__ import annotations
 
+import contextlib
+import typing
+
+from .validation import validated
 from ..analysis import (
     AnalyticalContext,
     ChordAnalysisRequest,
@@ -236,7 +240,9 @@ def interpretations(pcs: list[int]) -> dict:
     return interpret_chord(int(pc) % 12 for pc in pcs).to_dict()
 
 
-def scale_names(pcs: list[int] | None = None, prime_form: list[int] | None = None) -> dict:
+def scale_names(
+    pcs: list[int | str] | None = None, prime_form: list[int | str] | None = None
+) -> dict:
     """Name a pitch-class set as scales (A6 brief-20, v1 over the shipped catalog) —
     the scale sibling of `interpretations`. Give `pcs` (pitch classes; note names
     ok) OR `prime_form`. Returns {pcs, mask, cardinality, prime_form,
@@ -703,7 +709,7 @@ def confirm_key_areas(events: list[list], subdivisions: int = 1) -> dict:
 
 def find_scale_runs(
     events: list[list],
-    scale=None,
+    scale: str | list[int] | None = None,
     root_pc: int | None = None,
     min_notes: int = 4,
     voice: str | None = None,
@@ -1079,7 +1085,10 @@ def apply_groove(
 
 # --- rulesets (Phase 4.6) -----------------------------------------------------------
 
-def validate_ruleset(ruleset: dict) -> dict:
+def validate_ruleset(ruleset: typing.Any) -> dict:
+    # `Any`, not `dict`: this tool's contract is to REPORT every error as data,
+    # including "not an object at all" — a `dict` annotation let both the boundary
+    # validator and the stdio door's pydantic layer raise before it could report.
     """Strictly validate a ruleset document (the Phase 4.6 DSL) WITHOUT
     evaluating it. Returns {"valid": bool, "errors": [...]} with every
     problem listed (unknown keys/families/fields/operators/enum values) —
@@ -1598,7 +1607,7 @@ def repair_ruleset(
     events: list[list],
     max_edits: int = 2,
     pitch_window: int = 7,
-    allowed_pcs: list | None = None,
+    allowed_pcs: list[int | str] | None = None,
     max_repairs: int = 8,
 ) -> dict:
     """GENERATIVE: conformance REPAIR — minimally edit an existing piece so a
@@ -1673,7 +1682,7 @@ def search_voicings(
 
 def conform_to_scale(
     events: list[list],
-    scale,
+    scale: str | list[int],
     root_pc: int,
     tie_break: str = "previous",
 ) -> dict:
@@ -1754,9 +1763,9 @@ def fit_to_key(
 
 def remap_by_degree(
     events: list[list],
-    source_scale,
+    source_scale: str | list[int],
     source_root: int,
-    target_scale,
+    target_scale: str | list[int],
     target_root: int,
 ) -> dict:
     """GENERATIVE: remap a piece from one scale to another BY SCALE DEGREE,
@@ -1805,7 +1814,7 @@ def remap_by_degree(
     ).to_dict()
 
 
-def retonicize(scale, root_pc: int, new_tonic_pc: int) -> dict:
+def retonicize(scale: str | list[int], root_pc: int, new_tonic_pc: int) -> dict:
     """GENERATIVE-family, ZERO-EDIT sibling: fix the COLLECTION, move the TONIC — the folk
     operation users conflate with a modal remap, shipped separately so the
     conflation is addressable. C Ionian retonicized to A is A Aeolian: ZERO
@@ -1832,7 +1841,7 @@ def retonicize(scale, root_pc: int, new_tonic_pc: int) -> dict:
 
 def plan_modal_transform(
     events: list[list],
-    target_scale,
+    target_scale: str | list[int],
     target_root: int | None = None,
     area_targets: dict | None = None,
     chromatic: str = "rhetoric",
@@ -1905,7 +1914,7 @@ def apply_modal_transform_plan(events: list[list], plan: dict) -> dict:
 
 def modal_transform(
     events: list[list],
-    target_scale,
+    target_scale: str | list[int],
     target_root: int | None = None,
     area_targets: dict | None = None,
     chromatic: str = "rhetoric",
@@ -2076,6 +2085,25 @@ def chord_network(chords: list[list], max_distance: int = 2) -> dict:
 
 # --- the A1 pipeline ------------------------------------------------------------------------------
 
+
+@contextlib.contextmanager
+def _reading_caller_file(path: str):
+    """Report an unreadable caller-supplied file as the CALLER's error.
+
+    The path is the caller's own argument, so missing / directory / not-MIDI /
+    truncated are bad input (ValueError, HTTP 400), not engine bugs (500). Kept at
+    the MCP boundary rather than in the shared reader, whose Python callers may
+    legitimately catch FileNotFoundError. Echoing the path is safe: the caller
+    supplied it. (Security slice, 2026-10-08.)
+    """
+
+    try:
+        yield
+    except (OSError, EOFError) as exc:
+        reason = getattr(exc, "strerror", None) or str(exc) or "truncated or malformed file"
+        raise ValueError(f"could not read the MIDI file at {path!r}: {reason}") from exc
+
+
 def midi_file_analysis(
     path: str,
     infer_context: bool = True,
@@ -2119,18 +2147,19 @@ def midi_file_analysis(
     them to spot a mis-tagged or changing meter."""
     from ..dataset.pipelines import analyze_midi_file
 
-    return analyze_midi_file(
-        path,
-        infer_context=bool(infer_context),
-        include_key_regions=bool(include_key_regions),
-        coalesce_window_beats=coalesce_window_beats,
-        per_region_context=bool(per_region_context),
-        disambiguate_relative_keys=bool(disambiguate_relative_keys),
-        smooth_key_regions=bool(smooth_key_regions),
-        profiles=_profiles(profile_version),
-        key_inertia=bool(key_inertia),
-        include_meter_regions=bool(include_meter_regions),
-    ).to_dict()
+    with _reading_caller_file(path):
+        return analyze_midi_file(
+            path,
+            infer_context=bool(infer_context),
+            include_key_regions=bool(include_key_regions),
+            coalesce_window_beats=coalesce_window_beats,
+            per_region_context=bool(per_region_context),
+            disambiguate_relative_keys=bool(disambiguate_relative_keys),
+            smooth_key_regions=bool(smooth_key_regions),
+            profiles=_profiles(profile_version),
+            key_inertia=bool(key_inertia),
+            include_meter_regions=bool(include_meter_regions),
+        ).to_dict()
 
 
 def piano_roll_view(
@@ -2154,17 +2183,18 @@ def piano_roll_view(
     labels/colors are the renderer's business."""
     from ..dataset.pipelines import piano_roll_view_from_file
 
-    return piano_roll_view_from_file(
-        path,
-        chord_overlays=bool(chord_overlays),
-        track_local_keys=bool(track_local_keys),
-        coalesce_window_beats=coalesce_window_beats,
-        disambiguate_relative_keys=bool(disambiguate_relative_keys),
-        smooth_key_regions=bool(smooth_key_regions),
-    ).to_dict()
+    with _reading_caller_file(path):
+        return piano_roll_view_from_file(
+            path,
+            chord_overlays=bool(chord_overlays),
+            track_local_keys=bool(track_local_keys),
+            coalesce_window_beats=coalesce_window_beats,
+            disambiguate_relative_keys=bool(disambiguate_relative_keys),
+            smooth_key_regions=bool(smooth_key_regions),
+        ).to_dict()
 
 
-TOOLS = (
+_UNVALIDATED_TOOLS = (
     list_scales,
     list_chord_qualities,
     parse_chord,
@@ -2245,5 +2275,13 @@ TOOLS = (
     midi_file_analysis,
     piano_roll_view,
 )
+
+# Every door — the stdio MCP server, the HTTP bridge, and `from mts.mcp import
+# tools` — dispatches from TOOLS (or these module attributes), so wrapping here
+# gives all three the same argument validation (security slice; P0.2). The
+# module attributes are rebound too, so a direct `tools.x(...)` call and any
+# tool that calls another by name go through the same check.
+TOOLS = tuple(validated(fn) for fn in _UNVALIDATED_TOOLS)
+globals().update({fn.__name__: fn for fn in TOOLS})
 
 __all__ = [fn.__name__ for fn in TOOLS] + ["TOOLS"]

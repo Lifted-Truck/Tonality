@@ -29,6 +29,7 @@ from ..analysis.key_induction import candidate_context, infer_key
 from ..analysis.naming import name_chord
 from ..analysis.results import KeyCandidate
 from .sequence import Sequence
+from ..limits import require_grid
 
 _EPS = 1e-9
 
@@ -184,8 +185,10 @@ def segment_to_chords(
     catalog = load_chord_qualities(session)
 
     # Build the metric grid first, then weight every window in ONE sweep (#274).
+    bars = sequence.meter.bar_spans(sequence.duration_beats)
+    require_grid(len(bars) * subdivisions, "chord segmentation", "subdivisions")
     grid: list[tuple[float, float, int]] = []
-    for bar_start, bar_end, bar in sequence.meter.bar_spans(sequence.duration_beats):
+    for bar_start, bar_end, bar in bars:
         step = (bar_end - bar_start) / subdivisions
         for k in range(subdivisions):
             start = bar_start + k * step

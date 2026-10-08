@@ -45,6 +45,12 @@ def resolve_named_asset(directory: Path, name: str, kind: str) -> Path:
 
     if not isinstance(name, str) or not name:
         raise ValueError(f"Unknown {kind} {name!r}: a name is required.")
+    # Length first: past the separator check, an overlong name reached open() and
+    # raised OSError("File name too long: <absolute install path>"), leaking the
+    # machine's home layout through the bridge's error echo (security slice).
+    # Library names are short identifiers; 128 is far above any real one.
+    if len(name) > 128:
+        raise ValueError(f"Unknown {kind}: a library name is at most 128 characters.")
     if any(ch in name for ch in ("/", "\\", "\x00")) or name.startswith(".") or ".." in name:
         raise ValueError(
             f"Unknown {kind} {name!r}: names are plain library names, not paths "

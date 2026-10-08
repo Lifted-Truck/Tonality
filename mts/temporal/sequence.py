@@ -19,6 +19,7 @@ from dataclasses import dataclass
 
 from ..core.pitch import Pitch
 from ..core.realization import Realization
+from ..limits import MAX_SPAN_BEATS, require_finite
 from .meter import MeterMap, MetricPosition
 from .tempo import TempoMap
 
@@ -42,6 +43,11 @@ class Event:
     voice: str | None = None
 
     def __post_init__(self) -> None:
+        # Finiteness FIRST: NaN passes both range checks below (every comparison
+        # with NaN is False), and an infinite onset or duration sizes every
+        # windowed analysis downstream without bound.
+        require_finite(self.onset, "Event onset")
+        require_finite(self.duration, "Event duration")
         if self.onset < -_EPS:
             raise ValueError("Event onset must be non-negative.")
         if self.duration <= _EPS:
@@ -88,6 +94,13 @@ class Sequence:
         """Build a sequence, sorting events and defaulting tempo/meter."""
 
         ordered = tuple(sorted(events, key=lambda e: (e.onset, e.pitch.midi)))
+        span = max((e.onset + e.duration for e in ordered), default=0.0)
+        if span > MAX_SPAN_BEATS:
+            raise ValueError(
+                f"Sequence spans {span:,.0f} beats, over the engine's limit of "
+                f"{MAX_SPAN_BEATS:,} (mts.limits.MAX_SPAN_BEATS). Split the piece "
+                "or check for a runaway onset or duration."
+            )
         return cls(
             events=ordered,
             tempo=tempo if tempo is not None else TempoMap.constant(bpm),

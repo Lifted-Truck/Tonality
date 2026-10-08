@@ -47,6 +47,7 @@ from dataclasses import dataclass, replace
 
 from ..core.pitch import Pitch
 from .sequence import Event, Sequence
+from ..limits import require_grid
 
 _EPS = 1e-9
 
@@ -183,12 +184,15 @@ def extract_groove(
     events = _groove_events(sequence, voice)
 
     if loop_length_beats is None:
+        require_grid(sequence.duration_beats / base_unit_beats,
+                     "groove extraction", "base_unit_beats")
         n_slots = max(1, _round_half_up(sequence.duration_beats / base_unit_beats))
         loop_length_beats = n_slots * base_unit_beats
     else:
         if loop_length_beats <= _EPS:
             raise ValueError("loop_length_beats must be positive.")
         ratio = loop_length_beats / base_unit_beats
+        require_grid(ratio, "groove extraction", "loop_length_beats / base_unit_beats")
         n_slots = _round_half_up(ratio)
         if abs(ratio - n_slots) > 1e-6 or n_slots < 1:
             raise ValueError(

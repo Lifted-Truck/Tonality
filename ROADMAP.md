@@ -1935,6 +1935,24 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     stdio + loopback only, no listener exists; they go live the moment a hosted
     endpoint is contemplated, and P0 must be green first.
 
+    **P0.2 CLOSED 2026-10-08 (security slice, Decision 85).** Method from
+    `kit/security/`: inventory first (`docs/security/BOUNDARIES.md`, six surfaces
+    read off the code), then guards proven on plants. A deterministic fuzz set
+    (1,905 malformed calls across all 79 tools, `tests/test_mcp_fuzz.py`) found
+    **523 defects in 65 tools plus 11 memory-exhaustion inputs** (>1.2 GB/s from
+    one argument, reachable on the stdio door because pydantic accepts infinity
+    and JSON encodes it as `1e999`). Fixed by root cause: a stdlib boundary
+    validator applied to every tool via the shared `TOOLS` tuple (one schema —
+    the annotations — for all three doors), `Event` finiteness, `mts/limits.py`
+    span and grid budgets checked before allocation at all six grid sites, a
+    library-name length bound, caller-file errors as `ValueError`, two payload
+    parsers, strict bridge `Content-Length`. **Now 0/0.** All 13 guards proven
+    by removal. It also surfaced two door-dependent bugs (`scale_names` rejected
+    note names on stdio; `validate_ruleset` could not report a non-object) and a
+    latent MIDI-only hazard the JSON fuzz could not reach (a time-signature byte
+    encoding a 2^30 denominator → 469 million bars). Catalogue file format
+    deferred until the kit ships one. Registry listing (open decision 2) is now
+    unblocked on the evidence.
 28. **Drum-pattern analysis — GM roles + named rhythmic patterns** (added and
     **DELIVERED 2026-07-25**, Julian: *"derive information about drum patterns —
     four-on-the-floor or other named identification"*). Two exact measurements
