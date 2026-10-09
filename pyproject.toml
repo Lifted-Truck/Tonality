@@ -47,7 +47,7 @@ dev = [
     # implementations are graded against (Decision 10); line coverage of the
     # Python reference matters most for the core identity layer the C++ port mirrors.
     "pytest>=8",
-    "coverage>=7",
+    "coverage>=7.16.2",
 ]
 
 [tool.pytest.ini_options]
