@@ -245,6 +245,8 @@ the surface.)*
   layers, and the conventions.
 - **[`integrations/`](integrations/)** — the cross-project exchange channel: the
   briefs and responses that keep the engine and its consumers speaking one language.
+- **[SECURITY.md](SECURITY.md)** — how to report a vulnerability and how to harden
+  a deployment (the MIDI path allowlist, hash-pinned installs, the bridge).
 
 ---
 

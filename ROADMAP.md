@@ -1922,7 +1922,8 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     the tool in the pin *and* trips the lint independently. In `tests/`, so it
     rides the Stop hook + `ci-local.sh` + CI. Accepted friction: an intentional
     docstring edit needs a pin regen in the same PR (the regenerator says so).
-    **STILL OPEN:** (b) per-tool **malformed-input fuzz
+    **STILL OPEN** *(as of 2026-07-29; (b) closed 2026-10-08 and (c) closed
+    2026-10-09 — see below)*: (b) per-tool **malformed-input fuzz
     set** (unknown-field rejection is verified at the bridge; per-field
     types/ranges are ad hoc). (c) **supply chain** — range pins only, no
     lockfile/SBOM/dep scan. **Julian's decisions pending:** the
@@ -1953,6 +1954,28 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     encoding a 2^30 denominator → 469 million bars). Catalogue file format
     deferred until the kit ships one. Registry listing (open decision 2) is now
     unblocked on the evidence.
+
+    **(c) and the path policy CLOSED 2026-10-09 (Decision 18). P0 is fully
+    green.** The path policy is Julian's ruling: `TONALITY_MIDI_ROOTS` is an
+    operator allowlist, unrestricted when unset and fail-closed when set but
+    unusable, checked on the resolved path before `open()`
+    (`tests/test_midi_roots.py`, 17 cases). Three plants (guard removed, naive
+    string-prefix containment, `abspath` without resolving symlinks) were each
+    caught by the cases written for them. The supply chain, per kit step 8:
+    - hashed universal locks (`requirements/*.lock`), with CI installing
+      `--require-hashes`;
+    - actions pinned to SHAs under a read-only token;
+    - Dependabot;
+    - a CycloneDX SBOM derived from the locks;
+    - `SECURITY.md` (private reporting was already enabled).
+
+    The split follows the oracle discipline. What a PR can break is Layer-0
+    and blocking (`tests/test_supply_chain.py`, every checker proven on
+    plants). What moves with the calendar is Layer-E and weekly
+    (`upstream-canary`: `pip-audit` over both locks, and the server tests on
+    current `mcp`). Baseline on 2026-10-09: no known vulnerabilities in 41
+    components. Still open: **the public registry listing**, Julian's call,
+    now unblocked.
 28. **Drum-pattern analysis — GM roles + named rhythmic patterns** (added and
     **DELIVERED 2026-07-25**, Julian: *"derive information about drum patterns —
     four-on-the-floor or other named identification"*). Two exact measurements
@@ -2021,6 +2044,14 @@ windowed batch form; A4's *online* requirement remains with gap 5.
     next one; closing it needs a periodic leg that installs the **current**
     `mcp` release (a low-frequency CI job when Actions is back, or an audit-thread
     check meanwhile). Recorded so the ceiling is not mistaken for a solution.
+    **Blind spot CLOSED 2026-10-09** (with gap 27(c)). `upstream-canary` runs
+    the server tests weekly against the newest `mcp` inside the ceiling, which
+    is what users get and must stay green. It also runs them against the
+    newest overall, as this gap's progress meter: informational, and red
+    until the port lands. Measured that day: 1.30.0 green, **2.3.0 red** on
+    the two tests that touch `mcp.server.fastmcp`. That is the whole port
+    surface, confirmed small. Dependabot on pyproject's ranges will also
+    propose the 2.x bump; review it as this gap, not as a routine bump.
 30. **Two frames of pair-grain analysis — no first-class `TransitionIdentity`**
     (logged 2026-08-09 from Julian's question; open concern, unscheduled). A
     chord *pair* admits two analyses that are different objects: **(1) the
