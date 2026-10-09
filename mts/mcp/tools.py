@@ -12,7 +12,9 @@ testable without the optional ``mcp`` dependency; ``server.py`` registers
 from __future__ import annotations
 
 import contextlib
+import os
 import typing
+from pathlib import Path
 
 from .validation import validated
 from ..analysis import (
@@ -2086,6 +2088,48 @@ def chord_network(chords: list[list], max_distance: int = 2) -> dict:
 # --- the A1 pipeline ------------------------------------------------------------------------------
 
 
+# Where a caller may point the file-reading tools (Julian's ruling 2026-10-09,
+# BOUNDARIES.md surface 3). Read at CALL time, not import, so a deployment can
+# change it without a restart and tests can set it per case.
+MIDI_ROOTS_ENV = "TONALITY_MIDI_ROOTS"
+
+
+def _require_allowed_midi_path(path: str) -> None:
+    """Refuse a MIDI path outside the operator's allowed directories.
+
+    Unset or empty means unrestricted -- today's behaviour, so direct use keeps
+    working and only a deployment that opts in is constrained. Set but naming no
+    usable directory fails CLOSED: an operator who wrote the variable meant to
+    restrict, and silently reading everything would be the worst reading of a
+    typo. Containment is checked on the RESOLVED path (symlinks and ``..``
+    followed), the same rule ``resolve_named_asset`` uses for library names.
+    The caller's path is resolved exactly as ``open()`` would see it -- no
+    ``~`` expansion, which the reader never did either.
+
+    The refusal never lists the allowed roots: they are the operator's layout,
+    and the caller here may be a prompt-injected model.
+    """
+
+    raw = os.environ.get(MIDI_ROOTS_ENV, "")
+    if not raw:
+        return
+    entries = [entry.strip() for entry in raw.split(os.pathsep) if entry.strip()]
+    roots = [Path(entry).expanduser() for entry in entries]
+    if not roots or not all(root.is_absolute() for root in roots):
+        raise ValueError(
+            f"{MIDI_ROOTS_ENV} is set but does not list only absolute directories "
+            f"(separated by {os.pathsep!r}); file-reading tools are disabled until "
+            "the server's operator fixes it"
+        )
+    target = Path(path).resolve()
+    if any(target.is_relative_to(root.resolve()) for root in roots):
+        return
+    raise ValueError(
+        f"the MIDI file at {path!r} is outside the directories this server allows "
+        f"({MIDI_ROOTS_ENV}); the server's operator can add its directory"
+    )
+
+
 @contextlib.contextmanager
 def _reading_caller_file(path: str):
     """Report an unreadable caller-supplied file as the CALLER's error.
@@ -2094,9 +2138,11 @@ def _reading_caller_file(path: str):
     truncated are bad input (ValueError, HTTP 400), not engine bugs (500). Kept at
     the MCP boundary rather than in the shared reader, whose Python callers may
     legitimately catch FileNotFoundError. Echoing the path is safe: the caller
-    supplied it. (Security slice, 2026-10-08.)
+    supplied it. (Security slice, 2026-10-08.) The allowed-roots policy is
+    checked first, so a refused path is never opened.
     """
 
+    _require_allowed_midi_path(path)
     try:
         yield
     except (OSError, EOFError) as exc:
